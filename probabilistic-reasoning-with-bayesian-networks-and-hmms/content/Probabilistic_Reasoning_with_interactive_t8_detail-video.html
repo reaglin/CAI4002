@@ -1,0 +1,280 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rational Decision Making Under Uncertainty</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Probabilistic Reasoning with Bayesian Networks and HMMs</a></div>
+  <header>
+    <h1>Rational Decision Making Under Uncertainty</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Rational Decision Making Under Uncertainty</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Probabilistic inference tells an agent <em>what the world is likely to be</em>; it does not, by itself, tell the agent <em>what to do</em>. A diagnostic system that reports <code>P(Meningitis | stiff neck) = 0.0002</code> has not yet made a decision, because the right action depends not only on how probable the disease is but on how bad it would be to miss it and how costly the treatment is. Decision theory supplies the missing half of the picture: it marries a probabilistic model of the world with a <strong>utility function</strong> that quantifies preferences, and it defines rationality as the maximisation of expected utility. This topic develops that machinery — utilities, the MEU principle, decision networks (influence diagrams), the algorithm for evaluating them, the value of information — and then applies it to two settings in which uncertainty is unavoidable: medical testing and treatment, and robot action selection under noisy sensing.</p>
+
+<p><strong>Decision theory: combining probability and utility.</strong> The basic objects of decision theory are <em>outcome states</em>. A utility function <code>U(s)</code> assigns a single real number to each outcome state <code>s</code>, where larger numbers mean "more desirable". The number is a measure of preference, not of any physical quantity: it may fold together money, health, time, risk, embarrassment and anything else the agent cares about. The existence of such a function is not an arbitrary modelling convenience; it follows from a small set of constraints on preferences (orderability, transitivity, continuity, substitutability, monotonicity and decomposability). If an agent's preferences over lotteries obey those axioms, then there exists a utility function such that the agent prefers lottery <code>A</code> to lottery <code>B</code> exactly when <code>A</code> has higher expected utility. Agents that violate the axioms — for instance an agent with cyclic preferences <code>A ≻ B ≻ C ≻ A</code> — can be turned into a money pump, paying repeatedly to be shuffled around the cycle, which is a concrete operational demonstration of irrationality.</p>
+
+<p>Given a model of the world, the <strong>expected utility</strong> of an action <code>a</code> in the light of evidence <code>e</code> is the probability-weighted average of the utilities of its possible result states:</p>
+
+<pre><code>EU(a | e) = Σ_s P(RESULT(a) = s | a, e) · U(s)</code></pre>
+
+<p>Here <code>P(RESULT(a) = s | a, e)</code> is exactly the kind of posterior that Bayesian-network inference produces: condition on what has been observed, condition on the action being taken, and marginalise out everything that does not matter to the utility. The <strong>Maximum Expected Utility (MEU)</strong> principle then says that a rational agent should choose</p>
+
+<pre><code>action* = argmax_a EU(a | e)</code></pre>
+
+<p>MEU is deceptively simple. All of the difficulty is pushed into the two inputs: estimating <code>P(s | a, e)</code> accurately (an inference problem) and eliciting <code>U(s)</code> honestly (a preference-elicitation problem). It is worth stressing that MEU does <em>not</em> mean "pick the action most likely to succeed", nor "pick the action with the best possible outcome", nor "pick the action that is best if the most likely state is true". It means: average over all the ways the world might be, weighted by belief.</p>
+
+<p><strong>Utility is not money.</strong> If utility were linear in money, no one would buy insurance, because insurers must charge more than the expected loss in order to stay in business. The resolution is that utility over wealth is typically <em>concave</em>: each additional pound is worth slightly less than the one before. Concavity implies risk aversion. Consider an agent with wealth £100,000 facing a 1% chance of a £20,000 loss, and suppose their utility of wealth is <code>U(w) = √w</code>.</p>
+
+<table>
+  <thead>
+    <tr><th>Option</th><th>Outcome(s)</th><th>Expected utility</th><th>Certainty equivalent</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>No insurance</td><td>£100,000 with p = 0.99; £80,000 with p = 0.01</td><td>0.99(316.23) + 0.01(282.84) = 315.90</td><td>315.90² ≈ £99,793</td></tr>
+    <tr><td>Full insurance at premium <code>c</code></td><td>£100,000 − <code>c</code> with certainty</td><td>√(100,000 − c)</td><td>£100,000 − c</td></tr>
+  </tbody>
+</table>
+
+<p>The gamble is worth the same to this agent as a sure £99,793, so they will accept any premium up to about £207 — even though the <em>expected</em> loss is only £200. The £7 gap is the <strong>risk premium</strong>, and it is the insurer's profit margin. The same curvature, read in the other direction, explains why a convex region of the utility curve (common for agents already deep in debt, or for lottery players treating a ticket as entertainment) produces risk-seeking behaviour. Concavity also dissolves the St. Petersburg paradox, in which a gamble with infinite expected monetary value commands only a modest price from real people: its expected <em>utility</em> is finite. In domains where money is a poor currency, specialised utility scales are used — <em>micromorts</em> (one-in-a-million chances of death) for safety decisions, and <em>QALYs</em> (quality-adjusted life years) for medical ones.</p>
+
+<p><strong>Affine invariance.</strong> Utility functions are determined only up to a positive affine transformation. If</p>
+
+<pre><code>U'(s) = a·U(s) + b,   with a &gt; 0</code></pre>
+
+<p>then for any two actions, <code>EU'(a₁) &gt; EU'(a₂)</code> if and only if <code>EU(a₁) &gt; EU(a₂)</code>, because expectation is linear: <code>EU'(a) = a·EU(a) + b</code>. Consequently, the absolute magnitude of a utility is meaningless; only ratios of <em>differences</em> carry information. This is why utilities are often <em>normalised</em>, fixing the best conceivable outcome at <code>U = 1</code> and the worst catastrophe at <code>U = 0</code>, with intermediate outcomes elicited by the standard-gamble method: "What probability <code>p</code> of the best outcome (versus the worst) would make you indifferent to receiving <code>s</code> for certain?" The answer <em>is</em> <code>U(s)</code> on the normalised scale. Note what affine invariance does <em>not</em> permit: a nonlinear re-scaling such as squaring all utilities can reverse preferences and is therefore not allowed, and adding a constant to only some outcomes is of course not an affine transformation of the whole function.</p>
+
+<p><strong>Decision networks (influence diagrams).</strong> A decision network extends a Bayesian network with two new node types so that a single graphical object can represent beliefs, actions, outcomes and preferences simultaneously.</p>
+
+<table>
+  <thead>
+    <tr><th>Node type</th><th>Shape</th><th>Semantics</th><th>Quantitative content</th><th>Meaning of incoming arcs</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Chance node</td><td>Oval</td><td>An ordinary random variable whose value the agent does not control</td><td>A conditional probability table <code>P(X | Parents(X))</code>, exactly as in a Bayesian network</td><td>Probabilistic dependence</td></tr>
+    <tr><td>Decision node</td><td>Rectangle</td><td>A variable the agent sets; its domain is the set of available actions</td><td>None — no CPT, because the agent chooses the value</td><td><em>Information links</em>: the parent's value is known when the decision is made</td></tr>
+    <tr><td>Utility node</td><td>Diamond</td><td>The agent's preference, a deterministic function of its parents</td><td>A utility table or function <code>U(Parents)</code></td><td>Functional dependence: these are the variables utility depends on</td></tr>
+  </tbody>
+</table>
+
+<p>Two conventions deserve emphasis because they are a frequent source of confusion. First, an arc into a <em>chance</em> or <em>utility</em> node is a statement about the world — "the value of the child depends on the value of the parent". An arc into a <em>decision</em> node is a statement about the agent's epistemic situation — "the agent will have observed this variable before it has to choose". Deleting an information link does not change physics; it changes what the agent is allowed to condition its choice on. Second, decision nodes have no probability tables. A decision node is not a random variable to be predicted; solving the network is precisely the process of working out what value it should take.</p>
+
+<p>A compact running example: an agent must decide whether to take an umbrella. <code>Weather ∈ {Rain, NoRain}</code> is a chance node with prior <code>P(Rain) = 0.3</code>. <code>Forecast ∈ {Rainy, Dry}</code> is a chance node with <code>Weather</code> as its parent. <code>Umbrella ∈ {Take, Leave}</code> is the decision node, and because the agent hears the forecast before leaving the house, there is an information link <code>Forecast → Umbrella</code>. The utility node has parents <code>Weather</code> and <code>Umbrella</code>. Note there is <em>no</em> arc <code>Weather → Umbrella</code>: the agent cannot observe the true weather at decision time, only the forecast.</p>
+
+<table>
+  <thead>
+    <tr><th>Weather</th><th>P(Forecast = Rainy | Weather)</th><th>U(Take, Weather)</th><th>U(Leave, Weather)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Rain (p = 0.3)</td><td>0.80</td><td>70</td><td>0</td></tr>
+    <tr><td>NoRain (p = 0.7)</td><td>0.20</td><td>20</td><td>100</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Evaluating a decision network.</strong> For a network with a single decision node, the evaluation algorithm is a loop over actions wrapped around a standard Bayesian-network inference call:</p>
+
+<pre><code>function EVALUATE-DECISION-NETWORK(network, evidence e) returns best action and its EU
+    best_EU ← −∞
+    for each possible value d of the decision node D do
+        set D ← d                                   # treat as an intervention, not an observation
+        P ← INFERENCE(network, query = Parents(U), evidence = e ∪ {D = d})
+        eu ← Σ_x P(x) · U(x, d)                     # x ranges over value assignments to Parents(U)
+        if eu &gt; best_EU then best_EU ← eu; best_action ← d
+    return best_action, best_EU</code></pre>
+
+<p>Spelled out as the five canonical steps:</p>
+
+<ul>
+  <li><strong>Step 1 — instantiate the evidence.</strong> Fix every variable the agent has already observed to its observed value. In the umbrella example, suppose <code>Forecast = Rainy</code>.</li>
+  <li><strong>Step 2 — fix the decision node.</strong> Set the decision node to one candidate value. Because the agent is <em>setting</em> the value rather than learning it, no probabilistic updating flows backwards through the decision node; it behaves like a clamped input.</li>
+  <li><strong>Step 3 — run Bayesian-network inference.</strong> Compute the posterior distribution over the utility node's parents given the evidence and the chosen action. Any exact or approximate method will do: enumeration for tiny networks, variable elimination when the graph is larger but still tractable, and likelihood weighting or Gibbs sampling when exact inference is infeasible. Here, <code>P(Rain | Rainy) = (0.3 × 0.8) / (0.3 × 0.8 + 0.7 × 0.2) = 0.24 / 0.38 = 0.632</code>.</li>
+  <li><strong>Step 4 — take the utility-weighted average.</strong> <code>EU(Take | Rainy) = 0.632(70) + 0.368(20) = 44.21 + 7.37 = 51.58</code> and <code>EU(Leave | Rainy) = 0.632(0) + 0.368(100) = 36.84</code>.</li>
+  <li><strong>Step 5 — return the maximiser.</strong> <code>Take</code> wins, so the optimal action given a rainy forecast is to carry the umbrella. Repeating the whole computation with <code>Forecast = Dry</code> gives <code>P(Rain | Dry) = 0.06/0.62 = 0.097</code>, <code>EU(Take) = 0.097(70) + 0.903(20) = 24.84</code>, <code>EU(Leave) = 90.32</code>, so the agent leaves the umbrella. The pair of (observation → action) rules is the <strong>policy</strong>, and it is the real output of solving a decision network: not a single action, but a rule specifying an action for every possible information state.<p></p>
+
+<p>Two refinements are worth knowing. When there are several decision nodes ordered in time, the network is solved by <em>backward induction</em>: the last decision is optimised first, for every combination of information that could precede it, and its optimal expected utility is folded back into the network as a new utility function over the earlier variables. This is the same dynamic-programming idea that underlies the Viterbi algorithm and the Bellman equation. And if the decision network is solved repeatedly for many evidence settings, the per-action inference calls share a great deal of structure, so variable elimination with cached factors is dramatically cheaper than re-running enumeration from scratch each time.</p>
+
+<p><strong>Value of information.</strong> So far the evidence <code>e</code> has been taken as given. But real agents can usually <em>choose</em> what to find out: order a blood test, take another radar sweep, ask the user a clarifying question, run a simulation. Each of these costs something, so the agent needs a principled way of deciding whether the knowledge is worth the price. The <strong>value of perfect information (VPI)</strong> answers this question by computing, before the observation is made, how much better the agent expects its decision to become once the observation is in hand.</p>
+
+<p>Let <code>α</code> be the action that currently maximises expected utility given evidence <code>e</code>, so <code>EU(α | e) = max_a Σ_s P(s | a, e) U(s)</code>. Suppose the agent could observe the value of some chance variable <code>E_j</code> exactly. If the observed value turned out to be <code>e_jk</code>, the agent would then choose the action <code>α_{e_jk}</code> that is best <em>in that posterior world</em>. The agent does not yet know which value it will see, so it averages over them using its current beliefs:</p>
+
+<pre><code>VPI_e(E_j) = ( Σ_k P(E_j = e_jk | e) · EU(α_{e_jk} | e, E_j = e_jk) ) − EU(α | e)</code></pre>
+
+<p>Read the formula as "expected utility of deciding <em>after</em> learning <code>E_j</code>, minus expected utility of deciding <em>now</em>". Three properties follow directly and are worth internalising:</p>
+
+<ul>
+  <li><strong>VPI is never negative.</strong> <code>VPI_e(E_j) ≥ 0</code> for every variable and every agent. The reason is that the agent is free to ignore the new information: whatever it learns, it can always fall back on <code>α</code>, which guarantees at least <code>EU(α | e)</code> in expectation. Extra options cannot hurt a maximiser. (Information can of course make a <em>particular</em> outcome worse — a test may reveal that the treatment you were about to give is useless — but it cannot lower the expectation taken before the test.)</li>
+  <li><strong>VPI is zero when the observation cannot change the decision.</strong> If <code>α_{e_jk} = α</code> for every possible value <code>e_jk</code>, the first term collapses to <code>Σ_k P(e_jk | e) EU(α | e, e_jk) = EU(α | e)</code> and the difference is exactly zero. This is the single most useful practical test: before computing anything, ask "is there any result of this test that would make me act differently?" If not, the test is worthless no matter how accurate it is.</li>
+  <li><strong>VPI is not additive, and it is order-independent.</strong> Learning <code>E_1</code> may destroy most of the value of learning <code>E_2</code> (two redundant sensors), so <code>VPI(E_1, E_2) ≤ VPI(E_1) + VPI(E_2)</code> in the usual redundant case, though complementary observations can also be super-additive. On the other hand the value of acquiring both, in either order, is the same: <code>VPI_e(E_1) + VPI_{e,E_1}(E_2) = VPI_e(E_2) + VPI_{e,E_2}(E_1)</code>.</li>
+</ul>
+
+<p>Qualitatively, the value of information is largest in the middle ground. If the agent is already certain which action is best — one option dominates by a wide margin — then no plausible observation will flip the decision and VPI ≈ 0. If two actions are nearly tied in expected utility but the <em>difference</em> in their utilities across states is large, then even a moderately informative observation can tip the balance, and the gain from tipping it correctly is substantial, so VPI is high. VPI also scales with the discriminating power of the observation: a test whose result is almost independent of the state of interest produces almost no posterior movement and therefore almost no change of action. The shape of VPI as a function of the current probability is characteristically "tent-like": zero at both extremes, peaking near the decision boundary.</p>
+
+<p>This yields a simple <strong>information-gathering agent</strong>:</p>
+
+<pre><code>function INFORMATION-GATHERING-AGENT(e) returns an action
+    loop
+        j* ← argmax_j ( VPI_e(E_j) / Cost(E_j) )        # or argmax of VPI − Cost
+        if VPI_e(E_{j*}) &gt; Cost(E_{j*}) then
+            request observation of E_{j*}; add result to e
+        else
+            return argmax_a EU(a | e)                   # stop gathering, act</code></pre>
+
+<p>Because this version considers observations one at a time, it is <em>myopic</em>: it assumes the next observation will be the last before acting. Myopia can undervalue a pair of cheap tests that are individually uninformative but jointly decisive (for example, two weak indicators that only become conclusive together), so in critical applications the agent evaluates small bundles of observations or solves the full sequential problem. In practice the greedy rule is a very good heuristic and is what underlies expert systems that ask you questions in a sensible order, active-learning schemes that choose which example to label, and experimental-design procedures that choose which measurement to take next.</p>
+
+<p><strong>Case study: medical diagnosis and testing.</strong> Consider a screening-and-treatment problem. The chance node <code>Disease ∈ {present, absent}</code> has a prior equal to the prevalence in the patient population. The chance node <code>Test ∈ {positive, negative}</code> has <code>Disease</code> as its parent, and its CPT <em>is</em> the familiar pair of test characteristics: <strong>sensitivity</strong> is <code>P(Test = +ve | Disease = present)</code> (the true-positive rate) and <strong>specificity</strong> is <code>P(Test = −ve | Disease = absent)</code> (the true-negative rate). The decision node <code>Treat ∈ {treat, don't treat}</code> has an information link from <code>Test</code> if the test has been performed. The utility node has parents <code>Disease</code> and <code>Treat</code>, and encodes the clinical trade-off: treating a sick patient usually helps a great deal; treating a healthy patient incurs drug toxicity, cost and anxiety for no benefit; leaving a sick patient untreated is the worst case.</p>
+
+<table>
+  <thead>
+    <tr><th>Variable</th><th>Specification</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>P(Disease = present)</code></td><td>0.02 (prevalence in the screened population)</td></tr>
+    <tr><td>Sensitivity <code>P(+ | present)</code></td><td>0.95</td></tr>
+    <tr><td>Specificity <code>P(− | absent)</code></td><td>0.90, so <code>P(+ | absent) = 0.10</code></td></tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr><th>Utility U(Treat, Disease)</th><th>Disease = present</th><th>Disease = absent</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>treat</code></td><td>80</td><td>95</td></tr>
+    <tr><td><code>don't treat</code></td><td>0</td><td>100</td></tr>
+  </tbody>
+</table>
+
+<p>Without any test, <code>EU(treat) = 0.02(80) + 0.98(95) = 1.6 + 93.1 = 94.70</code> and <code>EU(don't treat) = 0.02(0) + 0.98(100) = 98.00</code>, so the default action <code>α</code> is <em>don't treat</em>, with <code>EU(α) = 98.00</code>. Now apply Bayes' rule to each possible test result:</p>
+
+<pre><code>P(+) = 0.02(0.95) + 0.98(0.10) = 0.019 + 0.098 = 0.117
+P(present | +) = 0.019 / 0.117 = 0.1624
+P(−) = 0.02(0.05) + 0.98(0.90) = 0.001 + 0.882 = 0.883
+P(present | −) = 0.001 / 0.883 = 0.0011</code></pre>
+
+<p>Notice already the classic base-rate effect: a "95% accurate" positive result still leaves only a 16% chance of disease, because healthy patients are fifty times more numerous and their 10% false-positive rate generates far more positives than the sick patients do. Now evaluate the decision in each branch:</p>
+
+<table>
+  <thead>
+    <tr><th>Branch</th><th>P(branch)</th><th>P(present | branch)</th><th>EU(treat)</th><th>EU(don't treat)</th><th>Best action</th><th>Best EU</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Test = positive</td><td>0.117</td><td>0.1624</td><td>0.1624(80) + 0.8376(95) = 92.56</td><td>0.1624(0) + 0.8376(100) = 83.76</td><td><code>treat</code></td><td>92.56</td></tr>
+    <tr><td>Test = negative</td><td>0.883</td><td>0.0011</td><td>0.0011(80) + 0.9989(95) = 94.98</td><td>0.0011(0) + 0.9989(100) = 99.89</td><td><code>don't treat</code></td><td>99.89</td></tr>
+  </tbody>
+</table>
+
+<pre><code>VPI(Test) = 0.117(92.56) + 0.883(99.89) − 98.00
+          = 10.83 + 88.20 − 98.00
+          = 1.03 utility units</code></pre>
+
+<p>So the test is worth about 1.03 units on this utility scale. If the test's monetary and discomfort cost, converted onto the same scale, is less than 1.03, order it; otherwise do not. The test has positive value precisely because it can change the action: a positive result flips the agent from <em>don't treat</em> to <em>treat</em>.</p>
+
+<p>Now change one number: suppose the prevalence is <code>P(present) = 0.0005</code> instead of 0.02, as it would be for a rare condition in an unselected population. Then <code>P(present | +) = 0.000475 / (0.000475 + 0.09995) = 0.00473</code>, and <code>EU(treat | +) = 0.00473(80) + 0.99527(95) = 94.93</code> versus <code>EU(don't treat | +) = 99.53</code>. Even a positive result leaves <em>don't treat</em> the better action, and of course a negative result does too. The optimal action is the same in every branch, so by the zero-value principle <code>VPI(Test) = 0</code> exactly: the test is worthless here, regardless of how good its sensitivity and specificity are, and ordering it wastes money and exposes the patient to the harms of follow-up investigation of false positives. This is the decision-theoretic justification for restricting screening programmes to high-risk groups — raising the prior prevalence is what gives the test its value. Conversely, if the utility of leaving a sick patient untreated were far worse (say <code>U(don't treat, present) = −500</code>, as for an aggressive but curable cancer), the decision would become close to a tie even at low prevalence and the VPI would rise sharply; asymmetric costs of error are what justify testing and treating on slim probabilities.</p>
+
+<p><strong>Case study: robot and agent decisions under sensor noise.</strong> A mobile robot never knows its true state. What it has, after running the forward algorithm on its Hidden Markov Model, is the <strong>belief state</strong> <code>b_t(x) = P(X_t = x | e_{1:t})</code>: a full probability distribution over locations, obstacle configurations or intentions, conditioned on the entire history of noisy sensor readings. The connection to this topic is direct — the filtered belief state is exactly the posterior distribution that appears inside the expected-utility sum. The HMM supplies the probabilities; the decision network supplies the utilities; MEU combines them:</p>
+
+<pre><code>action* = argmax_a Σ_x b_t(x) · U(x, a)        (for immediate, one-step utilities)</code></pre>
+
+<p>Concretely, suppose a delivery robot in a corridor has filtered belief <code>P(clear) = 0.85</code>, <code>P(person ahead) = 0.15</code>, and may <code>drive</code>, <code>stop</code>, or <code>re-scan</code> with a slow high-resolution lidar sweep.</p>
+
+<table>
+  <thead>
+    <tr><th>Action</th><th>U(·, clear)</th><th>U(·, person ahead)</th><th>EU with b = (0.85, 0.15)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>drive</code></td><td>10</td><td>−200</td><td>0.85(10) + 0.15(−200) = −21.5</td></tr>
+    <tr><td><code>stop</code></td><td>−5</td><td>0</td><td>0.85(−5) + 0.15(0) = −4.25</td></tr>
+  </tbody>
+</table>
+
+<p>Here the <em>most likely state</em> is <code>clear</code>, and an agent that collapsed its belief to that single state would drive straight ahead and collide 15% of the time. The MEU agent stops, because the costs of error are grossly asymmetric: running into a person costs twenty times what a few seconds of delay costs. This is the central lesson of the case study — <strong>acting on the maximum a posteriori state is not the same as acting rationally</strong>, and the gap between them is exactly where safety failures live. The two coincide only when utilities are symmetric across states or when the belief is nearly deterministic.</p>
+
+<p>Now add the information-gathering option. Suppose re-scanning takes two seconds (cost 1.0 utility unit) and returns <code>Scan ∈ {clear, blocked}</code> with sensitivity and specificity both 0.95. Then <code>P(blocked) = 0.15(0.95) + 0.85(0.05) = 0.1425 + 0.0425 = 0.185</code> and <code>P(person | blocked) = 0.1425/0.185 = 0.770</code>; <code>P(clear-scan) = 0.815</code> and <code>P(person | clear-scan) = 0.0075/0.815 = 0.0092</code>. After a <code>blocked</code> reading, <code>EU(drive) = 0.23(10) + 0.77(−200) = −151.7</code> versus <code>EU(stop) = −1.15</code>, so the robot stops. After a <code>clear</code> reading, <code>EU(drive) = 0.9908(10) + 0.0092(−200) = 8.07</code> versus <code>EU(stop) = −4.95</code>, so the robot drives. The decision changes with the reading, so the scan has value:</p>
+
+<pre><code>VPI(Scan) = 0.815(8.07) + 0.185(−1.15) − (−4.25)
+          = 6.58 − 0.21 + 4.25
+          = 10.62  ≫  cost 1.0  →  re-scan first</code></pre>
+
+<p>The same calculus governs every "costly epistemic action" an agent can take: a self-driving car slowing to improve the signal-to-noise ratio of its perception, a dialogue system asking "did you mean Paris, France or Paris, Texas?", a diagnostic agent running one more probe, or an autonomous system escalating to a human operator. Each of these sacrifices some immediate utility to buy a better-informed decision, and VPI is the principled test of whether the trade is worth making. Equally, the framework tells the agent when to <em>stop</em> asking: once no available observation has a VPI exceeding its cost, further deliberation is irrational and the agent should act.</p>
+
+<p>Finally, these one-shot computations generalise to the sequential case. When actions change the state of the world and utility accrues over time, the natural model is a <strong>Markov decision process (MDP)</strong>, in which the agent seeks a policy <code>π(s)</code> maximising expected cumulative (usually discounted) reward, computed by value iteration or policy iteration via the Bellman equation <code>U(s) = R(s) + γ max_a Σ_{s'} P(s' | s, a) U(s')</code>. When the state is <em>also</em> hidden — the robot case — the model becomes a <strong>partially observable MDP (POMDP)</strong>, and the key theoretical result is that the belief state is a sufficient statistic for the history: an optimal policy can be written as a mapping from belief states to actions, <code>π*(b)</code>. A POMDP is therefore an MDP over the (continuous) space of belief states, which is why filtering and decision theory fit together so neatly. It is also in the POMDP setting that information gathering ceases to be a bolt-on heuristic: an optimal POMDP policy automatically performs sensing actions when they pay off, because their long-run value is captured inside the Bellman recursion rather than estimated myopically by VPI.</p>
+
+<p><strong>Alignment with Learning Outcomes.</strong></p>
+<ul>
+  <li><strong>MO1</strong> — Strongly supported. Every expected-utility and VPI calculation in this topic begins by conditioning on evidence and marginalising a joint distribution; the medical case study applies Bayes' rule explicitly to convert prevalence, sensitivity and specificity into the posteriors <code>P(Disease | Test)</code> that the utility sum requires.</li>
+  <li><strong>MO2</strong> — Supported. Decision networks are Bayesian networks augmented with decision and utility nodes, so building the umbrella, medical and robot networks exercises exactly the same DAG-plus-CPT construction skills, with the added conventions governing rectangles and diamonds.</li>
+  <li><strong>MO3</strong> — Only indirectly addressed. D-separation is not applied here, though it is implicitly relevant: a variable that is d-separated from the utility node's parents given current evidence cannot shift the posterior and therefore has zero value of information.</li>
+  <li><strong>MO4</strong> — Supported. Step 3 of the evaluation algorithm is a call to Bayesian-network inference, and the topic notes where enumeration, variable elimination, and sampling methods are each appropriate, and why repeated per-action queries make the efficiency of the chosen method consequential.</li>
+  <li><strong>MO5</strong> — Supported in the robot case study, where the filtered belief state <code>P(X_t | e_{1:t})</code> produced by the forward algorithm is used directly as the distribution over chance outcomes in the expected-utility computation, linking HMM filtering to action selection.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Numeric checks: umbrella example — P(Rain|Rainy)=0.24/0.38=0.6316, EU(Take)=51.58 vs EU(Leave)=36.84; P(Rain|Dry)=0.06/0.62=0.0968, EU(Take)=24.84 vs EU(Leave)=90.32. Medical example — P(+)=0.117, P(present|+)=0.1624, VPI=1.03 at prevalence 0.02; VPI=0 exactly at prevalence 0.0005 because the action is unchanged in both branches. Robot example — VPI(Scan)=10.62 against a cost of 1.0. All figures are internally consistent and can be reproduced by students as exercises. The insurance example uses U(w)=√w with certainty equivalent ≈ £99,793 against an expected loss of £200, giving a ~£7 risk premium.</div>
+      </li></ul></div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Up to this point in the module you have used probability to describe what an agent believes about the world. Rational decision making adds the second half of the picture: what the agent wants. Decision theory combines a probability distribution over possible states with a utility function over outcomes, and recommends the action with the highest expected utility. This single principle underlies everything in this topic.</p>
+<p>Decision networks (also called influence diagrams) extend Bayesian networks with two new node types: decision nodes, which the agent controls, and utility nodes, which score outcomes. Evaluating such a network means setting each possible decision in turn, running ordinary Bayesian network inference to get a distribution over the relevant chance variables, computing expected utility, and choosing the maximum. The value of information extends this further by asking what a piece of evidence would be worth before you pay for it — a question that is central to the medical testing case study (should we order the test?) and to the robot case study (should we take another noisy sensor reading, or act now?).</p>
+<p>The videos below approach decision making under uncertainty from applied and practical angles rather than from the formal expected-utility derivation. As you watch, keep translating what you hear back into the vocabulary of the topic: where is the probability model, where is the utility or cost, what is the decision node, and what evidence would change the recommended action? Pay particular attention to how real systems handle the trade-off between gathering more information and committing to an action, since that trade-off is exactly what value of information quantifies.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Humans vs. AI: Who should make the decision?</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/8lo1s29ODj8?cc_load_policy=1&amp;rel=0" title="Video: Humans vs. AI: Who should make the decision? (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 8:57 · 177,579 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=8lo1s29ODj8" target="_blank" rel="noopener">Watch on YouTube</a></p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Explainable AI: Demystifying AI Agents Decision-Making</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/yJkCuEu3K68?cc_load_policy=1&amp;rel=0" title="Video: Explainable AI: Demystifying AI Agents Decision-Making (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 6:51 · 25,784 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=yJkCuEu3K68" target="_blank" rel="noopener">Watch on YouTube</a></p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: What is a Decision Tree? | CompTIA DataX</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/vo5Q88EMBiY?cc_load_policy=1&amp;rel=0" title="Video: What is a Decision Tree? | CompTIA DataX (CBT Nuggets)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>CBT Nuggets</strong> · 17:42 · 1,138 views · 11mo ago · captions — <a href="https://www.youtube.com/watch?v=vo5Q88EMBiY" target="_blank" rel="noopener">Watch on YouTube</a></p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

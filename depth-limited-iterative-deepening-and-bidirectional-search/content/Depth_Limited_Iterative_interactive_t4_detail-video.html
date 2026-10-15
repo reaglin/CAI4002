@@ -1,0 +1,292 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparing Uninformed Search Strategies</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Depth-Limited, Iterative Deepening, and Bidirectional Search</a></div>
+  <header>
+    <h1>Comparing Uninformed Search Strategies</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Comparing Uninformed Search Strategies</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Uninformed (or "blind") search strategies all share the same limited information: they know the initial state, the actions available in each state, the cost of each action, and a test that recognises a goal. None of them has any estimate of how far a given state lies from a goal. What distinguishes them is purely the <em>order</em> in which they expand the frontier. That single design choice — expand the shallowest node, the cheapest node, the deepest node, or expand from both ends at once — produces dramatically different behaviour in terms of whether a solution is found at all, whether it is the best solution, how long the search takes, and how much memory it consumes. Comparing these strategies systematically is therefore one of the most practically useful exercises in search: it turns a collection of superficially similar algorithms into a decision procedure for choosing one.</p>
+
+<p>The comparison below is carried out on <em>tree search</em> formulations unless stated otherwise, because that is where the asymptotic bounds are cleanest. Adding a closed/explored set (graph search) changes some of the completeness claims — notably, it rescues depth-first search on finite state spaces — but it also changes the space complexity, so the distinctions are flagged where they matter.</p>
+
+<p><strong>Four Criteria for Evaluating Search Strategies</strong></p>
+
+<p>Every search algorithm in this family is judged against the same four questions. They are deliberately orthogonal: an algorithm can score well on one and badly on another, and the art of selecting a strategy lies in knowing which criterion your application actually cares about.</p>
+
+<ul>
+<li><strong>Completeness</strong> asks: if a solution exists anywhere in the state space, is the algorithm <em>guaranteed</em> to find one in finite time? Note the precision of the claim. Completeness is not "usually finds a solution"; it is a guarantee. An algorithm fails completeness if there is even one reachable configuration in which it loops forever, or descends an infinite branch, or terminates reporting failure while a goal still sits unexplored. Depth-first search on a state space with cycles — a robot that can move north then south then north again — is the standard example of incompleteness.</li>
+<li><strong>Optimality</strong> asks: when a solution is returned, is it guaranteed to be a lowest-cost solution? Where every action costs the same, "lowest cost" collapses to "shallowest", and the question becomes whether the algorithm returns a solution with the fewest actions. Optimality is strictly stronger than completeness: an algorithm can be complete but habitually return a wasteful 40-move solution when a 7-move solution exists. Depth-first search again illustrates this — it returns the first goal it happens to stumble into, which may lie at the bottom of a very deep branch.</li>
+<li><strong>Time complexity</strong> measures how long the search takes, expressed not in seconds but in the number of nodes <em>generated</em> (or, in some texts, expanded) before termination. Counting nodes rather than seconds keeps the analysis machine-independent. In search problems the state space is typically characterised not by the number of vertices and edges — which is often astronomically large or implicit — but by the branching factor and the depth of a solution, so complexity is expressed in those terms.</li>
+<li><strong>Space complexity</strong> measures the maximum number of nodes held in memory simultaneously at any point during the search. This counts the frontier (the open list), plus the explored set if one is maintained, plus whatever path information must be retained to reconstruct the solution.</li>
+</ul>
+
+<p>A point that students often meet with surprise: <strong>in practice, memory is almost always the binding constraint, and it binds long before time does</strong>. Consider a machine that can generate 10 million nodes per second and stores each node in 1,000 bytes. A search that generates 10<sup>10</sup> nodes will take about 1,000 seconds — roughly 17 minutes, which is tedious but entirely survivable. Storing those same 10<sup>10</sup> nodes would require about 10 terabytes of RAM, which is not survivable on ordinary hardware. The breadth-first search simply crashes with an out-of-memory error after a few minutes, having never reached its time limit. This asymmetry is the single most important practical fact in the whole comparison, and it is the reason iterative deepening — which is slower by a constant factor but uses linear memory — is the default recommendation rather than breadth-first search.</p>
+
+<table>
+<thead>
+<tr><th>Depth d (b = 10)</th><th>Nodes generated</th><th>Time at 10<sup>6</sup> nodes/sec</th><th>Memory at 1 KB/node</th></tr>
+</thead>
+<tbody>
+<tr><td>2</td><td>110</td><td>&lt; 1 millisecond</td><td>107 kilobytes</td></tr>
+<tr><td>4</td><td>11,110</td><td>11 milliseconds</td><td>10.6 megabytes</td></tr>
+<tr><td>6</td><td>10<sup>6</sup></td><td>1.1 seconds</td><td>1 gigabyte</td></tr>
+<tr><td>8</td><td>10<sup>8</sup></td><td>2 minutes</td><td>103 gigabytes</td></tr>
+<tr><td>10</td><td>10<sup>10</sup></td><td>3 hours</td><td>10 terabytes</td></tr>
+<tr><td>12</td><td>10<sup>12</sup></td><td>13 days</td><td>1 petabyte</td></tr>
+<tr><td>14</td><td>10<sup>14</sup></td><td>3.5 years</td><td>99 petabytes</td></tr>
+</tbody>
+</table>
+
+<p>Read the table across each row and the lesson is immediate: at depth 8 the time cost is a coffee break while the memory cost already exceeds a typical workstation by an order of magnitude. Note also the second lesson hidden in the table: because growth is exponential, buying a machine a hundred times larger buys you only two extra levels of depth. Hardware improvement cannot rescue an exponential algorithm; only better algorithms (or heuristics, which are the subject of informed search) can.</p>
+
+<p><strong>Notation Used in the Comparison</strong></p>
+
+<p>All the complexity results that follow use a small, fixed vocabulary. Being precise about these symbols is essential, because bounds that look similar differ enormously depending on whether the exponent is <code>d</code>, <code>m</code>, <code>l</code>, or <code>d/2</code>.</p>
+
+<ul>
+<li><strong>b — the branching factor.</strong> The maximum number of successors generated by any node. In the 8-puzzle the blank tile can move in two, three, or four directions depending on its position, giving an average branching factor of about 3 (or 1.7 if one avoids immediately undoing the previous move). On a chessboard mid-game <code>b</code> is around 35. In route-finding across a road network <code>b</code> is the average number of roads leaving a junction, perhaps 3 or 4. Because complexity is exponential in depth with base <code>b</code>, even modest reductions in the effective branching factor pay off handsomely.</li>
+<li><strong>d — the depth of the shallowest goal node.</strong> Not any goal, but the <em>closest</em> one, measured in number of actions from the root. This is the quantity that bounds breadth-first search, because breadth-first search cannot possibly expand past level <code>d</code>.</li>
+<li><strong>m — the maximum depth of the state space.</strong> The length of the longest path from the root that the algorithm might follow. Critically, <code>m</code> <em>may be infinite</em>: in any state space with a reversible action and no repeated-state checking, a tree-search algorithm can generate paths of unbounded length (north, south, north, south, …). Where a goal exists, <code>m ≥ d</code>, and <code>m</code> can be vastly greater than <code>d</code>. This gap is exactly why depth-first search behaves so badly in the worst case despite its attractive memory profile.</li>
+<li><strong>l — the depth limit.</strong> A user-supplied integer at which depth-limited search refuses to expand any further. It is a parameter of the algorithm, not a property of the problem, and supplying a good value requires knowledge the searcher does not otherwise have.</li>
+<li><strong>C* — the cost of the optimal solution</strong>, and <strong>ε — the smallest positive action cost</strong> in the problem. These appear only in the analysis of uniform-cost search, where the algorithm's progress is measured in units of cost rather than levels of depth. The quantity <code>C*/ε</code> is the "effective depth" in cost terms: it is the greatest number of actions that could possibly make up a path still worth considering. If ε is allowed to be zero — a free action — uniform-cost search can be trapped forever on a zero-cost cycle, which is precisely why the condition ε &gt; 0 appears in its completeness guarantee.</li>
+</ul>
+
+<p><strong>Breadth-First and Uniform-Cost Search</strong></p>
+
+<p>Breadth-first search expands the shallowest unexpanded node, managing the frontier as a FIFO queue. Because it expands all nodes at depth 0, then all at depth 1, then all at depth 2, and so on, it sweeps the state space in concentric shells around the start state.</p>
+
+<p><em>Completeness.</em> Breadth-first search is complete provided <code>b</code> is finite. The argument is simple and worth internalising: if a goal lies at depth <code>d</code>, then after finitely many expansions the algorithm will have exhausted levels 0 through <code>d−1</code> (there are at most <code>1 + b + … + b<sup>d−1</sup></code> such nodes, a finite number when <code>b</code> is finite) and must therefore reach the goal. Infinite branches are harmless because breadth-first search never commits to one. This is a stronger guarantee than depth-first search offers, and it holds even when <code>m</code> is infinite.</p>
+
+<p><em>Optimality.</em> Breadth-first search returns the shallowest goal. If all step costs are identical, shallowest equals cheapest, and the search is optimal. If step costs differ, it is <em>not</em> optimal: a two-action path costing 100 will be returned in preference to a three-action path costing 3. Consider a route-finding problem where one road from the start leads directly to the destination along a 400 km motorway detour, while a three-hop sequence of local roads covers 25 km. Breadth-first search returns the 400 km path and stops. More subtly, breadth-first search is optimal only in the weaker sense of "fewest actions" even in the uniform-cost case; it makes no claim about minimising anything else.</p>
+
+<p><em>Time and space.</em> With the goal test applied at generation time, breadth-first search generates <code>b + b<sup>2</sup> + … + b<sup>d</sup> = O(b<sup>d</sup>)</code> nodes. (Applying the goal test at expansion time instead, as some textbook formulations do, generates nearly a whole extra level — <code>O(b<sup>d+1</sup>)</code> — which for <code>b = 10</code> means a tenfold waste; test at generation.) Space complexity is also <code>O(b<sup>d</sup>)</code>, because at the moment just before the goal is found, the entire last level sits in the queue simultaneously. This is the crucial observation: breadth-first search's space complexity has the <em>same exponent</em> as its time complexity. Every node generated must be kept, either on the frontier or in the explored set, so memory grows as fast as work does. Referring back to the table above, this is why breadth-first search is the classic victim of out-of-memory failure.</p>
+
+<p>Uniform-cost search generalises breadth-first search by expanding the node with the lowest <em>path cost</em> <code>g(n)</code>, using a priority queue ordered by <code>g</code>. Two implementation details make it correct rather than merely plausible: the goal test is applied when a node is <em>selected for expansion</em>, not when generated (because a cheaper route to the same goal may still be sitting in the queue), and a node on the frontier is replaced if a cheaper path to the same state is discovered.</p>
+
+<p><em>Completeness and optimality.</em> Uniform-cost search is complete and optimal for any set of non-negative step costs, provided every step costs at least some ε &gt; 0. The optimality argument is that the algorithm expands nodes in non-decreasing order of <code>g</code>, so the first goal selected for expansion must be a cheapest goal. The role of ε is to guarantee termination: without it, an infinite sequence of zero-cost actions would have total cost 0 and the algorithm could expand forever without the frontier's minimum cost ever rising.</p>
+
+<p><em>Complexity.</em> Uniform-cost search is not bounded by <code>d</code>, because depth is irrelevant to it; it is bounded by cost. Every node whose path cost is less than <code>C*</code> must be expanded before the optimal goal is selected. Since the cheapest action costs ε, a path of cost below <code>C*</code> can contain at most <code>⌊C*/ε⌋</code> actions, giving a bound of <code>O(b<sup>1 + ⌊C*/ε⌋</sup>)</code>. When all costs are equal, say all equal to 1, this reduces to <code>O(b<sup>d+1</sup>)</code> — slightly worse than breadth-first search because of the deferred goal test. When costs are highly non-uniform, the bound can be enormously worse. Example: edges cost either 1 or 1,000,000, and the optimal solution costs 1,000,000 with a single action. Then <code>C*/ε = 10<sup>6</sup></code>, and uniform-cost search must grind through every path of up to a million unit-cost actions before it will consider that single expensive edge. Space complexity matches the time bound for the same reason it does in breadth-first search — the frontier holds everything.</p>
+
+<p><strong>Depth-First and Depth-Limited Search</strong></p>
+
+<p>Depth-first search expands the deepest unexpanded node, managing the frontier as a LIFO stack (or equivalently, by recursion). It plunges to the bottom of one branch, and only on failure backs up to the shallowest unexplored alternative.</p>
+
+<p><em>Completeness.</em> Depth-first <em>tree</em> search is not complete, and fails in two distinct ways. First, if the state space contains cycles, the algorithm can regenerate the same state endlessly along an ever-lengthening path — A → B → A → B → … — and never terminate. Second, even on an acyclic space, if some branch is infinitely deep (consider a state "integer n" with the single action "add 1"), depth-first search will follow it forever while a goal sits one node to the right of the root. Depth-first <em>graph</em> search, which maintains an explored set, is complete on <em>finite</em> state spaces because it cannot revisit a state — but that fix sacrifices the memory advantage that was the whole point of using depth-first search, since the explored set can grow to the size of the state space.</p>
+
+<p><em>Optimality.</em> Depth-first search is not optimal. It returns the first goal it encounters, which is determined entirely by the arbitrary order in which successors happen to be generated. A goal at depth 20 may be returned while a goal at depth 2 sits unvisited in a sibling subtree.</p>
+
+<p><em>Time.</em> In the worst case depth-first search explores the entire tree down to the maximum depth, giving <code>O(b<sup>m</sup>)</code>. When <code>m</code> is much larger than <code>d</code> this is catastrophically worse than breadth-first search; when <code>m</code> is infinite it never terminates. Conversely, when solutions are dense in the tree, depth-first search can be much <em>faster</em> than breadth-first search, because it may dive straight onto a goal without expanding the exponentially many shallow nodes first.</p>
+
+<p><em>Space.</em> Here is the redeeming feature. Depth-first search needs to store only the nodes along the current path from root to the deepest node, plus the unexpanded siblings of each node on that path. That is at most <code>b</code> nodes per level across <code>m</code> levels: <code>O(bm)</code> — <em>linear</em>, not exponential. For <code>b = 10</code> and <code>m = 16</code>, depth-first search needs on the order of 156 nodes, about 156 kilobytes, where breadth-first search at depth 16 would need roughly 10 exabytes. That is a factor of about 10<sup>14</sup>. A recursive variant, <em>backtracking search</em>, improves this further to <code>O(m)</code> by generating one successor at a time and modifying the state in place rather than copying it.</p>
+
+<p>Depth-limited search is the obvious remedy for the infinite-branch failure: run depth-first search but treat nodes at depth <code>l</code> as having no successors. The algorithm must distinguish two kinds of non-success, which is what makes its interface slightly unusual.</p>
+
+<pre><code>function DEPTH-LIMITED-SEARCH(problem, l) returns solution | failure | cutoff
+    return RECURSIVE-DLS(MAKE-NODE(problem.INITIAL-STATE), problem, l)
+
+function RECURSIVE-DLS(node, problem, l) returns solution | failure | cutoff
+    if problem.GOAL-TEST(node.STATE) then return SOLUTION(node)
+    else if l = 0 then return cutoff
+    else
+        cutoff_occurred? &lt;- false
+        for each action in problem.ACTIONS(node.STATE) do
+            child &lt;- CHILD-NODE(problem, node, action)
+            result &lt;- RECURSIVE-DLS(child, problem, l - 1)
+            if result = cutoff then cutoff_occurred? &lt;- true
+            else if result != failure then return result
+        if cutoff_occurred? then return cutoff else return failure</code></pre>
+
+<p>The three possible return values matter. A <em>solution</em> means a goal was found. <em>failure</em> means no solution exists anywhere in the searched region and no branch was truncated — the space below this node was fully explored. <em>cutoff</em> means no solution was found but at least one branch was chopped off at the limit, so a solution may still exist deeper. Collapsing cutoff and failure into a single "no" would be a serious bug, because it would license the caller to conclude the problem is unsolvable when in fact the limit was merely too small. It is also the signal iterative deepening uses to decide whether another, deeper round is worthwhile.</p>
+
+<p><em>Properties.</em> Depth-limited search always terminates, in <code>O(b<sup>l</sup>)</code> time and <code>O(bl)</code> space. It is <strong>incomplete whenever l &lt; d</strong>: the goal is simply out of reach and the algorithm reports cutoff. It is also <strong>non-optimal</strong>, and non-optimal even when <code>l ≥ d</code>: because the underlying traversal is still depth-first, it will return a deep goal it meets first rather than the shallowest goal. Choosing <code>l</code> too large reintroduces wasted work; choosing it too small loses the solution.</p>
+
+<p><em>Choosing l requires problem knowledge.</em> Sometimes the knowledge is available. In a map of the 20 cities of Romania, any city is reachable from any other in at most 9 steps — the <em>diameter</em> of the state space — so <code>l = 19</code> is certainly safe and <code>l = 9</code> is exactly right. For Rubik's Cube it is now proved that any configuration is solvable in at most 20 quarter-turn-metric moves ("God's number"), so <code>l = 20</code> is both sound and tight. But such facts are hard-won; usually the diameter is unknown, and any guess risks either an incomplete search or an unnecessarily expensive one. This dilemma is precisely what iterative deepening dissolves.</p>
+
+<p><strong>Iterative Deepening and Bidirectional Search</strong></p>
+
+<p>Iterative deepening depth-first search (IDS) runs depth-limited search repeatedly with <code>l = 0, 1, 2, 3, …</code>, stopping as soon as a round returns a solution. If a round returns <em>failure</em> rather than <em>cutoff</em>, the whole state space has been exhausted and IDS can correctly report that no solution exists.</p>
+
+<pre><code>function ITERATIVE-DEEPENING-SEARCH(problem) returns solution | failure
+    for depth = 0 to infinity do
+        result &lt;- DEPTH-LIMITED-SEARCH(problem, depth)
+        if result != cutoff then return result</code></pre>
+
+<p><em>Completeness and optimality.</em> Because the limit eventually reaches <code>d</code>, and because every round terminates, IDS is complete whenever <code>b</code> is finite — infinite branches no longer trap it, since each round truncates them. It is optimal when step costs are uniform, because the rounds are tried in increasing depth order, so no goal at a depth greater than the shallowest can be returned before the shallowest is found. In effect IDS delivers breadth-first search's guarantees using depth-first search's memory discipline.</p>
+
+<p><em>Space.</em> At any instant only one depth-limited search is running, so the memory requirement is <code>O(bd)</code> — linear. The results of earlier rounds are discarded entirely; nothing accumulates.</p>
+
+<p><em>Time, and why the repetition is cheap.</em> The obvious objection is that IDS regenerates the shallow part of the tree over and over. The objection is correct but quantitatively unimportant, and the reason lies in the geometry of exponential trees: the overwhelming majority of nodes live on the bottom level. In a tree with branching factor <code>b</code>, level <code>d</code> alone contains <code>b<sup>d</sup></code> nodes while all levels above it together contain only about <code>b<sup>d</sup>/(b−1)</code> — a fraction that shrinks as <code>b</code> grows. Repeating the cheap upper levels therefore costs little, while the expensive bottom level is generated exactly once.</p>
+
+<p>Counting precisely: in the final round the deepest level is generated once, the level above it twice, the level above that three times, and so on up to the root, which is generated <code>d + 1</code> times. The total number of nodes generated is</p>
+
+<pre><code>N(IDS) = (d)b + (d-1)b^2 + (d-2)b^3 + ... + (2)b^(d-1) + (1)b^d</code></pre>
+
+<p>compared with breadth-first search's <code>N(BFS) = b + b<sup>2</sup> + … + b<sup>d</sup></code>. Both sums are dominated by their last term, so both are <code>O(b<sup>d</sup>)</code>; the repetition changes only the constant factor, and the constant is <code>b/(b−1)</code> in the limit. Numerically, with <code>b = 10</code> and <code>d = 5</code>:</p>
+
+<table>
+<thead>
+<tr><th>Strategy</th><th>Nodes generated (b = 10, d = 5)</th><th>Ratio to BFS</th><th>Asymptotic form</th></tr>
+</thead>
+<tbody>
+<tr><td>Breadth-first search</td><td>111,110</td><td>1.00</td><td>O(b<sup>d</sup>)</td></tr>
+<tr><td>Iterative deepening search</td><td>123,456</td><td>1.11</td><td>O(b<sup>d</sup>)</td></tr>
+</tbody>
+</table>
+
+<p>An 11% overhead in exchange for reducing memory from 100,000 nodes to roughly 50 nodes is an extraordinary bargain. The overhead falls as <code>b</code> rises: at <code>b = 2</code> IDS generates about twice as many nodes as BFS, at <code>b = 10</code> about 11% more, at <code>b = 35</code> (chess) under 3% more. The intuition to retain is that <em>re-searching an exponential tree's shallow levels is asymptotically free, because an exponential tree is almost entirely bottom level.</em> Note also that in some formulations IDS is actually <em>faster</em> than BFS, because BFS with a goal test at expansion generates <code>O(b<sup>d+1</sup>)</code> nodes while IDS tests at generation within each round.</p>
+
+<p>The same idea extends to non-uniform costs as <em>iterative lengthening search</em>, which iterates on a cost bound rather than a depth bound and mimics uniform-cost search in linear space, though its overhead is typically larger because the number of distinct cost contours can be much greater than the number of depth levels.</p>
+
+<p>Bidirectional search attacks the problem from a different angle: instead of economising on memory, it reduces the exponent. It runs two simultaneous searches — one forward from the initial state, one backward from the goal — and stops when the two frontiers intersect. The motivation is purely arithmetic: <code>b<sup>d/2</sup> + b<sup>d/2</sup></code> is dramatically smaller than <code>b<sup>d</sup></code>. For <code>b = 10</code> and <code>d = 6</code>, a single-direction search generates about 1,111,110 nodes, while two searches each to depth 3 generate about 1,110 each, 2,220 in total — a saving of roughly 500-fold. For <code>b = 10, d = 12</code> the saving is about 50,000-fold.</p>
+
+<p><em>Completeness and optimality.</em> When both halves are breadth-first searches and all step costs are uniform, bidirectional search is complete and optimal. Optimality needs a little care: the first intersection discovered is not automatically the cheapest meeting point, so a correct implementation continues until it can prove no cheaper joining path remains, rather than halting at the first touch. If one half is depth-first, both guarantees are lost.</p>
+
+<p><em>Complexity.</em> Time and space are both <code>O(b<sup>d/2</sup>)</code>. The space figure deserves emphasis: at least one of the two frontiers must be held in memory in a form that supports membership testing, so bidirectional search is still exponential in space — just with half the exponent. This makes it a far weaker memory story than iterative deepening, and the two ideas can be combined (a breadth-first forward search meeting an iterative-deepening backward search, for instance).</p>
+
+<p><em>Preconditions.</em> Bidirectional search is not universally applicable, and its requirements are restrictive:</p>
+
+<ul>
+<li><strong>An explicitly defined goal state.</strong> You cannot search backwards from a description. "Checkmate" or "all eight queens are non-attacking" names a large and implicitly specified set of states; there is no single node from which to begin the reverse search. If there are only a handful of goal states, one can add a dummy goal node whose predecessors are all of them, but if the goal set is huge or defined by a property, the technique fails.</li>
+<li><strong>Efficiently computable predecessors.</strong> The backward search needs, for each state, the set of states from which it can be reached in one action. When actions are reversible — sliding a tile, moving between cities, turning a Rubik's Cube face — predecessors are just successors under inverse actions, and the requirement is free. When actions are irreversible or many-to-one (a state with thousands of possible predecessors, or an action that destroys information), computing predecessors is expensive or produces an unmanageable backward branching factor.</li>
+<li><strong>Efficient frontier-intersection testing.</strong> Every newly generated node must be checked against the opposite frontier, and this check happens once per node generated. If it costs more than roughly constant time — a hash table lookup — the saving evaporates. Hashing the state representation is the usual solution.</li>
+<li><strong>A manageable backward branching factor.</strong> If the reverse branching factor is much larger than the forward one, the backward search is slower than the arithmetic above assumes and the advantage shrinks.</li>
+</ul>
+
+<p>A concrete success case: finding the shortest chain of acquaintances between two named people in a social network. Both endpoints are explicit, the "knows" relation is symmetric so predecessors are free, states are hashable, and the branching factor is large — the ideal profile. A concrete failure case: the 8-queens problem, where goal states are characterised by a property and the start state is empty, so there is no sensible node to search backward from.</p>
+
+<p><strong>The Core Trade-Off: Memory Versus Guarantees</strong></p>
+
+<p>Stepping back, the six algorithms arrange themselves along a single axis, and the organising question is <em>how much of the search tree does the algorithm retain?</em></p>
+
+<ul>
+<li><strong>Store the whole frontier, buy guarantees with exponential memory.</strong> Breadth-first and uniform-cost search keep every node they have generated but not yet expanded. Retaining the frontier is exactly what lets them expand in a globally principled order — shallowest first, or cheapest first — which is in turn exactly what delivers completeness and optimality. The price is that space complexity carries the same exponent as time complexity, so memory exhausts first.</li>
+<li><strong>Store one path, buy linear memory by surrendering guarantees.</strong> Depth-first and depth-limited search keep only the current root-to-leaf path and its unexpanded siblings, giving <code>O(bm)</code> or <code>O(bl)</code>. Because they have forgotten the alternatives they passed over, they cannot order their expansions globally; they commit to whatever branch is in front of them. That forgetfulness is simultaneously the source of the memory saving and the cause of the lost completeness and optimality. The two properties are not coincidentally linked — they are the same fact described twice.</li>
+<li><strong>Re-search instead of remembering.</strong> Iterative deepening refuses the trade-off by regenerating what it has forgotten. It pays in time — a constant factor of roughly <code>b/(b−1)</code> — rather than in space, and because the payment is a constant factor on an exponential quantity, it does not change the asymptotic time class at all. This is the general principle of <em>trading recomputation for storage</em>, and it recurs throughout algorithm design.</li>
+<li><strong>Attack the exponent, not the constant.</strong> Bidirectional search is categorically different from the other three: it does not rearrange when nodes are stored, it halves <code>d</code> in the exponent. That is a far bigger win than any constant factor — but it is available only when the restrictive preconditions above are met, and it leaves space complexity exponential.</li>
+</ul>
+
+<p>The practical upshot is that, aside from bidirectional search, <strong>all of these strategies are in the same exponential time class</strong>: <code>O(b<sup>d</sup>)</code> or <code>O(b<sup>m</sup>)</code> or <code>O(b<sup>l</sup>)</code>, differing by constant factors and by which exponent appears. They are not in the same <em>space</em> class — <code>O(b<sup>d</sup>)</code> versus <code>O(bd)</code> is a difference of many orders of magnitude at realistic depths. Since the algorithms are hard to separate on time but easy to separate on space, and since memory is the resource that actually runs out, <strong>space is normally the deciding criterion</strong>.</p>
+
+<p>The full comparison, for tree search with branching factor <code>b</code>, shallowest goal at depth <code>d</code>, maximum depth <code>m</code>, and limit <code>l</code>:</p>
+
+<table>
+<thead>
+<tr><th>Criterion</th><th>Breadth-First</th><th>Uniform-Cost</th><th>Depth-First</th><th>Depth-Limited</th><th>Iterative Deepening</th><th>Bidirectional (BFS both ways)</th></tr>
+</thead>
+<tbody>
+<tr><td>Complete?</td><td>Yes (if b finite)</td><td>Yes (if ε &gt; 0)</td><td>No</td><td>No (fails if l &lt; d)</td><td>Yes (if b finite)</td><td>Yes (if b finite)</td></tr>
+<tr><td>Optimal?</td><td>Yes, if step costs equal</td><td>Yes, for any non-negative costs</td><td>No</td><td>No</td><td>Yes, if step costs equal</td><td>Yes, if step costs equal</td></tr>
+<tr><td>Time</td><td>O(b<sup>d</sup>)</td><td>O(b<sup>1 + ⌊C*/ε⌋</sup>)</td><td>O(b<sup>m</sup>)</td><td>O(b<sup>l</sup>)</td><td>O(b<sup>d</sup>)</td><td>O(b<sup>d/2</sup>)</td></tr>
+<tr><td>Space</td><td>O(b<sup>d</sup>)</td><td>O(b<sup>1 + ⌊C*/ε⌋</sup>)</td><td>O(bm)</td><td>O(bl)</td><td>O(bd)</td><td>O(b<sup>d/2</sup>)</td></tr>
+<tr><td>Frontier discipline</td><td>FIFO queue</td><td>Priority queue on g(n)</td><td>LIFO stack</td><td>LIFO stack with cutoff</td><td>Repeated LIFO stacks</td><td>Two queues plus hash table</td></tr>
+<tr><td>Main weakness</td><td>Memory</td><td>Memory; slow with tiny ε</td><td>May never terminate</td><td>Must guess l</td><td>Repeated work (small)</td><td>Restrictive preconditions</td></tr>
+</tbody>
+</table>
+
+<p><strong>Guidance for Selecting a Strategy</strong></p>
+
+<p>The table turns into a decision procedure once you ask three questions about your problem: Are step costs uniform? Do I know roughly how deep the solution is? And is a reverse search possible?</p>
+
+<ul>
+<li><strong>Breadth-first search — when the solution is known to be shallow and memory is plentiful.</strong> If <code>d</code> is small (say <code>b<sup>d</sup></code> comfortably fits in RAM) and all actions cost the same, breadth-first search is the simplest correct choice and avoids iterative deepening's repeated work. Example: finding the shortest sequence of three or four moves in a puzzle, or computing all states within <code>k</code> steps of the start. If <code>b<sup>d</sup></code> exceeds memory, do not use it — it will not fail gracefully, it will crash.</li>
+<li><strong>Uniform-cost search — when step costs vary and genuine cost-optimality is required.</strong> Route planning with distances or travel times, scheduling with unequal action durations, and network routing all fall here; breadth-first search would return the wrong answer because fewest-actions is not cheapest. Check that ε &gt; 0, and be wary when the ratio <code>C*/ε</code> is enormous, because the bound <code>O(b<sup>1+⌊C*/ε⌋</sup>)</code> is then far worse than <code>O(b<sup>d</sup>)</code>.</li>
+<li><strong>Iterative deepening — when the search depth is unknown and memory is limited. This is the usual default.</strong> It is the preferred uninformed strategy whenever the state space is large, costs are uniform, and you cannot bound <code>d</code> in advance. You get breadth-first search's completeness and optimality at depth-first search's memory cost, for a time overhead that is a small constant factor and shrinks as <code>b</code> grows. Unless you have a specific reason to pick something else, pick this.</li>
+<li><strong>Depth-limited search — when a reliable bound on solution depth is known in advance.</strong> The bound must come from problem knowledge: the diameter of the state space, a regulation limiting the number of moves, a domain fact such as God's number for Rubik's Cube, or a business rule ("no supply chain may exceed six hops"). It is also the right choice when you deliberately want a <em>bounded-effort</em> search — a quick attempt that is guaranteed to terminate — and are willing to accept a cutoff report. Remember that it remains non-optimal even when it succeeds.</li>
+<li><strong>Bidirectional search — when the goal state is explicit, actions are reversible, and the branching factor is large.</strong> All three conditions must hold, plus constant-time frontier intersection testing. The payoff grows with both <code>b</code> and <code>d</code>, so it is most attractive precisely where other methods are most hopeless: large-branching, moderately deep problems such as word ladders, social-network shortest paths, or sliding-tile puzzles with a single specified target configuration.</li>
+<li><strong>Depth-first search — when the state space is finite and shallow, solutions are dense, or memory is critically scarce and guarantees are not needed.</strong> It is also the right engine underneath constraint-satisfaction solvers and in situations where any solution will do and all branches have similar depth. Never use plain depth-first tree search on a space with cycles or unbounded depth without either a depth limit or a repeated-state check.</li>
+</ul>
+
+<p>Two closing cautions. First, these bounds assume tree search; adding an explored set to make graph search prevents cycle-induced non-termination and can collapse an exponential tree into a much smaller graph, but it raises space complexity to the order of the number of distinct reachable states, which negates the linear-memory advantage of depth-first and iterative deepening. Iterative deepening with a cycle check only along the current path is a common compromise: it costs <code>O(d)</code> extra work per node and catches the most damaging loops without storing the whole explored set. Second, every strategy here is exponential, and no amount of reordering changes that. Escaping exponential growth in practice requires <em>information</em> about which direction the goal lies in — that is, a heuristic — which is the subject of informed search.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+<li><strong>MO1</strong> — Supported directly: the treatment of depth-limited search explains how a cutoff depth <code>l</code> bounds depth-first expansion and sets out the three possible return values (solution, failure, cutoff), including why conflating failure and cutoff is incorrect.</li>
+<li><strong>MO2</strong> — Partially supported: the pseudocode and the depth-by-depth node-generation analysis show how iterative deepening proceeds through limits 0, 1, 2, … until a goal is reached, giving the structure needed to trace execution on a concrete tree, though the step-by-step trace itself is performed in exercises.</li>
+<li><strong>MO3</strong> — Supported directly: the node-count formula, the <code>b/(b−1)</code> constant factor, the worked figures for <code>b = 10, d = 5</code>, and the observation that an exponential tree is almost entirely bottom level together justify why regeneration leaves the time complexity at <code>O(b<sup>d</sup>)</code>.</li>
+<li><strong>MO4</strong> — Supported directly: the bidirectional search discussion enumerates the preconditions — an explicit goal state, efficiently computable predecessors, constant-time frontier intersection testing, and a manageable reverse branching factor — and contrasts qualifying problems (social-network paths) with disqualifying ones (8-queens).</li>
+<li><strong>MO5</strong> — Supported directly: the four evaluation criteria, the notation, the per-strategy analyses, the consolidated comparison table, and the selection guidance provide the basis for recommending a strategy on completeness, optimality, time, and space grounds.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Figures in the time/memory table use the standard textbook convention (10^6 nodes/sec, 1 KB per node, b = 10) and are rounded; the purpose is the order-of-magnitude contrast between time and space, not precision. The IDS node count 123,456 for b = 10, d = 5 follows from (5)(10) + (4)(100) + (3)(1,000) + (2)(10,000) + (1)(100,000). All complexity results are stated for tree search unless graph search is explicitly mentioned; the graph-search caveats are flagged in the closing paragraph. Uniform-cost search's O(b^(1+⌊C*/ε⌋)) bound and breadth-first's O(b^d) versus O(b^(d+1)) distinction both depend on where the goal test is applied, which is noted in the text.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Once you have met the main uninformed search strategies individually, the next step is to put them side by side and judge them with a common set of standards. The four criteria used throughout this course are completeness (will the strategy find a solution if one exists?), optimality (will it find the cheapest solution?), time complexity (how many nodes does it generate?), and space complexity (how many nodes must it hold in memory at once?). The comparison relies on a compact notation — b for the branching factor, d for the depth of the shallowest solution, m for the maximum depth of the search tree, and l for a depth limit — so getting comfortable with these symbols is the first task.</p>
+<p>The comparison table that results is one of the most useful summaries in classical AI. Breadth-first and uniform-cost search give strong guarantees but pay for them in memory, typically O(b^d). Depth-first search is frugal with memory, O(bm), but is neither complete on infinite or looping spaces nor optimal. Depth-limited search tames depth-first search with a cutoff but can miss solutions deeper than the limit, and iterative deepening recovers breadth-first guarantees at depth-first memory cost by repeating shallow work. Bidirectional search can slash the effective exponent, but only when the problem permits searching backward from an explicit goal.</p>
+<p>The two videos below focus on the pair you need to understand most firmly before the rest of the table makes sense: breadth-first and depth-first search. While watching, pay attention to the order in which nodes are expanded, which data structure drives each strategy (queue versus stack), and how many nodes are being held in memory at any moment. Those observations are exactly what the completeness, optimality, time, and space columns are measuring.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: L-4.15: BFS &amp; DFS | Breadth First Search | Depth First Search | Graph Traversing | DAA</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/N2P7w22tN9c?cc_load_policy=1&amp;rel=0" title="Video: L-4.15: BFS &amp; DFS | Breadth First Search | Depth First Search | Graph Traversing | DAA (Gate Smashers)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Gate Smashers</strong> · 11:16 · 2,530,963 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=N2P7w22tN9c" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A detailed walkthrough of breadth-first and depth-first traversal on graphs, presented in the style of a design-and-analysis-of-algorithms lecture. Expect step-by-step tracing of node visiting order, the queue-based mechanics of BFS and the stack or recursion-based mechanics of DFS, and worked examples on sample graphs. The treatment is algorithmic rather than AI-specific, so you will see the traversal machinery that underlies the search strategies discussed in this topic.</p>
+<h3>Why this video</h3>
+<p>Gate Smashers is a widely used exam-preparation channel known for clear, blackboard-style explanations, and this lecture gives the careful node-by-node tracing you need before you can reason about the time and space columns of the comparison table.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Breadth First Search Vs Depth First Search</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/XUwUTY5hFMs?cc_load_policy=1&amp;rel=0" title="Video: Breadth First Search Vs Depth First Search (Zareen Zulkarnain)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Zareen Zulkarnain</strong> · 3:40 · 1,007 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=XUwUTY5hFMs" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short, direct comparison of breadth-first and depth-first search framed explicitly as uninformed search techniques. In under four minutes it is likely to contrast how each strategy expands the search tree and summarize the differences between them. Treat it as a quick consolidation of the BFS-versus-DFS distinction rather than a full derivation.</p>
+<h3>Why this video</h3>
+<p>It frames the two strategies using the same uninformed search vocabulary this topic uses, making it a fast review that maps directly onto the completeness, optimality, time, and space comparison.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos build the foundation needed for the module's outcomes rather than covering every strategy directly. Understanding how depth-first search expands a branch to its end supports MO1, since depth-limited search is simply depth-first search with a cutoff, and understanding the breadth-first expansion order supports MO2 and MO3, because iterative deepening reproduces breadth-first order through repeated depth-limited passes. Seeing how a frontier grows and shrinks in each strategy also prepares you to reason about frontier intersection in bidirectional search (MO4). Most directly, the explicit BFS-versus-DFS comparison models the kind of criteria-based reasoning required by MO5; you should supplement it with the course materials on depth-limited, iterative deepening, and bidirectional search to complete the full comparison table.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

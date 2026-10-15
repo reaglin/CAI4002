@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Architectures: Reflex to Learning Agents — Topics &amp; Learning Outcomes</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:880px;margin:0 auto;padding:32px 24px;color:#222;line-height:1.55}
+h1{font-size:1.6rem;border-bottom:2px solid #dcdcdc;padding-bottom:8px}
+h2{font-size:1.25rem;margin-top:30px;color:#1a3c6e;border-bottom:1px solid #ececec;padding-bottom:4px}
+h3{font-size:1.05rem;margin-top:22px;color:#1a3c6e}
+.toc{border:1px solid #c9d4e3;background:#f5f8fc;border-radius:8px;padding:10px 16px;margin:14px 0 6px;display:flex;gap:18px;flex-wrap:wrap}
+.toc a{color:#1a3c6e;font-weight:600;text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.summary{color:#555;font-style:italic;margin:4px 0 10px}
+ul{margin:6px 0 6px 4px}
+li{margin:5px 0}
+.el-body{color:#555}
+.prefix{color:#555;font-style:italic;margin:6px 0 14px}
+.mo{border:1px solid #e2e2e2;border-radius:6px;padding:12px 16px;margin:12px 0}
+.mo .code{font-size:.8rem;color:#595959;text-transform:uppercase;letter-spacing:.04em}
+.mo .statement{font-weight:600;margin:4px 0 8px}
+.meta span{display:inline-block;background:#eef2f8;color:#1a3c6e;border-radius:3px;padding:1px 8px;margin:0 6px 0 0;font-size:.85rem}
+.meta .map{background:#eaf6ec;color:#137333}
+.co{margin:7px 0}
+.co .code{font-weight:600;color:#1a3c6e;margin-right:6px}
+.empty{color:#595959}
+.tm-jump{margin:2px 0 8px;font-size:.92rem}
+.tm-jump a{color:#1a3c6e;font-weight:600}
+ul.tm li{margin:7px 0}
+ul.tm a{color:#1a3c6e;font-weight:600}
+.tm-kind{display:inline-block;background:#eef2f8;color:#1a3c6e;border-radius:3px;padding:1px 8px;margin-left:6px;font-size:.82rem}
+.tm-also{color:#555;font-size:.88rem}
+.tm-back{margin:0 0 4px;font-size:.88rem}
+.tm-back a{color:#1a3c6e}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Agent Architectures: Reflex to Learning Agents</a></div>
+<h1>Agent Architectures: Reflex to Learning Agents — Topics &amp; Learning Outcomes</h1>
+<div class="toc"><a href="#topics">📋 Module Topics</a><a href="#outcomes">🎯 Student Learning Outcomes</a><a href="#materials">📚 Materials for Each Topic</a></div>
+
+<h2 id="topics">Module Topics</h2>
+<h3 id="topic-1">1. Foundations: Agents, Environments, and Agent Programs</h3>
+<div class="summary">Establishes the core vocabulary of rational agents — percepts, percept sequences, actuators, agent functions, and agent programs — and how environment properties (observability, determinism, dynamics) constrain architectural choice. Sets up the PEAS framing used to analyze every architecture in the module.</div>
+<p class="tm-jump"><a href="#materials-topic-1">Materials for topic 1 (3)</a></p>
+<ul>
+<li><strong>What Is a Rational Agent?</strong> <span class="el-body">— An agent is anything that perceives its environment through sensors and acts upon that environment through actuators. Rationality is defined relative to a performance measure, prior knowledge, available actions, and the percept history.</span></li>
+<li><strong>Percepts, Percept Sequences, and the Agent Function</strong> <span class="el-body">— The agent function is the abstract mathematical mapping from any possible percept sequence to an action. It is the specification of behavior, independent of how that behavior is implemented.</span></li>
+<li><strong>Agent Program vs. Agent Architecture</strong> <span class="el-body">— The agent program is the concrete implementation of the agent function, running on a physical or computational architecture. Agent = architecture + program.</span></li>
+<li><strong>The PEAS Framework for Task Environments</strong> <span class="el-body">— PEAS — Performance measure, Environment, Actuators, Sensors — is the standard template for specifying a task environment before designing an agent. It forces explicit design commitments that later justify architecture selection.</span></li>
+<li><strong>Environment Properties That Constrain Design</strong> <span class="el-body">— Task environments are classified along several dimensions, and each dimension pushes the designer toward or away from particular architectures.</span></li>
+<li><strong>From Environment Analysis to Architecture Selection</strong> <span class="el-body">— The purpose of the foundational vocabulary is to make architecture choice a defensible engineering decision rather than a preference. Each architecture in this module answers a specific environmental challenge.</span></li>
+</ul>
+<h3 id="topic-2">2. Simple Reflex Agents</h3>
+<div class="summary">Examines condition–action rule agents that map the current percept directly to an action without internal state. Covers their implementation pattern, speed and simplicity advantages, and the failure modes caused by partial observability and infinite loops.</div>
+<p class="tm-jump"><a href="#materials-topic-2">Materials for topic 2 (3)</a></p>
+<ul>
+<li><strong>Definition and Core Principle</strong> <span class="el-body">— A simple reflex agent selects actions using only the current percept, ignoring the rest of the percept history. Its behaviour is fully described by a set of condition–action rules.</span></li>
+<li><strong>Implementation Pattern</strong> <span class="el-body">— The standard implementation interprets the raw percept into a state description, matches that description against a rule base, and returns the rule&#39;s action.</span></li>
+<li><strong>Advantages: Speed and Simplicity</strong> <span class="el-body">— Because decisions require only a rule lookup, simple reflex agents are extremely fast, predictable, and cheap to build.</span></li>
+<li><strong>Requirement of Full Observability</strong> <span class="el-body">— Simple reflex agents only work correctly when the current percept contains all information needed to choose the right action.</span></li>
+<li><strong>Failure Mode: Infinite Loops</strong> <span class="el-body">— Without memory, a reflex agent revisiting an identical percept will always repeat the same action, which can trap it in an endless cycle.</span></li>
+<li><strong>Scaling Limits of Rule Sets</strong> <span class="el-body">— As environments grow in complexity, the number of condition–action rules needed expands rapidly and becomes hard to maintain.</span></li>
+<li><strong>When to Choose This Architecture</strong> <span class="el-body">— Selecting a simple reflex agent is justified when the task is observable, the correct response is a direct function of the percept, and responsiveness matters most.</span></li>
+</ul>
+<h3 id="topic-3">3. Model-Based Reflex Agents</h3>
+<div class="summary">Introduces internal state and a transition/sensor model that lets an agent track the unobserved parts of the world. Shows how maintaining &#39;how the world evolves&#39; and &#39;what my actions do&#39; extends reflex behavior into partially observable environments.</div>
+<p class="tm-jump"><a href="#materials-topic-3">Materials for topic 3 (3)</a></p>
+<ul>
+<li><strong>Why Reflex Agents Fail in Partially Observable Worlds</strong> <span class="el-body">— Simple reflex agents map the current percept directly to an action, which breaks down whenever the sensors cannot reveal everything the agent needs to know. Model-based reflex agents were introduced to overcome exactly this limitation.</span></li>
+<li><strong>Internal State: Remembering What Sensors Cannot See</strong> <span class="el-body">— A model-based reflex agent maintains an internal state variable that summarises the history of percepts so far. This state stands in for the unobserved parts of the world.</span></li>
+<li><strong>The Transition Model: How the World Evolves</strong> <span class="el-body">— To keep internal state accurate, the agent needs knowledge of how the environment changes over time. This knowledge is called the transition model.</span></li>
+<li><strong>The Sensor Model: Interpreting Percepts</strong> <span class="el-body">— The sensor model describes how states of the world are reflected in the agent&#39;s percepts. Together with the transition model it forms the agent&#39;s model of the world.</span></li>
+<li><strong>The Agent Program: Update-State Then Match Rule</strong> <span class="el-body">— The model-based reflex agent program keeps the condition-action rule structure of a simple reflex agent but inserts a state-update step before rule matching. This is the core of its control loop.</span></li>
+<li><strong>Strengths, Limits, and When to Choose This Architecture</strong> <span class="el-body">— Model-based reflex agents handle partial observability well but remain fundamentally reactive. Knowing their boundaries guides architecture selection.</span></li>
+</ul>
+<h3 id="topic-4">4. Goal-Based Agents</h3>
+<div class="summary">Covers agents that combine a world model with explicit goal information, selecting actions by reasoning about future states through search and planning. Contrasts the flexibility of goal-directed behavior against the computational cost relative to reflex designs.</div>
+<p class="tm-jump"><a href="#materials-topic-4">Materials for topic 4 (3)</a></p>
+<ul>
+<li><strong>What Makes an Agent Goal-Based</strong> <span class="el-body">— A goal-based agent extends the model-based reflex design by adding explicit information about desirable states of the world. Instead of mapping conditions directly to actions, it asks which action brings it closer to achieving the goal.</span></li>
+<li><strong>Core Components of the Agent Program</strong> <span class="el-body">— The goal-based agent program combines perception, state estimation, a transition model, and goal testing into a single decision loop. Each component contributes a distinct piece of the reasoning process.</span></li>
+<li><strong>Search and Planning as Decision Making</strong> <span class="el-body">— Because the right action may be many steps away from the goal, goal-based agents rely on search and planning to find action sequences. This is the mechanism that replaces hard-coded condition-action rules.</span></li>
+<li><strong>Flexibility Compared to Reflex Agents</strong> <span class="el-body">— The main advantage of the goal-based architecture is that behaviour is derived rather than pre-specified, making the agent far easier to adapt. Changing what the agent pursues does not require rewriting its rules.</span></li>
+<li><strong>Computational Cost and Limitations</strong> <span class="el-body">— Flexibility comes at the price of computation, since searching forward through possible futures is far more expensive than matching a rule. Goal-based agents also treat goals as binary, which limits the decisions they can make.</span></li>
+<li><strong>Choosing a Goal-Based Architecture</strong> <span class="el-body">— Goal-based designs are justified when the task has a clearly definable target state and when deliberation time is available. Recognising these conditions is key to architecture selection.</span></li>
+</ul>
+<h3 id="topic-5">5. Utility-Based Agents</h3>
+<div class="summary">Explains utility functions as an internalized performance measure that lets agents rank competing outcomes, trade off conflicting goals, and handle uncertainty via expected utility. Distinguishes &#39;achieving a goal&#39; from &#39;achieving it well&#39; with cost, risk, and preference considerations.</div>
+<p class="tm-jump"><a href="#materials-topic-5">Materials for topic 5 (3)</a></p>
+<ul>
+<li><strong>From Goals to Preferences: Why Utility Is Needed</strong> <span class="el-body">— Goal-based agents treat outcomes as binary — a state either satisfies the goal or it does not. Utility-based agents add a graded measure of desirability so that competing successful outcomes can be ranked.</span></li>
+<li><strong>The Utility Function as an Internalized Performance Measure</strong> <span class="el-body">— A utility function maps a state (or a sequence of states) to a real number representing its desirability to the agent. It is effectively the external performance measure brought inside the agent program.</span></li>
+<li><strong>Trading Off Conflicting Goals</strong> <span class="el-body">— Real tasks involve objectives that pull in opposite directions, such as speed versus safety or cost versus quality. A utility function provides a common scale on which these incommensurable factors can be weighed against each other.</span></li>
+<li><strong>Handling Uncertainty with Expected Utility</strong> <span class="el-body">— When actions have uncertain outcomes, an agent cannot simply evaluate the utility of a known result. Instead it computes expected utility — the probability-weighted average of the utilities of all possible outcomes.</span></li>
+<li><strong>Architecture and Decision Cycle of a Utility-Based Agent</strong> <span class="el-body">— A utility-based agent extends the model-based goal agent by inserting a utility evaluation step before action selection. It still maintains internal state and a transition model, but uses scores rather than a binary goal test.</span></li>
+<li><strong>When to Choose a Utility-Based Architecture</strong> <span class="el-body">— Utility-based design is justified when outcomes vary in quality, objectives conflict, or uncertainty is unavoidable. It is overkill when a simple goal test fully captures success.</span></li>
+</ul>
+<h3 id="topic-6">6. Learning Agents</h3>
+<div class="summary">Breaks down the learning agent framework into performance element, critic, learning element, and problem generator, and shows how any of the prior architectures can be wrapped in a learning loop. Addresses feedback signals, exploration versus exploitation, and improvement in unknown environments.</div>
+<p class="tm-jump"><a href="#materials-topic-6">Materials for topic 6 (3)</a></p>
+<ul>
+<li><strong>Why Learning Agents Are Needed</strong> <span class="el-body">— A learning agent improves its own performance over time from experience, rather than relying solely on knowledge built in by its designer. This makes learning essential when the environment is unknown, changing, or too complex to specify in advance.</span></li>
+<li><strong>The Four Components of a Learning Agent</strong> <span class="el-body">— The standard learning agent is decomposed into four conceptual components that work as a loop: performance element, critic, learning element, and problem generator. Separating them clarifies what is being improved and what drives the improvement.</span></li>
+<li><strong>The Critic and the Performance Standard</strong> <span class="el-body">— The critic converts raw percepts into an assessment of agent performance, because percepts alone do not say whether the agent is doing well. The performance standard it uses must be external and fixed so the agent cannot simply redefine success.</span></li>
+<li><strong>The Learning Element and What Can Be Learned</strong> <span class="el-body">— The learning element modifies the components of the performance element so that future decisions are better. What it can modify depends entirely on how the performance element represents its knowledge.</span></li>
+<li><strong>The Problem Generator and Exploration vs Exploitation</strong> <span class="el-body">— If an agent always takes the action it currently believes is best, it may never discover better options. The problem generator deliberately proposes suboptimal, exploratory actions to generate informative experience.</span></li>
+<li><strong>Feedback Signals and Learning in Unknown Environments</strong> <span class="el-body">— Learning depends on the kind and quality of feedback available from the environment. Sparse, delayed, or noisy feedback makes credit assignment — deciding which earlier action caused the outcome — much harder.</span></li>
+<li><strong>Designing and Justifying a Learning Agent</strong> <span class="el-body">— When selecting an architecture, learning should be added when the task environment is unknown, dynamic, or too varied to hand-code. The design decision is both about the performance element core and the learning machinery wrapped around it.</span></li>
+</ul>
+<h3 id="topic-7">7. Selecting and Justifying an Architecture</h3>
+<div class="summary">Provides a comparative decision framework that maps environment characteristics and task requirements to the most appropriate agent architecture. Students practice defending a choice by weighing performance, complexity, data availability, and maintainability trade-offs.</div>
+<p class="tm-jump"><a href="#materials-topic-7">Materials for topic 7 (3)</a></p>
+<ul>
+<li><strong>Start with the Environment Profile</strong> <span class="el-body">— Architecture selection begins by characterising the environment rather than by preferring a favourite design. The PEAS description and environment properties narrow the viable options before any trade-off analysis occurs.</span></li>
+<li><strong>Map Task Requirements to Architectures</strong> <span class="el-body">— Each architecture solves a distinct class of problem, so the task requirement is the second filter applied after the environment profile. Matching requirement to capability prevents both under-engineering and over-engineering.</span></li>
+<li><strong>Weighing Performance Against Complexity</strong> <span class="el-body">— More sophisticated architectures deliver broader competence but incur higher design, computation, and debugging costs. A defensible choice selects the simplest architecture that meets the performance measure.</span></li>
+<li><strong>Data, Feedback, and Maintainability Constraints</strong> <span class="el-body">— Practical constraints often decide between architectures that are theoretically equivalent. Data availability, feedback quality, and long-term upkeep must enter the justification.</span></li>
+<li><strong>Building a Defensible Justification</strong> <span class="el-body">— A justification is an argument, not an assertion, and should follow a repeatable structure. Strong justifications also name the rejected alternatives and the conditions that would reverse the decision.</span></li>
+<li><strong>Comparative Worked Scenarios</strong> <span class="el-body">— Applying the framework to contrasting scenarios reveals how small changes in environment assumptions flip the recommended architecture. These comparisons are the core practice activity for the topic.</span></li>
+</ul>
+<h3 id="topic-8">8. Designing Agent Programs for Sample Environments</h3>
+<div class="summary">Applies the full progression through hands-on design exercises in environments such as vacuum worlds, autonomous navigation, trading, and game-playing agents. Students specify PEAS descriptions, sketch agent programs, and critique designs against alternative architectures.</div>
+<p class="tm-jump"><a href="#materials-topic-8">Materials for topic 8 (3)</a></p>
+<ul>
+<li><strong>Starting with a PEAS Specification</strong> <span class="el-body">— Every agent design begins by precisely defining the task environment using the PEAS framework: Performance measure, Environment, Actuators, and Sensors. A rigorous PEAS description constrains which architectures are viable before any program is sketched.</span></li>
+<li><strong>Vacuum World: Reflex versus Model-Based Design</strong> <span class="el-body">— The two-square vacuum world is the canonical starter exercise because a simple reflex agent solves it in a handful of condition-action rules. Removing the location sensor forces students to upgrade to a model-based design.</span></li>
+<li><strong>Autonomous Navigation: Goal-Based Design</strong> <span class="el-body">— A delivery robot or self-driving vehicle must reach a specified destination, which makes goal-based architecture the natural starting point. The agent program combines a world model with search over sequences of actions.</span></li>
+<li><strong>Trading Agents: Utility and Uncertainty</strong> <span class="el-body">— A trading or bidding agent operates under uncertainty with outcomes that are naturally measured in expected value, making utility-based architecture the default choice. Design focuses on the utility function and probabilistic world model.</span></li>
+<li><strong>Game-Playing Agents: Learning Architectures</strong> <span class="el-body">— Game-playing environments are ideal for learning agents because the performance standard is unambiguous and experience is cheap to generate through self-play. The design decomposes into the four learning-agent components.</span></li>
+<li><strong>Critiquing and Justifying Architecture Choices</strong> <span class="el-body">— The final design step is to defend the chosen architecture against the simpler and more complex alternatives. Good justification is grounded in specific environment properties, not general preference.</span></li>
+</ul>
+<h2 id="outcomes">Student Learning Outcomes</h2>
+<p class="prefix">By the end of this module, students will be able to:</p>
+<div class="mo">
+<div class="code">MO1</div>
+<div class="statement">Define the core vocabulary of rational agents, including percepts, percept sequences, agent functions, agent programs, and agent architecture</div>
+<div class="meta"><span>Level: Remember</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO2</div>
+<div class="statement">Explain how the four components of a learning agent — performance element, critic, learning element, and problem generator — interact to improve behavior over time</div>
+<div class="meta"><span>Level: Understand</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO3</div>
+<div class="statement">Construct a PEAS specification for a given task environment such as a vacuum world, delivery robot, trading agent, or game-playing agent</div>
+<div class="meta"><span>Level: Apply</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO4</div>
+<div class="statement">Differentiate simple reflex, model-based reflex, goal-based, utility-based, and learning architectures according to the environment properties each one addresses</div>
+<div class="meta"><span>Level: Analyze</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO5</div>
+<div class="statement">Justify the selection of a specific agent architecture for a given scenario by weighing performance, complexity, feedback availability, and maintainability trade-offs against rejected alternatives</div>
+<div class="meta"><span>Level: Evaluate</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<h3>Course Outcomes (reference)</h3>
+<p class="empty">No course outcomes have been defined.</p>
+<h2 id="materials">Materials for Each Topic</h2>
+<p class="prefix">What has been made for each topic. Materials that cover the whole module are listed on the module page.</p>
+<h3 id="materials-topic-1">1. Foundations: Agents, Environments, and Agent Programs</h3>
+<p class="tm-back"><a href="#topic-1">↑ Back to topic 1</a></p>
+<ul class="tm">
+<li><a href="content/Agent_Architectures_Reflex_interactive_t1_detail-video.html">Foundations: Agents, Environments, and Agent Programs — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_interactive_topics_t1.html">Foundations: Agents, Environments, and Agent Programs</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_t1_videos.html">Foundations: Agents, Environments, and Agent Programs — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-2">2. Simple Reflex Agents</h3>
+<p class="tm-back"><a href="#topic-2">↑ Back to topic 2</a></p>
+<ul class="tm">
+<li><a href="content/Agent_Architectures_Reflex_interactive_t2_detail-video.html">Simple Reflex Agents — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_interactive_topics_t2.html">Simple Reflex Agents</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_t2_videos.html">Simple Reflex Agents — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-3">3. Model-Based Reflex Agents</h3>
+<p class="tm-back"><a href="#topic-3">↑ Back to topic 3</a></p>
+<ul class="tm">
+<li><a href="content/Agent_Architectures_Reflex_interactive_t3_detail-video.html">Model-Based Reflex Agents — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_interactive_topics_t3.html">Model-Based Reflex Agents</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_t3_videos.html">Model-Based Reflex Agents — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-4">4. Goal-Based Agents</h3>
+<p class="tm-back"><a href="#topic-4">↑ Back to topic 4</a></p>
+<ul class="tm">
+<li><a href="content/Agent_Architectures_Reflex_interactive_t4_detail-video.html">Goal-Based Agents — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_interactive_topics_t4.html">Goal-Based Agents</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_t4_videos.html">Goal-Based Agents — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-5">5. Utility-Based Agents</h3>
+<p class="tm-back"><a href="#topic-5">↑ Back to topic 5</a></p>
+<ul class="tm">
+<li><a href="content/Agent_Architectures_Reflex_interactive_t5_detail-video.html">Utility-Based Agents — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_interactive_topics_t5.html">Utility-Based Agents</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_t5_videos.html">Utility-Based Agents — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-6">6. Learning Agents</h3>
+<p class="tm-back"><a href="#topic-6">↑ Back to topic 6</a></p>
+<ul class="tm">
+<li><a href="content/Agent_Architectures_Reflex_interactive_t6_detail-video.html">Learning Agents — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_interactive_topics_t6.html">Learning Agents</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_t6_videos.html">Learning Agents — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-7">7. Selecting and Justifying an Architecture</h3>
+<p class="tm-back"><a href="#topic-7">↑ Back to topic 7</a></p>
+<ul class="tm">
+<li><a href="content/Agent_Architectures_Reflex_interactive_t7_detail-video.html">Selecting and Justifying an Architecture — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_interactive_topics_t7.html">Selecting and Justifying an Architecture</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_t7_videos.html">Selecting and Justifying an Architecture — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-8">8. Designing Agent Programs for Sample Environments</h3>
+<p class="tm-back"><a href="#topic-8">↑ Back to topic 8</a></p>
+<ul class="tm">
+<li><a href="content/Agent_Architectures_Reflex_interactive_t8_detail-video.html">Designing Agent Programs for Sample Environments — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_interactive_topics_t8.html">Designing Agent Programs for Sample Environments</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Agent_Architectures_Reflex_t8_videos.html">Designing Agent Programs for Sample Environments — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

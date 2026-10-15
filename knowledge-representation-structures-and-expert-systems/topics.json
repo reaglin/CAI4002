@@ -1,0 +1,1787 @@
+{
+  "ModuleFolderName": "Knowledge_Representation_Str",
+  "CourseName": "CAI4002 - Intro to AI",
+  "GeneratedDate": "2026-10-14T20:16:28.0090761-04:00",
+  "ModifiedDate": "2026-10-14T20:19:37.8712595-04:00",
+  "Outcomes": [],
+  "Topics": [
+    {
+      "Id": "4408dee7-f6e0-4743-98c3-f44b0fd3d55e",
+      "Title": "Foundations of Knowledge Representation",
+      "Summary": "Introduces what it means to represent knowledge symbolically, distinguishing data, information, and knowledge, and covering declarative versus procedural forms. Establishes criteria for evaluating representation schemes such as expressiveness, inferential adequacy, and computational efficiency.",
+      "SortOrder": 0,
+      "CreatedDate": "2026-10-14T20:16:28.0090761-04:00",
+      "ModifiedDate": "2026-10-14T20:16:28.0090761-04:00",
+      "Elements": [
+        {
+          "Id": "6ad485e4-9b5c-42c9-b939-8c167bb69130",
+          "TopicId": "4408dee7-f6e0-4743-98c3-f44b0fd3d55e",
+          "Title": "What Knowledge Representation Means",
+          "BodyText": "Knowledge representation (KR) is the discipline of encoding facts about a domain in symbolic structures that a machine can store, manipulate, and reason over. A representation is a surrogate for the real world, deliberately simplified to support computation.",
+          "Notes": "Example: representing \u0027Penicillin treats streptococcal infection\u0027 as a triple (penicillin, treats, strep_infection) lets a program chain it with other triples rather than merely display a sentence.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:16:54.5751266-04:00",
+          "ModifiedDate": "2026-10-14T20:16:54.5751266-04:00",
+          "Items": [
+            {
+              "Id": "7e5dd26b-ea55-4a86-8757-22c5d0fe3559",
+              "Text": "Every representation is a surrogate: an imperfect stand-in for an external reality, so some detail is always lost.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "14005101-9215-4638-b46c-6ea51d8cb973",
+              "Text": "A KR scheme has two inseparable parts: a syntax defining legal symbol structures and a semantics defining what those structures mean.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "64cf0317-04e2-4e3f-a3d0-9e1d9063ee87",
+              "Text": "Representation is paired with inference \u2014 structures are only useful if conclusions can be derived from them.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "2e27928a-db25-4b6a-a016-88f5136040e7",
+              "Text": "The choice of representation constrains what questions a system can answer and how efficiently it answers them.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "d0ebf462-e38b-4fff-b858-16e34bd38bbd",
+              "Text": "KR also makes an ontological commitment: a decision about which entities, properties, and relations exist in the modelled world.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "e2fe28bc-68ab-46ce-9754-337286f5beb3",
+          "TopicId": "4408dee7-f6e0-4743-98c3-f44b0fd3d55e",
+          "Title": "The Data\u2013Information\u2013Knowledge Hierarchy",
+          "BodyText": "Symbolic AI distinguishes raw data from interpreted information and from knowledge that supports action and inference. Understanding this progression clarifies what an expert system actually stores.",
+          "Notes": "A fourth level, wisdom, is sometimes added for judgement about which knowledge to apply, but it is rarely formalised computationally.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:16:54.5751266-04:00",
+          "ModifiedDate": "2026-10-14T20:16:54.5751266-04:00",
+          "Items": [
+            {
+              "Id": "a0a326c7-8043-420b-9212-25e5b4c8bf35",
+              "Text": "Data are uninterpreted symbols or measurements, such as the value 38.9.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "82f21a57-4cea-441a-a04c-f447f3d478c6",
+              "Text": "Information is data placed in context, such as \u0027patient temperature = 38.9\u00B0C\u0027.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "cf565d2e-6d0b-475a-8a00-381093a91ce0",
+              "Text": "Knowledge adds generalisations and relationships that license inference, such as \u0027temperature above 38\u00B0C indicates fever\u0027.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "25d6b181-6f2d-4bdf-9d39-69250f6e938f",
+              "Text": "Knowledge is reusable across cases, whereas information is usually tied to a single instance.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b88f7920-e029-44de-83cd-9d1c8fdba5af",
+              "Text": "Expert systems separate case-specific information in working memory from general knowledge in the knowledge base.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "959d683a-efca-4dd4-8bc0-26d43ac7aa3a",
+          "TopicId": "4408dee7-f6e0-4743-98c3-f44b0fd3d55e",
+          "Title": "Declarative Versus Procedural Knowledge",
+          "BodyText": "Knowledge can be stated as facts about what is true or encoded as procedures describing how to do something. Most practical systems blend the two.",
+          "Notes": "Production rules sit between the extremes: the rule set is declarative data, but the conflict-resolution and firing cycle supplies procedural control.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:16:54.5751266-04:00",
+          "ModifiedDate": "2026-10-14T20:16:54.5751266-04:00",
+          "Items": [
+            {
+              "Id": "29467459-389a-4432-bf2b-57a119887daf",
+              "Text": "Declarative knowledge states facts and relationships independently of how they will be used, as in logic sentences or semantic networks.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "a127d8e8-08dd-44ca-b994-db1072ebb83a",
+              "Text": "Procedural knowledge embeds know-how in executable steps, such as an algorithm or an attached procedure in a frame slot.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "70a6b1f2-d979-4da6-bdd0-a82d206a4512",
+              "Text": "Declarative forms are modular, easier to inspect, verify, and reuse by multiple reasoning processes.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "8baaa70a-dc04-4410-abe2-7f7d69509f99",
+              "Text": "Procedural forms are often faster and can capture control heuristics that are awkward to state declaratively.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a57d9eaa-1e22-449b-aefd-08c19559d357",
+              "Text": "Frames and scripts combine both by storing declarative slots alongside procedural attachments such as if-needed demons.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "21be6773-2d54-4bcb-ade9-a9418ab66e9b",
+          "TopicId": "4408dee7-f6e0-4743-98c3-f44b0fd3d55e",
+          "Title": "Criteria for Evaluating Representation Schemes",
+          "BodyText": "No single scheme suits every problem, so KR schemes are compared against a standard set of adequacy criteria. These criteria expose the trade-offs a designer must manage.",
+          "Notes": "These criteria trace to Rich and Knight\u0027s classic formulation of representational, inferential, and acquisitional adequacy.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:16:54.5751266-04:00",
+          "ModifiedDate": "2026-10-14T20:16:54.5751266-04:00",
+          "Items": [
+            {
+              "Id": "c0038a90-bdc2-46ee-bbda-2752dad7a271",
+              "Text": "Representational (expressive) adequacy: the ability to express all knowledge required by the domain, including negation, disjunction, and uncertainty.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "ddc29d5f-ae43-4735-aab6-520a85ebb380",
+              "Text": "Inferential adequacy: the ability to derive new structures from existing ones through valid manipulation.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8429e983-abf0-417c-8516-377864826fc1",
+              "Text": "Inferential efficiency: the capacity to guide reasoning with heuristics so search remains tractable.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "22437584-6663-4c5f-b8b9-327ccbb8a119",
+              "Text": "Acquisitional efficiency: the ease with which new knowledge can be added, by hand or automatically.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ff1666ff-117d-44b2-913b-84118fb5f0a4",
+              "Text": "Additional practical criteria include clarity to human experts, modularity, and support for explanation.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "a255f2f6-6ecb-4da8-a273-e766db47484b",
+          "TopicId": "4408dee7-f6e0-4743-98c3-f44b0fd3d55e",
+          "Title": "The Expressiveness\u2013Tractability Trade-off",
+          "BodyText": "Greater expressive power generally makes reasoning computationally harder, a tension that drives most KR design decisions. Designers choose the least expressive formalism that still captures the domain.",
+          "Notes": "Example: description logics deliberately restrict full first-order logic to keep subsumption reasoning decidable, which is why they underpin OWL ontologies.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:16:54.5751266-04:00",
+          "ModifiedDate": "2026-10-14T20:16:54.5751266-04:00",
+          "Items": [
+            {
+              "Id": "a133a4ab-d473-4143-b9d2-0a938e3a5f07",
+              "Text": "Propositional logic is decidable but cannot express quantified statements over classes of objects.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "3a51c853-2a52-487f-8b3d-6619090e67a5",
+              "Text": "Full first-order logic is highly expressive but only semi-decidable, so inference may never terminate.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "19b5c761-5089-4f5e-a939-33b7951afcd0",
+              "Text": "Restricted formalisms such as Horn clauses and description logics trade expressiveness for predictable performance.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d065d2af-7c2d-4b4b-af6d-21c1d3490d51",
+              "Text": "Network and frame representations gain efficiency through inheritance and indexed links rather than general proof search.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "775a6151-f63c-4c80-86b5-7c844b20bac4",
+              "Text": "Overly expressive schemes also complicate knowledge acquisition and consistency checking by human experts.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "3fdec6d9-835b-4c2e-af13-942a736b2b13",
+          "TopicId": "4408dee7-f6e0-4743-98c3-f44b0fd3d55e",
+          "Title": "Symbolic Versus Sub-symbolic Approaches",
+          "BodyText": "Explicit symbolic structures contrast with distributed numeric representations such as neural network weights or embeddings. Each offers distinct strengths relevant to expert systems.",
+          "Notes": "Modern neuro-symbolic systems attempt to combine learned perception with symbolic reasoning and explanation.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:16:54.5751266-04:00",
+          "ModifiedDate": "2026-10-14T20:16:54.5751266-04:00",
+          "Items": [
+            {
+              "Id": "50e39e16-c2e5-4eb8-a540-45c74b6a2ac5",
+              "Text": "Symbolic representations are discrete, human-readable, and support explicit explanation of conclusions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6b0d2c33-c745-4540-b5ab-63ff1e21f606",
+              "Text": "Sub-symbolic representations are learned from data and degrade gracefully with noise but resist inspection.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3115a0d5-d0d5-4a75-b98a-ded6c86053e3",
+              "Text": "Expert systems rely on symbolic forms precisely because justification and auditability are required.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f77baae1-5f80-4d09-b687-7e8e6f8e6d17",
+              "Text": "Symbolic systems struggle with perceptual tasks and require costly manual knowledge acquisition.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "5effac64-214b-48f4-a210-709340baf57e",
+              "Text": "The two paradigms are complementary rather than mutually exclusive in contemporary architectures.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "1c75f979-37c3-4458-a37a-6bc1b039f36b",
+      "Title": "Semantic Networks and Ontologies",
+      "Summary": "Examines graph-based representations that encode concepts as nodes and relationships as labeled links, including is-a hierarchies and property inheritance. Extends to formal ontologies, taxonomies, description logics, and standards used to share structured domain vocabularies.",
+      "SortOrder": 1,
+      "CreatedDate": "2026-10-14T20:16:28.0090761-04:00",
+      "ModifiedDate": "2026-10-14T20:16:28.0090761-04:00",
+      "Elements": [
+        {
+          "Id": "d39f3b92-8dc6-46ed-8374-afd64dd48601",
+          "TopicId": "1c75f979-37c3-4458-a37a-6bc1b039f36b",
+          "Title": "Graph-Based Knowledge Representation",
+          "BodyText": "Semantic networks represent knowledge as a directed graph in which nodes stand for concepts or entities and labeled edges stand for the relationships between them. This structure makes associative knowledge explicit and visually traceable.",
+          "Notes": "Early semantic networks grew out of psychological models of human associative memory, such as Quillian\u0027s work on semantic memory.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:17:20.0488081-04:00",
+          "ModifiedDate": "2026-10-14T20:17:20.0488081-04:00",
+          "Items": [
+            {
+              "Id": "94e1c516-dc68-4ba4-937a-7f55b2e41e71",
+              "Text": "Nodes typically denote concepts, classes, individuals, or attribute values.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "fa792e73-d441-4553-9aa0-2014affde7c8",
+              "Text": "Labeled arcs denote binary relations such as is-a, part-of, has-property, or located-in.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1ddb5c75-ae9d-41a7-b4b1-fd959a8a371d",
+              "Text": "Reasoning is performed by traversing links, following paths, and intersecting spreading activation from multiple nodes.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "119f196e-4be7-4bda-889b-bdb19cb3a75d",
+              "Text": "The graph form supports intuitive visualization and makes related concepts easy to retrieve.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "f8680fe8-e95b-42f2-ae38-6ea8f4d787cc",
+              "Text": "A key weakness is the lack of standardized link semantics, which can make the same diagram ambiguous across systems.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "4a4a9cf2-5b56-4e83-89e2-728ce22274d2",
+          "TopicId": "1c75f979-37c3-4458-a37a-6bc1b039f36b",
+          "Title": "Is-A Hierarchies and Property Inheritance",
+          "BodyText": "Semantic networks organize concepts into taxonomic hierarchies using is-a (subclass) and instance-of links. Properties asserted at a general level are inherited by all descendants, avoiding redundant storage.",
+          "Notes": "Example: asserting \u0027birds have feathers\u0027 once lets a system conclude that a specific canary has feathers without a separate fact.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:17:20.0488081-04:00",
+          "ModifiedDate": "2026-10-14T20:17:20.0488081-04:00",
+          "Items": [
+            {
+              "Id": "7aa2ac56-6bd4-4332-a499-0141b8835f83",
+              "Text": "Is-a links connect a specific class to a more general class; instance-of links connect an individual to its class.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "921fd275-b088-4c80-8294-b12feccdd69c",
+              "Text": "Inheritance lets lower nodes acquire attributes stored on ancestor nodes, producing compact representations.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "cd8a7ab2-ac51-46a6-9853-04b78391fa66",
+              "Text": "Default inheritance allows subclasses to override inherited values, as when penguins override \u0027can fly\u0027.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "cedeec64-dcb8-4d93-b0fc-8519c93ea4d6",
+              "Text": "Exceptions create nonmonotonic reasoning, since adding information can retract a previous conclusion.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "74cff772-67f2-4682-bc20-61a0e05b8f46",
+              "Text": "Multiple inheritance from several parents can yield conflicting values, requiring precedence rules to resolve.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "104afd6c-5dde-4a9a-850c-9d69faa3a370",
+          "TopicId": "1c75f979-37c3-4458-a37a-6bc1b039f36b",
+          "Title": "Formal Ontologies",
+          "BodyText": "An ontology is an explicit, formal specification of the concepts, properties, and relationships that constitute a shared conceptualization of a domain. Ontologies add rigor and machine-interpretable semantics to the informal structure of semantic networks.",
+          "Notes": "Ontologies range from lightweight controlled vocabularies to heavyweight axiomatized theories.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:17:20.0488081-04:00",
+          "ModifiedDate": "2026-10-14T20:17:20.0488081-04:00",
+          "Items": [
+            {
+              "Id": "8528397a-81c9-44b8-94ff-544093af738f",
+              "Text": "Core components include classes, individuals, properties (relations), restrictions, and axioms.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "2909f5a1-13e5-413d-9b3b-9842376970b7",
+              "Text": "Upper ontologies define domain-neutral categories such as object, event, and process; domain ontologies specialize them.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3de59d94-bdfb-4618-8222-3225f16f2567",
+              "Text": "Ontologies promote interoperability by giving different systems a common vocabulary with agreed meanings.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "0fd3029a-3749-4891-ab8e-be40035ff80a",
+              "Text": "They support consistency checking, automated classification, and inference of implicit facts.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "d8cb5612-ddb3-41c6-be6c-1a0883e1774a",
+              "Text": "Ontology engineering typically involves scoping, term elicitation from experts, formalization, and iterative evaluation.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "74d4ce93-a89a-40f0-9601-e7a81ee6c0ae",
+          "TopicId": "1c75f979-37c3-4458-a37a-6bc1b039f36b",
+          "Title": "Taxonomies and Controlled Vocabularies",
+          "BodyText": "Taxonomies are hierarchical classification schemes that organize terms from general to specific, forming the backbone of most ontologies. Controlled vocabularies and thesauri extend this with synonym and related-term structures.",
+          "Notes": "Examples include biological classification, library subject headings, and medical terminologies such as SNOMED CT.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:17:20.0488081-04:00",
+          "ModifiedDate": "2026-10-14T20:17:20.0488081-04:00",
+          "Items": [
+            {
+              "Id": "58bde051-2346-48ea-91ec-973c2d108887",
+              "Text": "A taxonomy captures only subsumption relationships, whereas an ontology adds arbitrary relations and logical constraints.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e4558ad4-3527-4f2b-8231-cf30e77e7bd3",
+              "Text": "Controlled vocabularies restrict terminology to approved terms, reducing ambiguity and synonym proliferation.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d6afd2ca-f449-4bad-ad94-fe8aa26a8317",
+              "Text": "Thesauri add broader-term, narrower-term, and related-term links between concepts.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c743ab8a-eb38-42a1-bead-1efd9e8133a8",
+              "Text": "Well-designed taxonomies maintain consistent classification criteria at each level to avoid overlapping categories.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "857b2ed2-3f0b-47cf-a515-66705725c1d4",
+              "Text": "They serve as the entry point for indexing, search, and tagging in knowledge management systems.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "fa180ef7-0e33-40aa-a92d-6fc9348f72fe",
+          "TopicId": "1c75f979-37c3-4458-a37a-6bc1b039f36b",
+          "Title": "Description Logics",
+          "BodyText": "Description logics are a family of decidable fragments of first-order logic designed to give ontologies precise semantics and tractable automated reasoning. They provide the formal foundation beneath modern ontology languages.",
+          "Notes": "The name of a description logic, such as ALC or SROIQ, encodes which constructors it permits.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:17:20.0488081-04:00",
+          "ModifiedDate": "2026-10-14T20:17:20.0488081-04:00",
+          "Items": [
+            {
+              "Id": "f3ebef06-3769-4848-ad1e-710f9c03027b",
+              "Text": "Knowledge is split into a TBox of terminological axioms and an ABox of assertions about individuals.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "7028f784-8695-46d7-b001-bf25b987d371",
+              "Text": "Concept constructors include intersection, union, negation, and existential or universal restrictions on roles.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4fee50d1-a66d-4046-8f55-e1412c4d24fa",
+              "Text": "Standard reasoning tasks include subsumption testing, consistency checking, classification, and instance retrieval.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "451bb036-4447-474d-bf1e-f1eae2a5a488",
+              "Text": "Expressiveness is deliberately traded against computational complexity to keep reasoning decidable.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "9d4db1ee-1d45-4163-91db-ce117793af07",
+              "Text": "Reasoners such as HermiT, Pellet, and FaCT\u002B\u002B automate these inferences over large ontologies.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "fc63d47b-3f9f-4409-a648-13a775055738",
+          "TopicId": "1c75f979-37c3-4458-a37a-6bc1b039f36b",
+          "Title": "Semantic Web Standards and Sharing",
+          "BodyText": "A stack of W3C standards enables ontologies and semantic networks to be published, queried, and reused across organizations. These standards turn local knowledge models into shareable web resources.",
+          "Notes": "Linked data practice encourages dereferenceable URIs and links to external datasets to build a connected knowledge graph.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:17:20.0488081-04:00",
+          "ModifiedDate": "2026-10-14T20:17:20.0488081-04:00",
+          "Items": [
+            {
+              "Id": "d07b5c56-a2a4-496d-90dc-7e4211a9c47f",
+              "Text": "RDF represents facts as subject\u2013predicate\u2013object triples identified by URIs.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "3c4b16ab-69ae-46fc-9eec-3707926062c9",
+              "Text": "RDF Schema adds basic class and property hierarchies with domain and range constraints.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "658b6f4a-c0d5-4235-a38a-67f27e29c1cd",
+              "Text": "OWL supplies description-logic expressiveness, including cardinality limits, disjointness, and property characteristics.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "580d0350-6f6e-41f7-8807-276e68333e24",
+              "Text": "SPARQL is the standard query language for retrieving and manipulating RDF graph data.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "f668507a-e9ca-4d65-b821-7b98bee1f69a",
+              "Text": "Industrial knowledge graphs, such as those behind search engines and product catalogs, apply these standards at scale.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "1f09b40c-f794-4996-8d9a-c30ca743cb70",
+      "Title": "Frames, Scripts, and Structured Representations",
+      "Summary": "Explores slot-and-filler structures that bundle stereotypical knowledge about objects, situations, and events, including default values, facets, and inheritance between frames. Covers scripts for representing routine event sequences and the role of these structures in commonsense reasoning.",
+      "SortOrder": 2,
+      "CreatedDate": "2026-10-14T20:16:28.0090761-04:00",
+      "ModifiedDate": "2026-10-14T20:16:28.0090761-04:00",
+      "Elements": [
+        {
+          "Id": "95acbe79-766e-46b9-b496-facbe1646796",
+          "TopicId": "1f09b40c-f794-4996-8d9a-c30ca743cb70",
+          "Title": "Frames as Slot-and-Filler Structures",
+          "BodyText": "A frame is a structured knowledge representation that bundles everything typically known about an object, class, or situation into a single named record. Each frame consists of named slots that hold values describing the entity\u0027s attributes and relationships.",
+          "Notes": "Frames were introduced by Marvin Minsky as a way to capture stereotypical knowledge that humans retrieve as a chunk rather than as isolated facts.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:17:48.6829916-04:00",
+          "ModifiedDate": "2026-10-14T20:17:48.6829916-04:00",
+          "Items": [
+            {
+              "Id": "8f62e855-ae8a-49dc-a54e-958e6ca4d89c",
+              "Text": "A slot is an attribute name such as \u0027colour\u0027, \u0027number-of-legs\u0027, or \u0027owner\u0027, and its filler is the value assigned to it.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "2c4b3439-53f3-491e-9cc6-91dc62ddd376",
+              "Text": "Fillers may be literal values, pointers to other frames, procedures, or ranges of permitted values.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "52b3bfc4-8ecb-49af-9a4c-30f7bec6a728",
+              "Text": "Frames group related assertions together, making retrieval of all knowledge about an entity a single lookup rather than a search across scattered facts.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "eaef72c6-e825-4ef4-ab93-6998150f2a43",
+              "Text": "Instance frames describe individual entities, while class (generic) frames describe categories of entities.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6046df37-721e-4ff9-af44-056f1122fb19",
+              "Text": "Frames are functionally equivalent to a semantic network with labelled arcs, but organise knowledge entity-by-entity rather than link-by-link.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "11b1e48a-3857-4471-be79-83c3f1fe98da",
+          "TopicId": "1f09b40c-f794-4996-8d9a-c30ca743cb70",
+          "Title": "Facets and Slot Metadata",
+          "BodyText": "Slots can carry more than a simple value: facets attach metadata that constrains, computes, or monitors what a slot may contain. Facets turn a passive data field into an active, self-describing structure.",
+          "Notes": "Common facet names include value, default, range, cardinality, if-needed, and if-added.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:17:48.6829916-04:00",
+          "ModifiedDate": "2026-10-14T20:17:48.6829916-04:00",
+          "Items": [
+            {
+              "Id": "83e5d08f-5b88-43d2-bdce-16692f93fe00",
+              "Text": "A range or type facet restricts legal fillers, for example requiring that \u0027age\u0027 be a non-negative integer.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "bdcce50b-da0b-4006-9ac6-03317796c75a",
+              "Text": "Cardinality facets state how many fillers a slot may take, such as exactly one spouse or many children.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7a36186a-844d-4b5c-b14b-f0b7e648d635",
+              "Text": "Procedural attachments called demons fire automatically: if-needed procedures compute a missing value on demand, and if-added procedures propagate consequences when a value is asserted.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "5867f31e-abcf-4d63-a6ab-a7e5edba4437",
+              "Text": "If-removed demons can retract dependent conclusions when a filler is deleted, maintaining consistency.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b229897a-155d-4e1b-816f-f335af20f96a",
+              "Text": "Facets let declarative structure and procedural knowledge coexist in the same representation.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "6e01a804-0089-4a2c-8c64-8edaf67a8c36",
+          "TopicId": "1f09b40c-f794-4996-8d9a-c30ca743cb70",
+          "Title": "Default Values and Non-Monotonic Reasoning",
+          "BodyText": "Frames encode typical rather than universal knowledge by supplying default fillers that apply unless contradicted. This supports fast commonsense conclusions while allowing exceptions.",
+          "Notes": "Classic example: the bird frame defaults \u0027can-fly\u0027 to true, but the penguin frame overrides it with false.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:17:48.6829916-04:00",
+          "ModifiedDate": "2026-10-14T20:17:48.6829916-04:00",
+          "Items": [
+            {
+              "Id": "1be3c78e-e92d-4d9f-a4c8-a562c2f8b7d6",
+              "Text": "A default is used only when no explicit value has been asserted for that slot.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f122934e-d2b0-4c84-a32f-0904fe3cc7ec",
+              "Text": "Reasoning with defaults is non-monotonic: adding new information can withdraw a previously drawn conclusion.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1e81612f-dd5c-4209-89a8-c7daee90ca01",
+              "Text": "Overriding a default at a more specific frame handles exceptions without rewriting the general case.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "14024388-1878-40d0-a313-ab910b4ce871",
+              "Text": "Defaults reduce the burden of specifying complete knowledge about every instance.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ff4d4f7c-82a6-4c57-856a-27d63b437e7f",
+              "Text": "Systems must track which conclusions depended on defaults so they can be revised when evidence arrives.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "9115793f-0f8f-4685-a5da-d3bc8530d897",
+          "TopicId": "1f09b40c-f794-4996-8d9a-c30ca743cb70",
+          "Title": "Inheritance and Frame Hierarchies",
+          "BodyText": "Frames are organised into taxonomies through is-a and instance-of links, allowing a frame to inherit slots, facets, and defaults from its ancestors. This yields compact, economical representations.",
+          "Notes": "",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:17:48.6829916-04:00",
+          "ModifiedDate": "2026-10-14T20:17:48.6829916-04:00",
+          "Items": [
+            {
+              "Id": "9872ffc7-a206-4d21-b26c-4fc727b826fe",
+              "Text": "Specific frames inherit all slots of their parents and need only state what is distinctive about them.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "7c26d295-28d2-49f4-bb55-c6043a951580",
+              "Text": "Multiple inheritance lets a frame draw from several parents, which can create conflicts when ancestors supply different fillers.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3465590a-ac9f-4b43-b6c6-6aa0f67810ac",
+              "Text": "Conflict resolution strategies include preferring the most specific ancestor or using a fixed class precedence ordering.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "1d1f7061-2f6e-4eab-9060-db44d5461333",
+              "Text": "Inheritance of procedural attachments means methods as well as data can be shared down the hierarchy.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "f5dd74fe-8b84-4720-8a62-44bbf51c0cc6",
+              "Text": "The approach closely parallels class hierarchies in object-oriented programming.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "01538648-aa9e-4de1-a899-fc35b50dd5bd",
+          "TopicId": "1f09b40c-f794-4996-8d9a-c30ca743cb70",
+          "Title": "Scripts for Stereotypical Event Sequences",
+          "BodyText": "A script is a frame-like structure that represents the expected sequence of events in a routine situation. Scripts capture temporal and causal order rather than static attributes.",
+          "Notes": "Schank and Abelson\u0027s restaurant script is the canonical example, covering entering, ordering, eating, paying, and leaving.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:17:48.6829916-04:00",
+          "ModifiedDate": "2026-10-14T20:17:48.6829916-04:00",
+          "Items": [
+            {
+              "Id": "e16bc376-8c43-4ea8-b2f6-9e881db9baae",
+              "Text": "Scripts specify entry conditions that must hold before the script applies and results that hold after it completes.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "353b19d1-e72e-486e-bd04-bab878366734",
+              "Text": "Roles identify the participants, such as customer, waiter, and cook, and props identify the objects involved.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "0d377424-fbb7-4663-9710-c97145409efa",
+              "Text": "Scenes break the script into ordered sub-episodes, each containing a sequence of primitive actions.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9ad25826-d7cd-4dd5-be37-d11a461895e8",
+              "Text": "Tracks are variants of a general script, such as the fast-food track versus the fine-dining track of eating out.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b1aad361-82ab-4f71-84bc-571ae522f2f4",
+              "Text": "Unstated steps can be inferred by default, so a story needs to mention only the unusual or script-violating events.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "de0f2466-76f3-404c-80ac-fdcdaae6fba1",
+          "TopicId": "1f09b40c-f794-4996-8d9a-c30ca743cb70",
+          "Title": "Role in Commonsense Reasoning and Understanding",
+          "BodyText": "Frames and scripts were designed to explain how agents interpret new situations quickly by matching them to remembered stereotypes. They supply the background expectations that make language and perception tractable.",
+          "Notes": "",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:17:48.6829916-04:00",
+          "ModifiedDate": "2026-10-14T20:17:48.6829916-04:00",
+          "Items": [
+            {
+              "Id": "c167aceb-fc42-4a9e-b5d1-1e4f35bc0802",
+              "Text": "Once a script is activated, it supplies expectations that fill gaps in an incomplete narrative or observation.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b8f63912-841d-4980-b09b-0743b4350252",
+              "Text": "Scripts resolve anaphora and references, letting a system understand \u0027the bill\u0027 without it having been introduced.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c9362b5a-0f4c-4900-9b2f-a8bc3244891f",
+              "Text": "Deviations from the script are salient and signal where deeper, non-routine reasoning is required.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "740f6aef-1a07-4e21-9480-1c080d0222bf",
+              "Text": "Frames support recognition by matching observed features to a stereotype and then predicting unobserved ones.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "3bd7aa41-09b4-4bf7-82f0-87be117d8423",
+          "TopicId": "1f09b40c-f794-4996-8d9a-c30ca743cb70",
+          "Title": "Strengths and Limitations of Structured Representations",
+          "BodyText": "Frames and scripts are intuitive and computationally efficient but trade away some logical rigour. Understanding these trade-offs explains their evolution into modern ontology languages.",
+          "Notes": "Description logics and OWL were developed partly to give frame systems a formal, decidable semantics.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T20:17:48.6829916-04:00",
+          "ModifiedDate": "2026-10-14T20:17:48.6829916-04:00",
+          "Items": [
+            {
+              "Id": "f5606f8c-8be6-4e6d-8902-a0bfa924c4aa",
+              "Text": "Strengths include modularity, readable organisation, efficient inheritance, and natural handling of defaults.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "df69cceb-939c-47c0-b8c4-55b8ef63ce3e",
+              "Text": "Early frame systems lacked a precise formal semantics, so the meaning of inheritance and overriding varied by implementation.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8a52dd5a-b262-4dc1-b451-dbc42491ee51",
+              "Text": "Scripts are brittle outside their stereotypical domain and cannot handle genuinely novel situations.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "8c85e51a-b38b-45e3-a183-b84aef217285",
+              "Text": "Building and maintaining large libraries of frames and scripts is labour-intensive.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "764f9c14-e81f-4aff-896a-f02ec2a74f93",
+              "Text": "Modern descendants include description logics, OWL ontologies, and object-oriented knowledge bases.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "521d8e51-6e43-48d2-948c-f0433be2527d",
+      "Title": "Production Rule Systems and Rule-Based Reasoning",
+      "Summary": "Covers the representation of knowledge as condition-action rules operating over a working memory, including rule syntax, pattern matching, and conflict resolution strategies. Compares forward and backward chaining as mechanisms for deriving conclusions from a rule base.",
+      "SortOrder": 3,
+      "CreatedDate": "2026-10-14T20:16:28.0090761-04:00",
+      "ModifiedDate": "2026-10-14T20:16:28.0090761-04:00",
+      "Elements": [
+        {
+          "Id": "90c98132-1048-446a-b51f-a71c8b215af2",
+          "TopicId": "521d8e51-6e43-48d2-948c-f0433be2527d",
+          "Title": "What Is a Production Rule System?",
+          "BodyText": "A production rule system represents knowledge as a collection of condition-action rules that operate on a changing set of facts. It separates declarative knowledge in the rule base from the control logic in the interpreter.",
+          "Notes": "Production systems underpin many classic expert systems such as MYCIN, XCON/R1, and modern business rule engines.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:18:14.6385692-04:00",
+          "ModifiedDate": "2026-10-14T20:18:14.6385692-04:00",
+          "Items": [
+            {
+              "Id": "307b88b0-7876-4bd7-9a3e-5806c82f2e8a",
+              "Text": "A production system has three components: a rule base, a working memory, and an inference engine (rule interpreter).",
+              "SortOrder": 0
+            },
+            {
+              "Id": "5a6352f1-d2af-46bc-80e2-bb99dc0ece9f",
+              "Text": "Working memory holds the current facts or assertions describing the problem state.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d47fe7e9-d9a8-44dd-b741-3058b8d401ac",
+              "Text": "Each rule is independent and modular, so knowledge can be added or revised without rewriting program flow.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "2d12dd83-0c14-47a6-a937-addfcefaac66",
+              "Text": "Control is data-driven: which rule fires depends on the contents of working memory, not on a fixed sequence of statements.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "9f342560-8236-4d3a-96b0-b9ef2bf134ce",
+              "Text": "This modularity makes rule bases easier to extend and explain than procedural code.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "d1be4629-4488-4ea7-9b66-a81c360e2f38",
+          "TopicId": "521d8e51-6e43-48d2-948c-f0433be2527d",
+          "Title": "Rule Syntax and Structure",
+          "BodyText": "A production rule takes the general form IF \u003Cconditions\u003E THEN \u003Cactions\u003E, where the left-hand side specifies a pattern and the right-hand side specifies what to do when it is satisfied.",
+          "Notes": "Example: IF patient has fever AND patient has stiff neck THEN suspect meningitis with confidence 0.7.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:18:14.6385692-04:00",
+          "ModifiedDate": "2026-10-14T20:18:14.6385692-04:00",
+          "Items": [
+            {
+              "Id": "aeade655-901b-4af4-b0c6-4d20ee3dad79",
+              "Text": "The left-hand side (antecedent or premise) is a conjunction of conditions tested against working memory.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "73d7347f-e280-4e8c-a9a3-cab3306e8587",
+              "Text": "The right-hand side (consequent or action) may assert new facts, retract facts, modify values, or trigger external procedures.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "cfd00516-5f95-44d3-be0f-d197e368511f",
+              "Text": "Conditions can contain variables that bind to values in matching facts, allowing a single rule to cover many cases.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "fda4c5cd-b7dc-4dd3-a112-f941c5faac21",
+              "Text": "Rules may carry metadata such as priority, certainty factors, or explanatory text.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "fea7e1c5-9fa9-43c0-81f9-d7aa5a941655",
+              "Text": "Well-formed rules keep conditions specific enough to avoid overly broad firing but general enough to be reusable.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "3193c160-fb5b-4163-b46a-d96a4b48ecef",
+          "TopicId": "521d8e51-6e43-48d2-948c-f0433be2527d",
+          "Title": "The Recognize-Act Cycle and Pattern Matching",
+          "BodyText": "The inference engine runs a repeating recognize-act cycle: match rules against working memory, select one, and execute its actions. Pattern matching is the computational heart of this loop.",
+          "Notes": "The Rete algorithm is the classic optimization, building a network that caches partial matches so only changes to working memory are propagated.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:18:14.6385692-04:00",
+          "ModifiedDate": "2026-10-14T20:18:14.6385692-04:00",
+          "Items": [
+            {
+              "Id": "d5ca8954-7348-4307-8b54-222cf14409dc",
+              "Text": "Match: all rules whose conditions are satisfied by current facts are identified, forming the conflict set or agenda.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "4bcea040-2dae-4a65-ad12-37ab05fca951",
+              "Text": "Select: a conflict resolution strategy chooses one rule instance to fire.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "e2c4545d-3f29-4997-8051-c141fd53cdeb",
+              "Text": "Act: the chosen rule\u0027s actions update working memory, which may enable or disable other rules.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "65cd343d-23ae-47fb-9f68-1e6d1b937a6d",
+              "Text": "The cycle repeats until no rules match or an explicit halt condition is reached.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "492ae3cf-c710-47eb-8418-40acc6924425",
+              "Text": "Naive matching re-tests every rule each cycle, which scales poorly as the rule base grows.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "ea663fbe-1578-4bde-b53d-9b862c2abc1c",
+          "TopicId": "521d8e51-6e43-48d2-948c-f0433be2527d",
+          "Title": "Conflict Resolution Strategies",
+          "BodyText": "When several rule instances match simultaneously, the system needs a principled way to decide which one fires. Different strategies produce different reasoning behaviours.",
+          "Notes": "Many engines combine strategies, for example ordering first by priority, then by recency, then by specificity.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:18:14.6385692-04:00",
+          "ModifiedDate": "2026-10-14T20:18:14.6385692-04:00",
+          "Items": [
+            {
+              "Id": "f304a69d-6e4a-4c8b-b353-3da11a611a26",
+              "Text": "Priority or salience: rules are given explicit numeric weights and the highest-ranked eligible rule fires first.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "00889931-67bd-4b15-a1b9-d978db897f85",
+              "Text": "Recency: prefer rules matching the most recently added facts, keeping reasoning focused on the current line of thought.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "85013a66-39c2-43ad-ac38-9a462dbaa42b",
+              "Text": "Specificity: prefer the rule with the most conditions, since it represents more precise knowledge.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b7393f70-d165-4b3c-a7a1-042367a3614d",
+              "Text": "Refractoriness: prevent a rule from firing repeatedly on the same data to avoid infinite loops.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "89c019f7-a839-4cf6-9003-3eb67a7aca2f",
+              "Text": "Rule order or random selection serve as simple fallbacks when other criteria tie.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "fbe7fa12-daea-4233-bdaa-293426612a96",
+          "TopicId": "521d8e51-6e43-48d2-948c-f0433be2527d",
+          "Title": "Forward Chaining (Data-Driven Reasoning)",
+          "BodyText": "Forward chaining starts from known facts and repeatedly applies rules whose conditions are met, adding new conclusions until a goal is reached or no rules apply.",
+          "Notes": "Typical applications include monitoring, configuration, scheduling, and real-time alerting systems.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:18:14.6385692-04:00",
+          "ModifiedDate": "2026-10-14T20:18:14.6385692-04:00",
+          "Items": [
+            {
+              "Id": "a112c969-eeeb-4792-9b31-4b83868c061e",
+              "Text": "Reasoning moves from antecedents to consequents, deriving all conclusions the data supports.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6577b7e1-25a4-4bf7-a6b6-a0b0a7a5d4af",
+              "Text": "It suits problems with many possible outcomes but a limited, well-defined set of inputs.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d0371b11-5c48-47c3-ac41-516f450eabbc",
+              "Text": "New facts entering working memory can immediately trigger further rule firings, supporting reactive behaviour.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "148cc0ac-ea4f-4150-aa08-6f183b7a139b",
+              "Text": "A drawback is that it may derive conclusions irrelevant to the user\u0027s actual question.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "21117eae-6e2d-48ae-8fa2-af8b71fdcf12",
+              "Text": "Performance depends heavily on efficient matching because the conflict set is recomputed as facts change.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "c86b83c7-293a-4810-8187-e4bcd464aeb7",
+          "TopicId": "521d8e51-6e43-48d2-948c-f0433be2527d",
+          "Title": "Backward Chaining (Goal-Driven Reasoning)",
+          "BodyText": "Backward chaining begins with a hypothesis or goal and works backwards to find rules whose conclusions match it, then tries to establish those rules\u0027 conditions as subgoals.",
+          "Notes": "MYCIN\u0027s diagnostic reasoning and Prolog\u0027s resolution strategy are canonical examples of goal-driven inference.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:18:14.6385692-04:00",
+          "ModifiedDate": "2026-10-14T20:18:14.6385692-04:00",
+          "Items": [
+            {
+              "Id": "a73afec2-8690-4f3f-a46a-f14a9b4fca1b",
+              "Text": "The goal is matched against rule consequents; each unproven condition becomes a new subgoal.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "4b874f72-ffc6-4ee4-9192-ba1b8fe37924",
+              "Text": "Recursion continues until subgoals are confirmed by facts in working memory or by asking the user.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c13c67b6-be6a-4963-b171-28f82b6e5f14",
+              "Text": "It is efficient when there are few candidate goals, such as diagnosis or classification tasks.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "25e75af0-25e1-488e-8074-d515d01968b7",
+              "Text": "Because the chain of subgoals is explicit, it naturally supports \u0027why\u0027 and \u0027how\u0027 explanations.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6b26ead4-c8d5-463b-ac11-1c727969bb84",
+              "Text": "Hybrid systems mix both directions, using forward chaining to establish context and backward chaining to confirm hypotheses.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "fe5c70fa-b462-46e5-9262-992822c0ffc5",
+          "TopicId": "521d8e51-6e43-48d2-948c-f0433be2527d",
+          "Title": "Strengths and Limitations of Rule-Based Reasoning",
+          "BodyText": "Production systems remain popular because of their transparency and modularity, but they face real difficulties as rule bases grow large.",
+          "Notes": "",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T20:18:14.6385692-04:00",
+          "ModifiedDate": "2026-10-14T20:18:14.6385692-04:00",
+          "Items": [
+            {
+              "Id": "7569a9fd-1ce0-4101-a3f6-b3bc39ce8454",
+              "Text": "Strengths include human-readable knowledge, easy incremental updates, and built-in explanation of reasoning chains.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b9eda979-8312-4ad8-b2b7-ab543221f764",
+              "Text": "Rules map naturally onto heuristic expertise elicited from domain specialists.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ec69bc68-fb20-4c35-a508-533531fc778e",
+              "Text": "Limitations include opaque global behaviour, since interactions between many rules are hard to predict.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e93bf83f-d321-488f-9e01-c6f190c0db32",
+              "Text": "Large rule bases risk inconsistency, redundancy, contradictory rules, and maintenance bottlenecks.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "c3c6de6c-2ddf-46f5-a8a9-a0707c36f79d",
+              "Text": "Plain rules lack structured representation of objects and inheritance, so they are often combined with frames or ontologies.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "76528209-1930-45d3-873c-dad4857755bd",
+      "Title": "Expert System Architecture and Components",
+      "Summary": "Details the core components of an expert system \u2014 knowledge base, inference engine, working memory, user interface, and explanation facility \u2014 and how they interact. Addresses knowledge acquisition from domain experts and the knowledge engineering process.",
+      "SortOrder": 4,
+      "CreatedDate": "2026-10-14T20:16:28.0090761-04:00",
+      "ModifiedDate": "2026-10-14T20:16:28.0090761-04:00",
+      "Elements": [
+        {
+          "Id": "dfdff969-de8e-4842-83bc-d003758e4bf1",
+          "TopicId": "76528209-1930-45d3-873c-dad4857755bd",
+          "Title": "Overview of Expert System Architecture",
+          "BodyText": "An expert system is a program that emulates the decision-making ability of a human specialist within a narrow domain. Its power comes from a clean separation between domain knowledge and the reasoning machinery that applies it.",
+          "Notes": "Classic examples include MYCIN (medical diagnosis), DENDRAL (chemical structure analysis), and XCON (computer configuration).",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:18:39.3906654-04:00",
+          "ModifiedDate": "2026-10-14T20:18:39.3906654-04:00",
+          "Items": [
+            {
+              "Id": "a86d8259-0183-4ebb-9290-3d2e5272dbb0",
+              "Text": "The architecture is conventionally divided into a knowledge base, an inference engine, working memory, a user interface, and an explanation facility.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6db3ed0c-c277-46a5-9a71-96d60594182c",
+              "Text": "Separating knowledge from control logic allows the same inference engine to be reused across different domains, creating a \u0027shell\u0027.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9e43e48e-a10c-47ed-8473-9ffef218d625",
+              "Text": "Expert systems are deliberately narrow: performance degrades sharply at the edges of the encoded domain.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "db46356b-c4d2-424d-bfe7-94c1e1f93b03",
+              "Text": "Supporting subsystems include a knowledge acquisition module used by knowledge engineers rather than end users.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b584b893-5e2e-466a-87d9-14f6c7df6362",
+              "Text": "The architecture supports incremental growth \u2014 rules can be added or revised without rewriting the reasoning code.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "65a25891-d6b2-40fd-b6d7-056e48df796f",
+          "TopicId": "76528209-1930-45d3-873c-dad4857755bd",
+          "Title": "The Knowledge Base",
+          "BodyText": "The knowledge base stores the domain expertise in a declarative, machine-usable form, most often as production rules of the IF-THEN variety. It is the component that distinguishes one expert system from another.",
+          "Notes": "A knowledge base may also hold frames, semantic network fragments, or ontological definitions alongside rules.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:18:39.3906654-04:00",
+          "ModifiedDate": "2026-10-14T20:18:39.3906654-04:00",
+          "Items": [
+            {
+              "Id": "f24ac634-2e46-49a5-909d-2fe0c1416698",
+              "Text": "Rules encode heuristics and rules of thumb that experts use, not just textbook facts.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "1f693f75-2b37-4b04-813e-bc02512e2775",
+              "Text": "Each rule has a condition (antecedent/left-hand side) and an action or conclusion (consequent/right-hand side).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8ecde534-efc7-4c03-b07c-6e806bf39eea",
+              "Text": "Knowledge bases also contain factual knowledge about objects, attributes, and relationships in the domain.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c3fac580-5bdf-4a2e-b91e-a625eabc2ca8",
+              "Text": "Modularity of rules makes the base easier to verify, debug, and extend than procedural code.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "1a9da34c-9ff2-4bd7-a40c-3d984475777b",
+              "Text": "Quality issues to check include redundant rules, conflicting rules, circular chains, and unreachable conclusions.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "80094c7b-4d12-4d34-9cc6-d30fcc7186e5",
+          "TopicId": "76528209-1930-45d3-873c-dad4857755bd",
+          "Title": "The Inference Engine",
+          "BodyText": "The inference engine is the control component that decides which knowledge to apply and in what order to reach conclusions. It repeatedly matches rules against the current facts and executes those that apply.",
+          "Notes": "The match\u2013resolve\u2013act loop is often called the recognize-act cycle.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:18:39.3906654-04:00",
+          "ModifiedDate": "2026-10-14T20:18:39.3906654-04:00",
+          "Items": [
+            {
+              "Id": "0524ca09-4923-4415-9600-22ae86218056",
+              "Text": "The engine performs pattern matching to find rules whose conditions are satisfied by facts in working memory.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "bf7b6f23-2000-433d-9171-5bb086a0fde7",
+              "Text": "Conflict resolution strategies choose among multiple eligible rules using criteria such as specificity, recency, or explicit priority.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9fb8592a-f939-45aa-80be-f52578743acb",
+              "Text": "Execution fires the selected rule, asserting new facts or triggering actions, and the cycle repeats until no rules apply or a goal is met.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "30369a12-02bb-4f05-b9b7-b3bf192d01b0",
+              "Text": "The same engine can run forward (data-driven) or backward (goal-driven) depending on the task.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "37fd94c7-64b6-42b5-863d-71751fe9e481",
+              "Text": "Because the engine is domain-independent, it embodies the reusable \u0027shell\u0027 portion of the system.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "d894fb98-5e87-408c-93da-8afbde16c2dc",
+          "TopicId": "76528209-1930-45d3-873c-dad4857755bd",
+          "Title": "Working Memory and the Fact Base",
+          "BodyText": "Working memory holds the dynamic, case-specific facts for the current consultation, in contrast to the stable long-term knowledge base. It is the scratchpad on which the inference engine operates.",
+          "Notes": "In rule-based terminology, working memory elements are the facts that rule conditions are matched against.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:18:39.3906654-04:00",
+          "ModifiedDate": "2026-10-14T20:18:39.3906654-04:00",
+          "Items": [
+            {
+              "Id": "29c66e5d-651f-4006-b79e-5003b841c96e",
+              "Text": "It is initialized with user-supplied data or sensor input describing the problem instance.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "3ba29ebe-0d78-4c30-9007-c9210347fc73",
+              "Text": "Each fired rule may add, modify, or retract facts, changing which rules become eligible next.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "bb07ae20-f626-4eb5-91ca-81ccad11d5ea",
+              "Text": "Contents are typically discarded or reset at the end of a consultation, leaving the knowledge base unchanged.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c8fa5c62-92ed-4f9f-8807-74dd1beb5560",
+              "Text": "Tracking additions to working memory produces the reasoning trace used for explanation.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "8f3c2d79-caa4-497c-9ee6-62b426de34d8",
+              "Text": "Its size and volatility distinguish it from the comparatively static and larger knowledge base.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "1660f25c-5a7b-4de7-a181-d844a7d890e4",
+          "TopicId": "76528209-1930-45d3-873c-dad4857755bd",
+          "Title": "User Interface and Explanation Facility",
+          "BodyText": "The user interface mediates the consultation dialogue, while the explanation facility makes the system\u0027s reasoning transparent. Together they determine whether users trust and accept the system\u0027s advice.",
+          "Notes": "MYCIN pioneered HOW and WHY explanations generated directly from the rule trace.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:18:39.3906654-04:00",
+          "ModifiedDate": "2026-10-14T20:18:39.3906654-04:00",
+          "Items": [
+            {
+              "Id": "3cdeefbe-face-40ef-818a-70696bcaeca9",
+              "Text": "The interface elicits case data through questions, menus, or forms and presents conclusions with any associated confidence.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "13e7a797-989d-4078-9a40-e2c490fe0467",
+              "Text": "\u0027Why?\u0027 explanations justify a question by showing the rule currently being pursued.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "00e9175e-bf07-4cbe-8a9b-279d0dfb4a49",
+              "Text": "\u0027How?\u0027 explanations justify a conclusion by replaying the chain of rules that produced it.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "35d6b00c-140b-4932-abe3-688730bc22ba",
+              "Text": "Explanations are generated automatically from the inference trace rather than being hand-written.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "4734e289-0ecd-4a5d-aadd-cf700686f407",
+              "Text": "Transparency also aids knowledge engineers in debugging faulty or missing rules.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "39c76eb4-d0b1-40a3-8754-d817d29f3360",
+          "TopicId": "76528209-1930-45d3-873c-dad4857755bd",
+          "Title": "Knowledge Acquisition and Knowledge Engineering",
+          "BodyText": "Knowledge acquisition is the process of extracting expertise from human specialists and documents and encoding it into the knowledge base. It is widely recognized as the principal bottleneck in expert system development.",
+          "Notes": "Automated and semi-automated aids include rule induction from case data and machine learning over historical examples.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:18:39.3906654-04:00",
+          "ModifiedDate": "2026-10-14T20:18:39.3906654-04:00",
+          "Items": [
+            {
+              "Id": "68bab6ec-d380-46f3-b1a9-217213973593",
+              "Text": "The knowledge engineer interviews domain experts, observes them solving problems, and formalizes the results as rules or structures.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "96eb0e8f-2da5-4c69-b622-a0027aaaf90d",
+              "Text": "Techniques include structured interviews, think-aloud protocol analysis, case walkthroughs, card sorting, and repertory grids.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1737f936-8541-455a-979c-c982e1ac5e6f",
+              "Text": "Difficulties arise because much expertise is tacit, compiled, and hard for experts to articulate explicitly.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "23cf544c-b0e5-456d-98d5-0dfbb37f80c6",
+              "Text": "Development is iterative: build a prototype, test it on cases, refine rules with expert feedback, and repeat.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a1f76f73-1b47-4a57-b41a-377b8301eb8b",
+              "Text": "Validation compares system conclusions against expert judgments on benchmark cases before deployment.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "58e31f3d-24fa-43e1-bf41-82829638dcf5",
+              "Text": "Ongoing maintenance is required as domain knowledge, regulations, or best practices change.",
+              "SortOrder": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "e0fc756a-1e75-4d46-b9c7-f7ee0d744d25",
+      "Title": "Handling Uncertainty and Incomplete Knowledge",
+      "Summary": "Surveys approaches for reasoning when evidence is imprecise or incomplete, including certainty factors, Bayesian probability, Dempster-Shafer theory, and fuzzy logic. Discusses how uncertainty propagates through inference chains and shapes system confidence in conclusions.",
+      "SortOrder": 5,
+      "CreatedDate": "2026-10-14T20:16:28.0090761-04:00",
+      "ModifiedDate": "2026-10-14T20:16:28.0090761-04:00",
+      "Elements": [
+        {
+          "Id": "3901e881-99d3-47b2-96d1-5424e3afa921",
+          "TopicId": "e0fc756a-1e75-4d46-b9c7-f7ee0d744d25",
+          "Title": "Why Uncertainty Must Be Modeled",
+          "BodyText": "Real-world expert systems rarely operate with complete, exact, or fully reliable information. Knowledge representation must therefore accommodate degrees of belief rather than strict true/false values.",
+          "Notes": "A medical diagnosis system may receive a patient report of \u0027mild intermittent chest discomfort\u0027 rather than a definitive clinical finding.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:19:07.9380249-04:00",
+          "ModifiedDate": "2026-10-14T20:19:07.9380249-04:00",
+          "Items": [
+            {
+              "Id": "a4b0a08b-649e-4b59-933c-731763c77f5c",
+              "Text": "Evidence may be missing because a test was not performed or a sensor failed.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "632e04f1-5b5e-4f6f-86f8-47f96ed3dba0",
+              "Text": "Expert rules themselves are often heuristic and hold only most of the time.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "6f727095-2917-44a2-83e8-305344e6f1bf",
+              "Text": "Observations can be imprecise, subjective, or reported with measurement error.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "47f3e2ae-dd6d-47de-9a10-737092c380c1",
+              "Text": "Classical binary logic forces premature commitment to conclusions that the evidence does not support.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "1db6fbc8-9e6e-4ba3-9abf-4f2925baba27",
+              "Text": "Uncertainty handling lets a system rank competing hypotheses instead of rejecting all but one.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "9e108393-65df-421f-969e-f60bd680726d",
+          "TopicId": "e0fc756a-1e75-4d46-b9c7-f7ee0d744d25",
+          "Title": "Certainty Factors",
+          "BodyText": "Certainty factors (CFs) attach a numeric confidence score to facts and rules, typically on a scale from -1 (fully disbelieved) to \u002B1 (fully believed). They were popularized by MYCIN as a lightweight alternative to full probability theory.",
+          "Notes": "A rule might read: IF organism is gram-negative AND morphology is rod THEN identity is pseudomonas with CF 0.6.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:19:07.9380249-04:00",
+          "ModifiedDate": "2026-10-14T20:19:07.9380249-04:00",
+          "Items": [
+            {
+              "Id": "da7a8143-99c7-426d-b188-86d73ddfb58d",
+              "Text": "Each rule carries a CF expressing how strongly its premise supports its conclusion.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "9dfd6372-508f-406c-a222-62203fc95245",
+              "Text": "The CF of a conclusion combines the rule\u0027s CF with the CF of the matched evidence.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "bef375c7-2054-4355-9ac6-10aba5665aa4",
+              "Text": "When several rules support the same conclusion, their CFs are combined incrementally so belief accumulates but never exceeds 1.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d66c98eb-ceef-46d6-9c96-2ad5f66ddebb",
+              "Text": "Positive values represent confirming evidence while negative values represent disconfirming evidence.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "521fbd60-a880-4b15-88f1-730744f4ffc9",
+              "Text": "CFs are computationally cheap and intuitive for experts, but lack a rigorous probabilistic foundation.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "6af26ff9-d0e8-410c-b9ac-4d8236afedda",
+          "TopicId": "e0fc756a-1e75-4d46-b9c7-f7ee0d744d25",
+          "Title": "Bayesian Probability and Belief Networks",
+          "BodyText": "Bayesian methods treat uncertainty as conditional probability and update beliefs as new evidence arrives. Bayesian belief networks encode variables as nodes and conditional dependencies as directed edges.",
+          "Notes": "Bayes\u0027 rule: P(hypothesis | evidence) = P(evidence | hypothesis) \u00D7 P(hypothesis) / P(evidence).",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:19:07.9380249-04:00",
+          "ModifiedDate": "2026-10-14T20:19:07.9380249-04:00",
+          "Items": [
+            {
+              "Id": "78e2ba22-b69e-441c-a758-7d77a566ef47",
+              "Text": "Prior probabilities capture background belief before evidence is observed.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "ca34ae09-e6cd-4191-8d88-52b7fb625f80",
+              "Text": "Likelihoods describe how probable the observed evidence is under each hypothesis.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "27092150-70fe-4ddc-a079-a64c48fafefd",
+              "Text": "Belief networks exploit conditional independence to avoid specifying full joint distributions.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "16339ee2-49c6-49ca-b269-ea8e597cec47",
+              "Text": "Evidence entered at any node propagates through the network to revise all related beliefs.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "d648fc39-9ef2-4cd9-b0ff-3b7697394327",
+              "Text": "The main practical obstacles are obtaining reliable prior data and the cost of exact inference in dense networks.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "7759812e-9280-434a-9a7b-31590b1b419f",
+          "TopicId": "e0fc756a-1e75-4d46-b9c7-f7ee0d744d25",
+          "Title": "Dempster-Shafer Theory of Evidence",
+          "BodyText": "Dempster-Shafer theory assigns belief mass to sets of hypotheses rather than to single outcomes, allowing a system to represent ignorance explicitly. It distinguishes between lack of evidence and evidence against a proposition.",
+          "Notes": "If evidence narrows a diagnosis to \u0027some bacterial infection\u0027 without identifying the species, mass is assigned to that entire subset.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:19:07.9380249-04:00",
+          "ModifiedDate": "2026-10-14T20:19:07.9380249-04:00",
+          "Items": [
+            {
+              "Id": "04d46367-b460-4b15-8908-5aa771b958a6",
+              "Text": "A basic probability assignment distributes mass across subsets of the frame of discernment.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "cd497148-88f1-4e9f-97ba-da741a72ea4c",
+              "Text": "Belief is the total mass committed to a hypothesis and all its subsets, forming a lower bound.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8cb2e71b-3bd2-4afa-b836-7a586c35238c",
+              "Text": "Plausibility sums all mass not contradicting the hypothesis, forming an upper bound.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "7c6a2b14-dbbd-4f2b-bfb3-f6d38865dbc0",
+              "Text": "The gap between belief and plausibility quantifies how much remains unknown.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "bd88fbf7-d105-418f-a681-d91e22f9b4be",
+              "Text": "Dempster\u0027s rule of combination fuses independent evidence sources but behaves poorly under strong conflict.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "338685eb-f6e2-49c4-be5c-1be54da877e2",
+          "TopicId": "e0fc756a-1e75-4d46-b9c7-f7ee0d744d25",
+          "Title": "Fuzzy Logic and Imprecise Concepts",
+          "BodyText": "Fuzzy logic addresses vagueness in concepts rather than uncertainty about facts, letting items belong partially to a category. Membership functions map values onto degrees between 0 and 1.",
+          "Notes": "A temperature of 28\u00B0C might have membership 0.7 in \u0027warm\u0027 and 0.3 in \u0027hot\u0027 simultaneously.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:19:07.9380249-04:00",
+          "ModifiedDate": "2026-10-14T20:19:07.9380249-04:00",
+          "Items": [
+            {
+              "Id": "f5c79ea1-9520-4a80-b2cb-29fb114f5ebe",
+              "Text": "Linguistic variables such as \u0027high\u0027, \u0027moderate\u0027, or \u0027rapid\u0027 are defined by membership curves.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "a09b8fb1-9b4e-4f68-9d9b-cef4be33dc72",
+              "Text": "Fuzzification converts crisp inputs into degrees of membership across fuzzy sets.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4326df1e-06b0-4847-9556-62382f1b3fb1",
+              "Text": "Fuzzy rules fire in parallel, each to the degree its premises are satisfied.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "8e517752-79da-42ce-9838-e6548caa67bc",
+              "Text": "Defuzzification, often by centroid methods, converts the aggregated fuzzy output back into a crisp action value.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "7f40f78a-2ade-41ec-8abf-958551a5b142",
+              "Text": "Fuzzy control is widely deployed in appliances, braking systems, and process control.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "20253500-cbc4-49a1-8113-38cb41190b90",
+          "TopicId": "e0fc756a-1e75-4d46-b9c7-f7ee0d744d25",
+          "Title": "Propagation of Uncertainty Through Inference Chains",
+          "BodyText": "When conclusions from one rule become premises for another, their uncertainty carries forward and compounds. Managing this accumulation is essential to keeping long reasoning chains meaningful.",
+          "Notes": "",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:19:07.9380249-04:00",
+          "ModifiedDate": "2026-10-14T20:19:07.9380249-04:00",
+          "Items": [
+            {
+              "Id": "84d2644a-5f3b-4abf-96f6-146e607720ea",
+              "Text": "Chained inference typically multiplies or otherwise attenuates confidence at each step.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "9f20c2b8-b1c8-482b-ba7c-ca8324e77a20",
+              "Text": "Long chains can erode confidence until conclusions become uninformative.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2c1d7ffe-d1de-45ee-99e9-731457be9241",
+              "Text": "Systems often set a cutoff threshold below which a conclusion is discarded and the chain abandoned.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "31e4312a-ba94-4cca-86d3-2376216104e5",
+              "Text": "Shared evidence used by multiple rules risks double-counting and inflated belief.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "f01f0240-1929-4790-b0a1-6ab8e1aba206",
+              "Text": "Conflicting evidence must be reconciled so that disconfirming support properly reduces total belief.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "c5fb4f83-e2b3-4599-872d-47642bf97d7b",
+          "TopicId": "e0fc756a-1e75-4d46-b9c7-f7ee0d744d25",
+          "Title": "Choosing and Explaining an Uncertainty Approach",
+          "BodyText": "No single formalism suits every domain, so designers select a method based on data availability, explanation needs, and computational budget. The chosen approach also shapes how the system justifies its conclusions to users.",
+          "Notes": "Hybrid systems are common: fuzzy membership for sensor interpretation feeding a Bayesian network for diagnosis.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T20:19:07.9380249-04:00",
+          "ModifiedDate": "2026-10-14T20:19:07.9380249-04:00",
+          "Items": [
+            {
+              "Id": "5116efb8-95d0-4847-b353-46142f71ec60",
+              "Text": "Use Bayesian methods when statistical data supports credible priors and likelihoods.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "11b27598-8af0-408b-afbf-d3736f54059a",
+              "Text": "Prefer certainty factors when expert judgment is the only source of confidence estimates.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "073c140b-8f05-46ef-b499-9629e83c0ce9",
+              "Text": "Choose Dempster-Shafer when explicit representation of ignorance matters.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b8179adb-1d6e-47ab-a28a-854759a6d9ba",
+              "Text": "Apply fuzzy logic when the vagueness lies in the concepts rather than in the evidence.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "80a357c3-4574-4a58-9083-1a18c9dcc562",
+              "Text": "Explanation facilities should report confidence levels alongside conclusions so users can calibrate trust.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "07027fb7-3eca-4bf3-a69d-8e0262787851",
+              "Text": "Sensitivity analysis reveals which uncertain inputs most influence the final recommendation.",
+              "SortOrder": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "2cbb9301-12fe-496f-8266-1914dd18f25d",
+      "Title": "Applications, Evaluation, and Limitations",
+      "Summary": "Reviews classic and contemporary expert system applications across domains such as medicine, diagnostics, and configuration, along with methods for validating and maintaining them. Considers the knowledge acquisition bottleneck, brittleness, and the relationship of symbolic systems to modern AI approaches.",
+      "SortOrder": 6,
+      "CreatedDate": "2026-10-14T20:16:28.0090761-04:00",
+      "ModifiedDate": "2026-10-14T20:16:28.0090761-04:00",
+      "Elements": [
+        {
+          "Id": "eb897fc1-5bdc-4225-906b-70ae6eac64e3",
+          "TopicId": "2cbb9301-12fe-496f-8266-1914dd18f25d",
+          "Title": "Classic Expert Systems and Their Domains",
+          "BodyText": "Expert systems first proved their value in narrow, knowledge-rich domains where human expertise was scarce or expensive. A handful of landmark systems defined the field and established its methodology.",
+          "Notes": "MYCIN\u0027s certainty factors and DENDRAL\u0027s generate-and-test strategy both emerged from attempts to encode real laboratory and clinical reasoning.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:19:37.8712124-04:00",
+          "ModifiedDate": "2026-10-14T20:19:37.8712124-04:00",
+          "Items": [
+            {
+              "Id": "827da577-c744-43fd-a036-620af4ad1f3d",
+              "Text": "DENDRAL inferred molecular structures from mass spectrometry data, pioneering the use of domain heuristics to prune large search spaces.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "cda3d1b9-7df8-430f-a1ce-190b58276a29",
+              "Text": "MYCIN diagnosed bacterial infections and recommended antibiotic therapy using roughly 450 production rules with certainty factors.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ac41faec-0e07-49cf-8b9a-340ec24737ae",
+              "Text": "PROSPECTOR applied inference networks with Bayesian updating to mineral exploration and geological assessment.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "df26944d-79a7-4abc-9b05-38ddea644cb9",
+              "Text": "XCON/R1 configured VAX computer systems for Digital Equipment Corporation, demonstrating large-scale commercial payoff.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "4c9f0760-624a-40bd-b803-45d0962b841a",
+              "Text": "CADUCEUS and INTERNIST-I attempted broad internal medicine diagnosis, revealing the difficulty of scaling knowledge bases.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "4311481d-5c3d-41eb-8992-40b8ff016e1e",
+          "TopicId": "2cbb9301-12fe-496f-8266-1914dd18f25d",
+          "Title": "Contemporary Application Areas",
+          "BodyText": "Rule-based and knowledge-based reasoning remains embedded in many operational systems today, often invisibly, under names such as business rules engines or decision support.",
+          "Notes": "",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:19:37.8712124-04:00",
+          "ModifiedDate": "2026-10-14T20:19:37.8712124-04:00",
+          "Items": [
+            {
+              "Id": "05f9b30b-7710-4037-bfc1-c52b6fa77d4e",
+              "Text": "Clinical decision support systems issue drug interaction alerts and guideline-based reminders inside electronic health records.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "203c92ff-15ad-4a6f-a1f8-c36c97616e0a",
+              "Text": "Financial services use rule engines for credit scoring, fraud detection, anti-money-laundering checks, and regulatory compliance.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "0f01a931-b6a4-48e3-852d-ef150ba688c2",
+              "Text": "Industrial applications include equipment fault diagnosis, predictive maintenance advisories, and process control supervision.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "5f4a4789-08df-464d-9e2d-502308430705",
+              "Text": "Product configurators in manufacturing and e-commerce enforce compatibility constraints across thousands of options.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "37040e68-37d5-4ac6-97bd-90dd1881306b",
+              "Text": "Help desk and troubleshooting systems use decision trees and case-based reasoning to guide non-expert users.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "abb44488-8bc5-48e0-874f-8f5136b91ebf",
+          "TopicId": "2cbb9301-12fe-496f-8266-1914dd18f25d",
+          "Title": "Validation, Verification, and Evaluation",
+          "BodyText": "Because expert systems give advice in consequential settings, they must be tested against both internal consistency and external expert judgment. Verification asks whether the system was built right; validation asks whether the right system was built.",
+          "Notes": "MYCIN\u0027s famous evaluation used blinded expert panels who could not reliably distinguish the system\u0027s recommendations from those of faculty physicians.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:19:37.8712124-04:00",
+          "ModifiedDate": "2026-10-14T20:19:37.8712124-04:00",
+          "Items": [
+            {
+              "Id": "b4921f03-cf52-4553-a801-d59cadcc1628",
+              "Text": "Verification checks the knowledge base for redundant, conflicting, circular, subsumed, or unreachable rules.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "9e2a7d2c-7731-4f39-9f7d-1d2eee117338",
+              "Text": "Validation compares system outputs against gold-standard cases or blinded panels of human experts.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "11a19bb7-c66b-47af-b236-28c9e53a90d4",
+              "Text": "Turing-style blind evaluations reduce bias by hiding whether advice came from the system or a person.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "dfad4872-1795-48e4-8ff1-918dd02e73e2",
+              "Text": "Sensitivity analysis tests how much conclusions shift when certainty factors or thresholds are perturbed.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "56845de6-bca9-4b38-9872-3755f70a388e",
+              "Text": "Field evaluation measures real-world outcomes such as user acceptance, time saved, and error rates after deployment.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "ef8d02df-cd96-481d-880a-45fa73af2641",
+          "TopicId": "2cbb9301-12fe-496f-8266-1914dd18f25d",
+          "Title": "Maintenance and Knowledge Base Evolution",
+          "BodyText": "A knowledge base is a living artifact that degrades as the domain changes. Planned maintenance is essential to sustained usefulness.",
+          "Notes": "",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:19:37.8712124-04:00",
+          "ModifiedDate": "2026-10-14T20:19:37.8712124-04:00",
+          "Items": [
+            {
+              "Id": "f93075cf-61f4-487d-ae5b-62d43e2f15c8",
+              "Text": "Domain drift \u2014 new drugs, regulations, products, or equipment \u2014 makes existing rules obsolete or unsafe.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "522eaed6-64e7-4d0d-a37d-144b60fcc60a",
+              "Text": "Adding rules to a large base risks unanticipated interactions, so regression test suites of stored cases are used to detect breakage.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c974b71b-32f1-455d-ba22-0e74371201ae",
+              "Text": "Modular rule organization and explicit metadata about rule authorship and rationale ease later revision.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "51d63bcc-e0cf-4291-af1c-cb9acdeb2f43",
+              "Text": "Knowledge engineers must periodically re-engage domain experts to review, retire, and refine rules.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "7c237809-e16b-410e-acb9-a5b2182725fd",
+              "Text": "Version control and audit trails support accountability in regulated domains.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "96f4359e-b04a-4af5-a12e-30c1c8822187",
+          "TopicId": "2cbb9301-12fe-496f-8266-1914dd18f25d",
+          "Title": "The Knowledge Acquisition Bottleneck",
+          "BodyText": "The most persistent obstacle to building expert systems is extracting knowledge from human experts and encoding it in formal rules. This difficulty, named by Feigenbaum, limits how fast and how broadly systems can be built.",
+          "Notes": "Techniques such as structured interviews, protocol analysis, repertory grids, and card sorting were developed specifically to mitigate this bottleneck.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:19:37.8712124-04:00",
+          "ModifiedDate": "2026-10-14T20:19:37.8712124-04:00",
+          "Items": [
+            {
+              "Id": "1e487f9d-458d-46f7-ad6b-677f5effa217",
+              "Text": "Much expertise is tacit and compiled through practice, so experts cannot easily articulate how they reach conclusions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "adfc70b2-08ce-4dc6-8f9c-22040ccd5981",
+              "Text": "Experts may rationalize decisions after the fact, producing explanations that differ from their actual reasoning.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "da6ce327-1475-4533-b82a-b9fe5e1ffb58",
+              "Text": "Knowledge engineering requires iterative interviewing, transcription, formalization, and refinement \u2014 a slow, labor-intensive cycle.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a1f1cc07-350e-4150-bd8e-6fa4d3421a2c",
+              "Text": "Multiple experts often disagree, forcing decisions about whose knowledge to encode or how to reconcile conflicts.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "746ecd06-2e80-4893-9601-906b8bc3078a",
+              "Text": "Machine learning and rule induction from case data were partly motivated as automated alternatives to manual acquisition.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "4d8c63d5-a49b-4ce9-86e7-36d3723cd675",
+          "TopicId": "2cbb9301-12fe-496f-8266-1914dd18f25d",
+          "Title": "Brittleness and Other Structural Limitations",
+          "BodyText": "Symbolic expert systems perform impressively inside their competence envelope but fail abruptly and often silently outside it. Understanding these failure modes is critical to safe deployment.",
+          "Notes": "",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:19:37.8712124-04:00",
+          "ModifiedDate": "2026-10-14T20:19:37.8712124-04:00",
+          "Items": [
+            {
+              "Id": "5914a20d-6193-4bfc-a191-04ae47b51d9f",
+              "Text": "Brittleness: performance degrades catastrophically rather than gracefully at the edge of the knowledge base.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "149c7730-25bf-4a2b-a795-3d8554b38e39",
+              "Text": "Lack of common sense means systems cannot recognize absurd inputs or conclusions that any human would reject.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "296c2101-2003-4d81-8114-c706d2271afb",
+              "Text": "No deep causal model \u2014 rules encode shallow associations, so the system cannot reason from first principles when heuristics fail.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f6710756-fc61-4e2c-9d90-200152a83da8",
+              "Text": "Scaling problems arise as rule interactions grow combinatorially, making large bases hard to debug and verify.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "3060f4c9-92da-4d67-8d09-8228060541d4",
+              "Text": "Narrow scope and poor transfer: knowledge is rarely reusable across domains without substantial re-engineering.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "1aa051e4-9812-43de-b23e-cbb6342581be",
+          "TopicId": "2cbb9301-12fe-496f-8266-1914dd18f25d",
+          "Title": "Relationship to Modern AI and Hybrid Approaches",
+          "BodyText": "Symbolic knowledge representation and statistical machine learning have complementary strengths, and current practice increasingly combines them.",
+          "Notes": "Knowledge graphs are a direct descendant of semantic networks, now operating at web scale in search engines and enterprise data platforms.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T20:19:37.8712124-04:00",
+          "ModifiedDate": "2026-10-14T20:19:37.8712124-04:00",
+          "Items": [
+            {
+              "Id": "e193845b-b387-48dd-aa50-69863394e3fc",
+              "Text": "Symbolic systems offer transparency, explainability, and auditability that deep neural networks typically lack.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "ddf6dd05-9b10-4cca-844f-dfeecfbf7198",
+              "Text": "Machine learning handles perception, noise, and pattern discovery from data far better than hand-crafted rules.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d801e49d-700e-46ad-bd36-44caa30be640",
+              "Text": "Neuro-symbolic approaches pair learned perception with symbolic reasoning to gain both robustness and interpretability.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e9d3e08a-7b2a-476b-8900-f964227f3570",
+              "Text": "Ontologies and knowledge graphs ground large language models through retrieval, constraint checking, and fact verification.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "2d2ea06f-cb54-4991-9e84-711dcce4c4c1",
+              "Text": "Regulatory demands for explainable AI have renewed interest in rule-based components within hybrid architectures.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "TotalElementCount": 46
+}

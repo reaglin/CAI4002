@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulated Annealing and Cooling Schedules</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Local Search: Hill Climbing and Simulated Annealing</a></div>
+<h1>Simulated Annealing and Cooling Schedules</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: Traveling Salesman Problem (TSP) + Python + Simulated Annealing (public version)</a>
+<a href="#sec3">Video 2: What is Monte Carlo Simulation?</a>
+<a href="#sec4">Video 3: Unit 6.2 | Learning Rates and Learning Rate Schedulers | Part 4 | Annealing the Learning Rate</a>
+<a href="#sec5">How These Videos Support the Learning Outcomes</a>
+<a href="#sec6">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>Hill climbing always moves uphill, so it stops the moment every neighbor looks worse — even when that peak is only a local optimum. Simulated annealing fixes this by borrowing an idea from metallurgy: start &quot;hot,&quot; where the search is willing to accept moves that make the objective worse, and gradually &quot;cool&quot; until the search behaves like ordinary hill climbing. The willingness to accept a worsening move of size delta is governed by the Metropolis acceptance criterion, typically exp(-delta/T), where T is the current temperature.</p>
+<p>The cooling schedule — the starting temperature, how quickly T decreases (for example geometric cooling T := alpha*T), and how many moves are attempted at each temperature — is the main design decision. Cool too fast and the search freezes in a poor local optimum; cool too slowly and you pay a large computational cost. There is a classical theoretical result that with a sufficiently slow (logarithmic) schedule the algorithm converges to a global optimum with probability approaching one, but that schedule is far too slow for practical use, so in practice we tune schedules empirically and compare against hill climbing with random restarts.</p>
+<p>As you watch the videos below, keep three questions in mind: where does randomness enter the search, what role does a temperature or schedule parameter play in controlling that randomness over time, and how would you judge whether the resulting solution quality justifies the runtime? The first video shows annealing applied end-to-end to a concrete combinatorial problem; the other two build supporting intuition about randomized sampling and about parameters that decay on a schedule.</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: Traveling Salesman Problem (TSP) + Python + Simulated Annealing (public version)</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/k7pWblUN9Ws?cc_load_policy=1&amp;rel=0" title="Video: Traveling Salesman Problem (TSP) + Python + Simulated Annealing (public version) (Prototype Project)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Prototype Project</strong> · 6:30 · 902 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=k7pWblUN9Ws" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short, applied walkthrough that uses simulated annealing to attack the Traveling Salesman Problem in Python, with an accompanying write-up linked in the description. Expect to see a tour represented as a complete state, a move operator that perturbs the tour (such as swapping or reversing city segments), and the annealing loop that sometimes accepts a longer tour early in the run. The video is paired with a Substack article if you want to read the code in more detail.</p>
+<h3>Why this video</h3>
+<p>It is the closest match to the topic: a concrete, traceable implementation that makes the algorithm, the acceptance of worsening moves, and the effect of temperature visible on a large combinatorial problem rather than a toy equation.</p>
+</section>
+<section class="item" id="sec3">
+<h2>Video 2: What is Monte Carlo Simulation?</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/7TqhmX92P6U?cc_load_policy=1&amp;rel=0" title="Video: What is Monte Carlo Simulation? (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 4:35 · 561,569 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=7TqhmX92P6U" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>An IBM Technology explainer on Monte Carlo simulation: using repeated random sampling to estimate outcomes for problems that are hard to solve analytically. It covers the basic setup of defining a model, drawing random inputs many times, and interpreting the distribution of results. It is a general methods overview rather than a search-algorithm tutorial.</p>
+<h3>Why this video</h3>
+<p>Simulated annealing is a Monte Carlo method at heart — the Metropolis criterion is a randomized accept/reject rule — so this clear, well-produced primer gives you the sampling intuition behind why a stochastic search can explore a landscape that deterministic hill climbing cannot.</p>
+</section>
+<section class="item" id="sec4">
+<h2>Video 3: Unit 6.2 | Learning Rates and Learning Rate Schedulers | Part 4 | Annealing the Learning Rate</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/LVXsXe8IU0Q?cc_load_policy=1&amp;rel=0" title="Video: Unit 6.2 | Learning Rates and Learning Rate Schedulers | Part 4 | Annealing the Learning Rate (Lightning AI)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Lightning AI</strong> · 4:11 · 1,731 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=LVXsXe8IU0Q" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>Part of Lightning AI&#39;s unit on learning rates, this segment explains annealing the learning rate: starting with a larger step size and decaying it over training according to a schedule. It discusses why a decaying schedule balances early exploration against later refinement, and shows common scheduler shapes.</p>
+<h3>Why this video</h3>
+<p>The vocabulary and the logic are directly transferable to cooling schedules — a parameter that starts high for exploration and decays toward exploitation — so it reinforces the intuition behind schedule choice and the cost of cooling too quickly or too slowly.</p>
+</section>
+<section class="item" id="sec5">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>The TSP video grounds MO1 and MO2 by showing a complete-state formulation (a full tour), an explicit move operator, and an objective (tour length) being optimized, and it supports MO4 and MO5 by demonstrating how accepting occasional worsening moves escapes local optima at a measurable computational cost. The Monte Carlo explainer underpins the Metropolis acceptance criterion by clarifying how randomized sampling drives the search, which helps you justify stochastic methods over deterministic hill climbing in MO3 and MO5. The learning-rate annealing video builds the schedule intuition needed for MO5, where you must defend a specific cooling schedule in terms of solution quality versus runtime. Together they cover motivation, mechanism, and parameter tuning, though you should rely on the lecture notes and textbook for the formal convergence statement.</p>
+</section>
+<section class="item" id="sec6">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundations of Uninformed Search</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Uninformed Search: BFS, DFS, and Uniform Cost</a></div>
+<h1>Foundations of Uninformed Search</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: Breadth-first search in 4 minutes</a>
+<a href="#sec3">Video 2: Depth-first search in 4 minutes</a>
+<a href="#sec4">Video 3: The 4 Queens Problem, AI &amp; CSPs</a>
+<a href="#sec5">How These Videos Support the Learning Outcomes</a>
+<a href="#sec6">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>Almost every classical AI problem — route planning, puzzle solving, scheduling moves in a game — can be cast in the same shape: you have a current situation, a set of legal moves, a way to tell when you are done, and a cost for getting there. Formulating a search problem means writing that down precisely as five parts: the initial state, the available actions, the transition model that says what each action does, the goal test, and the path cost function. Once a problem is in that form, the same generic algorithm can solve it regardless of whether the states are cities, board configurations, or robot positions.</p>
+<p>The generic framework keeps a frontier of nodes waiting to be expanded and (in graph search) an explored set of states already visited, which prevents infinite loops and repeated work. Different search strategies differ only in one decision: which node to pull off the frontier next. A strategy is called uninformed (or blind) when that decision uses nothing beyond the problem definition itself — no estimate of how far a state is from the goal. We judge these strategies on four criteria: completeness (will it find a solution if one exists), optimality (will it find the cheapest one), time complexity, and space complexity.</p>
+<p>As you watch the videos below, keep two things in mind. First, watch the data structure driving the frontier — a queue versus a stack changes nothing else about the algorithm but changes its behavior, guarantees, and memory use completely. Second, try to map what you see back onto the five-part formulation: what is the state, what counts as an action, and where does the explored set appear in the code or trace?</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: Breadth-first search in 4 minutes</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/HZ5YTanv5QE?cc_load_policy=1&amp;rel=0" title="Video: Breadth-first search in 4 minutes (Michael Sambol)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Michael Sambol</strong> · 3:59 · 608,315 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=HZ5YTanv5QE" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A compact walkthrough of breadth-first search: how the algorithm uses a FIFO queue as its frontier, marks nodes as visited, and expands a graph level by level outward from the start node. The video traces the order in which nodes are discovered and links to a Python implementation on GitHub so you can read the code alongside the explanation.</p>
+<h3>Why this video</h3>
+<p>Michael Sambol&#39;s algorithm shorts are widely used and known for being accurate and tightly edited, and this one shows exactly the frontier-plus-visited-set structure that the generic graph search framework describes — with BFS as the concrete instance where the frontier is a queue.</p>
+</section>
+<section class="item" id="sec3">
+<h2>Video 2: Depth-first search in 4 minutes</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Urx87-NMm6c?cc_load_policy=1&amp;rel=0" title="Video: Depth-first search in 4 minutes (Michael Sambol)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Michael Sambol</strong> · 4:01 · 554,087 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=Urx87-NMm6c" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>The companion video for depth-first search, showing how DFS dives as deep as possible along one branch before backtracking, using a stack (or recursion) in place of BFS&#39;s queue. It traces the visit order on an example graph and points to accompanying Python code.</p>
+<h3>Why this video</h3>
+<p>Watching this immediately after the BFS video makes the key insight of uninformed search vivid: the algorithms are identical except for the frontier discipline, which is precisely what drives their differing completeness, optimality, and memory profiles.</p>
+</section>
+<section class="item" id="sec4">
+<h2>Video 3: The 4 Queens Problem, AI &amp; CSPs</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/X6m0DXt95bs?cc_load_policy=1&amp;rel=0" title="Video: The 4 Queens Problem, AI &amp; CSPs (a bit of intelligence)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>a bit of intelligence</strong> · 5:51 · 15,056 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=X6m0DXt95bs" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>An introduction to the classic N-Queens puzzle, scaled down to a 4x4 board, used as a worked example of how a puzzle gets turned into a problem a computer can search. Based on its description, it frames the puzzle in terms of states (partial board placements), constraints, and the systematic exploration — including backtracking — needed to find a valid configuration.</p>
+<h3>Why this video</h3>
+<p>It gives you a concrete problem to practice the formulation step on, illustrating how a real puzzle becomes states, actions, and a goal test; note that it approaches the puzzle from the constraint-satisfaction angle, so treat it as a formulation example rather than a description of BFS or uniform-cost search.</p>
+</section>
+<section class="item" id="sec5">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>The 4-Queens video gives you practice at the formulation step behind MO1 — recognizing what counts as a state, what an action does, and when a configuration passes the goal test. The BFS and DFS videos directly support MO2 and MO3 by tracing expansion order on a state-space graph and showing the queue-based and stack-based frontiers, together with the visited/explored set, in working code. Comparing the two traces side by side also sets up MO4 and MO5: you will see why BFS finds the shallowest solution but stores an entire level of the frontier, and why DFS is memory-cheap but can wander deep down an unpromising branch — the trade-off at the heart of choosing an uninformed strategy. Uniform-cost search is not covered by these videos and will come from the course readings and lecture material.</p>
+</section>
+<section class="item" id="sec6">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

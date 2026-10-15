@@ -1,0 +1,344 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foundations of Uninformed Search</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Uninformed Search: BFS, DFS, and Uniform Cost</a></div>
+  <header>
+    <h1>Foundations of Uninformed Search</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Foundations of Uninformed Search</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Almost every interesting task an intelligent agent performs can be re-described as a question about sequences of choices: <em>what series of actions takes me from where I am now to where I want to be?</em> Planning a delivery route, solving a Rubik's cube, deciding the moves that restore a scrambled 8-puzzle, routing a packet across a network, or scheduling a set of machine operations all share this shape. The field of AI calls this shared shape a <strong>search problem</strong>, and the algorithms that solve it <strong>search algorithms</strong>. The power of the idea lies in its abstraction: once a task is phrased in the standard vocabulary, any search algorithm can be applied to it without knowing anything about puzzles, maps or packets. This topic develops that vocabulary precisely, builds the generic algorithmic skeleton that all the classical strategies share, and establishes the four yardsticks by which those strategies are compared.</p>
+
+<p>The strategies examined in this module are called <strong>uninformed</strong> (or <strong>blind</strong>) because they operate with no domain knowledge about which unexplored directions look promising. They are the baseline against which informed methods such as greedy best-first search and A* are later measured, and — crucially — they are built on exactly the same framework, so understanding them thoroughly is the cheapest possible investment in understanding everything that follows.</p>
+
+<p><strong>Formulating a Search Problem</strong></p>
+
+<p>A search problem is specified by five components. Getting these five right is the entire modelling step; everything afterwards is mechanical. The five parts are the initial state, the actions, the transition model, the goal test, and the path cost function.</p>
+
+<p>The <strong>initial state</strong> is the state in which the agent begins. For the 8-puzzle — a 3×3 frame holding eight numbered tiles and one blank — the initial state is the particular scrambled configuration you are handed. A convenient encoding is a tuple listing the tile in each cell in row-major order, with <code>0</code> for the blank:</p>
+
+<pre><code>initial_state = (7, 2, 4,
+                 5, 0, 6,
+                 8, 3, 1)      # written as the 9-tuple (7,2,4,5,0,6,8,3,1)</code></pre>
+
+<p>For a route-finding problem in Romania, the initial state might simply be the string <code>"Arad"</code>. For a vacuum-cleaner world with two rooms, a state could be the pair <code>(robot_location, dirt_status)</code>, e.g. <code>("L", ("dirty", "clean"))</code>. Note that a state is an abstraction: it records only what matters for solving the problem. The 8-puzzle state does not record the colour of the tiles, the time of day, or how the puzzle was scrambled. Choosing the right abstraction is a modelling decision with real consequences — too coarse and the model loses solvability, too fine and the state space explodes needlessly.</p>
+
+<p>The <strong>actions</strong> component gives, for each state <em>s</em>, the set of actions legally applicable in <em>s</em>, usually written <code>ACTIONS(s)</code>. This is a function of the state, not a fixed global list, because legality depends on context. In the 8-puzzle the natural action set is the movement of the blank: <code>{Up, Down, Left, Right}</code>. But in the configuration above the blank is in the centre so all four apply, whereas if the blank were in the top-left corner only <code>{Down, Right}</code> would be applicable. In route finding, <code>ACTIONS("Arad") = {Go(Zerind), Go(Sibiu), Go(Timisoara)}</code> — the roads that actually leave Arad.</p>
+
+<pre><code>def actions(state):
+    i = state.index(0)          # position of the blank, 0..8
+    row, col = divmod(i, 3)
+    result = []
+    if row &gt; 0: result.append("Up")
+    if row &lt; 2: result.append("Down")
+    if col &gt; 0: result.append("Left")
+    if col &lt; 2: result.append("Right")
+    return result</code></pre>
+
+<p>The <strong>transition model</strong>, also called the <strong>successor function</strong>, answers: if I am in state <em>s</em> and perform action <em>a</em>, what state results? It is written <code>RESULT(s, a) = s'</code>. In the 8-puzzle, <code>RESULT((7,2,4,5,0,6,8,3,1), "Up")</code> swaps the blank with the tile above it, giving <code>(7,0,4,5,2,6,8,3,1)</code>. The model is deterministic in classical search: one state and one action yield exactly one successor. Together, <code>ACTIONS</code> and <code>RESULT</code> implicitly define a directed graph over states — and this is the key point: the graph is never written down in advance. It is <em>generated on demand</em>, one successor at a time, which is what makes it possible to search spaces with 10<sup>20</sup> states on a laptop.</p>
+
+<pre><code>def result(state, action):
+    i = state.index(0)
+    swap = {"Up": i - 3, "Down": i + 3, "Left": i - 1, "Right": i + 1}[action]
+    s = list(state)
+    s[i], s[swap] = s[swap], s[i]
+    return tuple(s)</code></pre>
+
+<p>The <strong>goal test</strong> decides whether a given state satisfies the objective. It comes in two flavours. The first is <strong>explicit enumeration</strong>: there is a single goal state, or a small listed set, and the test is an equality or membership check — for the 8-puzzle, <code>state == (1,2,3,4,5,6,7,8,0)</code>; for route finding, <code>state == "Bucharest"</code>. The second is an <strong>abstract property check</strong>, used when the goals cannot practically be listed. In the 8-queens problem the goal test is "no two queens attack each other" — there are 92 solutions and nobody enumerates them in advance. In the vacuum world the test is "every square is clean", regardless of where the robot ends up. Property-based goal tests are extremely common and are what allow search to be applied to design and configuration problems.</p>
+
+<p>The <strong>path cost function</strong> assigns a numeric cost to a path, and is almost always additive: the cost of a path is the sum of the costs of its individual steps, where the <strong>step cost</strong> <code>c(s, a, s')</code> is the cost of applying action <em>a</em> in state <em>s</em> to reach <em>s'</em>. We write <code>g(n)</code> for the cost of the path from the initial state to node <em>n</em>. In the 8-puzzle every move costs 1, so path cost equals path length. In Romanian route finding each step costs the road distance in kilometres, so <code>g(n)</code> is total distance travelled. Step costs may encode time, fuel, money, risk, or any additive quantity. A standard and important assumption in uninformed search is that step costs are <strong>non-negative</strong>, and for some guarantees that they are bounded below by some ε &gt; 0; negative-cost cycles would make "cheapest path" meaningless, and zero-cost infinite loops can defeat termination arguments.</p>
+
+<p>Here is a compact worked formulation of the vacuum world to show all five parts together.</p>
+
+<table>
+  <thead>
+    <tr><th>Component</th><th>Two-room vacuum world</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Initial state</td><td><code>("L", ("dirty", "dirty"))</code> — robot in left room, both rooms dirty</td></tr>
+    <tr><td>Actions</td><td><code>{Left, Right, Suck}</code> in every state</td></tr>
+    <tr><td>Transition model</td><td><code>Left</code>/<code>Right</code> move the robot (no effect if already at that end); <code>Suck</code> cleans the current room</td></tr>
+    <tr><td>Goal test</td><td>both rooms have status <code>"clean"</code> (a property check)</td></tr>
+    <tr><td>Path cost</td><td>1 per action; path cost = number of actions</td></tr>
+  </tbody>
+</table>
+
+<p>With 2 robot positions × 2 dirt statuses × 2 dirt statuses, this world has exactly 8 states — small enough to draw in full, which makes it a favourite teaching example.</p>
+
+<p><strong>State Space, Paths, and Solutions</strong></p>
+
+<p>The <strong>state space</strong> is the set of all states reachable from the initial state by any finite sequence of applicable actions. It is <em>not</em> the set of all syntactically describable states. The 8-puzzle has 9! = 362,880 arrangements of eight tiles and a blank, but these split into two parity classes that cannot reach one another by legal moves, so the reachable state space from any given start is 9!/2 = 181,440 states. This distinction matters: half of all 8-puzzle "goals" are unreachable from any given start, and a search that is not told this will exhaustively and fruitlessly explore 181,440 states before reporting failure.</p>
+
+<p>Viewed as a graph, the state space has states as vertices and actions as directed edges labelled with their step costs. A <strong>path</strong> is a sequence of states <em>s</em><sub>0</sub>, <em>s</em><sub>1</sub>, …, <em>s</em><sub>k</sub> in which each consecutive pair is connected by an applicable action. A <strong>solution</strong> is a path whose first state is the initial state and whose last state passes the goal test. An <strong>optimal solution</strong> is a solution of minimum path cost among all solutions. Note the asymmetry: completeness is about finding <em>a</em> solution; optimality is about finding the <em>cheapest</em> one. An algorithm can easily have the first property and lack the second.</p>
+
+<p>Consider a tiny weighted graph to make this concrete, with start S and goal G:</p>
+
+<pre><code>S --1--&gt; A --1--&gt; G        total cost 2, length 2
+S --4--&gt; G                 total cost 4, length 1
+S --1--&gt; B --1--&gt; C --1--&gt; G   total cost 3, length 3</code></pre>
+
+<p>There are three solutions. The shortest in number of steps is <code>S → G</code> (one action), but the cheapest is <code>S → A → G</code> (cost 2). An algorithm that minimises the number of steps returns a sub-optimal answer here, which is exactly why breadth-first and uniform-cost search are not interchangeable.</p>
+
+<p>State spaces are frequently enormous and sometimes infinite. The 15-puzzle has about 1.3 × 10<sup>13</sup> reachable states; Rubik's cube has about 4.3 × 10<sup>19</sup>; chess has an estimated 10<sup>40</sup>-plus legal positions. An infinite state space arises whenever states are drawn from an unbounded set — for instance, a problem whose states are integers with actions "add 1" and "double". No algorithm can enumerate such a space, and none tries to. Search algorithms build only the fragment of the graph they actually touch, generating successors lazily. This is the single most important implementation idea in the whole area: the state space is a mathematical object; the <strong>search tree</strong> is the concrete, partially-built data structure the algorithm holds in memory.</p>
+
+<p>That distinction deserves emphasis. The search tree's nodes are not states — they are <strong>nodes</strong>, bookkeeping records that pair a state with the path used to reach it. The same state can appear in many different nodes (reached by different routes), and in a cyclic state space a finite graph can generate an infinite tree. A node typically carries four fields:</p>
+
+<pre><code>class Node:
+    def __init__(self, state, parent=None, action=None, path_cost=0):
+        self.state     = state       # the state this node represents
+        self.parent    = parent      # the node that generated this one
+        self.action    = action      # the action applied to the parent
+        self.path_cost = path_cost   # g(n): cost from the initial state
+
+def solution_path(node):             # parent-pointer reconstruction
+    actions = []
+    while node.parent is not None:
+        actions.append(node.action)
+        node = node.parent
+    return list(reversed(actions))</code></pre>
+
+<p>The parent pointer is what makes the solution recoverable. The algorithm does not store whole paths in the frontier — it stores single nodes, and reconstructs the path backwards from the goal node when the search succeeds.</p>
+
+<p>Two structural parameters summarise a state space for analysis purposes. The <strong>branching factor</strong> <em>b</em> is the number of successors a node has — usually the average or maximum over the space. For the 8-puzzle it averages roughly 2.67 (two successors from a corner blank, three from an edge, four from the centre); for Rubik's cube with quarter-turn moves it is 12; for chess roughly 35. The <strong>solution depth</strong> <em>d</em> is the number of actions in the shallowest solution. A third parameter, <em>m</em>, denotes the maximum depth of the search tree (possibly infinite). Nearly every complexity result in this module is a formula in <em>b</em>, <em>d</em> and <em>m</em>. The reason they matter so much is exponential growth: with <em>b</em> = 10, a depth-6 search touches on the order of 10<sup>6</sup> nodes, depth-10 touches 10<sup>10</sup>, and depth-14 touches 10<sup>14</sup>. Each extra level multiplies the work by <em>b</em>.</p>
+
+<table>
+  <thead>
+    <tr><th>Problem</th><th>Approx. branching factor b</th><th>Approx. reachable states</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Two-room vacuum world</td><td>3</td><td>8</td></tr>
+    <tr><td>8-puzzle</td><td>2.67</td><td>1.8 × 10<sup>5</sup></td></tr>
+    <tr><td>15-puzzle</td><td>2.13</td><td>1.3 × 10<sup>13</sup></td></tr>
+    <tr><td>Rubik's cube (quarter turns)</td><td>12</td><td>4.3 × 10<sup>19</sup></td></tr>
+    <tr><td>Romania road map</td><td>~3</td><td>20</td></tr>
+  </tbody>
+</table>
+
+<p><strong>The Generic Search Framework: Tree Search</strong></p>
+
+<p>All the classical strategies are instances of a single loop. The loop maintains a <strong>frontier</strong> (also called the open list or fringe): the collection of nodes that have been generated but not yet expanded — the growing boundary between the explored region and the unexplored region. The algorithm is:</p>
+
+<pre><code>function TREE-SEARCH(problem) returns a solution, or failure
+    frontier &lt;- a container holding Node(problem.initial_state)
+    loop do
+        if frontier is empty then return failure
+        node &lt;- REMOVE(frontier)                 # strategy decides WHICH node
+        if problem.GOAL-TEST(node.state) then return SOLUTION(node)
+        for each action in problem.ACTIONS(node.state) do
+            child &lt;- CHILD-NODE(problem, node, action)
+            INSERT(child, frontier)</code></pre>
+
+<p>Step by step: <em>initialise</em> the frontier with a single node wrapping the initial state, with no parent, no action and path cost 0. Then <em>loop</em>. If the frontier is ever empty, every reachable node has been expanded without success, so return failure. Otherwise <em>remove</em> one node — and this removal rule is the strategy. Apply the <em>goal test</em> to the removed node; if it passes, walk the parent pointers back to the root and return the action sequence. If it fails, <em>expand</em> the node: for every applicable action, build a child node whose state is <code>RESULT(s, a)</code>, whose parent is the current node, and whose path cost is <code>node.path_cost + c(s, a, child.state)</code>; insert each child into the frontier.</p>
+
+<pre><code>def child_node(problem, parent, action):
+    s2 = problem.result(parent.state, action)
+    return Node(state=s2,
+                parent=parent,
+                action=action,
+                path_cost=parent.path_cost + problem.step_cost(parent.state, action, s2))</code></pre>
+
+<p>Now the central observation of the entire module: <strong>the only difference between breadth-first, depth-first, and uniform-cost search is the rule by which <code>REMOVE</code> chooses the next node.</strong> Change the frontier's data structure and you change the algorithm, with no other edits at all.</p>
+
+<table>
+  <thead>
+    <tr><th>Strategy</th><th>Frontier data structure</th><th>Node removed next</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Breadth-first search</td><td>FIFO queue</td><td>the shallowest unexpanded node (oldest inserted)</td></tr>
+    <tr><td>Depth-first search</td><td>LIFO stack</td><td>the deepest unexpanded node (newest inserted)</td></tr>
+    <tr><td>Uniform-cost search</td><td>priority queue keyed on <code>g(n)</code></td><td>the unexpanded node of lowest path cost</td></tr>
+  </tbody>
+</table>
+
+<p>This is a remarkably economical design. A single, well-tested implementation of the loop, parameterised by a frontier object exposing <code>push</code>, <code>pop</code> and <code>is_empty</code>, yields three distinct algorithms with entirely different behavioural guarantees. When informed search is introduced later, greedy best-first (priority queue on <em>h</em>) and A* (priority queue on <em>g</em> + <em>h</em>) slot into exactly the same loop.</p>
+
+<p>One subtlety deserves attention: <em>when</em> the goal test is applied. In the framework above it is applied when a node is <strong>removed</strong> from the frontier ("late" goal test). An alternative applies it when a node is <strong>generated</strong> ("early" goal test), which can save a level of expansion. For breadth-first search with uniform step costs, early testing is safe and faster. For uniform-cost search it is <em>not</em> safe: a goal node may be generated via an expensive path long before a cheaper path to the same goal is found, so the goal test must be deferred until the node is selected for expansion. Keeping the test at removal time is the conservative default that works for all strategies.</p>
+
+<p>The weakness of pure tree search is that it has no memory of where it has been. In a state space with cycles — which includes virtually every realistic one, since most actions are reversible — it will regenerate states endlessly. In the 8-puzzle, moving the blank Up and then Down returns to the original state; pure tree search will happily follow such loops forever and never terminate, even though the state space is finite. Worse, even in acyclic spaces, repeated states cause exponential blow-up: a rectangular grid with four movement actions has roughly 2<sup>d</sup> distinct paths of length <em>d</em> leading to only O(<em>d</em><sup>2</sup>) distinct cells.</p>
+
+<p><strong>Graph Search and the Explored Set</strong></p>
+
+<p>The fix is to remember what has already been dealt with. <strong>Graph search</strong> augments tree search with an <strong>explored set</strong> (historically the <em>closed list</em>): the set of states of all nodes that have been expanded.</p>
+
+<pre><code>function GRAPH-SEARCH(problem) returns a solution, or failure
+    frontier &lt;- a container holding Node(problem.initial_state)
+    explored &lt;- an empty set
+    loop do
+        if frontier is empty then return failure
+        node &lt;- REMOVE(frontier)
+        if problem.GOAL-TEST(node.state) then return SOLUTION(node)
+        add node.state to explored
+        for each action in problem.ACTIONS(node.state) do
+            child &lt;- CHILD-NODE(problem, node, action)
+            if child.state not in explored and child.state not in frontier then
+                INSERT(child, frontier)</code></pre>
+
+<p>The two added lines carry the whole idea. A newly generated child is <strong>discarded</strong> if its state is already in the explored set (we have already expanded it, so its successors are already accounted for) or already present in the frontier (a node for that state is already queued). For uniform-cost search the frontier check is refined: if the state is in the frontier with a <em>higher</em> <code>g</code> value, the old node is replaced by the cheaper new one rather than discarding the new one — a step usually called <em>decrease-key</em> or relaxation.</p>
+
+<p>The consequences are significant:</p>
+<ul>
+  <li><strong>Termination on finite state spaces.</strong> Each state can be expanded at most once, so the loop performs at most |<em>S</em>| expansions and must terminate, with success or with a correct report of failure. Cycles are no longer fatal.</li>
+  <li><strong>Elimination of redundant work.</strong> The search tree is pruned down to something no larger than the state space itself. In the grid example above, graph search explores O(<em>d</em><sup>2</sup>) cells instead of O(2<sup>d</sup>) paths — an exponential saving.</li>
+  <li><strong>A memory cost.</strong> The explored set grows with the number of <em>distinct</em> states visited, and nothing is ever removed from it. For large spaces, the explored set, not the frontier, can become the binding constraint. This is the reason depth-first search's celebrated O(<em>bm</em>) space advantage evaporates in its graph-search form: once you store every visited state, you are back to space proportional to states visited.</li>
+</ul>
+
+<p>The membership tests must be fast, because they run once per generated node, which is the inner loop of the whole algorithm. A <strong>hash set</strong> keyed on a canonical representation of the state gives expected O(1) membership checks. "Canonical" means two logically identical states always produce the identical key. For the 8-puzzle, a 9-tuple of integers hashes cleanly and compares by value. Pitfalls to avoid include hashing mutable objects (a Python <code>list</code> is unhashable; convert to a <code>tuple</code>), hashing by object identity instead of content (two distinct objects describing the same board must be treated as equal), and non-canonical orderings (if a state is a set of facts, sort it or use a <code>frozenset</code> so that <code>{A,B}</code> and <code>{B,A}</code> produce the same key).</p>
+
+<pre><code>explored = set()
+frontier_states = set()       # mirrors the frontier for O(1) membership
+
+explored.add(node.state)      # states must be hashable and canonical
+if child.state not in explored and child.state not in frontier_states:
+    frontier.push(child)
+    frontier_states.add(child.state)</code></pre>
+
+<p>Keeping a parallel <code>frontier_states</code> set is the standard trick: a bare queue or stack supports O(1) push and pop but only O(<em>n</em>) membership testing, which would dominate the running time. The set mirrors the frontier's contents so that both checks are constant-time.</p>
+
+<p>The choice between tree search and graph search is therefore a classic time–space trade-off, resolved differently in different settings. Use graph search when the state space has many repeatedstates and the explored set fits in memory — which covers most puzzles, maps and planning graphs. Use tree search (or a cheaper partial remedy) when memory is scarce: a common middle ground is to store no explored set at all but to reject any child whose state already appears on the path from the root to the current node, which costs O(<em>d</em>) per check, uses no extra memory beyond the path itself, and eliminates cycles though not all repeated states.</p>
+
+<p><strong>What Makes a Strategy 'Uninformed'</strong></p>
+
+<p>A search strategy is <strong>uninformed</strong> — equivalently <em>blind</em> — when its decision about which node to expand next uses no information about the problem beyond what the five-part specification provides. The defining characteristics follow from that single restriction.</p>
+
+<ul>
+  <li><strong>No estimate of remaining distance.</strong> An uninformed strategy has no heuristic function <em>h</em>(<em>n</em>) estimating the cost from <em>n</em> to the nearest goal. Standing at Arad with Bucharest as the goal, it does not know that Sibiu is geographically nearer to Bucharest than Timisoara; both are simply successors.</li>
+  <li><strong>Goal states are recognised, not anticipated.</strong> The only window onto "goalness" is the boolean goal test, which returns true or false. It cannot return "almost". A state one move from solving the 8-puzzle and a state eighty moves away are, to an uninformed algorithm, indistinguishable: both simply fail the test.</li>
+  <li><strong>Ordering uses structural facts only.</strong> Decisions are made from quantities the framework already computes: a node's depth, its insertion time, or its accumulated path cost <code>g(n)</code>. Breadth-first orders by depth, depth-first by recency, uniform-cost by <code>g(n)</code>. Every one of those is derivable from the node record itself without consulting the problem domain.</li>
+  <li><strong>General-purpose but often inefficient.</strong> Because they assume nothing, uninformed strategies apply unchanged to every problem that can be cast in the five-part form — the same BFS code solves the vacuum world, route finding and the 8-puzzle. The price is that they explore in essentially every direction at once. On the 8-puzzle, breadth-first search may generate hundreds of thousands of nodes where an informed search guided by a good heuristic generates a few thousand.</li>
+  <li><strong>They are the foundation of informed search.</strong> Greedy best-first search and A* are not different algorithms; they are the same generic loop with a priority queue keyed on <em>h</em>(<em>n</em>) or <em>g</em>(<em>n</em>) + <em>h</em>(<em>n</em>). Indeed, uniform-cost search <em>is</em> A* with <em>h</em>(<em>n</em>) = 0 everywhere. Mastering the frontier, the explored set, node records and parent-pointer reconstruction here means that the later material adds only the heuristic and its properties.</li>
+</ul>
+
+<p>A useful illustration of the gap: on a road map, uniform-cost search expands nodes in rings of equal path cost outward from the start in <em>all</em> directions. If the goal lies 200 km east, the algorithm still expands everything within 200 km to the west, north and south before reaching it. A* with straight-line distance as the heuristic stretches those rings into an ellipse elongated towards the goal, expanding a small fraction of the same nodes. The difference is entirely due to information, not to algorithmic cleverness.</p>
+
+<p>It is worth being clear about what uninformed does <em>not</em> mean. It does not mean ignorant of cost: uniform-cost search uses step costs intensively. It does not mean random or unsystematic: these strategies are highly systematic. It means only that no knowledge about the goal's location in the state space is used to bias the ordering.</p>
+
+<p><strong>Four Criteria for Evaluating Search Algorithms</strong></p>
+
+<p>Every search strategy in this module is assessed on four criteria. They are the common currency that makes it possible to compare algorithms rigorously rather than by impression.</p>
+
+<ul>
+  <li><strong>Completeness.</strong> Is the algorithm guaranteed to find a solution whenever at least one exists, and to report failure correctly when none does? Completeness is usually conditional, and the conditions matter. Breadth-first search is complete provided the branching factor <em>b</em> is finite. Depth-first tree search is incomplete: on an infinite-depth branch or a cycle it can descend forever past a solution sitting one step to the side; in graph-search form on a finite state space it becomes complete. Uniform-cost search is complete provided every step cost exceeds some ε &gt; 0 — without that condition it can be trapped by an infinite sequence of zero-cost actions, accumulating no cost and never advancing.</li>
+  <li><strong>Optimality.</strong> Does the algorithm always return a least-cost solution? This is strictly stronger than completeness. Depth-first search returns the first solution it stumbles upon, which may be arbitrarily worse than the best. Breadth-first search returns the <em>shallowest</em> goal, which is optimal only when path cost is a non-decreasing function of depth — in practice, when all step costs are equal. Uniform-cost search returns the cheapest goal under any non-negative step costs, which is precisely why it exists as a separate algorithm. Returning to the earlier three-path example, BFS returns <code>S → G</code> at cost 4 while UCS returns <code>S → A → G</code> at cost 2; both are "correct" solutions, but only one is optimal.</li>
+  <li><strong>Time complexity.</strong> How long does the search take, measured as the number of nodes <em>generated</em> (some texts count nodes expanded; the two differ by roughly a factor of <em>b</em>). The standard expressions are in terms of <em>b</em>, <em>d</em> and <em>m</em>. Breadth-first search generates O(<em>b</em><sup><em>d</em></sup>) nodes; depth-first search may generate O(<em>b</em><sup><em>m</em></sup>). These are exponential, and the exponent is what dominates — doubling <em>b</em> is far less damaging than adding one to <em>d</em> when <em>d</em> is large.</li>
+  <li><strong>Space complexity.</strong> How many nodes must be held in memory simultaneously — the frontier plus, in graph search, the explored set. This is frequently the <em>binding constraint</em> in practice, and it is the single most important reason depth-first and iterative-deepening variants remain in use. A machine generating 10<sup>6</sup> nodes per second will produce 10<sup>9</sup> nodes in under twenty minutes, which is tolerable; but storing 10<sup>9</sup> nodes at, say, 100 bytes each requires 100 GB, which usually is not. Breadth-first search typically exhausts memory long before it exhausts patience, while depth-first search's frontier holds only O(<em>bm</em>) nodes.</li>
+</ul>
+
+<p>Two points about how these measures are expressed. First, complexity is counted in <strong>nodes</strong> rather than seconds or bytes. A count of nodes is a property of the algorithm and the problem, independent of language, compiler, processor speed and memory architecture; a time in seconds would have to be re-measured on every new machine and would tell you nothing transferable. Translating back is straightforward if needed: multiply the node count by the per-node cost of generating and testing a node, and multiply the stored-node count by the bytes per node record.</p>
+
+<p>Second, the parameters must be stated carefully. <em>b</em> is the branching factor (maximum or average), <em>d</em> the depth of the shallowest goal, <em>m</em> the maximum depth of the search space, which may be infinite. For uniform-cost search the natural parameters are not <em>b</em> and <em>d</em> but the optimal solution cost <em>C*</em> and the minimum step cost ε, giving O(<em>b</em><sup>1+⌊<em>C*</em>/ε⌋</sup>) — a bound that reduces to roughly <em>b</em><sup><em>d</em></sup> when all step costs are 1, but can be substantially worse when small step costs allow many cheap paths to be explored before a solution is reached.</p>
+
+<p>The table below previews how the strategies examined later in the module score on these four criteria; the detailed derivations belong with each algorithm, but the shape of the comparison is worth having in mind from the outset.</p>
+
+<table>
+  <thead>
+    <tr><th>Criterion</th><th>Breadth-first</th><th>Depth-first (tree)</th><th>Uniform-cost</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Complete?</td><td>Yes, if <em>b</em> finite</td><td>No</td><td>Yes, if step costs &gt; ε &gt; 0</td></tr>
+    <tr><td>Optimal?</td><td>Only if step costs are equal</td><td>No</td><td>Yes</td></tr>
+    <tr><td>Time</td><td>O(<em>b</em><sup><em>d</em></sup>)</td><td>O(<em>b</em><sup><em>m</em></sup>)</td><td>O(<em>b</em><sup>1+⌊<em>C*</em>/ε⌋</sup>)</td></tr>
+    <tr><td>Space</td><td>O(<em>b</em><sup><em>d</em></sup>)</td><td>O(<em>bm</em>)</td><td>O(<em>b</em><sup>1+⌊<em>C*</em>/ε⌋</sup>)</td></tr>
+  </tbody>
+</table>
+
+<p>Reading the table as an engineer rather than a theorist: breadth-first search gives guarantees but will exhaust memory on deep problems; depth-first search is memory-frugal but offers no guarantees at all; uniform-cost search buys true optimality under arbitrary non-negative costs at breadth-first-like memory cost. Those trade-offs, and the hybrid strategies designed to escape them, are the substance of the rest of the module.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Directly supported. The topic defines and illustrates all five components of a search problem (initial state, actions, transition model, goal test, path cost) with worked formulations of the 8-puzzle, route finding and the vacuum world.</li>
+  <li><strong>MO2</strong> — Partially supported. The topic establishes the frontier, the expansion loop, and the removal rules (FIFO, LIFO, priority queue) that determine expansion order, providing the machinery that tracing exercises in later topics depend upon, but it does not itself trace a full run of each algorithm.</li>
+  <li><strong>MO3</strong> — Supported foundationally. The generic search loop, node records with parent pointers, path reconstruction, the explored set, and hash-based membership testing are given in implementable pseudocode and code form; the algorithm-specific frontier implementations are completed in later topics.</li>
+  <li><strong>MO4</strong> — Supported. The four evaluation criteria are defined precisely, measured in nodes with parameters <em>b</em>, <em>d</em>, <em>m</em>, <em>C*</em> and ε, and a preview comparison table is given; detailed derivations for depth-limited and iterative-deepening search are deferred to later topics.</li>
+  <li><strong>MO5</strong> — Partially supported. By explaining what "uninformed" means and how edge costs, solution depth and memory budgets enter the completeness, optimality, time and space analyses, the topic supplies the criteria on which a strategy selection is later justified, without yet working through selection scenarios.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Key worked examples used: the 8-puzzle (state encoding as a 9-tuple, ACTIONS/RESULT code, 9!/2 reachable states, b ≈ 2.67), the two-room vacuum world (8 states, property-based goal test), and a three-path weighted graph showing BFS-optimal ≠ cost-optimal. The three-path example is reused in the optimality discussion so students can see one concrete case where shallowest ≠ cheapest.
+
+Deliberate emphases: (1) the state-space graph is implicit and generated on demand, while the search tree is the explicit in-memory structure; (2) nodes ≠ states; (3) changing only the frontier data structure changes the algorithm; (4) early vs late goal testing and why late testing is required for uniform-cost search; (5) the memory cost of the explored set, which undermines DFS's space advantage in graph-search form.
+
+Possible follow-on activities: have students formulate a non-puzzle problem (e.g. word-ladder or jug-pouring) in the five-part form; implement the generic loop with a pluggable frontier and verify that swapping queue/stack/heap reproduces the three strategies; measure nodes generated on the 8-puzzle to make the exponential growth concrete.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Almost every classical AI problem — route planning, puzzle solving, scheduling moves in a game — can be cast in the same shape: you have a current situation, a set of legal moves, a way to tell when you are done, and a cost for getting there. Formulating a search problem means writing that down precisely as five parts: the initial state, the available actions, the transition model that says what each action does, the goal test, and the path cost function. Once a problem is in that form, the same generic algorithm can solve it regardless of whether the states are cities, board configurations, or robot positions.</p>
+<p>The generic framework keeps a frontier of nodes waiting to be expanded and (in graph search) an explored set of states already visited, which prevents infinite loops and repeated work. Different search strategies differ only in one decision: which node to pull off the frontier next. A strategy is called uninformed (or blind) when that decision uses nothing beyond the problem definition itself — no estimate of how far a state is from the goal. We judge these strategies on four criteria: completeness (will it find a solution if one exists), optimality (will it find the cheapest one), time complexity, and space complexity.</p>
+<p>As you watch the videos below, keep two things in mind. First, watch the data structure driving the frontier — a queue versus a stack changes nothing else about the algorithm but changes its behavior, guarantees, and memory use completely. Second, try to map what you see back onto the five-part formulation: what is the state, what counts as an action, and where does the explored set appear in the code or trace?</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Breadth-first search in 4 minutes</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/HZ5YTanv5QE?cc_load_policy=1&amp;rel=0" title="Video: Breadth-first search in 4 minutes (Michael Sambol)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Michael Sambol</strong> · 3:59 · 608,315 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=HZ5YTanv5QE" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A compact walkthrough of breadth-first search: how the algorithm uses a FIFO queue as its frontier, marks nodes as visited, and expands a graph level by level outward from the start node. The video traces the order in which nodes are discovered and links to a Python implementation on GitHub so you can read the code alongside the explanation.</p>
+<h3>Why this video</h3>
+<p>Michael Sambol's algorithm shorts are widely used and known for being accurate and tightly edited, and this one shows exactly the frontier-plus-visited-set structure that the generic graph search framework describes — with BFS as the concrete instance where the frontier is a queue.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Depth-first search in 4 minutes</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Urx87-NMm6c?cc_load_policy=1&amp;rel=0" title="Video: Depth-first search in 4 minutes (Michael Sambol)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Michael Sambol</strong> · 4:01 · 554,087 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=Urx87-NMm6c" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>The companion video for depth-first search, showing how DFS dives as deep as possible along one branch before backtracking, using a stack (or recursion) in place of BFS's queue. It traces the visit order on an example graph and points to accompanying Python code.</p>
+<h3>Why this video</h3>
+<p>Watching this immediately after the BFS video makes the key insight of uninformed search vivid: the algorithms are identical except for the frontier discipline, which is precisely what drives their differing completeness, optimality, and memory profiles.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: The 4 Queens Problem, AI &amp; CSPs</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/X6m0DXt95bs?cc_load_policy=1&amp;rel=0" title="Video: The 4 Queens Problem, AI &amp; CSPs (a bit of intelligence)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>a bit of intelligence</strong> · 5:51 · 15,056 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=X6m0DXt95bs" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>An introduction to the classic N-Queens puzzle, scaled down to a 4x4 board, used as a worked example of how a puzzle gets turned into a problem a computer can search. Based on its description, it frames the puzzle in terms of states (partial board placements), constraints, and the systematic exploration — including backtracking — needed to find a valid configuration.</p>
+<h3>Why this video</h3>
+<p>It gives you a concrete problem to practice the formulation step on, illustrating how a real puzzle becomes states, actions, and a goal test; note that it approaches the puzzle from the constraint-satisfaction angle, so treat it as a formulation example rather than a description of BFS or uniform-cost search.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>The 4-Queens video gives you practice at the formulation step behind MO1 — recognizing what counts as a state, what an action does, and when a configuration passes the goal test. The BFS and DFS videos directly support MO2 and MO3 by tracing expansion order on a state-space graph and showing the queue-based and stack-based frontiers, together with the visited/explored set, in working code. Comparing the two traces side by side also sets up MO4 and MO5: you will see why BFS finds the shallowest solution but stores an entire level of the frontier, and why DFS is memory-cheap but can wander deep down an unpromising branch — the trade-off at the heart of choosing an uninformed strategy. Uniform-cost search is not covered by these videos and will come from the course readings and lecture material.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

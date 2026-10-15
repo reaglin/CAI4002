@@ -1,0 +1,350 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Propositional Inference: Model Checking and Resolution</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Logical Agents: Propositional and First-Order Logic</a></div>
+  <header>
+    <h1>Propositional Inference: Model Checking and Resolution</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Propositional Inference: Model Checking and Resolution</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Logical inference is the process of deriving new sentences from old ones in a way that is guaranteed to preserve truth. A knowledge-based agent stores what it knows in a knowledge base (KB) of sentences and must be able to answer questions of the form "given everything I know, does it follow that <code>α</code> is true?" This topic develops the machinery that answers that question for propositional logic: the semantic notion of entailment, the brute-force method of model checking, the refinements that make satisfiability search practical, the normal form that makes proof mechanical, the resolution rule together with proof by refutation, and finally the restricted but highly efficient world of Horn clauses with forward and backward chaining.</p>
+
+<p><strong>Entailment and the inference problem.</strong> Entailment is a relationship between sentences that rests entirely on semantics, not on any particular algorithm. We write <code>KB ⊨ α</code> and read it as "<em>KB</em> entails <em>α</em>". The definition is: <code>KB ⊨ α</code> if and only if, in every model in which <code>KB</code> is true, <code>α</code> is also true. A <em>model</em> in propositional logic is simply a complete assignment of <code>true</code> or <code>false</code> to every proposition symbol under consideration. If <code>M(KB)</code> denotes the set of models satisfying the KB and <code>M(α)</code> the set satisfying the query, then entailment is set inclusion: <code>KB ⊨ α</code> exactly when <code>M(KB) ⊆ M(α)</code>. The more a KB says, the fewer models it admits, and the more sentences it entails.</p>
+
+<p>A worked illustration helps. Suppose the KB contains the two sentences <code>P ∨ Q</code> and <code>¬Q</code>. With two symbols there are four models. The KB is true only in the single model <code>{P = true, Q = false}</code>. The sentence <code>P</code> is true in that model, so <code>KB ⊨ P</code>. The sentence <code>Q</code> is false there, so <code>KB ⊭ Q</code>; indeed <code>KB ⊨ ¬Q</code> trivially since <code>¬Q</code> is already in the KB. Note carefully that <code>KB ⊭ Q</code> is not the same as <code>KB ⊨ ¬Q</code> in general — a KB may simply be silent about a symbol, entailing neither it nor its negation.</p>
+
+<p>Against this semantic yardstick we measure algorithms. An inference procedure is written <code>KB ⊢ᵢ α</code>, meaning "procedure <em>i</em> derives <em>α</em> from <em>KB</em>".</p>
+<ul>
+<li><strong>Soundness</strong> (also called truth-preservation): whenever <code>KB ⊢ᵢ α</code>, it is also the case that <code>KB ⊨ α</code>. A sound procedure never invents conclusions that are not genuinely supported. An unsound procedure is worse than useless, because an agent acting on a fabricated conclusion may take catastrophic actions.</li>
+<li><strong>Completeness</strong>: whenever <code>KB ⊨ α</code>, the procedure can derive it, <code>KB ⊢ᵢ α</code>. A complete procedure never misses a consequence. Incompleteness is tolerable in practice (many fast reasoners are deliberately incomplete), but it means a "no" answer must be read as "I could not show it", not "it is false".</li>
+</ul>
+
+<p>Both properties are relative to a semantics, and both are needed for an inference engine to be a faithful implementation of entailment. Truth-table enumeration and resolution are each sound and complete for propositional logic; forward and backward chaining are sound and complete for the Horn fragment only.</p>
+
+<p><strong>Decidability and complexity.</strong> Because a propositional KB mentions only finitely many symbols, there are only finitely many models, so entailment is <em>decidable</em>: an algorithm always terminates with a correct yes/no answer. That is a stronger guarantee than first-order logic offers, where entailment is only semi-decidable. Decidability, however, says nothing about cost. Deciding whether <code>KB ⊨ α</code> is <strong>co-NP-complete</strong> in general. The reason is the duality with satisfiability: <code>KB ⊨ α</code> holds exactly when <code>KB ∧ ¬α</code> is unsatisfiable, and SAT is the canonical NP-complete problem, so its complement — proving unsatisfiability — sits in co-NP. A "no" answer to entailment has a short certificate (exhibit one model satisfying <code>KB ∧ ¬α</code>), but a "yes" answer in general does not; one must in effect rule out all models. This asymmetry explains why practical systems invest so heavily in search heuristics and proof techniques rather than hoping for a polynomial algorithm.</p>
+
+<p><strong>The deduction theorem.</strong> The bridge between entailment and the familiar notion of a valid (tautological) sentence is the deduction theorem: for any sentences <code>KB</code> and <code>α</code>, <code>KB ⊨ α</code> if and only if the implication <code>(KB ⇒ α)</code> is valid, i.e. true in every model. (Here <code>KB</code> is understood as the conjunction of all its sentences.) The proof is immediate from the semantics of <code>⇒</code>: the implication can only fail in a model where <code>KB</code> is true and <code>α</code> false, and such a model exists precisely when entailment fails. A second, equally useful equivalence is <em>proof by refutation</em> (reductio ad absurdum): <code>KB ⊨ α</code> if and only if <code>(KB ∧ ¬α)</code> is unsatisfiable. These three formulations — entailment, validity of an implication, unsatisfiability of a conjunction — are interchangeable, and each suggests a different algorithm: enumerate models, test a tautology, or run a satisfiability solver.</p>
+
+<p><strong>Model checking by truth-table enumeration.</strong> The most direct algorithm simply implements the definition of entailment. Collect every proposition symbol occurring in <code>KB</code> or <code>α</code>; call them <code>P₁ … Pₙ</code>. Enumerate all <code>2ⁿ</code> assignments of truth values to these symbols. For each assignment, evaluate the KB. If the KB evaluates to <code>false</code>, the model is irrelevant and is skipped. If the KB evaluates to <code>true</code>, evaluate the query: if the query is also <code>true</code>, continue; if the query is <code>false</code>, stop and report that entailment fails. If the enumeration completes without finding such a model, report that <code>KB ⊨ α</code>.</p>
+
+<pre><code>function TT-ENTAILS?(KB, α) returns true or false
+    symbols ← a list of the proposition symbols in KB and α
+    return TT-CHECK-ALL(KB, α, symbols, {})
+
+function TT-CHECK-ALL(KB, α, symbols, model) returns true or false
+    if EMPTY?(symbols) then
+        if PL-TRUE?(KB, model) then return PL-TRUE?(α, model)
+        else return true          // KB false here: model places no constraint
+    else
+        P ← FIRST(symbols);  rest ← REST(symbols)
+        return TT-CHECK-ALL(KB, α, rest, model ∪ {P = true})
+               and
+               TT-CHECK-ALL(KB, α, rest, model ∪ {P = false})</code></pre>
+
+<p>Consider a concrete example. Let <code>KB = (P ⇒ Q) ∧ (Q ⇒ R) ∧ P</code> and let the query be <code>α = R</code>. There are three symbols, hence eight models.</p>
+
+<table>
+<thead>
+<tr><th>P</th><th>Q</th><th>R</th><th>P ⇒ Q</th><th>Q ⇒ R</th><th>KB</th><th>α = R</th><th>Relevant?</th></tr>
+</thead>
+<tbody>
+<tr><td>false</td><td>false</td><td>false</td><td>true</td><td>true</td><td>false</td><td>false</td><td>skip</td></tr>
+<tr><td>false</td><td>false</td><td>true</td><td>true</td><td>true</td><td>false</td><td>true</td><td>skip</td></tr>
+<tr><td>false</td><td>true</td><td>false</td><td>true</td><td>false</td><td>false</td><td>false</td><td>skip</td></tr>
+<tr><td>false</td><td>true</td><td>true</td><td>true</td><td>true</td><td>false</td><td>true</td><td>skip</td></tr>
+<tr><td>true</td><td>false</td><td>false</td><td>false</td><td>true</td><td>false</td><td>false</td><td>skip</td></tr>
+<tr><td>true</td><td>false</td><td>true</td><td>false</td><td>true</td><td>false</td><td>true</td><td>skip</td></tr>
+<tr><td>true</td><td>true</td><td>false</td><td>true</td><td>false</td><td>false</td><td>false</td><td>skip</td></tr>
+<tr><td>true</td><td>true</td><td>true</td><td>true</td><td>true</td><td><strong>true</strong></td><td><strong>true</strong></td><td>check</td></tr>
+</tbody>
+</table>
+
+<p>Exactly one model satisfies the KB, and in it <code>R</code> is true, so <code>KB ⊨ R</code>. Now change the query to <code>α = ¬P</code>. The same single KB-model has <code>P = true</code>, so <code>¬P</code> is false there: entailment fails, and the model <code>{P = true, Q = true, R = true}</code> is a <strong>counterexample</strong> — a concrete world consistent with everything the agent knows in which the query is false. Counterexamples are valuable diagnostics: they tell the knowledge engineer exactly which scenario the KB has failed to rule out, often revealing a missing axiom.</p>
+
+<p>Truth-table enumeration is sound and complete by construction, because it is a literal transcription of the semantic definition of entailment; there is no gap between what it derives and what is entailed. Its cost, however, is brutal. The time complexity is <code>O(2ⁿ)</code> for <code>n</code> symbols (strictly, <code>O(2ⁿ · m)</code> if evaluating the sentences costs <code>m</code>). The space complexity is only <code>O(n)</code>, because the recursive formulation never materialises the whole table — it performs a depth-first traversal of a binary tree of partial models, holding just one root-to-leaf path at a time. Even so, a modest KB with 60 symbols yields roughly 10<sup>18</sup> models, which is beyond any machine. Enumeration is therefore a definitional tool and a teaching device rather than a production algorithm; it is, however, an excellent way to verify small examples and to confirm the correctness of logical equivalences.</p>
+
+<p><strong>Satisfiability and DPLL-style search.</strong> Because entailment reduces to unsatisfiability of <code>KB ∧ ¬α</code>, any good satisfiability (SAT) solver is also a good entailment checker. The Davis–Putnam–Logemann–Loveland (DPLL) algorithm is a backtracking search over partial models that takes the same recursive enumeration skeleton as above and adds three devastatingly effective improvements. Its input is a sentence in CNF, viewed as a set of clauses.</p>
+<ul>
+<li><strong>Early termination.</strong> A partial model often settles the outcome without assigning every symbol. A clause is already satisfied the moment any one of its literals is true, so the clause <code>(A ∨ B)</code> is satisfied by <code>A = true</code> regardless of <code>B</code>. If every clause is satisfied, the search can stop immediately and report satisfiability. Conversely, if any clause has all of its literals assigned false, that branch is dead and must be abandoned at once rather than extended through the remaining symbols. Truth-table enumeration, by contrast, stubbornly completes every assignment.</li>
+<li><strong>Unit propagation (the unit clause heuristic).</strong> A <em>unit clause</em> is one with exactly one literal still unassigned and all other literals already false. That literal is forced: there is no choice but to make it true. Assigning it may in turn reduce other clauses to unit clauses, producing a cascade that fixes many symbols with no search at all. For example, with clauses <code>(¬A ∨ B)</code>, <code>(¬B ∨ C)</code>, <code>(¬C ∨ D)</code> and the unit clause <code>(A)</code>: asserting <code>A</code> makes the first clause a unit on <code>B</code>, forcing <code>B</code>; that forces <code>C</code>; that forces <code>D</code>. Unit propagation applied to a KB of definite clauses is exactly forward chaining. In modern solvers it typically consumes the majority of running time and is the single most important optimisation.</li>
+<li><strong>The pure symbol heuristic.</strong> A symbol is <em>pure</em> if, across all clauses not yet satisfied, it appears with only one polarity — always positive or always negative. Such a symbol can safely be assigned the value that makes its literals true, since doing so can only satisfy clauses and never falsify one; no backtracking over this choice is ever required. In the clause set <code>(A ∨ ¬B), (¬B ∨ ¬C), (C ∨ A)</code>, the symbol <code>A</code> occurs only positively and <code>B</code> only negatively, so we may set <code>A = true</code> and <code>B = false</code> outright. Purity is relative to the remaining clauses: once early termination marks clauses as satisfied, further symbols may become pure.</li>
+</ul>
+
+<pre><code>function DPLL-SATISFIABLE?(s) returns true or false
+    clauses ← the set of clauses in the CNF representation of s
+    symbols ← a list of the proposition symbols in s
+    return DPLL(clauses, symbols, {})
+
+function DPLL(clauses, symbols, model) returns true or false
+    if every clause in clauses is true in model then return true
+    if some clause in clauses is false in model then return false
+    P, value ← FIND-PURE-SYMBOL(symbols, clauses, model)
+    if P is non-null then return DPLL(clauses, symbols − P, model ∪ {P = value})
+    P, value ← FIND-UNIT-CLAUSE(clauses, model)
+    if P is non-null then return DPLL(clauses, symbols − P, model ∪ {P = value})
+    P ← FIRST(symbols);  rest ← REST(symbols)
+    return DPLL(clauses, rest, model ∪ {P = true})
+        or DPLL(clauses, rest, model ∪ {P = false})</code></pre>
+
+<p>Industrial solvers layer further techniques on this core: intelligent backtracking that jumps back to the decision actually responsible for a conflict, clause learning that records the cause of each conflict as a new clause so the same dead end is never revisited, activity-based branching heuristics such as VSIDS, random restarts, and lazy "watched literal" data structures that make unit propagation nearly free. The cumulative effect is startling: DPLL-derived solvers routinely dispatch industrial instances with millions of variables and tens of millions of clauses, despite the worst-case exponential bound that complexity theory guarantees must remain. This is why hardware verification, software model checking, and planning are now commonly compiled into SAT.</p>
+
+<p><strong>Local search and WALKSAT.</strong> An entirely different strategy abandons systematic search. Local search starts from a complete random assignment and repeatedly flips the value of a single symbol, guided by the number of clauses satisfied. WALKSAT picks a clause that is currently unsatisfied and then flips one of its symbols, choosing with some probability <em>p</em> a random symbol in the clause (a "random walk" move that escapes local optima) and otherwise the symbol that maximises the number of satisfied clauses (a greedy "min-conflicts" move). The balance between the two keeps the search from stagnating on plateaux.</p>
+
+<pre><code>function WALKSAT(clauses, p, max_flips) returns a model or failure
+    model ← a random assignment of true/false to the symbols in clauses
+    for i = 1 to max_flips do
+        if model satisfies clauses then return model
+        clause ← a randomly selected clause from clauses that is false in model
+        with probability p
+            flip the value in model of a randomly selected symbol from clause
+        else
+            flip whichever symbol in clause maximises the number of satisfied clauses
+    return failure</code></pre>
+
+<p>WALKSAT is often dramatically faster than DPLL on large satisfiable instances, especially ones with many solutions. Its crucial limitation is that it is <strong>incomplete</strong>: returning <code>failure</code> after <code>max_flips</code> flips means only "no model found within the budget", never "no model exists". Since entailment requires demonstrating that <code>KB ∧ ¬α</code> is <em>un</em>satisfiable, local search cannot establish entailment. It is, however, perfectly suited to the opposite task: finding a counterexample that refutes a conjectured entailment, and to applications such as planning where any satisfying assignment is the answer sought.</p>
+
+<p><strong>Conjunctive normal form.</strong> Both DPLL and resolution require their input in a uniform syntactic shape. A <em>literal</em> is a proposition symbol or its negation; a <em>clause</em> is a disjunction of literals; a sentence is in <strong>conjunctive normal form (CNF)</strong> if it is a conjunction of clauses. Every propositional sentence has a logically equivalent CNF, obtained by a deterministic four-stage rewriting procedure.</p>
+<ul>
+<li><strong>Step 1 — eliminate biconditionals.</strong> Replace every <code>α ⇔ β</code> with <code>(α ⇒ β) ∧ (β ⇒ α)</code>. This is the step most likely to be forgotten, and it doubles the size of the affected subformula.</li>
+<li><strong>Step 2 — eliminate implications.</strong> Replace every <code>α ⇒ β</code> with <code>¬α ∨ β</code>. After this step the only connectives left are <code>¬</code>, <code>∧</code>, and <code>∨</code>.</li>
+<li><strong>Step 3 — move negations inward (negation normal form).</strong> Apply De Morgan's laws, <code>¬(α ∧ β) ≡ (¬α ∨ ¬β)</code> and <code>¬(α ∨ β) ≡ (¬α ∧ ¬β)</code>, together with double-negation elimination <code>¬¬α ≡ α</code>, until every negation sign sits directly on a proposition symbol.</li>
+<li><strong>Step 4 — distribute <code>∨</code> over <code>∧</code>.</strong> Apply <code>α ∨ (β ∧ γ) ≡ (α ∨ β) ∧ (α ∨ γ)</code> repeatedly until the sentence is a flat conjunction of disjunctions. Finally, flatten nested associative operators and optionally simplify by dropping duplicate literals and deleting tautological clauses that contain both <code>P</code> and <code>¬P</code>.</li>
+</ul>
+
+<p>A full worked conversion of the wumpus-world style sentence <code>B₁,₁ ⇔ (P₁,₂ ∨ P₂,₁)</code>:</p>
+
+<pre><code>1. Eliminate ⇔ :
+   (B₁,₁ ⇒ (P₁,₂ ∨ P₂,₁)) ∧ ((P₁,₂ ∨ P₂,₁) ⇒ B₁,₁)
+
+2. Eliminate ⇒ :
+   (¬B₁,₁ ∨ P₁,₂ ∨ P₂,₁) ∧ (¬(P₁,₂ ∨ P₂,₁) ∨ B₁,₁)
+
+3. Move ¬ inward (De Morgan):
+   (¬B₁,₁ ∨ P₁,₂ ∨ P₂,₁) ∧ ((¬P₁,₂ ∧ ¬P₂,₁) ∨ B₁,₁)
+
+4. Distribute ∨ over ∧ :
+   (¬B₁,₁ ∨ P₁,₂ ∨ P₂,₁) ∧ (¬P₁,₂ ∨ B₁,₁) ∧ (¬P₂,₁ ∨ B₁,₁)</code></pre>
+
+<p>The result is three clauses, and it is logically equivalent to the original — equivalent, not merely equisatisfiable, because every rewrite rule used is an equivalence. That equivalence guarantee has a price. Step 4 can cause exponential blow-up: the sentence <code>(A₁ ∧ B₁) ∨ (A₂ ∧ B₂) ∨ … ∨ (Aₙ ∧ Bₙ)</code> distributes into <code>2ⁿ</code> clauses, one for each way of choosing a literal from each disjunct. In practice this is avoided by the <em>Tseitin transformation</em>, which introduces a fresh symbol to name each compound subformula and adds clauses defining it; the result is linear in size and <em>equisatisfiable</em> (though not equivalent, since it mentions new symbols). For entailment checking, equisatisfiability is all that is needed, so Tseitin encoding is the standard industrial practice.</p>
+
+<p><strong>The resolution rule.</strong> Resolution is a single inference rule that, with CNF and refutation, is complete for propositional logic. In its general form, the <em>full resolution rule</em> takes two clauses containing complementary literals and produces the disjunction of all the remaining literals:</p>
+
+<pre><code>    ℓ₁ ∨ … ∨ ℓᵢ ∨ … ∨ ℓₖ ,     m₁ ∨ … ∨ mⱼ ∨ … ∨ mₙ
+   ---------------------------------------------------------   where ℓᵢ and mⱼ are complementary
+    ℓ₁ ∨ … ℓᵢ₋₁ ∨ ℓᵢ₊₁ … ∨ ℓₖ ∨ m₁ ∨ … mⱼ₋₁ ∨ mⱼ₊₁ … ∨ mₙ</code></pre>
+
+<p>The canonical example: from <code>(A ∨ B)</code> and <code>(¬B ∨ C)</code> infer <code>(A ∨ C)</code>. The rule is sound, and the reason is easy to see by case analysis on <code>B</code>. If <code>B</code> is false, then for the first clause to hold <code>A</code> must be true. If <code>B</code> is true, then for the second clause to hold <code>C</code> must be true. Either way <code>A ∨ C</code> holds. Note that resolution must be applied to exactly one complementary pair at a time. If two clauses share two complementary pairs — for instance <code>(A ∨ B)</code> and <code>(¬A ∨ ¬B)</code> — then resolving on <code>A</code> gives <code>(B ∨ ¬B)</code> and resolving on <code>B</code> gives <code>(A ∨ ¬A)</code>; both resolvents are tautologies and carry no information, which is correct, since those two clauses are jointly satisfiable and entail nothing new. Resolving on both pairs at once would illegitimately produce the empty clause, so the rule is deliberately restricted.</p>
+
+<p><strong>Factoring.</strong> A resolvent is a <em>set</em> of literals, not a list, so duplicate literals must be collapsed. This step is called factoring. Resolving <code>(A ∨ B)</code> with <code>(A ∨ ¬B)</code> yields the raw resolvent <code>(A ∨ A)</code>, which factoring reduces to the single-literal clause <code>(A)</code>. Keeping clauses in this canonical form matters for two reasons: it keeps clauses from growing without bound through repeated duplication, and it allows the algorithm to recognise when a newly generated clause is identical to one already present, which is what makes termination detection possible.</p>
+
+<p><strong>Proof by refutation.</strong> Resolution alone cannot derive every entailed sentence — from <code>(A)</code> it will never produce the entailed sentence <code>(A ∨ B)</code>, because resolution only ever shortens or merges clauses. What resolution <em>is</em> guaranteed to do is detect unsatisfiability, a property known as <strong>refutation completeness</strong>: if a set of clauses is unsatisfiable, resolution applied exhaustively will derive the empty clause. Combined with the refutation equivalence established earlier, this gives a complete decision procedure for entailment. The algorithm is:</p>
+<ul>
+<li>Form the sentence <code>KB ∧ ¬α</code>, i.e. add the negation of the query to the knowledge base.</li>
+<li>Convert the whole thing to CNF and collect the clauses into a set.</li>
+<li>Repeatedly select pairs of clauses containing complementary literals, compute the resolvent, factor it, and add it to the set if it is new.</li>
+<li>If the <strong>empty clause</strong> <code>{ }</code> (written <code>□</code>) is ever derived, stop and report <code>KB ⊨ α</code>. The empty clause is a disjunction of no literals, which is false in every model; deriving it from <code>KB ∧ ¬α</code> by sound rules proves that <code>KB ∧ ¬α</code> has no model, i.e. that it is unsatisfiable, i.e. that <code>KB ⊨ α</code>.</li>
+<li>If the process <em>saturates</em> — no pair of clauses yields a resolvent that is not already present — stop and report that <code>KB ⊭ α</code>, because <code>KB ∧ ¬α</code> is satisfiable. Termination is guaranteed: with <code>n</code> symbols there are only finitely many distinct clauses (at most <code>3ⁿ</code>, since each symbol appears positively, negatively, or not at all), so the clause set cannot grow forever.</li>
+</ul>
+
+<pre><code>function PL-RESOLUTION(KB, α) returns true or false
+    clauses ← the set of clauses in the CNF representation of (KB ∧ ¬α)
+    new ← { }
+    loop do
+        for each pair of clauses Cᵢ, Cⱼ in clauses do
+            resolvents ← PL-RESOLVE(Cᵢ, Cⱼ)          // factored
+            if resolvents contains the empty clause then return true
+            new ← new ∪ resolvents
+        if new ⊆ clauses then return false            // saturation
+        clauses ← clauses ∪ new</code></pre>
+
+<p>A worked refutation. Let the KB be the three sentences <code>P ⇒ Q</code>, <code>Q ⇒ R</code>, <code>P</code>, and let the query be <code>R</code>. CNF of the KB gives the clauses <code>(¬P ∨ Q)</code>, <code>(¬Q ∨ R)</code>, <code>(P)</code>; negating the query adds <code>(¬R)</code>.</p>
+
+<table>
+<thead>
+<tr><th>Step</th><th>Clause</th><th>Justification</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>(¬P ∨ Q)</td><td>from KB</td></tr>
+<tr><td>2</td><td>(¬Q ∨ R)</td><td>from KB</td></tr>
+<tr><td>3</td><td>(P)</td><td>from KB</td></tr>
+<tr><td>4</td><td>(¬R)</td><td>negated query</td></tr>
+<tr><td>5</td><td>(Q)</td><td>resolve 1 and 3 on P</td></tr>
+<tr><td>6</td><td>(R)</td><td>resolve 2 and 5 on Q</td></tr>
+<tr><td>7</td><td>□</td><td>resolve 4 and 6 on R — contradiction</td></tr>
+</tbody>
+</table>
+
+<p>The empty clause appears, so <code>KB ⊨ R</code>. Now contrast a non-entailment. Take <code>KB = (P ∨ Q)</code> and query <code>α = P</code>. The clause set is <code>(P ∨ Q)</code> and <code>(¬P)</code>. The only available resolution is on <code>P</code>, giving <code>(Q)</code>. Resolving <code>(Q)</code> against the others produces nothing new — there is no clause containing <code>¬Q</code>. The set <code>{(P ∨ Q), (¬P), (Q)}</code> is saturated and contains no empty clause, so <code>KB ⊭ P</code>; and indeed the model <code>{P = false, Q = true}</code> satisfies the KB while falsifying the query.</p>
+
+<p>The practical difficulty with naive resolution is the combinatorial explosion of generated clauses; real theorem provers therefore impose strategies such as unit preference (prefer resolving with short clauses, since the goal is the shortest clause of all), the set-of-support strategy (require every resolution step to involve a descendant of the negated query, keeping the proof goal-directed), and subsumption (discard any clause that is a superset of an existing clause, since it is weaker and therefore redundant).</p>
+
+<p><strong>Horn clauses and definite clauses.</strong> The expense of full resolution motivates a restricted language in which inference is cheap. A <strong>definite clause</strong> is a disjunction of literals of which <em>exactly one</em> is positive; a <strong>Horn clause</strong> is a disjunction with <em>at most</em> one positive literal. Horn clauses therefore comprise definite clauses together with <em>goal clauses</em> (no positive literal) and facts (a single positive literal, a definite clause with an empty premise). The crucial observation is that a definite clause can be rewritten as an implication whose premise is a conjunction of positive literals and whose conclusion is a single positive literal:</p>
+
+<pre><code>(¬L₁ ∨ ¬L₂ ∨ … ∨ ¬Lₖ ∨ H)   ≡   (L₁ ∧ L₂ ∧ … ∧ Lₖ) ⇒ H</code></pre>
+
+<p>This form is enormously natural for knowledge engineering — it reads as a rule, "if all of these conditions hold, then conclude this" — and it is the basis of logic programming (Prolog), production-rule systems, and deductive databases. For example:</p>
+
+<pre><code>Facts:  Mythical? — no;  we know:  Mammal
+Rules:  Mammal ⇒ WarmBlooded
+        WarmBlooded ∧ HasFeathers ⇒ Bird
+        Mammal ∧ GivesMilk ⇒ Nurtures</code></pre>
+
+<p>Three properties make the Horn fragment attractive. First, entailment of an atom from a Horn KB can be decided in time <strong>linear</strong> in the size of the KB, a dramatic improvement on the co-NP-completeness of the general case. Second, inference can be carried out with forward or backward chaining, which produce proofs that humans can follow as chains of rule applications. Third, unit propagation in DPLL is precisely forward chaining, so the same machinery serves both worlds. The cost of these benefits is expressiveness: a Horn KB cannot state genuine disjunctions such as <code>P₁,₂ ∨ P₂,₁</code> or negative conclusions, so the wumpus world's knowledge cannot be fully captured in Horn form.</p>
+
+<p><strong>Forward chaining.</strong> Forward chaining is <em>data-driven</em>: it begins with the atoms known to be true and repeatedly fires any rule all of whose premises are already known, adding the conclusion to the set of known facts. It stops when the query atom is derived, or when a complete pass adds no new fact (a fixed point has been reached), in which case the query is not entailed.</p>
+
+<pre><code>function PL-FC-ENTAILS?(KB, q) returns true or false
+    count ← a table where count[c] is the number of symbols in clause c's premise
+    inferred ← a table where inferred[s] is initially false for all symbols
+    agenda ← a queue of symbols known to be true in KB (the facts)
+    while agenda is not empty do
+        p ← POP(agenda)
+        if p = q then return true
+        if inferred[p] = false then
+            inferred[p] ← true
+            for each clause c in KB where p appears in c's premise do
+                decrement count[c]
+                if count[c] = 0 then add c's conclusion to agenda
+    return false</code></pre>
+
+<p>The <strong>count table</strong> is what delivers linear time. Instead of rescanning every rule on every iteration to see whether its premises are now satisfied, the algorithm stores, for each rule, how many premises remain unsatisfied. When a symbol becomes known, only the rules mentioning that symbol in their premise are touched, and each is decremented by one. A rule fires exactly when its counter hits zero. Over the whole run, each premise occurrence in the KB is processed exactly once, so the total work is proportional to the number of symbol occurrences in the KB — linear in its size.</p>
+
+<p>A trace makes the behaviour concrete. Let the KB be:</p>
+
+<pre><code>r1: P ⇒ Q
+r2: L ∧ M ⇒ P
+r3: B ∧ L ⇒ M
+r4: A ∧ P ⇒ L
+r5: A ∧ B ⇒ L
+facts: A, B      query: Q</code></pre>
+
+<table>
+<thead>
+<tr><th>Step</th><th>Symbol popped</th><th>Counters decremented</th><th>Rule fired</th><th>New fact added</th></tr>
+</thead>
+<tbody>
+<tr><td>0</td><td>—</td><td>initial counts: r1=1, r2=2, r3=2, r4=2, r5=2</td><td>—</td><td>agenda = [A, B]</td></tr>
+<tr><td>1</td><td>A</td><td>r4 → 1, r5 → 1</td><td>none</td><td>—</td></tr>
+<tr><td>2</td><td>B</td><td>r3 → 1, r5 → 0</td><td>r5</td><td>L</td></tr>
+<tr><td>3</td><td>L</td><td>r2 → 1, r3 → 0, r4 → 0</td><td>r3, r4</td><td>M, L (already known)</td></tr>
+<tr><td>4</td><td>M</td><td>r2 → 0</td><td>r2</td><td>P</td></tr>
+<tr><td>5</td><td>P</td><td>r1 → 0, r4 already fired</td><td>r1</td><td>Q</td></tr>
+<tr><td>6</td><td>Q</td><td>—</td><td>—</td><td>Q = query → return true</td></tr>
+</tbody>
+</table>
+
+<p>Forward chaining is <strong>sound</strong>, because every fact it adds is produced by one application of Modus Ponens, which is a sound rule. It is <strong>complete</strong> for definite-clause KBs, and the argument is instructive: when the algorithm reaches its fixed point, take the set of inferred atoms and build the model that assigns <code>true</code> to each of them and <code>false</code> to every other symbol. This model satisfies every clause of the KB — if some clause <code>L₁ ∧ … ∧ Lₖ ⇒ H</code> were false in it, all the <code>Lᵢ</code> would be inferred and <code>H</code> would not be, contradicting the fact that the algorithm had reached a fixed point. Hence this is a model of the KB, so any atom entailed by the KB must be true in it, so any entailed atom is one of the inferred atoms. This model is in fact the unique <em>minimal</em> model of the KB, the one that makes as few atoms true as possible.</p>
+
+<p><strong>Backward chaining.</strong> Backward chaining is <em>goal-driven</em>. It starts from the query <code>q</code> and works backwards. If <code>q</code> is already a known fact, it succeeds. Otherwise it finds every rule whose conclusion is <code>q</code> and, for each, recursively attempts to prove all of that rule's premises; if every premise of some rule can be proved, <code>q</code> is proved. The search is depth-first and must keep track of the goals currently on the stack so that it does not loop forever on cyclic rule sets (for instance <code>P ⇒ Q</code> together with <code>Q ⇒ P</code>). This is the inference strategy used by Prolog.</p>
+
+<p>Running backward chaining on the same KB with query <code>Q</code>: the goal <code>Q</code> matches the conclusion of r1, so the subgoal is <code>P</code>; <code>P</code> is the conclusion of r2, giving subgoals <code>L</code> and <code>M</code>; <code>L</code> is the conclusion of r4 (subgoals <code>A</code> and <code>P</code> — but <code>P</code> is already on the stack, so this branch is abandoned to avoid a loop) and of r5 (subgoals <code>A</code> and <code>B</code>, both facts — success); <code>M</code> is the conclusion of r3, with subgoals <code>B</code> (a fact) and <code>L</code> (already proved). All subgoals succeed, so <code>Q</code> is proved. Like forward chaining, backward chaining is sound and complete for definite-clause knowledge bases.</p>
+
+<p><strong>Comparing the two.</strong> The algorithms compute the same answers but explore the KB in opposite directions and have different cost profiles.</p>
+
+<table>
+<thead>
+<tr><th>Dimension</th><th>Forward chaining</th><th>Backward chaining</th></tr>
+</thead>
+<tbody>
+<tr><td>Direction of reasoning</td><td>From facts towards conclusions</td><td>From the query back towards facts</td></tr>
+<tr><td>Control style</td><td>Data-driven; fires every applicable rule</td><td>Goal-driven; expands only goals relevant to the query</td></tr>
+<tr><td>What it computes</td><td>All atoms entailed by the KB (the minimal model)</td><td>Only whether the specific query holds</td></tr>
+<tr><td>Work done</td><td>Linear in KB size, but may derive many irrelevant facts</td><td>Often sub-linear — touches only the relevant fragment; can repeat work without memoisation</td></tr>
+<tr><td>Search order</td><td>Breadth-first-like propagation over an agenda</td><td>Depth-first over an AND/OR goal tree; needs loop checking</td></tr>
+<tr><td>Typical use</td><td>Monitoring, alarms, production systems, deductive databases, unit propagation in SAT</td><td>Query answering, logic programming (Prolog), diagnosis of a specific hypothesis</td></tr>
+<tr><td>Soundness / completeness</td><td>Sound and complete for definite clauses</td><td>Sound and complete for definite clauses</td></tr>
+</tbody>
+</table>
+
+<p>The practical rule of thumb: if the agent continuously receives new percepts and should maintain everything derivable from them — a sensor-monitoring or alarm application — forward chaining is appropriate, since the incremental cost of each new fact is small and all consequences are kept up to date. If the agent has a large KB but a specific question, backward chaining is usually far cheaper, because the cost is proportional to the size of the proof tree rather than the size of the KB. A medical KB with a hundred thousand rules asked "does this patient have condition X?" should certainly not derive every consequence of the patient's record; it should chain backwards from X. Many real systems combine both, using forward chaining to propagate cheap, highly constraining facts and backward chaining to resolve the remaining questions on demand.</p>
+
+<p><strong>Putting the methods side by side.</strong> The four approaches developed here trade generality against efficiency.</p>
+
+<table>
+<thead>
+<tr><th>Method</th><th>Input form</th><th>Guarantees</th><th>Typical cost</th><th>Best used for</th></tr>
+</thead>
+<tbody>
+<tr><td>Truth-table enumeration</td><td>Any sentence</td><td>Sound, complete, always terminates</td><td>O(2ⁿ) time, O(n) space</td><td>Small examples, verifying equivalences, teaching</td></tr>
+<tr><td>DPLL</td><td>CNF</td><td>Sound, complete; decides satisfiability</td><td>Exponential worst case, excellent in practice</td><td>Large real-world entailment and SAT problems</td></tr>
+<tr><td>WALKSAT (local search)</td><td>CNF</td><td>Sound for "satisfiable"; <em>incomplete</em></td><td>Often very fast on satisfiable instances</td><td>Finding models/counterexamples; never proving entailment</td></tr>
+<tr><td>Resolution refutation</td><td>CNF</td><td>Sound, refutation-complete, terminates</td><td>Potentially explosive clause growth</td><td>Producing explicit proofs; general theorem proving</td></tr>
+<tr><td>Forward / backward chaining</td><td>Definite clauses only</td><td>Sound and complete for Horn KBs</td><td>Linear in KB size</td><td>Rule-based systems and logic programming</td></tr>
+</tbody>
+</table>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+<li><strong>MO1</strong> — Supported indirectly. The topic supplies the inference engine that sits behind the ASK operation of a knowledge-based agent's control loop: every method described here is an implementation of "does the KB entail this query?". It does not itself describe the agent architecture or the TELL/ASK interface.</li>
+<li><strong>MO2</strong> — Supported indirectly. CNF conversion requires fluent manipulation of well-formed sentences built from the standard connectives (<code>¬, ∧, ∨, ⇒, ⇔</code>), reinforcing correct syntax, but the topic does not treat the BNF grammar itself.</li>
+<li><strong>MO3</strong> — Directly and fully addressed. The topic defines entailment, develops model checking by truth-table enumeration and DPLL-style search, gives the four-step CNF conversion procedure, and presents the resolution rule with proof by refutation, including worked examples of both entailment and non-entailment.</li>
+<li><strong>MO4</strong> — Not addressed. This topic is confined to propositional logic; predicates, functions, and quantifiers belong to the first-order material elsewhere in the module.</li>
+<li><strong>MO5</strong> — Directly addressed. The final section defines Horn and definite clauses, gives algorithms and traces for forward and backward chaining, establishes their soundness and completeness, and compares them explicitly on direction of reasoning, work done, and suitability for monitoring versus specific-query tasks.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Worked examples chosen to be reusable in tutorials: the three-symbol truth table (P⇒Q, Q⇒R, P ⊨ R) is deliberately reused as both the resolution refutation example and, in rule form, as the forward/backward chaining trace, so students can compare the three methods on closely related problems. The non-entailment example (KB = P ∨ Q, query P) illustrates saturation and counterexample extraction. Pseudocode follows the standard Russell &amp; Norvig presentations (TT-ENTAILS?, DPLL-SATISFIABLE?, WALKSAT, PL-RESOLUTION, PL-FC-ENTAILS?). The Tseitin transformation and modern CDCL refinements (clause learning, VSIDS, watched literals) are included as accurate, well-established extensions beyond the listed subtopics; they can be treated as optional enrichment. Note the deliberate emphasis on the distinction between KB ⊭ α and KB ⊨ &#172;α, and on WALKSAT&#39;s inability to establish entailment, as these are common examination misconceptions.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

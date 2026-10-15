@@ -1,0 +1,235 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulated Annealing and Cooling Schedules</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Local Search: Hill Climbing and Simulated Annealing</a></div>
+  <header>
+    <h1>Simulated Annealing and Cooling Schedules</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Simulated Annealing and Cooling Schedules</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Simulated annealing is the best known member of the family of <strong>stochastic local search</strong> algorithms. Like hill climbing, it keeps a single complete-state candidate in memory and repeatedly replaces it with a neighbour produced by a move operator. Unlike hill climbing, it is willing — under carefully controlled circumstances — to move to a <em>worse</em> state. That single change in policy transforms a fast but short-sighted optimiser into a method that can climb out of shallow local optima and still converge on a high-quality answer. The algorithm takes its name and its mathematics from metallurgy: annealing is the process of heating a metal or glass until its atoms become highly mobile and then cooling it slowly so that the atoms settle into a low-energy, highly ordered crystalline structure. Cool it too fast (quenching) and the material freezes into a defect-ridden, high-energy configuration. Simulated annealing treats an objective function as an energy landscape and applies exactly the same idea to search.</p>
+
+<p><strong>Motivation: escaping local optima.</strong> To see why the method exists, consider the two extremes it sits between. <em>Pure hill climbing</em> accepts a successor only if it strictly improves the objective. This makes each step cheap and the overall trajectory strongly directed, but it also means the search stops the moment it reaches any state whose neighbours are all worse — a local maximum, or the flat edge of a plateau. Hill climbing is therefore <strong>incomplete</strong>: it may terminate arbitrarily far from the global optimum and has no mechanism for recognising or repairing that failure. On random 8-queens instances, steepest-ascent hill climbing solves only around 14% of instances from a random start, getting stuck the rest of the time after a handful of steps.</p>
+
+<p>At the opposite extreme, a <em>pure random walk</em> ignores the objective entirely and moves to a uniformly chosen neighbour every iteration. Because the walk can eventually reach any state reachable under the move operator, it is <strong>complete in the limit</strong> — given infinite time it will visit a global optimum with probability 1. But it is hopelessly inefficient: it discards every piece of information the objective function offers and wanders the landscape essentially blind, so the expected time to stumble on a good state grows explosively with problem size.</p>
+
+<p>Simulated annealing blends the two behaviours and, crucially, <em>shifts the blend over time</em>. Early in the run the algorithm behaves much like a random walk: almost every proposed move is accepted, so the search diffuses widely across the landscape and is not captured by the first shallow basin it encounters. As the run progresses the random component is progressively suppressed and the search becomes increasingly greedy, refining its position within whichever broad region it has settled into. The intuition is to spend the early budget <em>finding the right valley</em> and the later budget <em>finding the bottom of that valley</em>.</p>
+
+<ul>
+<li><strong>Energy-landscape view.</strong> If we are minimising, we call the objective the <em>energy</em> <code>E</code> and we want the deepest valley; if we are maximising (as in n-queens scored by non-attacking pairs, or a profit function), we want the highest peak. The two formulations are equivalent — set <code>E = -objective</code> — and the literature uses both. What matters is that the acceptance rule is always expressed in terms of "how much worse the candidate is".</li>
+<li><strong>Why shallow basins are escapable.</strong> A shallow local optimum is one surrounded by a low barrier: leaving it requires only a small sacrifice in objective value. The acceptance rule makes small sacrifices cheap, so the search leaks out of shallow basins quickly while tending to remain inside deep ones, where escape would require a large sacrifice.</li>
+<li><strong>Ping-pong ball analogy.</strong> Imagine a ball bouncing on a bumpy surface. Shake the surface hard and the ball is thrown out of every small dimple; shake gently and it settles into the deepest nearby basin. Annealing is the policy of shaking hard first and then reducing the shaking to zero.</li>
+</ul>
+
+<p><strong>The algorithm.</strong> The control loop is remarkably short. On each iteration, the current temperature is read from a <strong>cooling schedule</strong>, one random neighbour is generated, the change in objective is evaluated, and a probabilistic accept/reject decision is made.</p>
+
+<pre><code>function SIMULATED-ANNEALING(problem, schedule) returns a state
+    current  &lt;- problem.INITIAL-STATE          // random or heuristically seeded
+    best     &lt;- current                        // always track the best seen
+    for t = 1 to infinity do
+        T &lt;- schedule(t)                       // temperature for this iteration
+        if T &lt;= T_min or budget exhausted then
+            return best
+        next  &lt;- a randomly selected successor of current     // ONE neighbour only
+        dE    &lt;- VALUE(next) - VALUE(current)                 // maximisation convention
+        if dE &gt; 0 then
+            current &lt;- next                    // improving move: always accept
+        else
+            with probability exp(dE / T): current &lt;- next     // worsening move
+        if VALUE(current) &gt; VALUE(best) then
+            best &lt;- current
+    return best</code></pre>
+
+<p>Several design decisions in this loop deserve emphasis:</p>
+<ul>
+<li><strong>One successor per iteration.</strong> Steepest-ascent hill climbing enumerates and evaluates <em>all</em> neighbours before moving; in 8-queens that is 56 successors per step, and in a 1000-city tour with 2-opt moves it is roughly 500,000. Simulated annealing samples a single neighbour uniformly at random, so each iteration costs <code>O(1)</code> move generation plus one objective evaluation. This is why annealing can afford hundreds of thousands or millions of iterations.</li>
+<li><strong>Incremental evaluation.</strong> In practice <code>dE</code> is almost never computed by scoring both states from scratch. For a 2-opt move on a tour, <code>dE</code> is the sum of two removed edge lengths minus two added edge lengths — four distance lookups regardless of tour length. For n-queens, moving one queen within its column changes only the conflicts involving that queen. Fast delta evaluation is usually the single most important implementation optimisation.</li>
+<li><strong>Improving moves are free.</strong> Since <code>exp(dE/T) &gt; 1</code> whenever <code>dE &gt; 0</code>, the single expression "accept with probability <code>min(1, exp(dE/T))</code>" covers both branches, which is how the rule is usually stated formally.</li>
+<li><strong>Termination.</strong> The loop ends when the schedule drives <code>T</code> to (or below) a stopping temperature, when a wall-clock or iteration budget is exhausted, when the objective reaches a known optimum, or when no move has been accepted for many consecutive iterations (the system has "frozen").</li>
+<li><strong>Return the best, not the last.</strong> Because the walk can accept worsening moves at any time, the final state is not guaranteed to be the best state visited. Maintaining <code>best</code> costs one comparison per iteration and makes the algorithm a genuine <strong>anytime</strong> method: it can be interrupted at any point and will return the best solution found so far.</li>
+</ul>
+
+<p><strong>The Metropolis acceptance criterion.</strong> The probabilistic rule
+<code>P(accept) = exp(ΔE / T)</code> for <code>ΔE &lt; 0</code> comes from the Metropolis–Hastings algorithm in statistical physics, where it samples states in proportion to the Boltzmann distribution <code>exp(-E / kT)</code>. Its behaviour is controlled by the ratio <code>|ΔE| / T</code>, and two separate monotonic effects follow:</p>
+<ul>
+<li><strong>Worse moves are exponentially less likely.</strong> Holding <code>T</code> fixed, doubling the damage <code>|ΔE|</code> <em>squares</em> the (sub-1) acceptance probability. The search therefore makes small concessions readily but almost never destroys a good solution in one catastrophic step. This is the property that keeps annealing "mostly greedy" even while it is stochastic.</li>
+<li><strong>Cooling suppresses all worsening moves.</strong> Holding <code>|ΔE|</code> fixed, as <code>T → 0</code> the exponent <code>ΔE/T → -∞</code> and the probability tends to 0; as <code>T → ∞</code> the exponent tends to 0 and the probability tends to 1.</li>
+</ul>
+
+<p>The table below shows <code>exp(ΔE/T)</code> for a problem whose typical move changes the objective by 1 to 10 units. Reading across a row shows sensitivity to move quality; reading down a column shows the effect of cooling.</p>
+
+<table>
+<thead>
+<tr><th>Temperature T</th><th>Regime</th><th>P(accept) for ΔE = −1</th><th>P(accept) for ΔE = −5</th><th>P(accept) for ΔE = −10</th></tr>
+</thead>
+<tbody>
+<tr><td>100</td><td>Very hot — near-random walk</td><td>0.990</td><td>0.951</td><td>0.905</td></tr>
+<tr><td>10</td><td>Hot — broad exploration</td><td>0.905</td><td>0.607</td><td>0.368</td></tr>
+<tr><td>2</td><td>Warm — selective wandering</td><td>0.607</td><td>0.082</td><td>0.007</td></tr>
+<tr><td>1</td><td>Cool — mostly greedy</td><td>0.368</td><td>0.0067</td><td>0.000045</td></tr>
+<tr><td>0.1</td><td>Cold — stochastic hill climbing</td><td>0.000045</td><td>~2 × 10<sup>-22</sup></td><td>~4 × 10<sup>-44</sup></td></tr>
+<tr><td>→ 0</td><td>Frozen — pure hill climbing</td><td>0</td><td>0</td><td>0</td></tr>
+</tbody>
+</table>
+
+<p>Note how the character of the search changes qualitatively as the rows are traversed. At <code>T = 100</code> a move that destroys ten units of objective value is accepted nine times in ten — the objective is effectively being ignored, and the trajectory is a random walk. At <code>T = 1</code> the same move is accepted once in 22,000 attempts, while a one-unit sacrifice is still accepted over a third of the time: the search now hugs the ridge it is on but can still shuffle sideways and slip over low barriers. At <code>T = 0.1</code> essentially nothing worsening is accepted and the algorithm has become <strong>stochastic hill climbing</strong> — it still chooses a random neighbour, but it only moves if that neighbour improves. Thus the two degenerate cases of simulated annealing are exactly the two extremes it was designed to interpolate between: random walk at <code>T = ∞</code> and hill climbing at <code>T = 0</code>.</p>
+
+<p>A worked micro-trace makes the mechanics concrete. Suppose we are maximising, the current state scores 42, and <code>T = 2</code>:</p>
+<pre><code>iter 1: T=2.00  current=42  proposal=45  dE=+3  improving          -&gt; accept, current=45, best=45
+iter 2: T=1.90  current=45  proposal=44  dE=-1  P=exp(-1/1.90)=0.59  r=0.33 &lt; 0.59 -&gt; accept, current=44 (best stays 45)
+iter 3: T=1.81  current=44  proposal=38  dE=-6  P=exp(-6/1.81)=0.036 r=0.71 &gt; 0.036 -&gt; reject, current=44
+iter 4: T=1.71  current=44  proposal=46  dE=+2  improving          -&gt; accept, current=46, best=46</code></pre>
+<p>Iteration 2 is the heart of the method: the search voluntarily gave up a point, and had that step been on the far side of a barrier it might have opened a route to a better region. Iteration 3 shows the protective effect of the exponential — a six-point collapse is rejected with high probability. Iteration 2 also illustrates why <code>best</code> must be tracked separately: after accepting the worsening move the <em>current</em> state is no longer the best one seen.</p>
+
+<p><strong>The cooling schedule.</strong> The schedule is the function <code>schedule(t)</code> that maps iteration number to temperature, and it is where most of the tuning effort goes. Three parameters define it: the <strong>initial temperature</strong> <code>T₀</code>, the <strong>decay rule</strong>, and the <strong>stopping temperature</strong> <code>T_min</code> (together with the number of iterations spent at each temperature level, if the schedule is stepped rather than continuous).</p>
+
+<table>
+<thead>
+<tr><th>Schedule</th><th>Rule</th><th>Characteristics</th><th>Typical use</th></tr>
+</thead>
+<tbody>
+<tr><td>Geometric (exponential)</td><td><code>T<sub>k+1</sub> = α · T<sub>k</sub></code>, 0.8 ≤ α &lt; 1</td><td>Fast early cooling, long cool tail; one intuitive knob (α); total length derivable in closed form</td><td>The default choice in practice</td></tr>
+<tr><td>Linear</td><td><code>T<sub>k</sub> = T₀ − k·β</code></td><td>Simple; spends a large fraction of the run at high, unproductive temperatures and crashes to zero abruptly</td><td>Teaching examples, short runs</td></tr>
+<tr><td>Logarithmic (Geman &amp; Geman)</td><td><code>T<sub>k</sub> = c / log(k + 1)</code></td><td>The only schedule with a convergence proof; astronomically slow</td><td>Theory only</td></tr>
+<tr><td>Adaptive / stepped</td><td>Hold T constant for L iterations, then decay; adjust α from the observed acceptance ratio</td><td>Allows quasi-equilibrium at each temperature; more robust but more parameters</td><td>Production solvers (VLSI placement, scheduling)</td></tr>
+<tr><td>Reheating / cyclic</td><td>Raise T when stagnation is detected, then cool again</td><td>Recovers from premature freezing; related to "annealing cycles" and restarts</td><td>Rugged landscapes, long budgets</td></tr>
+</tbody>
+</table>
+
+<p>Geometric cooling dominates practice because it is a single multiplication per step and its total length is easy to compute. With <code>T₀ = 100</code>, <code>T_min = 0.01</code> and <code>α = 0.95</code>, the number of cooling steps is <code>ln(T_min/T₀) / ln(α) = ln(0.0001)/ln(0.95) ≈ −9.21/−0.0513 ≈ 180</code>. Change <code>α</code> to 0.99 and the same temperature range takes about 916 steps; <code>α = 0.999</code> takes about 9,200. If each temperature level runs <code>L = 1000</code> proposals, those become 180,000, 916,000 and 9.2 million objective evaluations respectively — so <code>α</code> is really a direct control over the computational budget.</p>
+
+<p>The two failure modes are symmetric and both are easy to diagnose from the acceptance-rate trace:</p>
+<ul>
+<li><strong>Cooling too fast ("quenching").</strong> The temperature collapses before the search has had time to traverse the landscape, so the method freezes into whatever basin it happened to occupy. The symptom is an acceptance rate that falls from high to near zero within a small fraction of the run, followed by a long tail during which the objective never changes. The result is typically no better — and sometimes worse, because of wasted early randomness — than plain hill climbing.</li>
+<li><strong>Cooling too slowly.</strong> The temperature stays high for most of the budget, so the search spends its iterations on an undirected random walk and only begins to exploit when the budget is nearly gone. The symptom is an acceptance rate that remains above roughly 50% for most of the run and a best-so-far curve that barely improves. The solution quality is poor not because the search is trapped but because it never committed.</li>
+</ul>
+
+<p><strong>Calibrating the initial temperature.</strong> A principled and widely used heuristic is to choose <code>T₀</code> so that the initial acceptance ratio <code>χ₀</code> is about 0.8–0.9 — hot enough that the landscape is essentially flat to the search, but not so hot that iterations are wasted. The procedure is: run a short warm-up of random moves, record the mean worsening magnitude <code>ΔĒ⁻</code>, and solve <code>χ₀ = exp(−ΔĒ⁻ / T₀)</code> for <code>T₀</code>:</p>
+<pre><code>T0 = -dE_mean / ln(chi0)
+
+e.g. dE_mean = 12.4 (average damage of a worsening move), chi0 = 0.85
+     T0 = -12.4 / ln(0.85) = 12.4 / 0.1625 = 76.3</code></pre>
+<p>The symmetric rule for the stopping temperature is to pick <code>T_min</code> so that even the <em>smallest</em> meaningful worsening move is accepted with negligible probability — e.g. if the smallest nonzero <code>|ΔE|</code> is 1 and we want that accepted less than once in a thousand attempts, <code>T_min &lt; 1 / ln(1000) ≈ 0.145</code>. Below that point the algorithm is doing stochastic hill climbing and further cooling buys nothing. An adaptive variant monitors the acceptance ratio each level and tightens or relaxes <code>α</code> to keep the ratio following a target decay curve, which largely removes the need to hand-tune <code>T₀</code>.</p>
+
+<p><strong>Reheating and restarts.</strong> If the acceptance rate has been near zero for many iterations and the best-so-far value has not improved, the search has frozen. Two remedies are common: <em>reheating</em> (reset <code>T</code> to some fraction of <code>T₀</code> and cool again, optionally restarting from <code>best</code> rather than <code>current</code>), and <em>restarting</em> (begin a fresh run from a new random state). Reheating preserves the work already done and is well suited to landscapes with large basins; restarting samples a genuinely independent region and is better when the landscape has many comparably sized basins.</p>
+
+<p><strong>Convergence guarantees.</strong> There is a genuine theoretical result behind simulated annealing, and it is important to state it precisely because it is routinely overclaimed. Modelling the search as an inhomogeneous Markov chain, Geman and Geman (1984) proved that if the temperature at iteration <code>k</code> satisfies <code>T<sub>k</sub> ≥ c / log(k + 1)</code> for a constant <code>c</code> at least as large as the depth of the deepest local optimum, then the probability that the current state is a global optimum tends to 1 as <code>k → ∞</code>. The intuition is that at any fixed temperature the chain's stationary distribution is Boltzmann, <code>π(s) ∝ exp(E(s)/T)</code>, which concentrates ever more sharply on the global optima as <code>T</code> shrinks; cooling slowly enough lets the chain re-equilibrate after every temperature reduction so that it tracks that distribution all the way down.</p>
+
+<p>The catch is the logarithm. Inverting <code>T_k = c / log(k+1)</code>, reaching a temperature of <code>T</code> requires <code>k ≈ exp(c/T)</code> iterations. With <code>c = 100</code>, cooling to <code>T = 10</code> needs <code>e¹⁰ ≈ 22,000</code> iterations, to <code>T = 5</code> needs <code>e²⁰ ≈ 4.9 × 10⁸</code>, and to <code>T = 1</code> needs <code>e¹⁰⁰ ≈ 2.7 × 10⁴³</code> — vastly more than exhaustively enumerating most finite state spaces. The guarantee is therefore of theoretical interest only; a logarithmic schedule is not a practical algorithm, it is an existence proof.</p>
+
+<ul>
+<li>Every real implementation uses a geometric or adaptive schedule, which cools exponentially faster than the proof requires and consequently <strong>forfeits the guarantee</strong>. Simulated annealing as deployed is a <em>heuristic</em>: it is neither complete nor optimal, and on any given run it may return a local optimum.</li>
+<li>It is judged instead on <strong>empirical</strong> grounds — the quality of solutions obtained per unit of CPU time, measured acrossbenchmark instance families against known optima or against the best results from competing methods.</li>
+<li>Because it keeps the best state seen, it behaves as a high-quality <strong>anytime</strong> algorithm: the best-so-far value rises steeply early and then flattens, so a run can be truncated whenever the marginal improvement per second drops below what the application is willing to pay for.</li>
+<li>The standard practical safeguard is to run <strong>multiple independent anneals</strong> — different random seeds, different initial states, sometimes different schedules — and return the best result across all of them. Because the runs are completely independent they parallelise perfectly across cores or machines. For a fixed total budget there is a real trade-off: many short anneals sample more basins but quench each one, while a few long anneals explore fewer basins more thoroughly. A common compromise for a budget of <code>N</code> evaluations is 5–10 runs of <code>N/5</code> to <code>N/10</code> each.</li>
+<li>Reporting a single best-of-many number hides variance, so empirical studies normally report the mean, standard deviation and best over (say) 30 runs, together with the time per run.</li>
+</ul>
+
+<p><strong>Practical use and comparison.</strong> The engineering appeal of simulated annealing is how little it demands of the problem. There is no requirement for the objective to be differentiable, continuous, convex, or even cheap to compute exactly; there is no requirement for the state space to have any algebraic structure. Three ingredients suffice:</p>
+<ul>
+<li>A <strong>state representation</strong> that encodes a complete candidate solution — a permutation of cities, an assignment of one queen per column, a mapping of lectures to room/time slots, a vector of component coordinates on a chip.</li>
+<li>A <strong>move operator</strong> that generates a random neighbour. Good operators make small, local perturbations (swap two cities, reverse a tour segment, move one queen one square, reassign one exam) so that most proposals produce small <code>|ΔE|</code> values and the acceptance rule has fine-grained control.</li>
+<li>An <strong>objective function</strong> (energy) that scores a complete state, ideally with an incremental form so that <code>ΔE</code> can be computed in constant or near-constant time.</li>
+</ul>
+
+<p><strong>Memory use is O(1)</strong> in the size of the search space: the algorithm stores the current state, the candidate successor, and optionally the best state seen — three solutions, regardless of how astronomically large the state space is. This is the decisive advantage over systematic methods such as A* or branch-and-bound, whose frontiers and open lists grow with the explored portion of the space. A 10,000-city TSP has <code>9999!/2</code> tours; annealing holds three of them.</p>
+
+<p>Where annealing earns its keep is on <strong>rugged landscapes</strong> — objective surfaces riddled with local optima, plateaus and ridges, where hill climbing's trajectory terminates almost immediately. Classic successful applications include VLSI cell placement and routing, where it was the industry standard for years; travelling-salesman and vehicle-routing problems using 2-opt or Or-opt neighbourhoods; university examination and nurse-rostering timetabling with weighted soft-constraint objectives; graph partitioning and image reconstruction. On a smooth, single-basin landscape, by contrast, annealing is simply a slower hill climber: all the early randomness is wasted, and a deterministic gradient-style method will beat it comfortably.</p>
+
+<p>Its weaknesses are equally clear. Performance is <strong>sensitive to tuning</strong>: the same code with <code>α = 0.99</code> versus <code>α = 0.8</code>, or with a swap neighbourhood versus a segment-reversal neighbourhood, can differ by a large margin in solution quality. Poor neighbourhood design is the more common failure — if a single move changes the objective by a huge amount, every worsening move is rejected once <code>T</code> is modest and the search freezes prematurely; if moves barely change the objective, the search drifts without direction. Annealing also gives no bound on how far the returned solution is from optimal, and it provides no proof of infeasibility if none exists.</p>
+
+<p>The following comparison situates it among the related stochastic local search methods.</p>
+
+<table>
+<thead>
+<tr><th>Method</th><th>States held</th><th>Accepts worsening moves?</th><th>Main strength</th><th>Main weakness</th></tr>
+</thead>
+<tbody>
+<tr><td>Steepest-ascent hill climbing</td><td>1</td><td>No</td><td>Fast, directed, deterministic</td><td>Traps in the first local optimum; evaluates all neighbours each step</td></tr>
+<tr><td>First-choice / stochastic hill climbing</td><td>1</td><td>No</td><td>Cheap per step with huge neighbourhoods</td><td>Still incomplete; still traps</td></tr>
+<tr><td>Random-restart hill climbing</td><td>1 (plus best)</td><td>No (restarts instead)</td><td>Complete in the limit; trivially parallel; almost no tuning</td><td>Discards all work on each restart; weak when good basins are rare</td></tr>
+<tr><td>Simulated annealing</td><td>1 (plus best)</td><td>Yes, with probability exp(ΔE/T)</td><td>Escapes shallow optima; O(1) memory; strong anytime behaviour</td><td>Schedule and neighbourhood must be tuned; no practical guarantee</td></tr>
+<tr><td>Local beam search</td><td>k</td><td>No (selects k best)</td><td>Shares information across k threads; exploits parallelism</td><td>The k states can collapse onto one region, losing diversity</td></tr>
+<tr><td>Genetic algorithms</td><td>Population</td><td>Indirectly, via selection pressure</td><td>Crossover can recombine useful substructures from different basins</td><td>Many parameters; needs a representation where crossover is meaningful</td></tr>
+</tbody>
+</table>
+
+<p>A useful rule of thumb: if restarts are cheap and the landscape has a few broad basins, random-restart hill climbing is often competitive and far easier to tune; if the landscape is rugged with many narrow, deep basins so that a restart rarely lands anywhere good, annealing's ability to <em>migrate</em> between basins without discarding its progress is what makes the difference. The two can also be combined — annealing with restarts, or annealing seeded from a greedy construction heuristic rather than a random state, which typically starts the run at a much better objective value and lets a lower <code>T₀</code> be used.</p>
+
+<p>Finally, the point that most often separates a working implementation from a broken one: <strong>always track and return the best state encountered</strong>. Because the acceptance rule permits a downhill move at any temperature above the stopping point, the state held when the loop exits may be worse — occasionally much worse — than a state visited thousands of iterations earlier. Storing <code>best</code> costs one comparison and one copy per improvement, and it converts the algorithm into a monotone anytime procedure whose reported quality can never decrease with additional time.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+<li><strong>MO1:</strong> The topic reinforces the complete-state local search framing by describing simulated annealing as a single-state search driven by a random move operator over an objective treated as an energy landscape, with acceptance decisions made from the resulting ΔE.</li>
+<li><strong>MO2:</strong> The discussion of the three required ingredients — state representation, neighbour-generating move operator, and (incrementally computable) objective function — and the worked examples from n-queens, TSP and timetabling directly support formulating an optimisation problem as a local search instance.</li>
+<li><strong>MO3:</strong> The topic supports tracing by providing an explicit pseudocode loop and an iteration-by-iteration trace of temperature, ΔE, acceptance probability and random draw; it addresses hill-climbing variants only indirectly, as the limiting cases of annealing at T → 0 and in the comparison table.</li>
+<li><strong>MO4:</strong> Failure modes are addressed through the motivation for escaping shallow local optima, the distinction between shallow and deep basins, and the diagnosis of quenching and overly slow cooling from acceptance-rate and best-so-far traces.</li>
+<li><strong>MO5:</strong> The treatment of cooling-schedule choice, initial-temperature calibration, the cost implications of α, the forfeited convergence guarantee, and the comparison table of alternatives provides the basis for justifying annealing and its schedule against hill climbing on solution-quality-versus-cost grounds.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Numeric values in the acceptance-probability table are exp(ΔE/T) rounded; instructors may wish to have students recompute a row for a different ΔE scale. The Geman &amp; Geman logarithmic bound is stated in its standard form T_k ≥ c / log(k+1) with c at least the maximum local-optimum depth. Suggested lab extension: implement geometric annealing for 8-queens or a 100-city TSP, plot acceptance ratio and best-so-far against iteration for α ∈ {0.8, 0.95, 0.999}, and observe quenching versus aimless wandering.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

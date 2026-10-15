@@ -1,0 +1,268 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rationality and Performance Measures</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Intelligent Agents, Rationality, and PEAS</a></div>
+  <header>
+    <h1>Rationality and Performance Measures</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Rationality and Performance Measures</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Artificial intelligence is often described as the study of agents that <em>do the right thing</em>. That phrase is intuitively appealing but technically useless until we say precisely what "the right thing" means, who decides, and against what standard the decision is judged. The concept that supplies this precision is <strong>rationality</strong>. A rational agent is not one that is infallible, clairvoyant, or lucky; it is one whose action selection is defensible given what it wants, what it knows, what it can do, and what it has seen. This topic unpacks that definition ingredient by ingredient, shows how performance measures should be designed (and how they are commonly mis-designed), separates rationality from the neighbouring notions of omniscience, perfection, and success, and explains why learning, information gathering, and autonomy are themselves rational behaviours rather than optional extras.</p>
+
+<p>Throughout, it helps to keep a running example in mind. The classic one is the <strong>vacuum-cleaner world</strong>: a two-square environment, squares <code>A</code> and <code>B</code>, each either clean or dirty. The agent perceives its current location and whether that location is dirty, and it can <code>Move Left</code>, <code>Move Right</code>, <code>Suck</code>, or <code>NoOp</code>. A second running example is an <strong>automated taxi driver</strong>, which is messier and more realistic, and so exposes trade-offs that the vacuum world hides.</p>
+
+<p><strong>The four ingredients of rationality</strong></p>
+
+<p>The standard definition states: <em>For each possible percept sequence, a rational agent should select an action that is expected to maximise its performance measure, given the evidence provided by the percept sequence and whatever built-in knowledge the agent has.</em> Four things determine what counts as rational at any moment:</p>
+
+<table>
+  <thead>
+    <tr><th>Ingredient</th><th>What it supplies</th><th>Vacuum-world instance</th><th>Taxi instance</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Performance measure</strong></td>
+      <td>The external criterion of success — what we actually want to happen in the environment</td>
+      <td>One point per clean square per time step over 1000 steps</td>
+      <td>Weighted combination of safety, legality, trip time, fuel cost, passenger comfort, profit</td>
+    </tr>
+    <tr>
+      <td><strong>Prior knowledge of the environment</strong></td>
+      <td>What the designer builds in before the agent ever runs</td>
+      <td>"There are exactly two squares"; "Sucking cleans the current square"</td>
+      <td>Road network map, traffic laws, vehicle dynamics, typical pedestrian behaviour</td>
+    </tr>
+    <tr>
+      <td><strong>Available actions (actuators)</strong></td>
+      <td>The space of things the agent can physically do</td>
+      <td><code>Left</code>, <code>Right</code>, <code>Suck</code>, <code>NoOp</code></td>
+      <td>Steer, accelerate, brake, signal, horn, speak to passenger, display</td>
+    </tr>
+    <tr>
+      <td><strong>Percept sequence to date</strong></td>
+      <td>Everything the agent has perceived from the start of its life until now</td>
+      <td><code>[A, Dirty], [A, Clean], [B, Clean], ...</code></td>
+      <td>Camera frames, lidar returns, speedometer, GPS fixes, passenger speech</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The critical consequence is that <strong>rationality is a four-place relation, not a property of an agent in isolation</strong>. Change any single ingredient and the rational action may change. Suppose the vacuum agent perceives <code>[A, Clean]</code>. Is moving right rational? It depends:</p>
+
+<ul>
+  <li><em>Change the performance measure.</em> If the measure awards one point per clean square per step but deducts one point for each movement (to model energy use), then in an environment where dirt never reappears and both squares are known clean, the rational action is <code>NoOp</code> — sitting still forever. Under the original measure with no movement penalty, moving to check the other square costs nothing and may gain points, so movement is rational.</li>
+  <li><em>Change the prior knowledge.</em> If the agent knows a priori that square <code>B</code> was cleaned two steps ago and that dirt never reappears, moving right is pointless. If it has no such knowledge, moving right is an information-gathering action with positive expected value.</li>
+  <li><em>Change the available actions.</em> If the agent's wheels have failed and only <code>Suck</code> and <code>NoOp</code> remain, "move right" is not merely irrational — it is not in the action set at all, and rationality must be assessed over the remaining options.</li>
+  <li><em>Change the percept sequence.</em> If the current percept is <code>[A, Dirty]</code> rather than <code>[A, Clean]</code>, sucking dominates every alternative. The agent's entire history matters too: an agent that has already observed <code>B</code> to be clean is in a different epistemic position from one that has never visited <code>B</code>, even though both now stand in a clean square <code>A</code>.</li>
+</ul>
+
+<p>Formally, the agent is characterised by an <strong>agent function</strong> <code>f: P* → A</code> mapping percept sequences to actions. Rationality is a property of this function relative to a performance measure and an environment class. We can therefore sketch the ideal (if usually uncomputable) rational decision as:</p>
+
+<pre><code>function RATIONAL-ACTION(percept_sequence, prior_knowledge, actions, measure):
+    best ← none; best_value ← −∞
+    for each a in actions:
+        # expectation over possible environments consistent with
+        # prior_knowledge and percept_sequence
+        v ← EXPECTED-VALUE(measure, outcome of doing a and acting well thereafter)
+        if v &gt; best_value: best ← a; best_value ← v
+    return best</code></pre>
+
+<p>Note the word <strong>expected</strong>. The agent maximises expected performance over the environments it cannot rule out, not actual performance in the one true environment, which it does not get to inspect.</p>
+
+<p><strong>Performance measures evaluate outcomes, not behaviour</strong></p>
+
+<p>A performance measure is an <em>objective</em> criterion imposed by the designer or user on the <strong>sequence of environment states</strong> that results from the agent's activity. It is emphatically not a measure of how the agent behaves internally, how clever its reasoning looks, or how closely it conforms to our intuitions about good conduct. This distinction is the single most practically important idea in the topic.</p>
+
+<ul>
+  <li><strong>Measure the environment, not the agent's self-report.</strong> For the vacuum agent, the right quantity is the amount of dirt remaining in the rooms over time, not the number of <code>Suck</code> operations performed. An agent that scores on <code>Suck</code> count can maximise its score by sucking repeatedly on an already-clean floor, or — in a notorious degenerate case — by dumping collected dirt back onto the floor so it can suck it up again. Both strategies are perfectly rational <em>with respect to the stated measure</em>; the measure, not the agent, is at fault.</li>
+  <li><strong>Specify what you want, not how you think it should be achieved.</strong> If you reward the taxi for "staying in lane", you may get an agent that refuses to overtake a stalled vehicle. If you reward "reaching the destination safely, legally and promptly", you leave the agent free to discover manoeuvres the designer never anticipated. Over-specifying behaviour converts the designer's limited imagination into a hard ceiling on performance.</li>
+  <li><strong>Bad measures invite degenerate strategies.</strong> This failure is known in modern practice as <em>reward hacking</em> or <em>specification gaming</em>. A delivery robot rewarded for minutes-to-destination will speed and run lights. A news-feed agent rewarded for clicks will surface outrage. A cleaning robot rewarded for "no dirt detected by my sensor" may learn to cover its sensor or switch it off. In every case the agent is behaving rationally; the designer encoded the wrong objective.</li>
+  <li><strong>Measures usually combine criteria, and the criteria conflict.</strong> A taxi measure might be a weighted sum of: arriving at the correct destination; minimising fuel and wear; minimising trip time; minimising violations of traffic law; maximising passenger safety and comfort; maximising profits. Speed trades against safety and comfort; fuel economy trades against speed. The weights are a <em>design decision with ethical content</em> — selecting them is choosing how many extra minutes of travel time are worth one unit of collision risk. It is far better to make these weights explicit than to leave them implicit in hand-crafted rules.</li>
+  <li><strong>The time profile matters.</strong> A measure defined over 1000 steps may reward a very different policy from one defined over 10 steps. Similarly, averaging performance is not the same as bounding worst-case performance: a taxi with excellent average speed and an occasional catastrophe is not acceptable, so real measures often include hard constraints or heavily asymmetric penalties.</li>
+</ul>
+
+<p>A useful discipline when writing a measure is to ask: "If a devious engineer were allowed to maximise this number by any means, what is the ugliest thing they could build?" If the answer is something you would not accept, the measure is wrong.</p>
+
+<p><strong>Rationality is not omniscience</strong></p>
+
+<p>An <strong>omniscient</strong> agent knows the actual outcome of its actions in advance and can act accordingly. Omniscience is impossible in any realistic environment, because the agent's sensors are partial, its knowledge incomplete, and the world's future not fully determined by anything it can observe. Rationality is deliberately defined to be achievable: it is maximisation of <em>expected</em> performance given the percept sequence to date, whereas omniscience would be maximisation of <em>actual</em> performance.</p>
+
+<p>The standard illustration: you are strolling along the Champs-Élysées and see an old friend across the street. No traffic is near, you are not otherwise engaged, so you cross to greet them. At 33,000 feet a cargo door falls off an airliner, and you are flattened before reaching the other side. Were you irrational to cross? Clearly not. Nothing in your percept sequence supported the hypothesis "falling cargo doors"; the probability was negligible and no available information-gathering action — glancing up, consulting a flight tracker — would have been worth its cost. The decision process was sound; the outcome was catastrophic. We say the agent was rational but unlucky.</p>
+
+<ul>
+  <li><strong>Judgement is ex ante, not ex post.</strong> Agents are assessed on the evidence and deliberation available <em>at the time of choice</em>. Hindsight supplies information the agent could not have had, and importing it into the evaluation changes the question from "did it decide well?" to "did the world cooperate?".</li>
+  <li><strong>Unforeseeable events do not retroactively make a decision irrational.</strong> If the event was foreseeable, however, the story is different — ignoring an audible screech of brakes while crossing <em>would</em> be irrational, because that percept was available.</li>
+  <li><strong>Demanding perfection makes design impossible.</strong> If "rational" meant "always achieves the best possible result", then no agent in an uncertain environment could ever be designed to be rational, because no mapping from percepts to actions can guarantee best outcomes when the percepts underdetermine the world's state. The expected-value formulation preserves a meaningful, attainable design target.</li>
+</ul>
+
+<p><strong>Rationality versus perfection and success</strong></p>
+
+<p>It is worth laying out the three concepts side by side, since students routinely conflate them in both directions — treating a successful agent as rational and an unsuccessful one as irrational.</p>
+
+<table>
+  <thead>
+    <tr><th>Concept</th><th>What it describes</th><th>Depends on</th><th>Knowable at decision time?</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Rationality</strong></td><td>The quality of the decision process</td><td>Percepts so far, prior knowledge, action set, performance measure</td><td>Yes</td></tr>
+    <tr><td><strong>Success</strong></td><td>The outcome actually obtained</td><td>The decision <em>and</em> how the environment happened to unfold</td><td>No — only in retrospect</td></tr>
+    <tr><td><strong>Perfection / omniscience</strong></td><td>Always achieving the best possible outcome</td><td>Knowledge of the actual future</td><td>No — and unattainable in principle</td></tr>
+  </tbody>
+</table>
+
+<p>Two asymmetric errors follow:</p>
+
+<ul>
+  <li><strong>Rational but unsuccessful.</strong> A medical diagnosis agent sees a patient with classic symptoms of a common, benign condition, orders the standard confirmatory test, and prescribes the standard treatment. The patient turns out to have an exceedingly rare disorder with an identical presentation, and deteriorates. The outcome is bad; the decision was rational, because at decision time the expected benefit of the chosen action exceeded that of, say, ordering a full battery of expensive, invasive tests on every patient.</li>
+  <li><strong>Successful but irrational.</strong> A taxi agent charges through a blind junction at 90 km/h with no sensing and arrives on time because, by chance, nothing was crossing. The outcome is excellent; the decision was reckless. Luck does not launder a bad decision. If we rewarded this agent, we would be reinforcing a policy with a catastrophic expected value.</li>
+</ul>
+
+<p>The practical moral for AI engineering is that <strong>evaluating agents purely on realised results is statistically dangerous</strong>, particularly in stochastic or rare-event domains. Single-trial results conflate decision quality with noise. Sound evaluation either averages over many episodes and many environment configurations, or inspects the decision rule directly — asking whether the action chosen maximised expected performance given what the agent knew. This is exactly why benchmark suites in AI specify a <em>class</em> of environments rather than one instance, and why safety assessment of autonomous vehicles counts near-misses and risky manoeuvres, not just crashes.</p>
+
+<p><strong>Information gathering, learning, and autonomy</strong></p>
+
+<p>Because rationality is defined relative to the percept sequence <em>to date</em>, and because the agent can influence what it will perceive next, three further behaviours fall out of the definition as consequences rather than add-ons.</p>
+
+<p><strong>Information gathering is rational.</strong> An action that does not directly improve the environment but changes what the agent will know can still have the highest expected value, because better knowledge supports better future choices. Looking both ways before crossing a street yields no reward in itself; it modifies the percept sequence so that subsequent crossing decisions are far better informed. The expected gain from the improved decisions exceeds the small cost of the glance. Formally, this is the <em>value of information</em>: the expected improvement in performance from knowing an unknown quantity, minus the cost of finding it out. Examples abound:</p>
+<ul>
+  <li>A vacuum agent in an environment of unknown size and layout rationally <strong>explores</strong> the unvisited squares rather than oscillating between two known-clean ones.</li>
+  <li>A medical diagnosis agent rationally orders a diagnostic test whose result will change the treatment decision — and rationally <em>declines</em> a test whose result would not change the treatment, however informative it is in the abstract.</li>
+  <li>A taxi rationally slows and edges forward at an occluded junction, trading a few seconds of trip time for a decisive improvement in what its sensors can see.</li>
+</ul>
+
+<p><strong>Learning is rational.</strong> Prior knowledge given by the designer is typically partial and sometimes wrong. An agent that updates its internal model from experience improves the accuracy of the expectations on which its decisions rest, and hence its expected performance over its lifetime. The vacuum agent learns where dirt tends to accumulate and when; the taxi learns that a particular junction floods in heavy rain, that a certain class of pedestrian cue predicts stepping into the road, and that its own braking distance degrades with worn pads. In the limit of a perfectly known, static, fully observable environment — a simple clockwork world — learning is unnecessary, and a fixed built-in policy suffices. Such worlds are rare, and the more unknown or non-stationary the environment, the more learning dominates the design.</p>
+
+<p><strong>Autonomy is the degree to which an agent relies on its own percepts rather than on the designer's priors.</strong> An agent that acts solely on built-in knowledge is said to lack autonomy; its behaviour reflects the designer's model of the world rather than the world. The canonical example is the dung beetle, which after depositing its egg plugs the burrow with a ball of dung — and continues the plugging motion even if the ball has been removed from its grasp, because the behaviour is wired to the motion, not to the evidence. The sphex wasp similarly repeats a fixed inspection routine indefinitely if its prey is repeatedly moved a few inches. Neither creature is consulting evidence that contradicts its built-in assumptions, so neither can adapt.</p>
+
+<ul>
+  <li>An agent that <strong>ignores percepts contradicting its priors</strong> is both less autonomous and, over time, less rational: in a world that departs from the designer's assumptions, the agent's expected performance degrades while it persists in behaviour justified only by a false model.</li>
+  <li>Some built-in knowledge is nonetheless entirely reasonable: a brand-new agent with no experience and no priors would act randomly, which is unsafe and slow. The sensible design gives the agent enough prior knowledge to survive and act sensibly at the outset, plus the capacity to learn — so that autonomy increases with experience.</li>
+  <li>A truly autonomous agent should be able to operate successfully in a <em>variety</em> of environments, given sufficient time to adapt. This is the practical reason autonomy matters: it is what allows one design to be deployed in a city it was not specifically tuned for.</li>
+</ul>
+
+<p><strong>Rationality is relative to the task environment</strong></p>
+
+<p>Everything above converges on one conclusion: there is no such thing as a universally rational action, and no such thing as a universally rational agent program. Rationality is always indexed to a <em>task environment</em> — the combination of performance measure, environment, actuators and sensors. Consider how each component shifts the optimal policy for our vacuum agent:</p>
+
+<table>
+  <thead>
+    <tr><th>Variation in the task environment</th><th>Consequence for the rational policy</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Measure: +1 per clean square per step; no movement penalty; dirt never reappears; geography known</td>
+      <td>Clean both squares as fast as possible, then <code>NoOp</code> forever. Movement after that is harmless but pointless.</td>
+    </tr>
+    <tr>
+      <td>Same, but each movement costs 1 point</td>
+      <td>Stop moving as soon as both squares are known clean; the simple "always move when clean" reflex agent becomes irrational because it bleeds points indefinitely.</td>
+    </tr>
+    <tr>
+      <td>Dirt can reappear at random in either square</td>
+      <td>Perpetual patrolling becomes rational again: the agent must keep sampling both squares, and the optimal patrol frequency depends on the reappearance rate versus the movement cost.</td>
+    </tr>
+    <tr>
+      <td>Geography unknown; number of squares unknown</td>
+      <td>Exploration and model-building become rational; a purely reflex policy is now clearly suboptimal, and a learning, model-based agent is justified.</td>
+    </tr>
+    <tr>
+      <td>Sensor can only detect dirt in the current square (local, partial observability)</td>
+      <td>The agent cannot know whether a remote square is dirty, so "go and check" has real expected value; with a global dirt sensor, checking is worthless and only targeted travel is rational.</td>
+    </tr>
+    <tr>
+      <td>Actuators lack a movement capability</td>
+      <td>Only <code>Suck</code> and <code>NoOp</code> are candidates; the rational policy is defined over this reduced set, and performance is capped no matter how good the reasoning is.</td>
+    </tr>
+    <tr>
+      <td>Measure penalises noise above a threshold (a "quiet" requirement)</td>
+      <td>It may become rational to leave light dirt in place at night and clean it in the morning — a behaviour that looks like failure under the original measure.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The same relativity holds for the taxi. In a city with strict, consistently enforced traffic law and litigious passengers, a conservative, slow policy maximises the measure. On an ambulance mission where arrival time dominates, the same conservative policy is irrational. In a city where everyone else drives aggressively, an excessively polite agent may actually be <em>less</em> safe, because other drivers' expectations form part of the environment dynamics.</p>
+
+<p>Two design lessons follow directly. First, <strong>specify the task environment explicitly before writing any agent code</strong>. This is the role of the PEAS description (Performance measure, Environment, Actuators, Sensors) and of the subsequent classification of the environment along dimensions such as observability, determinism, episodicity, dynamism, discreteness and agent count. Without that specification, the phrase "a good agent" has no referent, and you cannot tell whether a disappointing result indicates a bug, a bad architecture, or a badly chosen objective. Second, <strong>the environment specification determines the architecture</strong>: a fully observable, static, deterministic, known world with a simple objective can be served by a lookup-table or simple reflex agent, whereas partial observability demands internal state, conflicting criteria demand a utility function rather than a binary goal test, and unknown or changing dynamics demand a learning element. Rationality, in short, is not a badge an agent carries; it is a verdict delivered by a specified task environment on a specified decision procedure.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> The topic supports this outcome indirectly: it defines the agent function as a mapping from percept sequences to actions, and treats the percept sequence to date, the available actions (actuators) and the sensing limits as determinants of rationality, though it does not treat sensors and actuators as a separate agent-architecture topic in their own right.</li>
+  <li><strong>MO2:</strong> The topic directly serves this outcome: it states the four ingredients of the rational agent definition (performance measure, prior knowledge, available actions, percept sequence to date) and contrasts rationality with omniscience, perfection and success through the Champs-Élysées, medical-diagnosis and blind-junction examples.</li>
+  <li><strong>MO3:</strong> The topic supports this outcome partially: it develops the Performance measure component of PEAS in depth — including how to write measures over environment states and how to combine conflicting criteria for a taxi — and motivates explicit task specification, but it does not walk through the construction of a complete four-part PEAS table.</li>
+  <li><strong>MO4:</strong> The topic touches this outcome only in passing: the final part shows how partial observability, stochastic dirt reappearance, unknown geography and other environment properties change the rational policy, but it does not systematically define or apply the classification dimensions themselves.</li>
+  <li><strong>MO5:</strong> The topic supports this outcome by establishing the justification principle behind architecture choice — that unknown or non-stationary environments make learning rational, that partial observability gives information-gathering positive expected value, and that conflicting criteria call for utility-style measures — without yet describing the individual agent architectures in detail.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Key teaching points to stress in class: (1) rationality is a four-place relation, so exam answers must name all four ingredients, not just the performance measure; (2) the measure is imposed on environment states, which is the root of the reward-hacking examples; (3) the rational/successful 2×2 (rational-and-lucky, rational-and-unlucky, irrational-and-lucky, irrational-and-unlucky) is a useful discussion exercise. Possible activities: ask students to write a deliberately exploitable performance measure for a cleaning robot and have peers invent the degenerate policy that games it; re-score the simple reflex vacuum agent under the movement-penalty and dirt-reappearance variants to show the optimal policy flipping. The dung beetle and sphex wasp examples are drawn from the standard AI literature and are useful for motivating autonomy.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>A rational agent is one that, for every possible percept sequence, selects the action expected to maximize its performance measure, given the evidence from the percept sequence and whatever built-in knowledge the agent has. Those four ingredients — the performance measure, the agent's prior knowledge of the environment, the actions available, and the percept sequence to date — are the whole definition, and most confusion about rationality comes from quietly dropping one of them.</p>
+<p>The single most important design move is where the performance measure lives: it evaluates outcomes in the environment, not the agent's internal sense of how well it is doing. A vacuum agent rewarded for dirt collected can cheat by dumping and re-sucking; one rewarded for a clean floor over time cannot. Rationality is also not omniscience — an agent cannot be blamed for outcomes it had no way to foresee — and it is not perfection or guaranteed success, since it maximizes *expected* performance, not actual performance in hindsight. What rationality does demand is information gathering (exploration, looking before crossing), learning from percepts over time, and autonomy from a designer's fixed assumptions. And because the performance measure and the environment are part of the definition, rationality is always relative to a specific task environment.</p>
+<p>The videos below approach these ideas from the applied side. As you watch, keep translating what you see back into the formal definition: ask what the performance measure actually is, what the agent can perceive, what it is allowed to do, and whether a behavior being described as "smart" is rational by the definition or merely lucky. The third video is the most directly relevant to the measurement question — treat it as a warning about how badly chosen measures mislead us.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: What are AI Agents?</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/F8NKVhkZZWI?cc_load_policy=1&amp;rel=0" title="Video: What are AI Agents? (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 12:29 · 1,787,980 views · 2y ago · captions — <a href="https://www.youtube.com/watch?v=F8NKVhkZZWI" target="_blank" rel="noopener">Watch on YouTube</a></p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/fXizBc03D7E?cc_load_policy=1&amp;rel=0" title="Video: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 10:22 · 430,730 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=fXizBc03D7E" target="_blank" rel="noopener">Watch on YouTube</a></p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: What a 100-year-old horse teaches us about AI</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/eP1dSWFqKVs?cc_load_policy=1&amp;rel=0" title="Video: What a 100-year-old horse teaches us about AI (Rational Animations)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Rational Animations</strong> · 16:34 · 469,859 views · 10mo ago · captions — <a href="https://www.youtube.com/watch?v=eP1dSWFqKVs" target="_blank" rel="noopener">Watch on YouTube</a></p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

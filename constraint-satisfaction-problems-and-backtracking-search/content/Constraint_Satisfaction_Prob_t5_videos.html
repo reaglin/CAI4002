@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Variable Ordering Heuristics</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Satisfaction Problems and Backtracking Search</a></div>
+<h1>Variable Ordering Heuristics</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: Constraint Satisfaction Problems (CSPs) 4 - Dynamic Ordering | Stanford CS221: AI (Autumn 2021)</a>
+<a href="#sec3">Video 2: Constraint Satisfaction Problems (CSPs) 2 - Definitions | Stanford CS221: AI (Autumn 2021)</a>
+<a href="#sec4">Video 3: The 4 Queens Problem, AI &amp; CSPs</a>
+<a href="#sec5">How These Videos Support the Learning Outcomes</a>
+<a href="#sec6">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>Backtracking search assigns one variable at a time, and the order in which you pick those variables is not fixed by the problem — it is a choice you make. That choice can change the size of the search tree by orders of magnitude, even though every ordering eventually finds the same solutions. This topic looks at the standard heuristics for making that choice well: minimum remaining values (MRV), also called the most constrained variable, and the degree heuristic, which breaks ties by counting constraints on still-unassigned variables.</p>
+<p>The underlying idea is the fail-first principle. If some branch of the search is doomed, you want to discover that as early and as cheaply as possible, so pick the variable most likely to fail soon — the one with the fewest legal values left. The degree heuristic complements this at the start of search, when all domains are still full, by choosing the variable that constrains the most others. In practice solvers combine the two: MRV first, degree as a tie-breaker.</p>
+<p>While watching, pay attention to three things. First, how domains shrink dynamically during search (this is what makes MRV a dynamic rather than static ordering). Second, the distinction between choosing which variable to assign next and choosing which value to try — they are separate decisions with separate heuristics. Third, count nodes or branches in the worked examples, because node counts are how we will measure whether a heuristic actually helps.</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: Constraint Satisfaction Problems (CSPs) 4 - Dynamic Ordering | Stanford CS221: AI (Autumn 2021)</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Lyu8VzbIe_A?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problems (CSPs) 4 - Dynamic Ordering | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 19:17 · 13,708 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=Lyu8VzbIe_A" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This Stanford CS221 lecture segment covers dynamic ordering in constraint satisfaction solvers — deciding at each step which variable to assign next based on the current state of the search rather than a fixed order set in advance. Expect discussion of most-constrained-variable style selection, how it interacts with lookahead and domain filtering, and worked illustration on CSP examples.</p>
+<h3>Why this video</h3>
+<p>It is the most directly on-topic video in the set, taught in a rigorous university AI course, and its focus on dynamic ordering is exactly the MRV and fail-first material at the core of this topic.</p>
+</section>
+<section class="item" id="sec3">
+<h2>Video 2: Constraint Satisfaction Problems (CSPs) 2 - Definitions | Stanford CS221: AI (Autumn 2021)</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/uj5wCcHsSlA?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problems (CSPs) 2 - Definitions | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 19:12 · 21,537 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=uj5wCcHsSlA" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>An earlier segment of the same Stanford CS221 CSP sequence, this video sets up the formal definitions: variables, domains, constraints, and what it means for an assignment to be consistent or complete. It establishes the vocabulary and notation that the later ordering lecture builds on.</p>
+<h3>Why this video</h3>
+<p>Variable ordering heuristics only make sense once you can talk precisely about domains and consistency, so this gives you the definitions you need before the dynamic ordering discussion — and it comes from the same instructor and notation.</p>
+</section>
+<section class="item" id="sec4">
+<h2>Video 3: The 4 Queens Problem, AI &amp; CSPs</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/X6m0DXt95bs?cc_load_policy=1&amp;rel=0" title="Video: The 4 Queens Problem, AI &amp; CSPs (a bit of intelligence)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>a bit of intelligence</strong> · 5:51 · 15,056 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=X6m0DXt95bs" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short, visual explainer that uses the 4-Queens puzzle — a scaled-down version of the classic Eight Queens problem — to introduce constraint satisfaction. It should walk through formulating the puzzle as a CSP and show search proceeding placement by placement, with conflicts forcing backtracking.</p>
+<h3>Why this video</h3>
+<p>The small board makes it feasible to follow every branch and see concretely how quickly a bad choice fails, which is the intuition behind the fail-first principle; at under six minutes it is a good warm-up or review.</p>
+</section>
+<section class="item" id="sec5">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>The Stanford definitions video supports MO1 and MO2 by grounding the formal triple of variables, domains, and constraints and the vocabulary of partial, complete, and consistent assignments. The 4-Queens explainer supports MO3 and MO4 by showing a real puzzle formulated as a CSP and solved by depth-first backtracking with consistency checks at each placement. The dynamic ordering lecture is the primary support for MO5: it shows how choosing the next variable adaptively prunes the tree, giving you the reasoning you will need to compare MRV and degree heuristics by node count on benchmark instances.</p>
+</section>
+<section class="item" id="sec6">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

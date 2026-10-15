@@ -1,0 +1,255 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Handling Uncertainty and Incomplete Knowledge</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Knowledge Representation Structures and Expert Systems</a></div>
+  <header>
+    <h1>Handling Uncertainty and Incomplete Knowledge</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Handling Uncertainty and Incomplete Knowledge</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Classical rule-based systems rest on a comfortable fiction: that every fact is either true or false, that every rule that fires is guaranteed correct, and that the knowledge base is complete enough to settle every question put to it. Real consultation domains violate all three assumptions almost immediately. A physician asked to diagnose a patient works from a partial history, tests that have not come back, symptoms the patient describes in vague terms, and clinical rules of thumb that are usually — but not always — right. A fault-diagnosis system for an industrial plant reads sensors that drift, fail silently, or report values whose meaning depends on context. If a knowledge-based system is to be useful in such settings, it must be able to reason <em>toward</em> conclusions it cannot prove, attach a measure of confidence to what it concludes, and tell the user honestly how much of that confidence rests on firm ground. This topic surveys the principal formalisms built for that purpose — certainty factors, Bayesian belief networks, Dempster–Shafer evidence theory, and fuzzy logic — together with the mechanics of how uncertainty accumulates and degrades along an inference chain, and the engineering judgement needed to select and explain an approach.</p>
+
+<p><strong>Why uncertainty must be modelled.</strong> It is worth being precise about the several distinct phenomena that get bundled under the single word "uncertainty," because different formalisms were designed to attack different ones. The first is <strong>missing evidence</strong>. A rule may require knowledge of a patient's white-cell count, but the blood test was never ordered, or the sample was contaminated, or the laboratory interface is down. A strict logical system has only two options here, both bad: treat the unknown proposition as false (the closed-world assumption, which silently manufactures negative evidence) or refuse to reason at all. Neither reflects what a human expert does, which is to proceed provisionally on what is available while flagging the conclusion as tentative.</p>
+
+<p>The second phenomenon is the <strong>heuristic character of expert rules</strong>. Expertise is largely compiled experience, and experience yields associations that hold most of the time rather than universal implications. "If the engine turns over but will not start and there is a smell of petrol, then the engine is flooded" is a valuable rule; it is also wrong in a minority of cases. Encoding it as a material implication makes the system brittle, because the first counterexample produces a confidently wrong diagnosis. Encoding it with an attached strength preserves its usefulness while recording its fallibility.</p>
+
+<p>The third is <strong>imprecision in observation</strong>. Measurements carry error; human reports carry subjectivity. A patient who says the pain is "quite bad" has not given a number, and a thermometer reading of 38.1 °C carries a tolerance. Some of this is statistical noise, but much of it is <em>vagueness</em> in the concept itself: there is no sharp temperature at which "mild fever" becomes "high fever," and pretending otherwise produces absurd discontinuities where 38.4 °C triggers one treatment path and 38.5 °C another.</p>
+
+<p>Fourth, <strong>classical binary logic forces premature commitment</strong>. In a two-valued system every derived proposition must be asserted or withheld entirely. If a system withholds everything that is not certain, it will usually conclude nothing; if it asserts everything that is merely plausible, it will assert contradictions. Worse, once a proposition is asserted, downstream rules treat it as indistinguishable from a directly observed fact, so a shaky intermediate conclusion silently contaminates everything built on it.</p>
+
+<p>Fifth, and most practically important, <strong>uncertainty handling turns diagnosis into ranking rather than selection</strong>. In most real consultations the right answer is not "the fault is X" but "X is most likely, Y is a serious possibility worth excluding, Z is improbable but cheap to test for." A graded belief measure allows the system to return a ranked differential, which is exactly the form in which experts themselves think and in which decisions about further testing are actually made.</p>
+
+<p><strong>Certainty factors.</strong> The certainty-factor (CF) model was developed for MYCIN, the blood-infection consultation system built at Stanford in the 1970s, precisely because its designers found that the probabilistic machinery then available demanded numbers their experts could not supply. The model's premise is that an expert can far more readily say "this finding strongly suggests that organism" than state a conditional probability consistent with a full joint distribution.</p>
+
+<p>In the model, every rule carries a certainty factor in the interval [−1, +1] expressing how strongly its premise supports its conclusion. A CF of +1 means the premise establishes the conclusion outright; 0 means the premise is irrelevant; −1 means the premise refutes the conclusion. Intermediate positive values are confirming evidence, intermediate negative values disconfirming. Formally the CF was defined as the difference between a measure of belief and a measure of disbelief, <code>CF(H,E) = MB(H,E) − MD(H,E)</code>, which is why confirmation and disconfirmation can be stated on a single scale.</p>
+
+<p>Three combination operations do all the work. First, <strong>premise evaluation</strong>: a conjunctive premise takes the minimum of its conjuncts' CFs, a disjunctive premise the maximum. Second, <strong>propagation through a rule</strong>: the CF of the conclusion is the CF of the matched evidence multiplied by the rule's CF, with negative evidence CFs conventionally blocking the rule entirely (the rule only fires when premise CF exceeds a threshold, typically 0.2). Third, <strong>parallel combination</strong>, when two independently derived CFs <code>x</code> and <code>y</code> support the same conclusion:</p>
+
+<pre><code>if x &gt; 0 and y &gt; 0:   CF = x + y - x*y
+if x &lt; 0 and y &lt; 0:   CF = x + y + x*y
+otherwise:            CF = (x + y) / (1 - min(|x|, |y|))</code></pre>
+
+<p>The first formula is the key one. It is monotonically increasing in both arguments, so belief accumulates as evidence arrives, but it is asymptotic to 1 and can never reach or exceed it: two pieces of evidence at 0.6 and 0.5 combine to 0.6 + 0.5 − 0.30 = 0.80, and adding a third at 0.4 gives 0.80 + 0.4 − 0.32 = 0.88. The operation is also commutative and associative, which matters enormously in practice because it means the final belief does not depend on the order in which rules happened to fire — the inference engine's conflict-resolution strategy cannot change the answer.</p>
+
+<p>A worked example. Suppose a plant-monitoring system holds:</p>
+
+<pre><code>R1: IF vibration_level = high
+    THEN bearing_wear                    CF = 0.7
+R2: IF temperature_rise AND noise_change
+    THEN bearing_wear                    CF = 0.6
+R3: IF lubricant_recently_replaced
+    THEN bearing_wear                    CF = -0.4</code></pre>
+
+<p>Working memory contains <code>vibration_level = high</code> with CF 1.0 (direct sensor reading), <code>temperature_rise</code> with CF 0.8 and <code>noise_change</code> with CF 0.9 (operator reports, hence less than certain), and <code>lubricant_recently_replaced</code> with CF 1.0. R1 yields 1.0 × 0.7 = 0.7. R2's premise is min(0.8, 0.9) = 0.8, so it yields 0.8 × 0.6 = 0.48. Combining the two positives: 0.7 + 0.48 − 0.336 = 0.844. R3 yields −0.4, so the mixed-sign formula applies: (0.844 − 0.4) / (1 − 0.4) = 0.444 / 0.6 = 0.74. The system reports bearing wear at CF 0.74 — strong, but visibly tempered by the disconfirming evidence.</p>
+
+<p>The attraction of the scheme is that it is computationally trivial (three arithmetic operations, no network propagation, no global normalisation), it is modular (a new rule can be added without revising any existing number), and the numbers it demands are ones experts are willing to give. Its weakness is equally clear: it has no rigorous probabilistic foundation. The parallel-combination formula is only equivalent to Bayesian updating under assumptions of conditional independence that are rarely checked and often false; CFs are not probabilities and should not be read as such; and because the model has no notion of the underlying joint distribution, it has no principled way to detect that two "independent" rules are in fact keying off the same underlying cause. Empirically MYCIN proved remarkably insensitive to perturbation of its CF values, which is reassuring about robustness but also a hint that the numbers were carrying less information than their precision suggested.</p>
+
+<p><strong>Bayesian probability and belief networks.</strong> The probabilistic approach starts from a quantity with an unambiguous meaning: <code>P(H|E)</code>, the probability of hypothesis H given evidence E. Bayes' theorem relates it to quantities that are easier to estimate:</p>
+
+<pre><code>P(H|E) = P(E|H) * P(H) / P(E)
+
+where P(E) = P(E|H)*P(H) + P(E|¬H)*P(¬H)</code></pre>
+
+<p>Here <code>P(H)</code> is the <strong>prior</strong>, the background belief in H before this evidence was seen — typically a base rate such as the prevalence of a disease in the relevant population. <code>P(E|H)</code> is the <strong>likelihood</strong>, the probability of observing the evidence if the hypothesis is true — typically the sensitivity of a test. <code>P(H|E)</code> is the <strong>posterior</strong>, the revised belief. The arithmetic is unforgiving about base rates, which is one of the model's chief virtues. Suppose a screening test has sensitivity <code>P(E|H) = 0.99</code> and false-positive rate <code>P(E|¬H) = 0.02</code>, and the condition has prevalence 0.001. Then</p>
+
+<pre><code>P(E) = 0.99*0.001 + 0.02*0.999 = 0.00099 + 0.01998 = 0.02097
+P(H|E) = 0.00099 / 0.02097 = 0.047</code></pre>
+
+<p>A positive result on a 99%-sensitive test leaves the probability of disease under 5%. No heuristic scheme reliably produces this result; the Bayesian calculus does so automatically, and this is exactly the kind of error human experts make systematically.</p>
+
+<p>The obstacle to scaling this up is the <strong>joint distribution</strong>. With <em>n</em> binary variables, a full joint table has 2<sup>n</sup> − 1 free parameters: thirty variables require over a billion numbers, which can be neither elicited nor stored. <strong>Belief networks</strong> (Bayesian networks, due chiefly to Judea Pearl) solve this by exploiting <strong>conditional independence</strong>. The network is a directed acyclic graph whose nodes are random variables and whose arcs represent direct causal or statistical dependence. Each node carries a conditional probability table giving its distribution for each combination of its parents' values, and the structural claim is that <em>each node is conditionally independent of its non-descendants given its parents</em>. The full joint then factorises:</p>
+
+<pre><code>P(X1,...,Xn) = Π P(Xi | Parents(Xi))</code></pre>
+
+<p>Consider a compact diagnostic network for a vehicle that will not start:</p>
+
+<pre><code>  BatteryAge ──► BatteryCharged ──► LightsWork
+                       │
+                       └─────────► EngineCranks ◄── StarterMotorOK
+                                        │
+  FuelPresent ──────────────────────────┴──► EngineStarts</code></pre>
+
+<p>Instead of 2<sup>6</sup> − 1 = 63 joint parameters, this requires one prior for each of the three root nodes and small conditional tables for the rest — perhaps a dozen numbers in all. The saving is structural, not approximate: the factorisation is exact given the independence assumptions encoded by the missing arcs.</p>
+
+<p>Evidence entered at <em>any</em> node propagates in <em>all</em> directions. Observing that the lights do not work raises belief in a flat battery (diagnostic reasoning, against the arc direction), which in turn lowers the probability that the engine will crank (causal reasoning, along the arcs) and raises belief that the battery is old. Observing that the engine does crank despite the dead lights would <em>lower</em> belief in a flat battery — this is <strong>explaining away</strong>, the phenomenon in which confirming one cause of an observed effect reduces belief in competing causes. Explaining away is a genuinely distinctive capability: certainty-factor systems cannot represent it at all, because their rules are modular and have no access to the structure linking rival hypotheses.</p>
+
+<p>The practical obstacles are two. The first is <strong>parameter acquisition</strong>: a network is only as good as its priors and conditional tables, and credible numbers require either substantial statistical data or careful, well-calibrated expert elicitation. Where neither exists, the precision of the output is illusory. The second is <strong>inference cost</strong>. Exact inference in a general belief network is NP-hard, and while algorithms such as junction-tree (clique-tree) propagation are efficient on sparse, tree-like structures, densely connected networks become intractable, forcing recourse to approximate methods such as likelihood weighting, Gibbs sampling, or loopy belief propagation. A third, softer obstacle is that building the structure requires explicit commitment to independence assumptions — valuable discipline, but a significant knowledge-engineering burden compared with simply tagging rules with numbers.</p>
+
+<p><strong>Dempster–Shafer theory of evidence.</strong> Bayesian probability requires that belief and disbelief sum to one: if <code>P(H) = 0.3</code> then <code>P(¬H) = 0.7</code>, necessarily. But that conflates two very different epistemic states. "I have examined the evidence carefully and it points 30/70 against H" and "I have no idea whatsoever about H" are not the same situation, yet Bayesian theory represents both with a number. Dempster–Shafer theory (DST), developed by Arthur Dempster and Glenn Shafer, separates them by allowing belief to be committed to <em>sets</em> of hypotheses rather than only to singletons.</p>
+
+<p>The machinery begins with the <strong>frame of discernment</strong> Θ, the exhaustive set of mutually exclusive possibilities. A <strong>basic probability assignment</strong> (bpa, or mass function) <code>m</code> distributes a unit of belief over subsets of Θ, with <code>m(∅) = 0</code> and <code>Σ m(A) = 1</code> over all A ⊆ Θ. Mass assigned to a non-singleton subset means exactly this: the evidence supports <em>that this subset contains the truth</em> without discriminating among its members. Mass assigned to Θ itself is <strong>uncommitted belief</strong> — pure ignorance.</p>
+
+<p>From the bpa two measures are derived. <strong>Belief</strong> is the total mass committed to a hypothesis and all of its subsets — all evidence that necessarily implies A:</p>
+
+<pre><code>Bel(A) = Σ  m(B)        for all B ⊆ A
+Pl(A)  = Σ  m(B)        for all B with B ∩ A ≠ ∅   =  1 - Bel(¬A)</code></pre>
+
+<p><strong>Plausibility</strong> sums all mass that does not positively contradict A. Together they bracket the true probability: <code>Bel(A) ≤ P(A) ≤ Pl(A)</code>. The interval <code>[Bel(A), Pl(A)]</code> is the <strong>belief interval</strong>, and its width is a direct quantitative measure of how much remains unknown about A.</p>
+
+<p>An example. A sensor diagnosis has Θ = {sensor_fault, wiring_fault, process_upset}. One piece of evidence — an intermittent signal — supports "an electrical problem," i.e. the subset {sensor_fault, wiring_fault}, with mass 0.6, leaving 0.4 on Θ:</p>
+
+<table>
+<thead><tr><th>Subset A</th><th>m(A)</th><th>Bel(A)</th><th>Pl(A)</th><th>Interval width</th></tr></thead>
+<tbody>
+<tr><td>{sensor_fault}</td><td>0.0</td><td>0.0</td><td>1.0</td><td>1.0</td></tr>
+<tr><td>{wiring_fault}</td><td>0.0</td><td>0.0</td><td>1.0</td><td>1.0</td></tr>
+<tr><td>{process_upset}</td><td>0.0</td><td>0.0</td><td>0.4</td><td>0.4</td></tr>
+<tr><td>{sensor_fault, wiring_fault}</td><td>0.6</td><td>0.6</td><td>1.0</td><td>0.4</td></tr>
+<tr><td>Θ (all three)</td><td>0.4</td><td>1.0</td><td>1.0</td><td>0.0</td></tr>
+</tbody>
+</table>
+
+<p>Notice what the representation achieves: belief 0.6 in "electrical fault" with no commitment whatsoever as to which electrical fault, and a wide interval [0, 1] on each individual electrical hypothesis honestly recording that ignorance. A Bayesian analysis would have had to split the 0.6 between the two singletons, typically 0.3 each by a principle of indifference, thereby manufacturing a discrimination the evidence does not support.</p>
+
+<p><strong>Dempster's rule of combination</strong> fuses two independent mass functions by intersecting their focal sets and normalising away the conflicting mass:</p>
+
+<pre><code>m12(A) = ( Σ  m1(B)*m2(C) ) / (1 - K)     for B ∩ C = A, A ≠ ∅
+K      =   Σ  m1(B)*m2(C)                 for B ∩ C = ∅</code></pre>
+
+<p>The quantity <code>K</code> is the <strong>conflict mass</strong>. When K is small the rule behaves sensibly, sharpening belief as independent sources agree. When K approaches 1 — when two sources flatly contradict each other — dividing by (1 − K) magnifies tiny residual agreements into certainty, producing the notorious Zadeh counterexample: two doctors who each assign 0.99 to different diagnoses and 0.01 to a third, universally disparaged one, combine to give that third diagnosis probability 1.0. In practice this means DST implementations must monitor K and either flag high conflict to the user or adopt a modified combination rule (Yager's, Dubois–Prade's, or similar) that reallocates conflicting mass to ignorance rather than normalising it away. The theory's other cost is computational: mass functions are defined over the power set of Θ, so naive implementation is exponential in the number of hypotheses, though structure in the focal sets usually keeps real systems manageable.</p>
+
+<p><strong>Fuzzy logic and imprecise concepts.</strong> The formalisms above all treat the <em>proposition</em> as sharp and the <em>evidence</em> for it as uncertain. Fuzzy logic, introduced by Lotfi Zadeh, addresses the opposite situation: the evidence may be perfectly known, but the predicate itself has no crisp boundary. We know the temperature is exactly 37.8 °C; what is uncertain is whether that counts as "high." This is vagueness, not probability, and conflating the two leads to confusion. <code>P(fever) = 0.7</code> means there is a 70% chance the person has a sharply defined condition; <code>μ_high(37.8) = 0.7</code> means the temperature is high <em>to degree 0.7</em>, which is a statement about the meaning of "high," not about chance.</p>
+
+<p>A <strong>fuzzy set</strong> is defined by a <strong>membership function</strong> μ mapping each element of the domain to a degree in [0, 1]. A <strong>linguistic variable</strong> such as <code>Temperature</code> takes linguistic values — <code>low</code>, <code>normal</code>, <code>high</code> — each defined by its own membership curve, typically trapezoidal or triangular for computational convenience, and deliberately overlapping so that transitions are smooth. For instance:</p>
+
+<table>
+<thead><tr><th>Linguistic value</th><th>Shape</th><th>Full membership (μ = 1)</th><th>Zero membership (μ = 0)</th></tr></thead>
+<tbody>
+<tr><td>low</td><td>trapezoid (left-shouldered)</td><td>≤ 35.5 °C</td><td>≥ 36.5 °C</td></tr>
+<tr><td>normal</td><td>triangle</td><td>36.8 °C</td><td>≤ 36.0 or ≥ 37.5 °C</td></tr>
+<tr><td>high</td><td>trapezoid (right-shouldered)</td><td>≥ 38.5 °C</td><td>≤ 37.2 °C</td></tr>
+</tbody>
+</table>
+
+<p>A reading of 37.8 °C would then yield μ_normal ≈ 0.0 and μ_high ≈ 0.46 — partial membership in "high," no abrupt jump anywhere.</p>
+
+<p>A fuzzy inference system runs in three stages. <strong>Fuzzification</strong> takes the crisp inputs and evaluates every membership function, producing a degree of membership in each fuzzy set. <strong>Rule evaluation</strong> then fires <em>all</em> rules in parallel, each to the degree its premises are satisfied; there is no conflict resolution and no single winning rule. Conjunction in a premise is usually implemented as minimum (or product), disjunction as maximum, and the resulting firing strength clips or scales the rule's output fuzzy set. <strong>Defuzzification</strong> aggregates the clipped output sets — typically by taking their union (pointwise maximum) — and reduces the aggregate to a single crisp value, most often by the <strong>centroid</strong> (centre-of-gravity) method:</p>
+
+<pre><code>crisp_output = Σ (μ(x) * x) / Σ μ(x)</code></pre>
+
+<p>A compact worked example from process control. The rule base is:</p>
+
+<pre><code>F1: IF temperature IS high AND pressure IS rising   THEN valve IS open_wide
+F2: IF temperature IS high AND pressure IS steady   THEN valve IS open_small
+F3: IF temperature IS normal                        THEN valve IS closed</code></pre>
+
+<p>Suppose fuzzification gives μ_high(T) = 0.7, μ_normal(T) = 0.3, μ_rising(P) = 0.4, μ_steady(P) = 0.6. Then F1 fires at min(0.7, 0.4) = 0.4, F2 at min(0.7, 0.6) = 0.6, and F3 at 0.3. Three rules fire simultaneously with different strengths; the output sets <code>open_wide</code>, <code>open_small</code> and <code>closed</code> are clipped at 0.4, 0.6 and 0.3 respectively, superimposed, and the centroid of the resulting composite shape is computed. If the output universe is valve position 0–100% with <code>closed</code> centred at 0, <code>open_small</code> at 40 and <code>open_wide</code> at 90, a simplified weighted-average defuzzification gives (0.4×90 + 0.6×40 + 0.3×0) / (0.4 + 0.6 + 0.3) = 60 / 1.3 ≈ 46%. The valve opens just under halfway — a compromise action that no single rule prescribed, produced by the blending of all of them.</p>
+
+<p>Two properties explain why fuzzy control is so widely deployed. First, the output varies <em>smoothly</em> as the inputs vary, because membership functions overlap and multiple rules are always partially active; a conventional crisp rule base produces step changes at category boundaries, which in a physical actuator means chattering and mechanical stress. Second, the rules are written in the vocabulary operators already use, so a plant engineer can read, criticise and amend them without understanding the underlying mathematics. The result is a technology embedded in washing machines (load and soil sensing), camera autofocus and image stabilisation, air-conditioning units, anti-lock braking and automatic transmission control, cement-kiln and water-treatment process control, and the celebrated Sendai subway system, whose fuzzy controller accelerated and braked more smoothly than human drivers.</p>
+
+<p><strong>Propagation of uncertainty through inference chains.</strong> None of the preceding formalisms is used on a single isolated rule. Real reasoning chains conclusions into further conclusions, and the behaviour of uncertainty along such a chain determines whether a system remains informative or dissolves into noise.</p>
+
+<p>The basic phenomenon is <strong>attenuation</strong>. In the certainty-factor model, a conclusion's CF is the product of the evidence CF and the rule CF, and a product of numbers less than one shrinks monotonically. Consider a four-step chain in which every rule carries the respectable CF of 0.8 and the initial observation is certain:</p>
+
+<table>
+<thead><tr><th>Step</th><th>Derived proposition</th><th>Rule CF</th><th>Cumulative CF</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>sensor reading observed</td><td>—</td><td>1.00</td></tr>
+<tr><td>1</td><td>flow restriction present</td><td>0.8</td><td>0.80</td></tr>
+<tr><td>2</td><td>filter partially blocked</td><td>0.8</td><td>0.64</td></tr>
+<tr><td>3</td><td>contaminant in feedstock</td><td>0.8</td><td>0.51</td></tr>
+<tr><td>4</td><td>upstream supplier at fault</td><td>0.8</td><td>0.41</td></tr>
+</tbody>
+</table>
+
+<p>After four steps a chain of individually strong rules has produced a conclusion barely better than a coin toss. Lengthen it to eight steps and the CF falls to 0.17, which is for practical purposes uninformative. The same erosion occurs in probabilistic chains, where successive conditional probabilities multiply, and in Dempster–Shafer chains, where discounting evidence at each stage transfers mass progressively onto Θ. This is not a defect of the arithmetic; it is an accurate reflection of the fact that a conclusion resting on a long series of merely probable steps really is weakly supported. But it carries a design implication: knowledge bases should prefer shallow, broad inference structures with many independent lines of evidence converging on a conclusion over deep, narrow ones, because convergence builds belief while chaining destroys it.</p>
+
+<p>Because of this erosion, most systems impose a <strong>cutoff threshold</strong>. MYCIN discarded any hypothesis whose CF fell below 0.2 and refused to fire a rule whose premise did not reach that level. The threshold serves three purposes: it prevents the knowledge base from cluttering working memory with negligible conclusions; it prunes the search space, since in backward chaining a sub-goal that cannot possibly reach threshold need not be pursued, which can prune entire subtrees; and it stops the user being asked expensive or invasive questions in support of lines of reasoning that cannot pay off. The cost is that a conclusion only ever supported weakly by many independent routes may be killed before those routes can combine. Threshold choice is therefore a genuine engineering trade-off between efficiency and completeness, and should be tuned empirically against test cases rather than fixed by intuition.</p>
+
+<p>A subtler and more dangerous hazard is <strong>double-counting of shared evidence</strong>. The parallel-combination formulas of the CF model, and the simpler forms of Bayesian updating, assume that the pieces of evidence being combined are independent. Suppose two rules both conclude <code>overheating</code>, one from <code>coolant_temperature_high</code> and the other from <code>radiator_outlet_hot</code>. These are presented to the inference engine as two separate findings, and the system will combine their CFs as though they were two independent confirmations — but they are two measurements of a single underlying physical condition. Belief is inflated: 0.7 and 0.7 combine to 0.91 when the honest answer is closer to 0.7. The same problem appears in a chain when one intermediate conclusion feeds two different rules whose conclusions later recombine, a "diamond" dependency structure. Remedies include auditing the rule base for rules sharing antecedents, clustering correlated findings into a single compound finding evaluated by one rule, or — the principled solution — moving to a belief network, where the dependency is represented explicitly as a common parent node and the propagation algorithm accounts for it automatically. This is one of the clearest arguments for the graphical approach: modularity, the great practical virtue of rule-based uncertainty, is precisely what makes dependency invisible.</p>
+
+<p>Finally, <strong>conflicting evidence must be reconciled</strong> rather than ignored. A system that simply accumulates confirming evidence and discards disconfirming findings will converge on whatever hypothesis has the most rules pointing at it. Each formalism has its own mechanism: the CF model's mixed-sign formula lets negative CFs pull the net belief down, as in the bearing-wear example above where disconfirming evidence of −0.4 reduced 0.844 to 0.74; Bayesian updating handles it automatically, since evidence more probable under ¬H than under H necessarily lowers the posterior; Dempster's rule registers it as conflict mass K, which — as noted — must be monitored, because a high K is a signal that the model's assumptions are failing, not merely a normalising constant. In all three cases the system should expose conflict to the user rather than silently absorbing it: "diagnosis X at 0.74, but note the recent lubricant change argues against it" is far more useful than a bare number.</p>
+
+<p><strong>Choosing and explaining an uncertainty approach.</strong> There is no universally best formalism; the choice follows from the character of the domain and of the available knowledge. The following summarises the main decision criteria.</p>
+
+<table>
+<thead><tr><th>Approach</th><th>Choose when</th><th>Knowledge required</th><th>Main weakness</th></tr></thead>
+<tbody>
+<tr><td>Bayesian / belief networks</td><td>Statistical data or registries support credible priors and likelihoods; causal structure is understood; explaining away matters</td><td>Prior probabilities, conditional probability tables, independence structure</td><td>Data-hungry; exact inference NP-hard in dense networks</td></tr>
+<tr><td>Certainty factors</td><td>Expert judgement is the only source of confidence estimates; rapid prototyping; modular rule base</td><td>One number per rule, elicited from the expert</td><td>No rigorous foundation; silent double-counting of correlated evidence</td></tr>
+<tr><td>Dempster–Shafer</td><td>Ignorance must be represented explicitly; evidence arrives from multiple sources at differing levels of specificity</td><td>Mass assignments over subsets of the frame of discernment</td><td>Exponential in |Θ|; pathological behaviour under high conflict</td></tr>
+<tr><td>Fuzzy logic</td><td>The vagueness lies in the concepts rather than the evidence; smooth control output required</td><td>Membership functions and linguistic rules</td><td>Membership curves are themselves subjective; poor at representing evidential ignorance</td></tr>
+</tbody>
+</table>
+
+<p>Elaborating briefly: use <strong>Bayesian methods</strong> where the domain has been measured — epidemiology, reliability engineering, equipment failure logs, credit scoring — because there the priors are base rates one can look up rather than guess, and the discipline of specifying a joint distribution pays for itself in coherence. Prefer <strong>certainty factors</strong> when the only available source of confidence is an expert's judgement and that judgement cannot be expressed as a coherent probability assignment; the model's tolerance of approximate numbers and its modularity make it well suited to systems that will be built and revised incrementally. Choose <strong>Dempster–Shafer</strong> when the difference between "evidence against" and "no evidence" is operationally important — in military or security intelligence fusion, in sensor fusion where a sensor may simply be silent, in forensic reasoning — because the belief–plausibility interval reports ignorance as a first-class quantity instead of disguising it as a middling probability. Apply <strong>fuzzy logic</strong> when the difficulty is linguistic rather than evidential: controlling a process in terms of "slightly too hot," grading risk as "moderate," or any setting where crisp thresholds would produce artificial discontinuities. The approaches are not mutually exclusive — hybrid systems using fuzzy membership functions to interpret sensor readings and a belief network to reason about causes are common — but mixing their numbers naively is not permissible, since a CF, a probability and a membership degree all live in [0, 1] while meaning entirely different things.</p>
+
+<p>Whatever is chosen, the <strong>explanation facility</strong> must report confidence alongside conclusions. A recommendation delivered without a confidence level invites either excessive trust or blanket scepticism; a calibrated one lets the user decide how much further investigation is warranted. Good practice is to report the numeric measure, translate it into a verbal qualifier agreed with the domain experts ("strongly suggests," "weakly suggests"), and make the supporting chain inspectable, so that a <em>why</em> question returns not just the rules that fired but their individual contributions — "bearing wear 0.74: vibration contributed 0.70, temperature and noise added 0.48, recent lubrication subtracted." Where Dempster–Shafer is in use, the belief interval itself should be shown, since a conclusion at [0.2, 0.9] demands further evidence while one at [0.65, 0.70] does not.</p>
+
+<p><strong>Sensitivity analysis</strong> closes the loop. By systematically varying each uncertain input or parameter and observing the effect on the final recommendation, the developer learns which numbers actually matter. Typically a small minority do: many CFs or conditional probabilities can be perturbed by ±0.1 with no change in the ranked output, while one or two drive the result entirely. This finding directs elicitation effort where it is worthwhile, identifies parameters that need real data rather than guesses, provides the user with the useful statement "this recommendation would change only if the vibration reading were wrong," and — at run time — tells the system which further test to request next, namely the one whose outcome would most reduce uncertainty about the leading hypotheses. Sensitivity analysis is also the most effective defence against false precision, since it demonstrates concretely how much of the apparent exactness of a 0.74 is real and how much is an artefact of the arithmetic.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+<li><strong>MO1</strong>: The topic extends the adequacy criteria to uncertain knowledge, showing how each formalism trades expressiveness (Dempster–Shafer's explicit ignorance, fuzzy logic's graded predicates) against inferential adequacy and computational efficiency (the cheapness of certainty factors versus the NP-hardness of exact belief-network inference).</li>
+<li><strong>MO2</strong>: Only indirectly addressed. Belief networks are presented as a structured knowledge model with nodes, arcs and conditional probability tables, which parallels the structured representations of that outcome, but is-a hierarchies, slots, facets and inherited defaults are not treated here.</li>
+<li><strong>MO3</strong>: The section on propagation through inference chains applies directly to chaining, showing how certainty factors attenuate along forward or backward chains, how cutoff thresholds prune backward-chaining sub-goals, and how parallel combination makes results independent of rule firing order.</li>
+<li><strong>MO4</strong>: The topic specifies what each component must do under uncertainty — the knowledge base stores rule strengths, working memory stores findings with attached confidence, the inference engine performs combination and threshold testing, and the explanation facility reports confidence levels and supporting contributions during a consultation.</li>
+<li><strong>MO5</strong>: This is the topic's central purpose. Certainty factors, Bayesian belief networks, Dempster–Shafer theory and fuzzy logic are each developed with worked examples, and the final part supplies explicit selection criteria, a comparison table, and sensitivity analysis as a method for evaluating suitability in a specified domain.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Numeric examples are internally consistent and can be verified by hand: the bearing-wear CF chain (0.7, 0.48 → 0.844 → 0.74), the screening-test posterior (0.047), the four-step attenuation table (0.8ⁿ), and the simplified fuzzy weighted-average defuzzification (≈46%). The fuzzy example uses weighted-average rather than full centroid integration for tractability without a diagram; instructors may wish to note the distinction. The Zadeh counterexample is the standard illustration of Dempster&#39;s rule under high conflict and is worth presenting in full if class time permits. Possible exercises: recompute the bearing-wear CF with the lubricant evidence at CF 0.6 instead of 1.0; build the conditional probability tables for the vehicle-starting network and compute P(BatteryCharged | &#172;LightsWork); identify the double-counting hazard in a supplied rule base.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

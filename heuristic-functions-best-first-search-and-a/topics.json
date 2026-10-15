@@ -1,0 +1,1424 @@
+{
+  "ModuleFolderName": "Heuristic_Functions_Best",
+  "CourseName": "CAI4002 - Intro to AI",
+  "GeneratedDate": "2026-10-14T19:57:24.7877163-04:00",
+  "ModifiedDate": "2026-10-14T19:59:58.1226301-04:00",
+  "Outcomes": [],
+  "Topics": [
+    {
+      "Id": "e3c79e16-e91f-460a-8d4e-8b939aef8914",
+      "Title": "Heuristic Evaluation Functions",
+      "Summary": "Defines what a heuristic function h(n) is and how domain knowledge is encoded as an estimate of the remaining cost to a goal. Introduces common examples such as straight-line distance, Manhattan distance, and misplaced-tile counts for puzzle and pathfinding domains.",
+      "SortOrder": 0,
+      "CreatedDate": "2026-10-14T19:57:24.7877163-04:00",
+      "ModifiedDate": "2026-10-14T19:57:24.7877163-04:00",
+      "Elements": [
+        {
+          "Id": "bd75438c-b7c9-4542-a841-caa14cc0ad87",
+          "TopicId": "e3c79e16-e91f-460a-8d4e-8b939aef8914",
+          "Title": "What Is a Heuristic Function?",
+          "BodyText": "A heuristic function h(n) estimates the cost of the cheapest path from node n to a goal state. It is the mechanism by which domain knowledge enters an otherwise uninformed search.",
+          "Notes": "Conventionally h(n) \u2265 0 for all n, and h(n) = 0 whenever n is a goal node.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:57:43.6639766-04:00",
+          "ModifiedDate": "2026-10-14T19:57:43.6639766-04:00",
+          "Items": [
+            {
+              "Id": "c4147c5e-361d-492c-bcdf-da056a04b3f9",
+              "Text": "h(n) maps a search node to a non-negative number representing estimated remaining cost.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "383b49d8-60f9-4e9d-b60e-09ab52d35a3e",
+              "Text": "Unlike g(n), which records the known cost already spent to reach n, h(n) looks forward to the goal.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f0b36fdb-b5e1-4995-9389-ba06f5b4eb0c",
+              "Text": "A heuristic is an estimate, not a guarantee; it may overestimate or underestimate the true cost h*(n).",
+              "SortOrder": 2
+            },
+            {
+              "Id": "98c64325-bd70-4f99-a633-7255f62e9953",
+              "Text": "Heuristics let a search algorithm rank frontier nodes and expand the most promising ones first.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ca370658-7bf3-4505-a649-1c2a6d57c616",
+              "Text": "The quality of a heuristic directly determines how much of the search space must be explored.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "8d3e7043-933b-407d-8a2a-e24b442550c0",
+          "TopicId": "e3c79e16-e91f-460a-8d4e-8b939aef8914",
+          "Title": "Encoding Domain Knowledge as an Estimate",
+          "BodyText": "Good heuristics are usually derived by reasoning about the structure of the problem rather than by guesswork. A common technique is to solve a relaxed version of the problem in which some constraints are removed.",
+          "Notes": "Relaxation guarantees the estimate never exceeds the true cost, because any real solution is also a solution to the relaxed problem.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:57:43.6639766-04:00",
+          "ModifiedDate": "2026-10-14T19:57:43.6639766-04:00",
+          "Items": [
+            {
+              "Id": "022a2160-45c2-4bef-a184-32226e6f97ef",
+              "Text": "Relax a constraint, solve the simplified problem exactly, and use that cost as h(n).",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b8729db6-aff7-453c-984c-0513c74a63bc",
+              "Text": "Allowing tiles to move through one another yields the misplaced-tile heuristic.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4668f95e-2a88-48a0-a539-257fa85cbc47",
+              "Text": "Allowing tiles to slide over occupied squares yields the Manhattan distance heuristic.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a96d441c-5998-47b3-b26c-6f6841c08610",
+              "Text": "Ignoring roads and obstacles yields straight-line distance in a map domain.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "8fe07d9c-a763-4ed5-b70b-2125ceeaac39",
+              "Text": "Pattern databases and subproblem costs are more advanced sources of domain knowledge.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "f73ca905-4184-46fb-a6c2-ff99dc02eb1b",
+          "TopicId": "e3c79e16-e91f-460a-8d4e-8b939aef8914",
+          "Title": "Straight-Line Distance for Pathfinding",
+          "BodyText": "In route-finding and map navigation problems, the Euclidean straight-line distance between a node and the goal is the classic heuristic. It measures the shortest conceivable travel distance if no roads or obstacles constrained movement.",
+          "Notes": "On grid worlds where only four-directional movement is allowed, Manhattan distance replaces Euclidean distance as the natural analogue.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:57:43.6639766-04:00",
+          "ModifiedDate": "2026-10-14T19:57:43.6639766-04:00",
+          "Items": [
+            {
+              "Id": "0029126a-dc64-4191-a5cc-dbb1a9128418",
+              "Text": "h_SLD(n) = sqrt((x_n \u2212 x_goal)\u00B2 \u002B (y_n \u2212 y_goal)\u00B2) for coordinates in the plane.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "8aceeee3-340e-49a8-b13a-ff9126859394",
+              "Text": "It requires only the coordinates of each location, making it cheap to compute.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9e604f45-38d8-4b4d-87ee-729cdd350101",
+              "Text": "Because no real route can be shorter than the straight line, it never overestimates.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "5a3561b5-8b4f-467c-b2f5-bca55ca48292",
+              "Text": "It becomes weak when the road network is highly indirect, such as around a bay or mountain range.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "a00efbbe-d83a-4cc9-8d99-648a0d41db7c",
+          "TopicId": "e3c79e16-e91f-460a-8d4e-8b939aef8914",
+          "Title": "Puzzle Heuristics: Misplaced Tiles and Manhattan Distance",
+          "BodyText": "The 8-puzzle and 15-puzzle are standard testbeds for comparing heuristics. Two classic estimates are the count of misplaced tiles and the sum of tile displacement distances.",
+          "Notes": "For the 8-puzzle, h1 typically expands orders of magnitude more nodes than h2 at the same solution depth.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:57:43.6639766-04:00",
+          "ModifiedDate": "2026-10-14T19:57:43.6639766-04:00",
+          "Items": [
+            {
+              "Id": "bf4de7bc-d76a-4ea6-b66a-c20ec950707f",
+              "Text": "h1 = number of tiles not in their goal position, excluding the blank.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "aa051576-b8d3-4ec9-b8d3-33c17cc66a63",
+              "Text": "h2 = sum over all tiles of the horizontal plus vertical distance from each tile\u0027s goal square.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8c22e14c-e368-4ae4-9564-09da1e14acc8",
+              "Text": "Each tile must move at least once if misplaced, so h1 never overestimates the true move count.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d5c0d20f-6c1f-4c2a-907b-54952a120655",
+              "Text": "Each tile must move at least its Manhattan distance, so h2 never overestimates either.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "e31fc015-6f5d-4234-81b2-879a4f4c682d",
+              "Text": "h2 \u2265 h1 for every state, so h2 is the more informed of the two heuristics.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "5e6a954b-5be2-4da4-bad6-7b75fce2fcd2",
+          "TopicId": "e3c79e16-e91f-460a-8d4e-8b939aef8914",
+          "Title": "Comparing and Combining Heuristics",
+          "BodyText": "When several heuristics are available, they can be ranked by how much information they provide and even merged into a stronger single estimate. A larger estimate that still never overestimates is always preferable.",
+          "Notes": "Effective branching factor is a practical empirical measure of heuristic quality on benchmark problem sets.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:57:43.6639766-04:00",
+          "ModifiedDate": "2026-10-14T19:57:43.6639766-04:00",
+          "Items": [
+            {
+              "Id": "faa860af-abda-4691-898b-379f3a9ac892",
+              "Text": "Heuristic h2 dominates h1 if h2(n) \u2265 h1(n) for every node n.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6eb6149e-5080-451c-8520-a62f18ed4381",
+              "Text": "A dominating heuristic expands no more nodes than the one it dominates.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c19dbe11-909c-4e88-8252-020b450a67a5",
+              "Text": "Given several heuristics, the pointwise maximum h(n) = max(h1(n), h2(n), ...) is also a valid estimate.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "4e01ad2d-89f8-47f1-a2c4-6485c4d82ed9",
+              "Text": "Trade off accuracy against computation time: an expensive heuristic may cost more than the nodes it saves.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "f5d3a132-7039-485a-94ab-ce3486cad383",
+              "Text": "A perfect heuristic h = h* would lead directly to the goal; h = 0 reduces search to an uninformed strategy.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "dffbc883-c04a-4007-8a6e-7ba1b5f946da",
+      "Title": "Admissibility and Consistency",
+      "Summary": "Examines the two key properties of heuristics: admissibility (never overestimating the true cost) and consistency (satisfying the triangle inequality along edges). Shows the relationship between the two properties and how to verify them for a candidate heuristic.",
+      "SortOrder": 1,
+      "CreatedDate": "2026-10-14T19:57:24.7877163-04:00",
+      "ModifiedDate": "2026-10-14T19:57:24.7877163-04:00",
+      "Elements": [
+        {
+          "Id": "98926613-c0b9-44b7-bc20-edbcf29322db",
+          "TopicId": "dffbc883-c04a-4007-8a6e-7ba1b5f946da",
+          "Title": "Admissibility: Never Overestimate",
+          "BodyText": "A heuristic h(n) is admissible if it never overestimates the true cost of reaching a goal from node n. Formally, 0 \u2264 h(n) \u2264 h*(n) for every node n, where h*(n) is the optimal remaining cost.",
+          "Notes": "Admissible heuristics are inherently optimistic: they may underestimate, but never overshoot. Example: straight-line (Euclidean) distance is admissible for road navigation because no road can be shorter than the direct line.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:58:06.0245952-04:00",
+          "ModifiedDate": "2026-10-14T19:58:06.0245952-04:00",
+          "Items": [
+            {
+              "Id": "fc6b913e-1fc2-474d-9ca0-cf3c2773dc4a",
+              "Text": "Admissibility requires h(n) \u2264 h*(n) at every node, including h(goal) = 0.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "4f584100-1f54-4595-b64b-2174210dd1ed",
+              "Text": "The zero heuristic h(n) = 0 is trivially admissible but gives no guidance, reducing A* to uniform-cost search.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "030ccd38-e704-4e7d-83d4-3a2c360fdd10",
+              "Text": "Admissibility is the property that guarantees A* returns an optimal solution in tree search.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "231268c8-ebb5-40e1-821d-6448e08b3ea1",
+              "Text": "An overestimating heuristic can cause A* to expand a suboptimal goal before a cheaper path is discovered.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6fa5cca8-be43-47aa-bc1b-72b8bb625f44",
+              "Text": "For the 8-puzzle, both misplaced-tiles and Manhattan distance are admissible because each move corrects at most one tile by one step.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "7151cfab-5ab3-4bf6-9919-a2832217df64",
+          "TopicId": "dffbc883-c04a-4007-8a6e-7ba1b5f946da",
+          "Title": "Consistency (Monotonicity) and the Triangle Inequality",
+          "BodyText": "A heuristic is consistent if, for every node n and every successor n\u2032 generated by action a, h(n) \u2264 c(n, a, n\u2032) \u002B h(n\u2032). This is a form of the triangle inequality applied along each edge of the search graph.",
+          "Notes": "Consistency is a local, edge-by-edge condition, which often makes it easier to verify than admissibility, since you only need to reason about one step at a time.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:58:06.0245952-04:00",
+          "ModifiedDate": "2026-10-14T19:58:06.0245952-04:00",
+          "Items": [
+            {
+              "Id": "b416b5d4-505e-4dfd-9f40-91db914d78fc",
+              "Text": "The condition says the heuristic may drop by at most the cost of the edge you traverse.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "a19d2f1d-be8d-4056-94d4-ba62e2a47523",
+              "Text": "Consistency also requires h(goal) = 0 for any goal node.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "383dd25c-5961-4e62-8754-1a6469ab84f4",
+              "Text": "It is checked locally on each edge rather than globally against the optimal remaining cost.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "1a022140-e6b0-4e31-aca7-2deca43441f0",
+              "Text": "Consistency is also called monotonicity because of its effect on f-values along a path.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "5236d0e1-0b2a-4fad-9aee-356e545454a9",
+              "Text": "Straight-line distance is consistent because the direct distance between two points is never longer than any detour through a third point.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "2321f0d0-7718-4141-94bc-0b596173fe60",
+          "TopicId": "dffbc883-c04a-4007-8a6e-7ba1b5f946da",
+          "Title": "Relationship Between the Two Properties",
+          "BodyText": "Consistency is the stronger property: every consistent heuristic is admissible, but not every admissible heuristic is consistent. Understanding this hierarchy tells you which guarantees you get from a given heuristic.",
+          "Notes": "The proof that consistency implies admissibility uses induction on the number of steps from n to the nearest goal, repeatedly applying the triangle inequality along an optimal path.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:58:06.0245952-04:00",
+          "ModifiedDate": "2026-10-14T19:58:06.0245952-04:00",
+          "Items": [
+            {
+              "Id": "1603285d-6c10-4be4-a892-9dc5f979db8c",
+              "Text": "If h is consistent, then h(n) \u2264 h*(n) for all n, so h is admissible.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e31e4a79-9d34-4f49-9a9d-336cee078653",
+              "Text": "Admissible-but-inconsistent heuristics exist, though they are rare in practice and usually arise from hand-tuned or combined heuristics.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "0edf69eb-4648-4e64-8bae-eb7db4c5f132",
+              "Text": "Nearly all naturally occurring heuristics (relaxation-based, pattern databases) turn out to be consistent.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "66b01b9d-7dde-4913-978a-1abdb0f801a4",
+              "Text": "An inconsistent heuristic may force A* to re-expand already-closed nodes to preserve optimality.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "141714d4-ae79-41f6-8ee3-1e2fa1b3e07b",
+          "TopicId": "dffbc883-c04a-4007-8a6e-7ba1b5f946da",
+          "Title": "Monotonic f-Values Along a Path",
+          "BodyText": "When h is consistent, the evaluation function f(n) = g(n) \u002B h(n) is non-decreasing along any path from the start node. This monotone behaviour underpins the graph-search optimality proof for A*.",
+          "Notes": "Proof sketch: f(n\u2032) = g(n\u2032) \u002B h(n\u2032) = g(n) \u002B c(n, a, n\u2032) \u002B h(n\u2032) \u2265 g(n) \u002B h(n) = f(n), using the consistency inequality directly.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:58:06.0245952-04:00",
+          "ModifiedDate": "2026-10-14T19:58:06.0245952-04:00",
+          "Items": [
+            {
+              "Id": "02ed1d88-8099-43f3-83ba-315ce5ab86bd",
+              "Text": "f never decreases as you move deeper along a path, so the sequence of expanded f-values is non-decreasing.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "12b53068-fdb7-4833-aa4b-887bac8874d6",
+              "Text": "A* with a consistent heuristic expands nodes in order of non-decreasing f-value.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "47f8a6ed-c6d0-4b24-8f81-beb7caf1ea8d",
+              "Text": "When a node is selected for expansion, its optimal path has already been found, so no re-expansion is needed.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "6463cf6a-a20c-4084-907e-eeba2b7b7936",
+              "Text": "This makes the closed list (explored set) safe to use without reopening nodes.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "2af48374-337f-482d-b369-e9d0f93f83fd",
+              "Text": "Contours of equal f-value form nested bands around the start, which is why A* with a better h searches a narrower band toward the goal.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "09be6075-ed51-4118-b395-7d0957c658d3",
+          "TopicId": "dffbc883-c04a-4007-8a6e-7ba1b5f946da",
+          "Title": "Verifying a Candidate Heuristic",
+          "BodyText": "Before relying on a heuristic, you should test or prove that it satisfies the properties you need. There are systematic approaches for both establishing and refuting admissibility and consistency.",
+          "Notes": "A quick empirical sanity check: run uniform-cost or breadth-first search on small instances to compute exact h* values, then confirm h(n) \u2264 h*(n) for every node.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:58:06.0245952-04:00",
+          "ModifiedDate": "2026-10-14T19:58:06.0245952-04:00",
+          "Items": [
+            {
+              "Id": "1d2c1a84-919f-4c91-ad9d-f9d9d743d20e",
+              "Text": "Prove admissibility by showing h solves a relaxed version of the problem whose optimal cost lower-bounds the real one.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f16673d6-5f7f-4797-9582-478b313a474d",
+              "Text": "Prove consistency by checking h(n) \u2212 h(n\u2032) \u2264 c(n, a, n\u2032) for every legal action, usually a small case analysis.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "73206994-51e6-4b02-8964-d6aa13244513",
+              "Text": "Refute either property with a single counterexample node or edge that violates the inequality.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "1c2cafd1-9ca9-4e6b-9b08-2f8bec199d56",
+              "Text": "Relaxation-derived heuristics are automatically both admissible and consistent, which is why relaxation is the preferred design method.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "24105cae-df49-467f-8b0b-15fbedd64fa7",
+              "Text": "When combining heuristics, taking the maximum of several admissible (consistent) heuristics preserves admissibility (consistency); summing them generally does not.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "770ed4e9-a882-471f-81e4-2f064caebd0d",
+      "Title": "Greedy Best-First Search",
+      "Summary": "Develops best-first search as a general framework that expands nodes by priority and specializes it to the greedy strategy f(n) = h(n). Analyzes its completeness, optimality, time and space behaviour, and the failure modes caused by misleading heuristics.",
+      "SortOrder": 2,
+      "CreatedDate": "2026-10-14T19:57:24.7877163-04:00",
+      "ModifiedDate": "2026-10-14T19:57:24.7877163-04:00",
+      "Elements": [
+        {
+          "Id": "09015968-f713-4d81-912d-5bce19a6b52b",
+          "TopicId": "770ed4e9-a882-471f-81e4-2f064caebd0d",
+          "Title": "Best-First Search as a General Framework",
+          "BodyText": "Best-first search is a family of algorithms that selects the next node to expand according to an evaluation function f(n) rather than by position in the frontier. Different choices of f(n) yield different well-known search strategies.",
+          "Notes": "Uniform-cost search is best-first with f(n) = g(n); greedy best-first uses f(n) = h(n); A* uses f(n) = g(n) \u002B h(n).",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:58:33.303889-04:00",
+          "ModifiedDate": "2026-10-14T19:58:33.303889-04:00",
+          "Items": [
+            {
+              "Id": "f6cf8123-080f-4a5d-83bb-d0174411b729",
+              "Text": "The frontier is maintained as a priority queue ordered by increasing f(n).",
+              "SortOrder": 0
+            },
+            {
+              "Id": "2f6dbc2b-fc94-49df-9326-1ab6fecd8e4f",
+              "Text": "At each iteration the node with the lowest f-value is removed and expanded.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "0051bdc4-3aa0-477a-ae88-112f6271e65c",
+              "Text": "An explored (closed) set prevents re-expansion of already visited states in graph search.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e0b32b54-d285-456b-aa5f-db9164383fe5",
+              "Text": "Changing only the definition of f(n) converts one strategy into another without altering the control loop.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "1117f27f-24bb-4d26-b620-d9d584e1116a",
+              "Text": "The framework separates the search mechanism from the problem-specific knowledge encoded in f(n).",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "7970b94d-3e26-4109-85ac-e56453185e85",
+          "TopicId": "770ed4e9-a882-471f-81e4-2f064caebd0d",
+          "Title": "The Greedy Strategy: f(n) = h(n)",
+          "BodyText": "Greedy best-first search sets f(n) = h(n), so it always expands the node that appears closest to the goal according to the heuristic. It ignores the cost g(n) already spent to reach the node.",
+          "Notes": "Example: in route finding, greedy search from Arad to Bucharest repeatedly expands the city with the smallest straight-line distance to Bucharest.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:58:33.303889-04:00",
+          "ModifiedDate": "2026-10-14T19:58:33.303889-04:00",
+          "Items": [
+            {
+              "Id": "3127e367-3a7b-44e0-98b9-3031a33ae579",
+              "Text": "Only estimated remaining cost influences the choice of node to expand.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "969d9643-97e2-4edb-9d86-c23079614b60",
+              "Text": "The strategy is \u0027greedy\u0027 because it commits to locally best-looking options without reconsidering past cost.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8b4e26ca-a1c4-4922-9e93-ebcc4b6928d3",
+              "Text": "It terminates when a goal node is selected for expansion (or, in some variants, when generated).",
+              "SortOrder": 2
+            },
+            {
+              "Id": "3fbe2627-dfa8-4eab-a0c5-14de59a1a8c0",
+              "Text": "Because past cost is ignored, a short-looking step can be reached by an expensive path and still be preferred.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "4cd7ed95-0b62-4e1c-8843-b70aa936e022",
+              "Text": "It behaves like depth-first search guided by h, diving toward the apparently nearest goal.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "6e84b95b-5cfd-4795-9891-7808a20a31d3",
+          "TopicId": "770ed4e9-a882-471f-81e4-2f064caebd0d",
+          "Title": "Completeness and Termination Behaviour",
+          "BodyText": "Greedy best-first search is not complete in general, because the heuristic can lead it indefinitely down an unproductive branch. Its completeness depends on whether cycles are detected and whether the state space is finite.",
+          "Notes": "",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:58:33.303889-04:00",
+          "ModifiedDate": "2026-10-14T19:58:33.303889-04:00",
+          "Items": [
+            {
+              "Id": "f4bd6c79-0ad7-4292-bf44-57263aac7ffc",
+              "Text": "In tree-search form it can loop forever between states that look promising, e.g. oscillating between two neighbouring cities.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "3896c552-2a6f-428a-b2c9-8729828c14cc",
+              "Text": "With an explored set in graph-search form it is complete in finite state spaces.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "04226369-96d8-463f-a728-ea3a47aa6ee4",
+              "Text": "In infinite state spaces it may follow an unbounded path that never reaches a goal.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c43ae46e-c5e0-4188-9cf1-3c180c916b81",
+              "Text": "Loop and repeated-state detection is therefore essential in practice.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "e54c31e2-ebd9-409e-8bb8-c2fb61ae3bd0",
+          "TopicId": "770ed4e9-a882-471f-81e4-2f064caebd0d",
+          "Title": "Optimality: Why Greedy Search Fails",
+          "BodyText": "Greedy best-first search is not optimal, even when the heuristic is admissible. Because g(n) is ignored, the first goal found may be reached by a far more expensive path than necessary.",
+          "Notes": "Classic illustration: the greedy route Arad\u2013Sibiu\u2013Fagaras\u2013Bucharest is found quickly but is longer than the route through Rimnicu Vilcea and Pitesti.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:58:33.303889-04:00",
+          "ModifiedDate": "2026-10-14T19:58:33.303889-04:00",
+          "Items": [
+            {
+              "Id": "068c0430-a449-4444-b762-9cee7e1a6647",
+              "Text": "Admissibility of h guarantees nothing about the cost of the path greedy search returns.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "2244900b-5e99-42a8-8216-a1a44173097b",
+              "Text": "Low heuristic values near a goal can attract the search along an expensive approach route.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1d660a2a-d80f-49df-997b-4fa4f616ea3d",
+              "Text": "A cheaper path may exist through nodes whose heuristic values look temporarily worse.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "7f09fee7-ec29-4410-b77e-04ac829ceb54",
+              "Text": "Optimality requires accounting for accumulated cost, which motivates A*\u0027s f(n) = g(n) \u002B h(n).",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "06fb4b60-706f-4ae3-95b5-3b75dc7dd3e0",
+          "TopicId": "770ed4e9-a882-471f-81e4-2f064caebd0d",
+          "Title": "Time and Space Complexity",
+          "BodyText": "In the worst case greedy best-first search examines a large fraction of the state space, giving exponential time and space bounds. In practice a well-informed heuristic can reduce the effective work dramatically.",
+          "Notes": "Worst-case bounds are commonly written O(b^m), where b is the branching factor and m the maximum depth of the search space.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:58:33.303889-04:00",
+          "ModifiedDate": "2026-10-14T19:58:33.303889-04:00",
+          "Items": [
+            {
+              "Id": "d45fac8f-9e61-4fa4-a2de-716b8fcbcf8b",
+              "Text": "Worst-case time is O(b^m) for a poor or uninformative heuristic.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "5b4fdd4f-fe66-4d48-931d-34d32cf07e9d",
+              "Text": "Space is also O(b^m) because all generated nodes are kept in the priority queue and explored set.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "6750ab13-1119-48a1-8851-8e4b13010eff",
+              "Text": "Memory, rather than time, is often the practical limiting factor.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "fc4fe71b-df00-4b2e-af99-983ce99b85f6",
+              "Text": "A high-quality heuristic can make the search almost linear in the solution depth.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "fa7e9882-fd40-47c1-9142-e9c0fddf5e83",
+              "Text": "Each priority-queue operation adds a logarithmic factor to the per-node cost.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "8857b9d0-bcd1-41f3-b343-39c6faae9845",
+          "TopicId": "770ed4e9-a882-471f-81e4-2f064caebd0d",
+          "Title": "Failure Modes Caused by Misleading Heuristics",
+          "BodyText": "The behaviour of greedy search is dominated by the quality of h, so systematic errors in the heuristic translate directly into poor search behaviour. Recognising these failure patterns helps in diagnosing and repairing heuristics.",
+          "Notes": "Remedies include adding cost information (A*), randomised restarts, or combining several heuristics with a max operator.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:58:33.303889-04:00",
+          "ModifiedDate": "2026-10-14T19:58:33.303889-04:00",
+          "Items": [
+            {
+              "Id": "3a1d6abd-8ca2-4861-abb3-39158cf66da4",
+              "Text": "Local minima in h trap the search in regions where every successor looks worse than the current node.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "873a1657-1b30-4d11-b67e-9f53ee2cac5e",
+              "Text": "Plateaux of equal heuristic value give no guidance and cause near-blind expansion.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "cd79d479-be63-4a9c-b4e3-1901f135f023",
+              "Text": "Obstacles ignored by h (e.g. walls in grid maps when using straight-line distance) lure the search into dead ends.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c9f46c56-9418-414d-b2f9-a93e3515a2e8",
+              "Text": "The search can expand many nodes with low h that are actually far from any goal along feasible paths.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "24683fa4-d05c-4409-90b2-bb9927f5a7a6",
+              "Text": "Greedy search offers no mechanism to recover cheaply once it has committed to a misleading branch.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "673917b4-5172-4dec-ac96-097f365f029b",
+          "TopicId": "770ed4e9-a882-471f-81e4-2f064caebd0d",
+          "Title": "When Greedy Best-First Search Is Appropriate",
+          "BodyText": "Despite its weaknesses, greedy best-first search is useful when speed matters more than solution quality and memory is constrained. It often finds a usable solution far faster than cost-aware methods.",
+          "Notes": "It is frequently used as a baseline against which A* and weighted A* are compared.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T19:58:33.303889-04:00",
+          "ModifiedDate": "2026-10-14T19:58:33.303889-04:00",
+          "Items": [
+            {
+              "Id": "6e5b509e-5809-41c2-a0b6-98b34617f98b",
+              "Text": "Suitable for large problems where any feasible solution is acceptable.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "fefeb57b-9ef3-41ed-b3db-a8472bc01742",
+              "Text": "Useful as a fast first pass whose solution can later be refined or repaired.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "6fdc33b9-503f-4bec-85a1-fd12421cf737",
+              "Text": "Expands far fewer nodes than uniform-cost search when the heuristic is accurate.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "963221c5-945f-4d65-8ae3-03d4fb26d48c",
+              "Text": "Appropriate when the heuristic is known to be strongly correlated with true remaining cost.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b7d44bf3-693e-456b-8d2e-9190d5a92a08",
+              "Text": "Should be avoided when the cost of the returned solution has real consequences.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "298af2af-d8b3-45f9-aa31-56d35de91817",
+      "Title": "The A* Algorithm",
+      "Summary": "Presents A* as best-first search with the evaluation function f(n) = g(n) \u002B h(n), including the open and closed lists, node expansion order, and handling of repeated states. Traces the algorithm step by step on worked pathfinding and puzzle examples.",
+      "SortOrder": 3,
+      "CreatedDate": "2026-10-14T19:57:24.7877163-04:00",
+      "ModifiedDate": "2026-10-14T19:57:24.7877163-04:00",
+      "Elements": [
+        {
+          "Id": "32588509-1c3b-4cd0-8573-ef3ed77880c8",
+          "TopicId": "298af2af-d8b3-45f9-aa31-56d35de91817",
+          "Title": "The A* Evaluation Function f(n) = g(n) \u002B h(n)",
+          "BodyText": "A* is a best-first search that orders nodes by an estimate of the total cost of the cheapest solution path passing through each node. It combines what a path has already cost with what it is predicted still to cost.",
+          "Notes": "Example: in route finding, g(n) is the kilometres driven so far from the start city, and h(n) is the straight-line distance from n to the goal.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:59:04.2687472-04:00",
+          "ModifiedDate": "2026-10-14T19:59:04.2687472-04:00",
+          "Items": [
+            {
+              "Id": "83625350-f88e-4c95-8b97-ecdc1c140b2c",
+              "Text": "g(n) is the exact cost of the best path found so far from the start node to n.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "eb1f2bcf-b7ff-4128-8ad7-24a4f64235ff",
+              "Text": "h(n) is the heuristic estimate of the cheapest cost from n to a goal.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c32f7451-465f-491a-8fca-0221dee075e8",
+              "Text": "f(n) therefore estimates the cost of the cheapest solution that goes through n.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "064c7b3b-febb-47bb-9fff-4085acabb3a1",
+              "Text": "Setting h(n) = 0 reduces A* to uniform-cost (Dijkstra-style) search, while ignoring g(n) gives greedy best-first search.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b6ef0102-070d-4f00-9330-4fb6cef7fe8b",
+              "Text": "A* balances the two terms, avoiding both the myopia of greedy search and the blind breadth of uniform cost.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "fe07f05e-6162-4a9d-8535-a51f51da42df",
+          "TopicId": "298af2af-d8b3-45f9-aa31-56d35de91817",
+          "Title": "The Open and Closed Lists",
+          "BodyText": "A* maintains two collections of nodes: the open list of candidates awaiting expansion and the closed list of nodes already expanded. Together they control the search frontier and prevent redundant work.",
+          "Notes": "The open list is typically implemented as a priority queue (binary heap) keyed on f; the closed list as a hash set keyed on the state.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:59:04.2687472-04:00",
+          "ModifiedDate": "2026-10-14T19:59:04.2687472-04:00",
+          "Items": [
+            {
+              "Id": "8ee7b29f-8f70-4b42-b789-24e1dd2eb31f",
+              "Text": "The open list (frontier) holds generated but not yet expanded nodes, ordered by increasing f value.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "292d21ba-5da2-4555-835c-5eca92e24ef1",
+              "Text": "The closed list (explored set) holds states that have already been expanded.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5b5ca2d1-e18d-4753-8484-a0d25da23881",
+              "Text": "Each node stores its state, parent pointer, g value and computed f value so the solution path can be reconstructed.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "49469a8c-f635-4450-99bc-e769e337cfca",
+              "Text": "Ties in f are commonly broken in favour of larger g, which prefers nodes deeper along a path and reaches the goal sooner.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "bb9dc3f1-7219-4c46-814b-3c22fe004492",
+              "Text": "The algorithm ends in failure if the open list empties before a goal is selected.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "52cf033e-a63c-4607-bc03-b130a76a2806",
+          "TopicId": "298af2af-d8b3-45f9-aa31-56d35de91817",
+          "Title": "The Expansion Loop Step by Step",
+          "BodyText": "A* repeatedly removes the most promising node from the open list, tests it, and expands it. The order of the goal test is critical to correctness.",
+          "Notes": "Testing the goal on selection rather than on generation is what preserves optimality; a goal found early on the frontier may still sit on a suboptimal path.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:59:04.2687472-04:00",
+          "ModifiedDate": "2026-10-14T19:59:04.2687472-04:00",
+          "Items": [
+            {
+              "Id": "c1614259-920f-4293-8d0a-e889a9ccae7c",
+              "Text": "Initialise: place the start node on the open list with g = 0 and f = h(start); the closed list is empty.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "728d3f37-5a25-40ab-be72-fbb68cbe7c47",
+              "Text": "Remove the node with the lowest f value from the open list.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7e523613-3b4a-4916-bea2-0df110e20303",
+              "Text": "Apply the goal test at the moment a node is selected for expansion, not when it is generated.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "58fa5bed-f218-4612-b493-ad6fb36246f4",
+              "Text": "If it is not a goal, move the node to the closed list and generate all its successors.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "e6992b1e-f0a6-4f5c-9fca-e9d094371f5f",
+              "Text": "For each successor compute g(successor) = g(n) \u002B cost(n, successor) and f = g \u002B h, then insert it into the open list.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "e9841393-bdbd-4920-9920-71ce26ed9836",
+              "Text": "Repeat until a goal node is selected or the open list is empty.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "e48fe40f-4c10-4324-b936-7e43a8eb4040",
+          "TopicId": "298af2af-d8b3-45f9-aa31-56d35de91817",
+          "Title": "Handling Repeated States and Duplicate Paths",
+          "BodyText": "Graph search reaches the same state by several routes, so A* must decide what to do when a successor is already on the open or closed list. The rule is to keep the cheaper path.",
+          "Notes": "With a consistent heuristic the g value of a node is already optimal when it is first expanded, so the closed-list reopening case never arises \u2014 this is why consistency simplifies implementations.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:59:04.2687472-04:00",
+          "ModifiedDate": "2026-10-14T19:59:04.2687472-04:00",
+          "Items": [
+            {
+              "Id": "95fe5ee6-4872-4921-bf0e-2a2ab7bbbeaa",
+              "Text": "If the successor state is new, add it to the open list normally.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "bd04be69-d419-441c-adfe-8877b2a82a6b",
+              "Text": "If it is already on the open list with a higher g, update its g, f and parent pointer and re-order the queue.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "82172839-bc0a-4422-87ee-7990c93df479",
+              "Text": "If it is on the closed list with a higher g, the node must be removed from closed and re-inserted into open (reopening).",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d87a39af-0ea7-490e-b206-f31c5e18df2c",
+              "Text": "Discard the successor whenever the existing recorded path is as cheap or cheaper.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "24b25978-3e32-4862-9f36-2b3931d354f0",
+              "Text": "Without duplicate detection the search degenerates into tree search and may repeat exponentially many identical subtrees.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "37e86364-7748-43dd-b519-d8ae9978dbc0",
+          "TopicId": "298af2af-d8b3-45f9-aa31-56d35de91817",
+          "Title": "Worked Example: Pathfinding on a Map",
+          "BodyText": "Tracing A* on a route-finding problem with straight-line distance as the heuristic shows how f values steer the expansion order. The classic Romania map from Arad to Bucharest is the standard illustration.",
+          "Notes": "Students should record a table of node, g, h and f at each iteration to see exactly why one branch is preferred over another.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:59:04.2687472-04:00",
+          "ModifiedDate": "2026-10-14T19:59:04.2687472-04:00",
+          "Items": [
+            {
+              "Id": "c9f32b41-c0c5-4725-b3ba-36c961cef2b0",
+              "Text": "Start at Arad with g = 0 and h = 366, giving f = 366.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c9945ea6-74d7-4c6c-8a6b-66fd2663f702",
+              "Text": "Expanding Arad generates Sibiu (f = 393), Timisoara (f = 447) and Zerind (f = 449), so Sibiu is chosen next.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "159c10de-ee20-4ee6-9f78-bc98b5c9a3b3",
+              "Text": "The search continues to expand the lowest-f node, briefly exploring Rimnicu Vilcea and Fagaras before committing.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "cc798b85-f611-4f11-a167-02ec5e86cc20",
+              "Text": "A path to Bucharest through Fagaras is generated with f = 450 but is not returned, because Pitesti sits on the frontier with f = 417.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "92101bf7-085f-4228-98ca-755379502ca9",
+              "Text": "Expanding Pitesti yields Bucharest with f = 418, which is then selected and returned as the optimal route.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "21ca275c-a8ae-49e0-8e34-4f44c0050d47",
+              "Text": "The example demonstrates concretely why the goal test is deferred until a node is selected.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "c416697b-deeb-456b-8b3a-9b96ebb4d4b5",
+          "TopicId": "298af2af-d8b3-45f9-aa31-56d35de91817",
+          "Title": "Worked Example: The 8-Puzzle",
+          "BodyText": "Applying A* to the 8-puzzle with the Manhattan distance heuristic shows how the same machinery works on a non-geometric state space. Here every move costs 1, so g(n) is simply the depth of the node.",
+          "Notes": "Comparing node counts with the misplaced-tiles heuristic shows how a more informed heuristic shrinks the explored portion of the search tree.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:59:04.2687472-04:00",
+          "ModifiedDate": "2026-10-14T19:59:04.2687472-04:00",
+          "Items": [
+            {
+              "Id": "e6df615b-f2ed-440d-84d9-53e5d1879361",
+              "Text": "Each state is a tile configuration; successors are produced by sliding the blank up, down, left or right.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "cb951ea0-0ad1-4c81-951e-27b3ceb4e545",
+              "Text": "g(n) equals the number of moves made so far and h(n) is the sum of Manhattan distances of tiles from their goal positions.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7cdd9683-cb1e-4f80-b473-0dc22c1676e8",
+              "Text": "Nodes are expanded in order of f = g \u002B h, so promising configurations that are also shallow are tried first.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "85859dca-2148-4dd4-aa20-b8e59e0e5d3a",
+              "Text": "The closed list prevents the search from oscillating between a state and its predecessor.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "e1cdc01c-d607-4822-a5e4-146457b3ce90",
+              "Text": "The solution path is recovered by following parent pointers from the goal node back to the start.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "468f3f76-1159-472c-9874-5a22b5db26a7",
+          "TopicId": "298af2af-d8b3-45f9-aa31-56d35de91817",
+          "Title": "Complexity and Practical Considerations",
+          "BodyText": "A* is complete and optimal under the right conditions, but its resource demands grow quickly with problem size. Understanding these costs motivates the memory-bounded variants.",
+          "Notes": "Weighted A* uses f = g \u002B w\u00B7h with w \u003E 1, which usually finds solutions far faster at the cost of bounded suboptimality.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T19:59:04.2687472-04:00",
+          "ModifiedDate": "2026-10-14T19:59:04.2687472-04:00",
+          "Items": [
+            {
+              "Id": "567bf37d-451d-4e2c-aa5b-6befd7d5aeb9",
+              "Text": "A* is complete provided the branching factor is finite and all step costs exceed some positive constant.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "75e74a03-1680-4af5-82b9-6d908e8c30d5",
+              "Text": "Time complexity is exponential in the solution depth unless the heuristic error is logarithmically bounded.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "32c6e1a1-7cd3-49ac-9f4f-f7cf28eeeb54",
+              "Text": "The dominant practical limit is memory, since every generated node is kept in the open or closed list.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "beb265b5-e595-4bb1-bbc6-c71c06ad3e9d",
+              "Text": "Priority-queue operations make each expansion cost O(log n) in the frontier size.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "852523e4-9508-47e1-8ad1-e87f380a7b66",
+              "Text": "Variants such as IDA*, SMA* and weighted A* trade optimality or time for a smaller memory footprint.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "287d6fe7-0e7e-4376-afe0-ca74e5711ef7",
+      "Title": "Optimality and Completeness Proofs for A*",
+      "Summary": "Proves that tree-search A* is optimal with an admissible heuristic and that graph-search A* is optimal with a consistent heuristic. Discusses optimal efficiency, contours of equal f-cost, and the effect of heuristic error on the number of nodes expanded.",
+      "SortOrder": 4,
+      "CreatedDate": "2026-10-14T19:57:24.7877163-04:00",
+      "ModifiedDate": "2026-10-14T19:57:24.7877163-04:00",
+      "Elements": [
+        {
+          "Id": "fbde1f92-0ce5-4935-bf11-73f88e073555",
+          "TopicId": "287d6fe7-0e7e-4376-afe0-ca74e5711ef7",
+          "Title": "Tree-Search A* Is Optimal with an Admissible Heuristic",
+          "BodyText": "When A* is run as a tree search (no closed list), admissibility of the heuristic is sufficient to guarantee that the first goal node selected for expansion lies on an optimal path.",
+          "Notes": "Admissible means h(n) \u2264 h*(n), the true cost of the cheapest path from n to a goal; h must also be 0 at any goal node.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:59:30.1670134-04:00",
+          "ModifiedDate": "2026-10-14T19:59:30.1670134-04:00",
+          "Items": [
+            {
+              "Id": "d48ca044-d655-4f44-881a-5c8444b20931",
+              "Text": "Suppose a suboptimal goal G2 appears on the frontier with g(G2) = C2 \u003E C*, the optimal cost.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c170ecff-de95-48d5-9227-65c1ded8d8bc",
+              "Text": "Since h(G2) = 0, f(G2) = g(G2) = C2 \u003E C*.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1f935308-8a8e-49e4-aeed-5f0cce72876a",
+              "Text": "Some node n on an optimal path to the optimal goal must also be on the frontier, and by admissibility f(n) = g(n) \u002B h(n) \u2264 C*.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e9cc7c8b-0a36-4289-8c4e-cd0cfa861326",
+              "Text": "Therefore f(n) \u2264 C* \u003C f(G2), so A* expands n before G2 and never returns the suboptimal goal.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6931cf32-60cd-40a0-9c09-ce5a94eb4723",
+              "Text": "The argument relies on the goal test being applied at expansion time, not when a node is generated.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "4a4d4525-5840-4d0b-a1b8-a35540adf9ae",
+          "TopicId": "287d6fe7-0e7e-4376-afe0-ca74e5711ef7",
+          "Title": "Consistency and the Monotonicity of f",
+          "BodyText": "Consistency (monotonicity) is a stronger condition than admissibility and it makes f values non-decreasing along any path, which is the key lemma for graph-search optimality.",
+          "Notes": "Consistency is a form of the triangle inequality: the estimate at n must not exceed the step cost to n\u0027 plus the estimate at n\u0027.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:59:30.1670134-04:00",
+          "ModifiedDate": "2026-10-14T19:59:30.1670134-04:00",
+          "Items": [
+            {
+              "Id": "88147449-f6de-4018-885a-1c13e8d705ab",
+              "Text": "A heuristic is consistent if h(n) \u2264 c(n, a, n\u0027) \u002B h(n\u0027) for every node n, action a, and successor n\u0027.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "80e0eaff-1ea3-4ef9-83c7-007944431ba3",
+              "Text": "From consistency, f(n\u0027) = g(n) \u002B c(n,a,n\u0027) \u002B h(n\u0027) \u2265 g(n) \u002B h(n) = f(n), so f never decreases along a path.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "0db2df61-3640-4dd5-9a17-30a8bb02cdc2",
+              "Text": "Every consistent heuristic is admissible, but not every admissible heuristic is consistent.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "2196a49f-6ef0-4c92-bddd-818f924b23b6",
+              "Text": "Most natural heuristics, such as Manhattan distance and straight-line distance, are consistent.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b33a8f8b-02a5-49a9-8202-c7e77d2930c6",
+              "Text": "Consistency guarantees that the first time A* expands a node, it has already found an optimal path to that node.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "5e8a6807-2498-4c6d-a326-18efcbaed9d0",
+          "TopicId": "287d6fe7-0e7e-4376-afe0-ca74e5711ef7",
+          "Title": "Graph-Search A* Is Optimal with a Consistent Heuristic",
+          "BodyText": "Graph search discards repeated states, which can prune an optimal path if a node is first reached by a costlier route; consistency removes this danger.",
+          "Notes": "An alternative fix for merely admissible heuristics is to re-open closed nodes when a cheaper path to them is discovered.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:59:30.1670134-04:00",
+          "ModifiedDate": "2026-10-14T19:59:30.1670134-04:00",
+          "Items": [
+            {
+              "Id": "64d09680-4dee-44a6-919e-a69bf59c1bc5",
+              "Text": "Because f is non-decreasing, A* expands nodes in non-decreasing order of f-cost.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "ff8845c9-0703-474b-8b46-3b28ff78ce8e",
+              "Text": "Hence the first node expanded with a goal state must have f = C*, the optimal cost.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "0f7775e7-ee16-413c-8568-b2b5fa9ea856",
+              "Text": "Since a node is closed only after an optimal path to it is found, discarding later duplicates loses nothing.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "905db1e7-cc26-4810-8e6b-557f0f749a62",
+              "Text": "Without consistency, graph-search A* may return a suboptimal solution unless the closed list is managed specially.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "40fbd017-f9cc-4cf5-ad62-c7b1fa33ba61",
+          "TopicId": "287d6fe7-0e7e-4376-afe0-ca74e5711ef7",
+          "Title": "Completeness of A*",
+          "BodyText": "A* is complete provided the state space satisfies mild conditions on branching and step costs, because it eventually exhausts all nodes cheaper than an optimal solution.",
+          "Notes": "On infinite state spaces with zero-cost actions or infinitely many nodes of cost below C*, A* can fail to terminate.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:59:30.1670134-04:00",
+          "ModifiedDate": "2026-10-14T19:59:30.1670134-04:00",
+          "Items": [
+            {
+              "Id": "2d6bf265-e45a-4407-91d0-6a30b94c3d56",
+              "Text": "A* expands all nodes with f(n) \u003C C* before expanding any goal node.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "752ca37f-acfa-4693-a1f9-e322b283d586",
+              "Text": "If every step cost is at least some \u03B5 \u003E 0 and the branching factor is finite, only finitely many such nodes exist.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a4431d12-5f44-4a95-947f-aa573e69412f",
+              "Text": "Therefore A* must reach a goal node in finite time whenever a solution exists.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "88a97019-629b-42ad-8846-474022684647",
+              "Text": "If no solution exists, A* terminates in a finite graph after exhausting the frontier.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "f73542eb-0fda-4971-a469-e665b8661af2",
+          "TopicId": "287d6fe7-0e7e-4376-afe0-ca74e5711ef7",
+          "Title": "Contours of Equal f-Cost",
+          "BodyText": "Visualizing A*\u0027s expansion order as nested contours of constant f value explains how the heuristic focuses the search toward the goal.",
+          "Notes": "With h = 0, A* reduces to uniform-cost search and the contours become concentric circles around the start.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:59:30.1670134-04:00",
+          "ModifiedDate": "2026-10-14T19:59:30.1670134-04:00",
+          "Items": [
+            {
+              "Id": "97f8a6ce-d44a-4bfe-82b8-96a630478254",
+              "Text": "A* expands all nodes inside the contour f = Ci before expanding any node with larger f.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "ba2f5482-7e6e-4ad7-9be2-9c14b5fcc028",
+              "Text": "Contours are concentric bands around the start state, stretched toward the goal as the heuristic becomes more accurate.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "815ac53e-a7ff-452b-bbbf-db3b0f6dc9cf",
+              "Text": "A perfect heuristic (h = h*) produces contours that hug the optimal path, so the search is essentially a straight walk to the goal.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "312a77b0-6e10-4aad-ba3a-f1df92e4b783",
+              "Text": "Uninformative heuristics produce wide circular contours and many expanded nodes.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "8707a225-270d-4250-9cd4-d583cf35f72c",
+          "TopicId": "287d6fe7-0e7e-4376-afe0-ca74e5711ef7",
+          "Title": "Optimal Efficiency of A*",
+          "BodyText": "Beyond simply returning optimal solutions, A* is optimally efficient: no other optimal algorithm using the same heuristic can expand fewer nodes.",
+          "Notes": "The statement is up to tie-breaking among nodes whose f value exactly equals C*.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:59:30.1670134-04:00",
+          "ModifiedDate": "2026-10-14T19:59:30.1670134-04:00",
+          "Items": [
+            {
+              "Id": "63461b4a-20ec-411c-ab79-12b78ff45223",
+              "Text": "Any algorithm that fails to expand a node with f(n) \u003C C* risks missing an optimal solution in some problem instance consistent with the information available.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b1edfc7b-9561-4d3e-81d1-5cd3f2a81248",
+              "Text": "A* expands exactly the set of nodes with f(n) \u003C C*, plus some subset of nodes with f(n) = C*.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8f0ffd6c-a826-47df-86bc-763423e279d5",
+              "Text": "Therefore no algorithm with the same heuristic is guaranteed to expand fewer nodes.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9d6b8fe3-adaf-400a-b230-83532fc47f16",
+              "Text": "Optimal efficiency concerns node expansions, not memory use, which remains A*\u0027s practical bottleneck.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "bce82e5c-a5e4-41e0-84e7-6a1a40a6f39a",
+          "TopicId": "287d6fe7-0e7e-4376-afe0-ca74e5711ef7",
+          "Title": "Heuristic Error and the Number of Nodes Expanded",
+          "BodyText": "The practical cost of A* depends on how closely the heuristic approximates the true cost-to-go; small absolute error keeps the expanded set near the optimal path.",
+          "Notes": "Effective branching factor b* is the standard empirical measure: if A* expands N nodes to find a solution at depth d, b* solves N \u002B 1 = 1 \u002B b* \u002B (b*)\u00B2 \u002B \u2026 \u002B (b*)^d.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T19:59:30.1670134-04:00",
+          "ModifiedDate": "2026-10-14T19:59:30.1670134-04:00",
+          "Items": [
+            {
+              "Id": "56d03be3-9e3c-4e2d-bfb0-b64970f00ece",
+              "Text": "With constant relative error, the number of nodes expanded can still grow exponentially in solution depth.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "653812fc-9db7-4417-a1d2-480e5bc15cae",
+              "Text": "Sub-exponential growth requires the absolute error |h*(n) \u2212 h(n)| to grow no faster than the logarithm of the true path cost.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7a6fd92d-64e5-4991-9728-5162a1be1252",
+              "Text": "A dominating heuristic (h2 \u2265 h1 everywhere, both admissible) never expands more nodes than the weaker one.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "1e1834cf-6427-448b-95fb-2d6c9a2dcfc6",
+              "Text": "A good heuristic yields an effective branching factor close to 1, which is the practical benchmark for comparing heuristics.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "9e747adb-7437-4d42-823e-1d97468e035b",
+              "Text": "Even an excellent heuristic leaves A* memory-bound, motivating variants such as IDA* and SMA*.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "3f0837a6-0d0a-47da-a4f0-088cfbd2f051",
+      "Title": "Designing and Comparing Heuristics",
+      "Summary": "Covers heuristic dominance, effective branching factor, and techniques for generating heuristics from relaxed problems, pattern databases, and subproblem decomposition. Students design, combine, and empirically compare heuristics for the sliding-tile puzzle and grid pathfinding tasks.",
+      "SortOrder": 5,
+      "CreatedDate": "2026-10-14T19:57:24.7877163-04:00",
+      "ModifiedDate": "2026-10-14T19:57:24.7877163-04:00",
+      "Elements": [
+        {
+          "Id": "7afbe4d8-f4a6-4872-a8fc-7bae961b4139",
+          "TopicId": "3f0837a6-0d0a-47da-a4f0-088cfbd2f051",
+          "Title": "Heuristic Dominance and Why It Matters",
+          "BodyText": "When two admissible heuristics are available, one may consistently give better guidance than the other. Dominance formalises this comparison and predicts search efficiency.",
+          "Notes": "Example: for the 8-puzzle, h2 (sum of Manhattan distances) dominates h1 (number of misplaced tiles), since every misplaced tile contributes at least 1 to the Manhattan sum.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:59:58.1225898-04:00",
+          "ModifiedDate": "2026-10-14T19:59:58.1225898-04:00",
+          "Items": [
+            {
+              "Id": "1c4c4753-4d37-4abb-8109-a4815cf1ab58",
+              "Text": "Heuristic h2 dominates h1 if h2(n) \u003E= h1(n) for every node n, and both remain admissible.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c694b139-976d-4530-a4d8-c8deb4ab3852",
+              "Text": "A dominating admissible heuristic never expands more nodes than the dominated one with A* (ignoring tie-breaking).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f017a8cb-f500-4a68-9f8c-50beb633d860",
+              "Text": "Nodes with f(n) \u003C C* must be expanded, so larger h values prune more of the search tree.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d72410af-b8f8-4174-b4a3-f827f3739ab2",
+              "Text": "Dominance only guarantees an advantage when both heuristics are admissible; a larger but inadmissible value can break optimality.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "2ef967a7-8602-4314-a53a-23014fee6558",
+              "Text": "Higher accuracy usually costs more computation per node, so compare total search time, not just node counts.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "26c103f7-2d1e-49dc-99e8-5f49330470e2",
+          "TopicId": "3f0837a6-0d0a-47da-a4f0-088cfbd2f051",
+          "Title": "Measuring Heuristic Quality: Effective Branching Factor",
+          "BodyText": "The effective branching factor gives a single number summarising how much a heuristic narrows the search. It is the standard empirical yardstick for comparing heuristics.",
+          "Notes": "For the 8-puzzle, typical reported values are roughly b* \u2248 1.48 for misplaced tiles and b* \u2248 1.26 for Manhattan distance \u2014 a small difference that compounds dramatically at greater depths.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:59:58.1225898-04:00",
+          "ModifiedDate": "2026-10-14T19:59:58.1225898-04:00",
+          "Items": [
+            {
+              "Id": "83ccd4c3-7771-4d17-9d28-f6a64cba44c3",
+              "Text": "If A* expands N nodes to find a solution at depth d, b* is the branching factor of a uniform tree of depth d with N\u002B1 nodes.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "553a7ce0-67dd-457e-a11f-652048e6c57a",
+              "Text": "Values of b* close to 1 indicate a highly informed heuristic; values near the real branching factor indicate little guidance.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9334f901-2115-46e7-a540-934d2846ff8f",
+              "Text": "b* is fairly stable across problem instances, so it can be estimated from a modest sample of random problems.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "83f94b3d-914b-4aa7-bbe7-9d02eb563617",
+              "Text": "Related measures include absolute error (h* - h) and relative error ((h* - h)/h*).",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a20da08e-189f-48d2-a3b7-94cac9feb03d",
+              "Text": "Always report nodes expanded, b*, and wall-clock time together to capture the accuracy/cost trade-off.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "df82879d-2af0-49c0-89d1-97455825fc3c",
+          "TopicId": "3f0837a6-0d0a-47da-a4f0-088cfbd2f051",
+          "Title": "Generating Heuristics from Relaxed Problems",
+          "BodyText": "A relaxed problem is one with fewer restrictions on the actions. The exact cost of an optimal solution to a relaxed problem is an admissible heuristic for the original problem.",
+          "Notes": "The ABSOLVER program automatically generated heuristics by relaxing formal problem descriptions, discovering a Rubik\u0027s Cube heuristic better than any previously published.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:59:58.1225898-04:00",
+          "ModifiedDate": "2026-10-14T19:59:58.1225898-04:00",
+          "Items": [
+            {
+              "Id": "3f1feb1c-9a1a-4d22-aadc-8f1a846e76cc",
+              "Text": "Relaxation adds edges to the state space, so the relaxed optimal cost can never exceed the true optimal cost \u2014 guaranteeing admissibility.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "893c9d4c-13da-4c30-be4a-6c93465414c6",
+              "Text": "Heuristics from relaxed problems are also consistent, because the relaxed cost obeys the triangle inequality.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d698edec-695a-4b8f-97c6-956c57a1a5cb",
+              "Text": "8-puzzle rule \u0027move tile from A to B if A is adjacent to B and B is blank\u0027: dropping \u0027B is blank\u0027 yields Manhattan distance.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e21b3025-75fb-4b8f-a994-df75af00182d",
+              "Text": "Dropping both conditions yields the misplaced-tiles heuristic; dropping only adjacency yields Gaschnig\u0027s heuristic.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "2f7161eb-2810-49e7-80c7-d29edb639687",
+              "Text": "The relaxed problem must be solvable cheaply, ideally without search, or the heuristic costs more than it saves.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "3acc7367-2f7c-484c-be31-895749efcbb3",
+              "Text": "In grid pathfinding, ignoring walls gives straight-line or Manhattan/octile distance as the relaxed-problem heuristic.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "fdaacb05-27c8-47da-a62f-67f896a566a5",
+          "TopicId": "3f0837a6-0d0a-47da-a4f0-088cfbd2f051",
+          "Title": "Pattern Databases and Subproblem Decomposition",
+          "BodyText": "Pattern databases store exact solution costs for subproblems and look them up during search. They typically yield far stronger heuristics than simple relaxations.",
+          "Notes": "Disjoint pattern databases reduced 15-puzzle node expansions by several orders of magnitude compared with Manhattan distance.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:59:58.1225898-04:00",
+          "ModifiedDate": "2026-10-14T19:59:58.1225898-04:00",
+          "Items": [
+            {
+              "Id": "3afd2365-d086-4a91-a9d3-6e7d87e9cd22",
+              "Text": "A pattern abstracts the state by caring only about a subset of tiles (e.g., tiles 1-4) and treating the rest as interchangeable.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "806e40e7-fe90-4af8-be7c-7cd16f8f1426",
+              "Text": "Costs for every reachable pattern configuration are precomputed by backward breadth-first search from the goal and stored in a table.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "878bbe08-1be7-441e-8b59-720f3d004be4",
+              "Text": "The stored cost is admissible because solving the subproblem is a relaxation of solving the whole puzzle.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "4d612f8f-b579-4201-a23a-3c837ea8c553",
+              "Text": "Taking the maximum over several pattern databases is admissible and dominates each individual database.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6cea128f-a67f-4acb-93c7-8aae3b36aabb",
+              "Text": "Disjoint pattern databases count only moves of the tiles in each pattern, which permits adding rather than maxing the values.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "ea16bb1f-bf10-462f-a488-cc174fc7b90c",
+              "Text": "Costs include precomputation time and memory, so database size must be balanced against search savings.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "d9f6da73-cf22-4ee8-9f61-b5ee5804c0b1",
+          "TopicId": "3f0837a6-0d0a-47da-a4f0-088cfbd2f051",
+          "Title": "Combining Multiple Heuristics",
+          "BodyText": "When no single heuristic dominates, several can be combined into a stronger composite. The combination rule must preserve admissibility.",
+          "Notes": "",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:59:58.1225898-04:00",
+          "ModifiedDate": "2026-10-14T19:59:58.1225898-04:00",
+          "Items": [
+            {
+              "Id": "54b0a472-58e4-4c5a-b437-5a9874a259c2",
+              "Text": "h(n) = max(h1(n), ..., hk(n)) is admissible whenever each component is admissible, and it dominates every component.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "8a108462-f403-49b9-9899-003200b44a09",
+              "Text": "The max of consistent heuristics is also consistent, so A* keeps its graph-search optimality guarantee.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2b702411-0a6b-4758-a551-fb897c3a95d3",
+              "Text": "Summing heuristics is admissible only when they account for disjoint costs, as with disjoint pattern databases.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "70efe7b5-5047-4825-99a8-542fabbc6cb7",
+              "Text": "Weighted combinations such as w*h may speed search but sacrifice optimality when w \u003E 1.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ba80812f-0274-4b09-aa35-589fa3dc0540",
+              "Text": "Evaluate whether the extra per-node computation of the max is repaid by the reduction in nodes expanded.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "1653157e-23db-4c51-969c-e99480d0dca0",
+          "TopicId": "3f0837a6-0d0a-47da-a4f0-088cfbd2f051",
+          "Title": "Empirical Comparison Methodology",
+          "BodyText": "Heuristic design is ultimately an experimental discipline: claims about quality should be validated on benchmark instances. A disciplined methodology makes comparisons fair and reproducible.",
+          "Notes": "Lab tasks: compare misplaced tiles, Manhattan distance, and a disjoint pattern database on random 8- and 15-puzzle instances; compare Manhattan, Euclidean, and octile heuristics on grid maps with and without diagonal moves.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:59:58.1225898-04:00",
+          "ModifiedDate": "2026-10-14T19:59:58.1225898-04:00",
+          "Items": [
+            {
+              "Id": "392b9278-e23b-4758-856a-fd78a38ce70b",
+              "Text": "Generate a random but fixed set of solvable instances across a range of solution depths.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e1ab2627-ee6f-4a74-b05a-d78a08c97127",
+              "Text": "Record nodes generated, nodes expanded, peak frontier size, solution cost, and runtime for each heuristic.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a0e2ed95-2e38-4c47-b973-f86db891e45c",
+              "Text": "Verify optimality by confirming that all heuristics return the same solution cost.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "328eec9e-7c86-4d0a-b8c6-03ba4d65e40b",
+              "Text": "Use identical tie-breaking rules (e.g., prefer larger g) so differences reflect the heuristic, not the queue order.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "e1bc941d-4213-4c5f-af86-48ded0c24b6a",
+              "Text": "Plot nodes expanded on a log scale against solution depth to expose exponential differences.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "89fa28cd-48ff-4573-928a-ef6732124a1c",
+              "Text": "Check that a grid heuristic matches the movement model \u2014 Manhattan distance is inadmissible when diagonal moves cost less than two straight moves.",
+              "SortOrder": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "TotalElementCount": 37
+}

@@ -1,0 +1,230 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Defining Intelligence and Artificial Intelligence</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ History and Foundations of Artificial Intelligence</a></div>
+  <header>
+    <h1>Defining Intelligence and Artificial Intelligence</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Defining Intelligence and Artificial Intelligence</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Almost every discipline that studies minds — psychology, philosophy, neuroscience, education, animal behaviour — has produced its own definition of intelligence, and none of them has won universal acceptance. This is awkward for a field whose very name contains the word. Artificial intelligence is, in effect, an engineering discipline built on a contested foundation. Rather than being a fatal flaw, this ambiguity has been productive: it has forced researchers to be explicit about <em>what they are trying to build</em> and <em>how they will know when they have built it</em>. This topic examines the competing definitions of intelligence, the four classic ways researchers have framed the goal of AI, the Turing Test as an operational shortcut, the strong/weak AI distinction, and the rational-agent vocabulary that underpins the rest of the module.</p>
+
+<p><strong>What Do We Mean by Intelligence?</strong></p>
+
+<p>If you collect a few dozen published definitions of intelligence and look for overlap, a recurring cluster of capabilities emerges. Most definitions mention <strong>learning from experience</strong> — the ability to change future behaviour on the basis of past outcomes. A child who touches a hot pan once and avoids it thereafter has demonstrated this; so has a spam filter that reclassifies messages after user corrections. Most also mention <strong>reasoning</strong>, the drawing of new conclusions from existing information, and <strong>problem solving</strong>, the construction of a path from a current state to a desired one. Finally, nearly all mention <strong>adaptation to novelty</strong>: performing well in situations that were not specifically anticipated.</p>
+
+<p>Beyond this common core, definitions diverge according to what their authors care about:</p>
+<ul>
+<li><strong>Goal-directed behaviour under uncertainty.</strong> A widely cited formulation holds that intelligence measures an agent's ability to achieve goals across a wide range of environments. The emphasis here is on <em>complexity</em> and <em>uncertainty</em>: solving a crossword from a complete dictionary is easier than navigating a crowded railway station where information is incomplete and other actors are unpredictable. On this view, a thermostat is minimally intelligent (one goal, one trivially simple environment) while a foraging animal is far more so.</li>
+<li><strong>Perception and language.</strong> Other definitions foreground the ability to build a useful internal model of the world from noisy sensory data, and to use symbols and language to communicate and to think. This tradition treats language as the clearest external evidence of internal thought, which is precisely why so many AI tests are conversational.</li>
+<li><strong>Generalisation across domains.</strong> A third emphasis is <em>transfer</em>: knowledge acquired in one setting being redeployed in another. A person who learns algebra and then applies proportional reasoning to a cooking recipe has generalised. Psychometrics captures something similar with the notion of a general factor underlying performance across diverse cognitive tests.</li>
+</ul>
+
+<p>Crucially, all of these are <strong>behavioural</strong> rather than <strong>structural</strong> definitions. They specify what an intelligent system <em>does</em>, not what it is made of or how it is internally organised. The consequence is what philosophers call <em>multiple realisability</em>: radically different substrates can satisfy the same behavioural description. An octopus with a distributed nervous system, a human with a centralised cortex, a colony of ants exhibiting collective route optimisation, and a silicon system running gradient descent may all qualify as intelligent under some behavioural criterion, despite sharing almost no structural features. This is exactly what makes artificial intelligence conceivable in the first place: if intelligence were defined as "whatever neurons in a primate cortex do," the field would be a contradiction in terms.</p>
+
+<p>The lack of consensus has a practical consequence for how the field measures progress. Because there is no agreed abstract yardstick, AI advances are reported in terms of <strong>tasks accomplished</strong>: a chess rating, a percentage accuracy on an image dataset, a word-error rate on transcribed speech, a score on a set of exam questions. This is honest in one sense — the numbers are checkable — but it invites confusion, because task performance and general capability can come apart dramatically. A system may exceed human accuracy at identifying skin lesions while being unable to answer the question "is this a photograph of skin?" if the question is phrased unusually.</p>
+
+<p><strong>Framing Artificial Intelligence: Four Classic Approaches</strong></p>
+
+<p>A standard organising device splits definitions of AI along two axes: whether the standard of comparison is <em>human performance</em> or <em>ideal rationality</em>, and whether we are concerned with <em>internal thought</em> or <em>external behaviour</em>. This yields four quadrants.</p>
+
+<table>
+<thead>
+<tr><th>Approach</th><th>Standard</th><th>Focus</th><th>Central question</th><th>Typical methods and evidence</th></tr>
+</thead>
+<tbody>
+<tr><td>Thinking humanly</td><td>Human</td><td>Internal process</td><td>Does the machine reason the way people actually reason?</td><td>Introspection, psychological experiments, brain imaging, cognitive architectures</td></tr>
+<tr><td>Acting humanly</td><td>Human</td><td>External behaviour</td><td>Is the machine's behaviour indistinguishable from a person's?</td><td>Turing Test, conversational evaluation, human-likeness judgements</td></tr>
+<tr><td>Thinking rationally</td><td>Ideal</td><td>Internal process</td><td>Does the machine draw correct inferences?</td><td>Formal logic, theorem proving, probability theory, soundness and completeness proofs</td></tr>
+<tr><td>Acting rationally</td><td>Ideal</td><td>External behaviour</td><td>Does the machine do the right thing given its goals and information?</td><td>Agent design, decision theory, expected-utility maximisation, performance measures</td></tr>
+</tbody>
+</table>
+
+<p><strong>Thinking humanly</strong> ties AI to <em>cognitive science</em>. The aim is not merely to produce correct answers but to reproduce the human process, including its characteristic errors and timing. A classic example is the General Problem Solver of Newell and Simon, which was evaluated partly by comparing the order of its intermediate reasoning steps with the "think-aloud" protocols of human subjects solving the same puzzle. Modern descendants include cognitive architectures such as SOAR and ACT-R, which attempt to predict human reaction times and error patterns. The scientific payoff is a theory of mind; the engineering payoff is limited, because human cognitive quirks are not always worth copying. Human memory is lossy, human arithmetic is slow, and human probability judgement is systematically biased.</p>
+
+<p><strong>Acting humanly</strong> ignores internal mechanism entirely and asks only whether an observer can tell the difference. This is the tradition that produces the Turing Test, discussed in detail below. Its strength is that it requires no theory of thought; its weakness is that indistinguishability from a human is both too demanding (a calculator that answers instantly reveals itself as non-human precisely by being <em>too good</em>) and too permissive (shallow conversational tricks can fool inattentive judges).</p>
+
+<p><strong>Thinking rationally</strong> descends from Aristotle's syllogisms through nineteenth-century formal logic to the logicist programme in AI. Here intelligence is identified with <em>correct inference</em>: given true premises, derive only true conclusions. A resolution theorem prover working over first-past-order logic exemplifies the approach. Two obstacles emerged. First, most real-world knowledge is not certain, so strict logical entailment is the wrong tool — hence the later absorption of probability theory into the same quadrant. Second, the <em>qualification problem</em>: writing down all the conditions under which a rule holds ("a bird flies, unless it is a penguin, or injured, or in a cage, or dead, or...") is unbounded. Formal reasoning is also computationally expensive; deciding satisfiability in propositional logic is NP-complete, and full first-order logic is only semi-decidable.</p>
+
+<p><strong>Acting rationally</strong> sidesteps the demand for correct <em>reasoning</em> and demands only correct <em>action</em>. A rational agent takes the action expected to achieve the best outcome, or, under uncertainty, the best <em>expected</em> outcome. Logical inference may be one route to that action, but it is not required: a reflex that withdraws a hand from a flame is rational behaviour with no inference at all. This framing is the modern mainstream for three reasons:</p>
+<ul>
+<li>It is <strong>measurable</strong>. Specify a performance measure, and you can compare two agents numerically without any dispute about whether either is "really" thinking.</li>
+<li>It is <strong>domain-independent</strong>. The same mathematics of expected utility applies to a warehouse robot, an advertising auction bidder, and a medical triage system.</li>
+<li>It is <strong>more general than the human standard</strong>. It permits agents that behave better than humans, and does not penalise agents that behave differently while achieving the same or better results.</li>
+</ul>
+
+<p>A concrete contrast: consider designing a system to play Go. A "thinking humanly" project would interview strong players, model their pattern recognition and intuition, and be judged on whether its move preferences mirrored theirs. A "thinking rationally" project would try to prove properties of positions. An "acting rationally" project simply asks: which move maximises the probability of winning, given the resources available? The systems that eventually surpassed human champions took the last route, combining tree search with learned value estimates, and produced moves that human experts initially judged to be mistakes.</p>
+
+<p><strong>The Turing Test as an Operational Definition</strong></p>
+
+<p>In 1950 Alan Turing opened a paper with the question "Can machines think?" and immediately declared it too meaningless to deserve discussion, because it depends on contested definitions of "machine" and "think." His move was to replace the question with an <em>operational</em> one — a concrete procedure whose outcome anyone can observe. This is a general and valuable scientific manoeuvre: rather than arguing about the essence of a property, specify a test.</p>
+
+<p>The procedure, which Turing called the <em>imitation game</em>, runs as follows. A human <strong>interrogator</strong> communicates by text-only channel with two hidden participants: one human, one machine. The interrogator may ask anything at all, and must decide which respondent is the machine. The text-only restriction is deliberate — it prevents the machine from being penalised for lacking a human voice or appearance, isolating intellectual performance from physical resemblance. If, over a sufficient number of trials, interrogators cannot identify the machine reliably better than chance, the machine is said to pass.</p>
+
+<p>Turing's own prediction was statistical rather than absolute: he speculated that by the year 2000 a machine with roughly 10<sup>9</sup> bits of storage might fool an average interrogator at least 30% of the time in a five-minute conversation. Note how weak that bar is compared with how the test is usually reported in popular accounts.</p>
+
+<p>What makes the test interesting is not the theatre of deception but the <strong>breadth of competence it implicitly demands</strong>. To sustain open-ended conversation a system needs, at minimum:</p>
+<ul>
+<li><strong>Natural language processing</strong> — to parse arbitrary input and generate fluent, contextually appropriate output.</li>
+<li><strong>Knowledge representation</strong> — to store facts about the world, including the vast body of unstated commonsense knowledge (that ice melts, that people sleep at night, that you cannot carry a piano in a pocket).</li>
+<li><strong>Automated reasoning</strong> — to answer questions whose answers are not stored but must be derived, and to maintain consistency across a long dialogue.</li>
+<li><strong>Machine learning</strong> — to adapt to the interrogator's style, detect new patterns, and handle topics outside any pre-scripted repertoire.</li>
+</ul>
+
+<p>The interrogator can probe each of these. "I left my ice cream in the car for three hours in August — what should I expect to find?" tests commonsense physics. "Earlier you said you had two sisters; how many siblings does your mother's daughter have?" tests dialogue memory and reasoning. "Please rhyme a couplet about a disappointing sandwich" tests generative flexibility.</p>
+
+<p>Turing's test omits perception and physical action, since the text channel excludes them. The <strong>Total Turing Test</strong> closes this gap by adding a video channel and a hatch through which the interrogator can pass physical objects. Now the machine must also possess:</p>
+<ul>
+<li><strong>Computer vision</strong> (and broader machine perception) — to recognise objects, scenes, faces, and gestures presented to it.</li>
+<li><strong>Robotics</strong> — to manipulate the objects handed over, and to move through the world.</li>
+</ul>
+
+<p>This variant reflects the argument from <em>embodiment</em>: that much of human concept formation is grounded in sensorimotor experience, so a disembodied text system can at best manipulate symbols whose meanings it never acquired directly. Asking a system to describe a text about grasping a mug is not the same as asking it to grasp one.</p>
+
+<p>Criticisms of the Turing Test are numerous and largely well founded:</p>
+<ul>
+<li><strong>It rewards imitation and deception.</strong> The goal is to <em>appear</em> human, which encourages simulating human weaknesses: hesitating, making typing errors, pleading ignorance of arithmetic. Deliberately performing worse is not progress toward intelligence.</li>
+<li><strong>It can be gamed by shallow tricks.</strong> ELIZA, a 1960s program of a few hundred lines, reflected users' statements back as questions and convinced some users it understood them. Later contest entrants adopted personas — a sarcastic teenager, a non-native speaker — that excuse non-sequiturs and evasions. Success here reveals more about human credulity and the <em>ELIZA effect</em> (our readiness to attribute understanding) than about machine cognition.</li>
+<li><strong>It is anthropocentric.</strong> A system with superhuman capabilities in unfamiliar directions would fail, not because it lacks intelligence but because it is not human-like. We do not test aircraft by checking whether ornithologists mistake them for birds.</li>
+<li><strong>Behaviour may not entail understanding.</strong> Searle's Chinese Room thought experiment imagines a person in a room mechanically following rules to manipulate Chinese symbols, producing perfect answers while understanding nothing. Whether this refutes the test or merely restates the disagreement is itself much debated, but it sharpens the point that passing a behavioural test is not obviously the same as having a mind.</li>
+<li><strong>It is not useful as an engineering target.</strong> No serious research programme tries to pass the Turing Test, because doing so would not tell an engineer which subsystem to improve. Contemporary evaluation instead uses decomposed, quantitative benchmarks.</li>
+</ul>
+
+<p>Related probes have been proposed to preserve the operational spirit while resisting gaming. <em>Winograd schemas</em> are sentence pairs whose pronoun reference flips on a single word — "The trophy would not fit in the suitcase because it was too <em>large</em>/<em>small</em>" — requiring world knowledge rather than surface statistics, and offering no room for persona-based evasion.</p>
+
+<p><strong>Strong AI versus Weak AI</strong></p>
+
+<p>The terms <strong>weak AI</strong> and <strong>strong AI</strong> originate in philosophy of mind, not engineering, and the distinction concerns what a working machine would <em>prove</em>, not how well it performs.</p>
+
+<p><strong>Weak AI</strong> is the claim that machines can be built to <em>act as if</em> they were intelligent within specific, bounded tasks, and that such systems are valuable tools and useful models of cognition. On this view the machine simulates thought in the way a weather model simulates a storm: the simulation is informative and may be highly accurate, but nothing gets wet inside the computer.</p>
+
+<p><strong>Strong AI</strong> is the stronger claim that a suitably programmed machine would not be simulating a mind but <em>would have one</em> — genuine understanding, intentionality, and possibly conscious experience. Searle coined the contrast precisely to attack this position; his target was the idea that running the right program is <em>sufficient</em> for mentality.</p>
+
+<p>Two confusions are worth heading off:</p>
+<ul>
+<li>"Weak" does not mean "feeble." A weak-AI system can be world-class. A chess engine that defeats every human player is still weak AI, because nobody claims it experiences the game.</li>
+<li>Strong AI is not the same as <strong>Artificial General Intelligence (AGI)</strong>, although the terms are often conflated in popular usage. AGI is a <em>capability</em> claim: human-level competence across arbitrary domains, with the ability to learn new tasks without redesign. Strong AI is a <em>metaphysical</em> claim about inner life. One could in principle have an AGI that is a "philosophical zombie" — fully general in behaviour, with nobody home.</li>
+</ul>
+
+<table>
+<thead>
+<tr><th>Dimension</th><th>Weak / narrow AI</th><th>AGI (capability claim)</th><th>Strong AI (metaphysical claim)</th></tr>
+</thead>
+<tbody>
+<tr><td>Scope of competence</td><td>Bounded task or domain</td><td>Arbitrary domains, novel tasks</td><td>Orthogonal to scope</td></tr>
+<tr><td>Core assertion</td><td>Behaves <em>as if</em> intelligent</td><td>Matches or exceeds human breadth</td><td>Genuinely understands; has a mind</td></tr>
+<tr><td>Testable?</td><td>Yes — task benchmarks</td><td>In principle, via broad evaluation</td><td>Contested; no agreed test</td></tr>
+<tr><td>Existing examples</td><td>Machine translation, spam filters, route planners, recommenders, medical image triage, speech recognition</td><td>None demonstrated</td><td>None demonstrated</td></tr>
+</tbody>
+</table>
+
+<p>Virtually every deployed system today is weak AI. A web search ranker optimises click-relevance over documents; it has no model of the user's life. A translation system maps token sequences between languages; it does not know what a "harbour" smells like. A recommendation engine predicts engagement; it has no concept of the viewer's wellbeing unless one is engineered in. A vision system that flags manufacturing defects has no notion of what a factory is for. Each is superb inside its boundary and typically brittle just outside it — the classic failure signature is <em>distribution shift</em>, where a model trained on one hospital's scanners degrades badly on another's.</p>
+
+<p>Why does the distinction matter beyond philosophy?</p>
+<ul>
+<li><strong>Ethics and moral status.</strong> If strong AI were achieved, questions of machine welfare, rights, and the permissibility of shutting a system down would become live. Under weak AI they do not arise, though the ethics of <em>impact on humans</em> remain pressing regardless.</li>
+<li><strong>Legal responsibility.</strong> Weak AI is a product or a tool, so liability follows familiar chains: developer, deployer, operator. Attributing agency to the system itself ("the algorithm decided") can function as a responsibility-laundering device. Clarity about weak versus strong keeps accountability with humans and organisations.</li>
+<li><strong>Honest marketing and policy.</strong> Describing a narrow statistical model as "understanding" a medical record invites over-reliance by clinicians and misdirected regulation by legislators.</li>
+</ul>
+
+<p><strong>Rational Agents and the Working Vocabulary</strong></p>
+
+<p>Because the "acting rationally" framing dominates modern AI, its vocabulary is the standard language of the field and will recur throughout this module.</p>
+
+<p>An <strong>agent</strong> is anything that perceives its environment through <strong>sensors</strong> and acts upon that environment through <strong>actuators</strong>. A <strong>percept</strong> is a single sensory input; the <strong>percept sequence</strong> is the complete history of everything the agent has perceived. An <strong>agent function</strong> maps percept sequences to actions, and an <strong>agent program</strong> is the concrete implementation of that function on some architecture.</p>
+
+<pre><code>Agent skeleton:
+
+  percept  &lt;- SENSE(environment)
+  memory   &lt;- UPDATE-STATE(memory, percept)
+  action   &lt;- CHOOSE-ACTION(memory, goals, performance_measure)
+  ACTUATE(action)                 # repeat forever
+
+Examples:
+  Vacuum robot : sensors = bump, dirt, cliff   actuators = wheels, suction
+  Trading agent: sensors = price feed, order book   actuators = buy/sell orders
+  Thermostat   : sensors = thermometer, schedule   actuators = boiler relay
+</code></pre>
+
+<p>A <strong>rational agent</strong> selects, for each possible percept sequence, an action expected to maximise its <strong>performance measure</strong>, given the evidence in the percept sequence and whatever built-in knowledge it has. Four features of this definition deserve emphasis:</p>
+<ul>
+<li>The performance measure is <em>external</em>, specified by the designer, and should describe the desired state of the <em>environment</em>, not the agent's internal satisfaction. Rewarding a cleaning robot for "dirt collected" invites it to dump dirt on the floor and re-collect it; rewarding "floor cleanliness over time" does not.</li>
+<li>Rationality is about <em>expected</em> outcomes, not actual ones. Crossing a road after checking carefully is rational even if a falling aeroplane part happens to strike you. Rationality is not omniscience.</li>
+<li>Rationality is relative to <em>available information</em>. An agent cannot be faulted for failing to use a percept it never received — though it can be faulted for failing to gather information it could have gathered. This motivates <strong>exploration</strong> and <strong>information-gathering actions</strong>.</li>
+<li>A rational agent should <strong>learn</strong>, improving its behaviour as its percept history grows, and may need <strong>autonomy</strong> — the capacity to compensate for incorrect or incomplete prior knowledge.</li>
+</ul>
+
+<p>Agent design depends heavily on the <strong>task environment</strong>, conventionally described along several dimensions:</p>
+
+<table>
+<thead>
+<tr><th>Dimension</th><th>Contrast</th><th>Meaning</th><th>Example</th></tr>
+</thead>
+<tbody>
+<tr><td>Observability</td><td>Fully vs. partially observable</td><td>Do sensors reveal the complete relevant state?</td><td>Chess (fully) vs. poker or self-driving in fog (
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

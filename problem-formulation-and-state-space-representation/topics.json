@@ -1,0 +1,1621 @@
+{
+  "ModuleFolderName": "Problem_Formulation_and",
+  "CourseName": "CAI4002 - Intro to AI",
+  "GeneratedDate": "2026-10-14T19:49:34.7558456-04:00",
+  "ModifiedDate": "2026-10-14T19:52:18.1208185-04:00",
+  "Outcomes": [],
+  "Topics": [
+    {
+      "Id": "bd639cb2-36c0-4ee9-957d-a638fae56e2d",
+      "Title": "Why Problem Formulation Matters",
+      "Summary": "Introduces the idea that many real-world tasks can be solved by search once they are precisely described, and explains how a well-chosen formulation determines whether a problem is tractable. Sets the stage for abstraction decisions such as what to include in a state and what to ignore.",
+      "SortOrder": 0,
+      "CreatedDate": "2026-10-14T19:49:34.7558456-04:00",
+      "ModifiedDate": "2026-10-14T19:49:34.7558456-04:00",
+      "Elements": [
+        {
+          "Id": "90c349d4-1bca-4765-806a-980545ba2457",
+          "TopicId": "bd639cb2-36c0-4ee9-957d-a638fae56e2d",
+          "Title": "From Real Task to Search Problem",
+          "BodyText": "Many everyday and engineering tasks \u2014 route planning, puzzle solving, scheduling, robot navigation \u2014 can be solved automatically once they are described precisely enough for a search algorithm to operate on them.",
+          "Notes": "Examples: finding a driving route, arranging blocks, planning a sequence of robot moves.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:49:52.9408981-04:00",
+          "ModifiedDate": "2026-10-14T19:49:52.9408981-04:00",
+          "Items": [
+            {
+              "Id": "db05baba-798c-442b-b424-30816b52742d",
+              "Text": "A search problem is a task in which an agent must find a sequence of actions that leads from a starting situation to a desired one.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0bf3f5c2-1e5f-4fad-a74d-dfff29de1242",
+              "Text": "The agent does not need task-specific intelligence; it only needs a description it can systematically explore.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "96e4db2a-a414-455f-8613-155092f8a509",
+              "Text": "Problem formulation is the translation step between a messy real-world task and a precise computational description.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d592ef66-ce33-4f7c-8772-658771712edb",
+              "Text": "Once formulated, the same general search algorithms can be applied to very different problems.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "c25cf1c8-1369-4a89-b85f-87cbef1cf66f",
+          "TopicId": "bd639cb2-36c0-4ee9-957d-a638fae56e2d",
+          "Title": "The Standard Components of a Formulation",
+          "BodyText": "A problem formulation identifies a small set of standard ingredients that together define the space the algorithm will search.",
+          "Notes": "These components are developed in detail later in the module; here they frame why formulation is a deliberate design act.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:49:52.9408981-04:00",
+          "ModifiedDate": "2026-10-14T19:49:52.9408981-04:00",
+          "Items": [
+            {
+              "Id": "577419a7-5e45-4dd0-b220-77d14cf0bdb9",
+              "Text": "The state captures the relevant configuration of the world at a point in time.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "21679993-8c31-4f09-a8f3-941b895e1932",
+              "Text": "The initial state says where search begins, and the goal test says when search may stop.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "92f9ff83-37bb-41a6-8397-32d75d5f50b1",
+              "Text": "The actions and transition model define which states are reachable from which, and how.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "af943176-3ff2-4e37-913b-fb31390b8263",
+              "Text": "The path cost assigns a numeric value to a solution so that solutions can be compared.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "78eafee8-12c0-40ef-b59f-b1e9514707ba",
+          "TopicId": "bd639cb2-36c0-4ee9-957d-a638fae56e2d",
+          "Title": "Formulation Determines Tractability",
+          "BodyText": "The way a problem is described has a direct effect on how large the search space is and therefore on whether the problem can be solved in practical time and memory.",
+          "Notes": "A poorly chosen state description can make a solvable problem effectively impossible to search.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:49:52.9408981-04:00",
+          "ModifiedDate": "2026-10-14T19:49:52.9408981-04:00",
+          "Items": [
+            {
+              "Id": "49059209-e587-4e03-96aa-d7b8412a3e15",
+              "Text": "Each extra detail stored in a state can multiply the number of distinct states the algorithm must consider.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "75ae0ea8-4664-48c3-84c6-77f5e1a66839",
+              "Text": "Two formulations of the same real task can differ by many orders of magnitude in search space size.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "96304e31-6b78-419a-b894-9f02ce4c942e",
+              "Text": "A good formulation keeps the branching factor and solution depth as small as the task allows.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d00997b8-ec11-417b-8188-68b2cf78a08d",
+              "Text": "Time spent choosing a representation often saves far more time than optimising the search algorithm itself.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "81e4ed18-9325-44a4-9097-bf2b75c42e82",
+          "TopicId": "bd639cb2-36c0-4ee9-957d-a638fae56e2d",
+          "Title": "Abstraction: Choosing What to Ignore",
+          "BodyText": "Abstraction is the deliberate removal of detail that does not affect whether a solution can be found or how good it is.",
+          "Notes": "Example: in route planning, a state is usually just the current city \u2014 not the weather, the fuel gauge reading, or the radio station.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:49:52.9408981-04:00",
+          "ModifiedDate": "2026-10-14T19:49:52.9408981-04:00",
+          "Items": [
+            {
+              "Id": "e942ac8e-e91a-4186-ad1c-02db129b5d02",
+              "Text": "Include in the state only what is needed to decide which actions are legal and whether the goal is reached.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "a737e8b6-24ca-4f65-b435-10af1b70651b",
+              "Text": "A valid abstraction guarantees that any abstract solution can be expanded into a real-world solution.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f442dbfd-acdc-4d8a-9536-4e7c4d41d6d4",
+              "Text": "Useful abstractions also make each abstract action easy to carry out in the real world.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "5bed71cb-e9e7-4c1c-81e1-80801f94ef4b",
+              "Text": "Over-abstracting risks losing information required for correctness; under-abstracting causes state explosion.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "25f0a2b7-1fcf-4635-839c-0fd82c30c8d9",
+          "TopicId": "bd639cb2-36c0-4ee9-957d-a638fae56e2d",
+          "Title": "Assumptions Behind the Classical Formulation",
+          "BodyText": "The standard search formulation rests on simplifying assumptions about the environment, and these should be checked before applying it.",
+          "Notes": "Relaxing these assumptions leads to other families of techniques, such as search under uncertainty or online search.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:49:52.9408981-04:00",
+          "ModifiedDate": "2026-10-14T19:49:52.9408981-04:00",
+          "Items": [
+            {
+              "Id": "1cbe4ace-e7bc-4d47-925d-415ffd7982dc",
+              "Text": "The environment is assumed observable, so the agent knows which state it is in.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d100a680-cdf2-4f37-8567-b620e87d1896",
+              "Text": "The environment is assumed discrete, giving a finite set of actions at each state.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a61a6dfd-993f-49fb-bd65-568097aa8c05",
+              "Text": "Actions are assumed deterministic, so each action leads to exactly one known successor state.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e4bb8931-ab24-4e6e-ac80-962134bfc505",
+              "Text": "The environment is assumed static, so the world does not change while the agent is deliberating.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "7f1dc788-dd55-4ead-afb2-4089b59636f4",
+          "TopicId": "bd639cb2-36c0-4ee9-957d-a638fae56e2d",
+          "Title": "Evaluating a Formulation Before Searching",
+          "BodyText": "Before committing to a formulation, it is worth sanity-checking it against a few practical criteria.",
+          "Notes": "",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:49:52.9408981-04:00",
+          "ModifiedDate": "2026-10-14T19:49:52.9408981-04:00",
+          "Items": [
+            {
+              "Id": "5cc32e8c-9d73-4f66-952f-aaf40a5f3633",
+              "Text": "Ask whether every state in the description is actually reachable and meaningful.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "83972a72-15eb-4836-8765-e2a501906cef",
+              "Text": "Estimate the size of the state space and the typical depth of a solution.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "b876c9b1-9e8c-4dd7-b74e-67eaa03435f7",
+              "Text": "Confirm that the goal test is cheap to evaluate and unambiguous.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "316bc711-767e-40c8-b4b2-9212ae9a4e23",
+              "Text": "Check that the cost function reflects what you genuinely want to minimise, such as distance, time, or money.",
+              "SortOrder": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "eaaf64e0-ad68-472e-8da5-6a147a6f87da",
+      "Title": "The Five Components of a Search Problem",
+      "Summary": "Defines the formal elements of a search problem: states and state space, initial state, actions (applicability), transition model (successor function), goal test, and path cost with step costs. Shows how these components together specify a problem completely and unambiguously.",
+      "SortOrder": 1,
+      "CreatedDate": "2026-10-14T19:49:34.7558456-04:00",
+      "ModifiedDate": "2026-10-14T19:49:34.7558456-04:00",
+      "Elements": [
+        {
+          "Id": "d704d86e-ef86-4233-94b7-83c6c5297086",
+          "TopicId": "eaaf64e0-ad68-472e-8da5-6a147a6f87da",
+          "Title": "Why Formal Problem Definition Matters",
+          "BodyText": "A search problem must be specified precisely before any algorithm can solve it. The standard formulation uses five components that together define the problem completely and unambiguously.",
+          "Notes": "Example: the 8-puzzle, route finding between cities, and the vacuum-world cleaning task can all be expressed with the same five components despite being very different tasks.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:50:18.5263399-04:00",
+          "ModifiedDate": "2026-10-14T19:50:18.5263399-04:00",
+          "Items": [
+            {
+              "Id": "94c73a89-3d91-4685-a7e3-60a9e85df032",
+              "Text": "The five components are: the state space (with an initial state), the actions available, the transition model, the goal test, and the path cost function.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f8e2b8b0-a706-41d6-9ee4-fc79705b3cc6",
+              "Text": "Any two people given the same five-component specification should agree on exactly which solutions are valid.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "298d58fa-3911-4d95-82ab-41d578016a95",
+              "Text": "A solution is a sequence of actions leading from the initial state to a goal state; an optimal solution is one with the lowest path cost.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "38cbeaad-40c5-4e63-bfe9-c7df0c834d02",
+              "Text": "Formulation is a modelling choice: the same real-world task can be formulated in several ways, and the choice affects how hard the search becomes.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "6d48fa72-cc82-4e01-bdea-d84dcc68c5a9",
+          "TopicId": "eaaf64e0-ad68-472e-8da5-6a147a6f87da",
+          "Title": "States and the State Space",
+          "BodyText": "A state is an abstract description of the world that keeps only the information relevant to solving the problem. The set of all states reachable from the initial state by any sequence of actions is called the state space.",
+          "Notes": "Example: in route finding, a state is simply \u0027the city I am currently in\u0027 \u2014 the weather, time of day, and car colour are abstracted away.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:50:18.5263399-04:00",
+          "ModifiedDate": "2026-10-14T19:50:18.5263399-04:00",
+          "Items": [
+            {
+              "Id": "4143334c-12e3-487f-be93-e0396d37283d",
+              "Text": "Good abstraction removes irrelevant detail while keeping everything needed to test the goal and apply actions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b33b79cd-f3fa-4dfb-8a4d-6280a67e3ac0",
+              "Text": "The state space can be viewed as a graph whose nodes are states and whose edges are actions.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3c6e43f5-b5c9-4d46-b77a-c8d9f9a78da2",
+              "Text": "State space size grows rapidly with problem features: the 8-puzzle has 9!/2 = 181,440 reachable states, while the 15-puzzle has over 10^13.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "fc70ba01-64b8-4ef3-9b6d-e1f41ebfcecb",
+              "Text": "The state space may be finite or infinite, and it is usually defined implicitly by the initial state plus the actions rather than listed explicitly.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "2311021c-c57c-4fbf-b342-164cb04cd002",
+          "TopicId": "eaaf64e0-ad68-472e-8da5-6a147a6f87da",
+          "Title": "The Initial State",
+          "BodyText": "The initial state is the state in which the agent begins its search. It is the single starting point from which the reachable state space is generated.",
+          "Notes": "Example: In(Arad) is the initial state for the Romania route-finding problem; a specific scrambled tile configuration is the initial state for the 8-puzzle.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:50:18.5263399-04:00",
+          "ModifiedDate": "2026-10-14T19:50:18.5263399-04:00",
+          "Items": [
+            {
+              "Id": "42273ea9-42dc-4455-ae62-df8acb45fe08",
+              "Text": "It must be written in the same representation used for all other states.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d6a3e99a-0339-4075-bbf3-8b396c22499c",
+              "Text": "Changing the initial state generally changes both the solution and the reachable portion of the state space.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "821b262f-5ffe-44a9-83ce-417e2e223366",
+              "Text": "Some problems have a known initial state, while others start with uncertainty and require a set of possible states (a belief state).",
+              "SortOrder": 2
+            },
+            {
+              "Id": "3e9fbaca-a6e8-4c97-bcd1-545ee00064b9",
+              "Text": "Together with the actions and transition model, the initial state implicitly defines the whole state space.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "26d03743-2292-4a22-917c-a4292fc1b793",
+          "TopicId": "eaaf64e0-ad68-472e-8da5-6a147a6f87da",
+          "Title": "Actions and Applicability",
+          "BodyText": "Actions are the choices available to the agent. For any state s, ACTIONS(s) returns the finite set of actions that are applicable \u2014 that is, legal to execute \u2014 in that state.",
+          "Notes": "Example: in the 8-puzzle, ACTIONS depends on where the blank tile sits; a corner position allows only two moves, while the centre allows four.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:50:18.5263399-04:00",
+          "ModifiedDate": "2026-10-14T19:50:18.5263399-04:00",
+          "Items": [
+            {
+              "Id": "2cc20c22-4a3a-49ac-956b-139f0765de0a",
+              "Text": "Applicability is state-dependent: an action legal in one state may be illegal in another.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b9891edd-5af9-40a0-9364-e7f3351b7237",
+              "Text": "Restricting actions to the applicable set prevents the generation of invalid or impossible states.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "067eb1da-3e38-494f-acb7-b58fae663345",
+              "Text": "Actions should be defined at a sensible granularity \u2014 too fine makes search long, too coarse may hide valid solutions.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "23ac0b7c-4dc7-4ce3-9291-56f5ef7c94c0",
+              "Text": "In route finding, ACTIONS(In(Arad)) yields the moves to Sibiu, Timisoara and Zerind only.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "7c69d4fb-c7b8-4f28-88ca-cb88215f73c7",
+          "TopicId": "eaaf64e0-ad68-472e-8da5-6a147a6f87da",
+          "Title": "The Transition Model (Successor Function)",
+          "BodyText": "The transition model specifies what each action does. RESULT(s, a) returns the state that results from performing applicable action a in state s.",
+          "Notes": "Example: RESULT(In(Arad), Go(Zerind)) = In(Zerind). The pair (action, resulting state) is called a successor.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:50:18.5263399-04:00",
+          "ModifiedDate": "2026-10-14T19:50:18.5263399-04:00",
+          "Items": [
+            {
+              "Id": "c39ff2db-c67a-4a04-8275-1bf58455c56a",
+              "Text": "Together, ACTIONS and RESULT form the successor function, which generates all states directly reachable from a given state.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e4048ddd-afd3-44d4-a38a-61af62b9f176",
+              "Text": "In a deterministic, fully observable setting each action leads to exactly one successor state.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "b89ec31b-71da-4c04-9d4c-bc73faa2bd19",
+              "Text": "The transition model, applied repeatedly from the initial state, defines the entire state space implicitly.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f40f6bf3-84ca-4884-bc41-db432fb5066d",
+              "Text": "Non-deterministic problems generalise RESULT to return a set of possible outcome states.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "d07c11c4-cf85-420a-87f8-6d3d4f0a08d7",
+          "TopicId": "eaaf64e0-ad68-472e-8da5-6a147a6f87da",
+          "Title": "The Goal Test",
+          "BodyText": "The goal test determines whether a given state is a goal state, telling the search when it can stop. It may be defined by an explicit set of states or by an abstract property.",
+          "Notes": "Example: route finding uses the explicit test {In(Bucharest)}; the 8-queens problem uses the property \u0027no queen attacks another\u0027.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:50:18.5263399-04:00",
+          "ModifiedDate": "2026-10-14T19:50:18.5263399-04:00",
+          "Items": [
+            {
+              "Id": "ae3e742c-4baf-457e-82a4-8f2a16e09f10",
+              "Text": "Explicit goal tests compare a state against one or more enumerated goal states.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "3df3dcd0-8a4a-4815-9b0a-04cdf5ebe29c",
+              "Text": "Implicit goal tests check a condition or property, which is useful when goal states are numerous or unknown in advance.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d57b11fd-f8e4-452c-b336-4c14d8b258d5",
+              "Text": "There may be many goal states, exactly one, or none reachable at all.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e227e5e0-5a05-4cbb-9d59-3ca9f1b75a9b",
+              "Text": "The goal test is applied to states produced by expansion, and in some algorithms it is applied when a node is generated rather than when it is selected.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "a5759d06-2127-4829-b9cd-0abb720ec0a0",
+          "TopicId": "eaaf64e0-ad68-472e-8da5-6a147a6f87da",
+          "Title": "Path Cost and Step Cost",
+          "BodyText": "The path cost function assigns a numeric cost to each solution path, allowing solution quality to be compared. It is normally the sum of the individual step costs along the path.",
+          "Notes": "Example: in route finding the step cost is distance in kilometres; in the 8-puzzle every move costs 1, so path cost equals the number of moves.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T19:50:18.5263399-04:00",
+          "ModifiedDate": "2026-10-14T19:50:18.5263399-04:00",
+          "Items": [
+            {
+              "Id": "bb4bc31a-fbc9-4d0c-a381-627ee4fe8bc8",
+              "Text": "The step cost c(s, a, s\u0027) is the cost of taking action a in state s to reach s\u0027.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f9beb190-0cf7-4adb-aeff-62b53dbcfef0",
+              "Text": "Step costs are assumed to be non-negative, and many algorithms require them to be strictly positive to guarantee termination.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "08980f6c-b1f2-4d50-973c-14f805183d12",
+              "Text": "An optimal solution is the one with the lowest total path cost among all solutions.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e301f4a8-78a8-45e2-ae4a-ebe6a4a52b2c",
+              "Text": "When every step costs the same, minimising path cost is identical to minimising the number of actions (the shallowest solution).",
+              "SortOrder": 3
+            },
+            {
+              "Id": "77cc95e3-ab10-4404-a5f3-dd10a14480e7",
+              "Text": "The cost measure should reflect the agent\u0027s real performance measure, such as time, distance, fuel, or money.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "94c3aa56-a115-497a-8e8c-2bb6269dae0e",
+      "Title": "State Space Representation and Abstraction",
+      "Summary": "Explains how to design a state representation that captures exactly the information needed to decide future actions, and how abstraction removes irrelevant detail. Covers state space size, branching factor, and the distinction between the state space graph and the physical world.",
+      "SortOrder": 2,
+      "CreatedDate": "2026-10-14T19:49:34.7558456-04:00",
+      "ModifiedDate": "2026-10-14T19:49:34.7558456-04:00",
+      "Elements": [
+        {
+          "Id": "c2cbe300-7698-416c-92e4-b30b870d1881",
+          "TopicId": "94c3aa56-a115-497a-8e8c-2bb6269dae0e",
+          "Title": "What a State Must Capture",
+          "BodyText": "A state is a snapshot of the world that contains exactly the information needed to decide what to do next. Designing it well is the core modelling decision in problem formulation.",
+          "Notes": "Example: in the 8-puzzle, a state is the arrangement of the eight tiles and the blank; the colour of the tiles or the table they sit on is irrelevant.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:50:41.7545073-04:00",
+          "ModifiedDate": "2026-10-14T19:50:41.7545073-04:00",
+          "Items": [
+            {
+              "Id": "8161c7a8-ea22-4849-b876-de56f6488835",
+              "Text": "A good state representation satisfies the Markov property: the future depends only on the current state, not on how you arrived there.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "5cc59929-eae4-4294-9a59-f222aab6646d",
+              "Text": "Including too little information makes legal actions or the goal test impossible to evaluate correctly.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2b4ef26c-a51d-4cd8-8c0e-126cf128b887",
+              "Text": "Including too much information inflates the state space and slows search without improving decisions.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "796f248c-f8d0-49ab-b242-e39910278977",
+              "Text": "Test a candidate representation by asking: can I apply every action and test the goal using only this data?",
+              "SortOrder": 3
+            },
+            {
+              "Id": "7a462ea9-d0b4-45ec-b620-a7e77bbf506d",
+              "Text": "The initial state, actions, transition model, and goal test are all expressed in terms of the chosen state variables.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "142d1557-f394-46a8-959d-a1c4933c8796",
+          "TopicId": "94c3aa56-a115-497a-8e8c-2bb6269dae0e",
+          "Title": "Abstraction: Removing Irrelevant Detail",
+          "BodyText": "Abstraction is the process of discarding details of the real world that do not affect the solution. Every state representation is already an abstraction of reality.",
+          "Notes": "In the Romania route-finding problem, the state \u0027In(Arad)\u0027 abstracts away travelling companions, weather, road surface, and the scenery along the way.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:50:41.7545073-04:00",
+          "ModifiedDate": "2026-10-14T19:50:41.7545073-04:00",
+          "Items": [
+            {
+              "Id": "fb5db8f4-be4e-4652-981e-74e2093b6b78",
+              "Text": "An abstract state corresponds to a large set of detailed real-world states.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "15c9261e-31db-49cb-b5a5-22b612d76a5e",
+              "Text": "An abstract action corresponds to a complex collection of real-world movements or operations.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ea99ffdf-eb77-4f97-b944-1e7fbab46087",
+              "Text": "A valid abstraction guarantees that any abstract solution can be expanded into a solution in the detailed world.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "08ea79ab-93af-4e0c-8d4f-90353f7ca585",
+              "Text": "A useful abstraction makes each abstract step easier to carry out than the original problem.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a7967801-1349-4c13-b6b4-8cd2a4caa649",
+              "Text": "Choosing the right level of abstraction is a trade-off between fidelity and tractability.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "4c7d96f6-e6e2-40eb-acef-4dea052a7eb4",
+          "TopicId": "94c3aa56-a115-497a-8e8c-2bb6269dae0e",
+          "Title": "The State Space and Its Graph",
+          "BodyText": "The state space is the set of all states reachable from the initial state by any sequence of actions. Together with the transition model it forms a directed graph.",
+          "Notes": "",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:50:41.7545073-04:00",
+          "ModifiedDate": "2026-10-14T19:50:41.7545073-04:00",
+          "Items": [
+            {
+              "Id": "61680576-b5df-4a58-b9ae-978dc01afb15",
+              "Text": "Nodes of the graph are states; directed edges are actions, often labelled with step costs.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "a7c08b7f-94da-4b87-b742-f3d6ad4f7215",
+              "Text": "A path in the graph is a sequence of states connected by actions; a solution is a path from the initial state to a goal state.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "744d30dc-1428-411a-9b8f-193f727a1c86",
+              "Text": "The state space graph is usually implicit: it is defined by rules rather than stored in memory.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c5f5a91d-b288-4b75-abb1-7fb6cf7b086f",
+              "Text": "Most interesting problems have state spaces far too large to enumerate or draw in full.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "81e1feaf-679f-4327-9297-3bd0c5fa0e76",
+              "Text": "Search algorithms explore only the fraction of this graph needed to find a solution.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "b12035fe-ce88-4401-af34-91e8f507fabd",
+          "TopicId": "94c3aa56-a115-497a-8e8c-2bb6269dae0e",
+          "Title": "Measuring State Space Size",
+          "BodyText": "Estimating how many states a formulation produces tells you whether a search approach is feasible. Size grows combinatorially with the number of state variables.",
+          "Notes": "Example: the 8-puzzle has 9!/2 = 181,440 reachable states, while the 15-puzzle has about 1.3 trillion.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:50:41.7545073-04:00",
+          "ModifiedDate": "2026-10-14T19:50:41.7545073-04:00",
+          "Items": [
+            {
+              "Id": "ecc6397d-0f59-401b-b461-34613718717b",
+              "Text": "Multiply the number of possible values of each independent state variable to get an upper bound on the size.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "4a7f14b4-6c2c-4827-ab0d-14f8bcb3cf2b",
+              "Text": "Some combinations may be unreachable, so the reachable state space can be smaller than the bound.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f54ddce9-0fbf-4623-9430-8742b4ac436f",
+              "Text": "A good abstraction can collapse many detailed states into one, shrinking the space dramatically.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "3f92b378-5cbe-4d22-9a03-f3c9b27f7500",
+              "Text": "Removing a single irrelevant variable can reduce the state space by an order of magnitude or more.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "9ed7f600-f7f0-4c31-95b6-137cae752720",
+              "Text": "State space size directly bounds the worst-case space complexity of graph search, which must store visited states.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "2b3d8188-2fb3-44b8-9631-e7a26359aeae",
+          "TopicId": "94c3aa56-a115-497a-8e8c-2bb6269dae0e",
+          "Title": "Branching Factor and Depth",
+          "BodyText": "The branching factor b is the number of actions available from a typical state, and d is the depth of the shallowest solution. Together they determine how search effort grows.",
+          "Notes": "With b = 10 and d = 10, a brute-force search touches on the order of 10^10 nodes \u2014 a clear motivation for better formulations and heuristics.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:50:41.7545073-04:00",
+          "ModifiedDate": "2026-10-14T19:50:41.7545073-04:00",
+          "Items": [
+            {
+              "Id": "d870fb72-36f2-4cf7-897d-7762e7eb8b09",
+              "Text": "The number of nodes at depth d grows roughly as b^d, so small increases in b have a large effect.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d09b4cdf-d284-40c9-8bc2-affdd6968a25",
+              "Text": "Reducing the action set, or merging equivalent actions, lowers b and shrinks the search tree.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "149c0085-74fc-47dd-8b3a-a02c810a62ec",
+              "Text": "Coarser abstraction usually shortens solution depth d because each abstract action covers more ground.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f729d9fa-8fcc-4434-a44b-357c06d3cb8a",
+              "Text": "Maximum path length m matters for algorithms such as depth-first search that can follow long branches.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "1ba65086-e17b-452b-a3bb-eacd0c23cb51",
+              "Text": "Report b, d, and m when analysing a formulation, as complexity results are stated in terms of them.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "0b8057fb-6729-4e52-81ac-92dfd14f2593",
+          "TopicId": "94c3aa56-a115-497a-8e8c-2bb6269dae0e",
+          "Title": "State Space Graph Versus the Physical World",
+          "BodyText": "The state space graph is a mathematical model, not the world itself. Confusing the two leads to formulations that fail when the plan is executed.",
+          "Notes": "A route plan that ignores road closures or fuel limits may be optimal in the model yet unusable in practice.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:50:41.7545073-04:00",
+          "ModifiedDate": "2026-10-14T19:50:41.7545073-04:00",
+          "Items": [
+            {
+              "Id": "271ed3c3-74d0-475c-a906-f02c59454e3c",
+              "Text": "Many distinct physical situations map to the same abstract state, and that is intentional.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "1eb18f3f-dfbe-441f-adc8-28f1f3c118d9",
+              "Text": "The model assumes the environment is observable, deterministic, discrete, and static unless stated otherwise.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "6e50e147-d815-4b91-9fd6-9d85cb4d16f4",
+              "Text": "Details omitted by the abstraction must genuinely not affect the choice of action, or the solution may be invalid.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b2ef9750-83c4-401f-8719-a244d207fb1a",
+              "Text": "Validate a formulation by checking that each abstract action can actually be executed in the real setting.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "abda9c71-e2e4-48c8-b28b-4aef79790026",
+              "Text": "If execution reveals missing information, the fix is to revise the state representation rather than the search algorithm.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "305031a4-02d3-4564-8611-3477022d6aad",
+      "Title": "Formulating Classic Example Problems",
+      "Summary": "Applies the formulation framework to worked examples such as the 8-puzzle, vacuum world, 8-queens, and route finding. Compares alternative formulations of the same problem to show how representation choices affect state space size and solvability.",
+      "SortOrder": 3,
+      "CreatedDate": "2026-10-14T19:49:34.7558456-04:00",
+      "ModifiedDate": "2026-10-14T19:49:34.7558456-04:00",
+      "Elements": [
+        {
+          "Id": "7ce6d943-5a8d-4370-aef0-0aa65fdf0a9a",
+          "TopicId": "305031a4-02d3-4564-8611-3477022d6aad",
+          "Title": "The 8-Puzzle as a Search Problem",
+          "BodyText": "The 8-puzzle consists of eight numbered tiles and one blank in a 3x3 frame, where tiles slide into the blank space. It is a classic benchmark because its formulation is simple yet its state space is large enough to be interesting.",
+          "Notes": "Reachable states: 9!/2 = 181,440 for the 8-puzzle; the 15-puzzle has about 1.3 trillion reachable states.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:51:06.3527114-04:00",
+          "ModifiedDate": "2026-10-14T19:51:06.3527114-04:00",
+          "Items": [
+            {
+              "Id": "e73152dc-69e5-4a3e-8f59-7c7b1ac2a439",
+              "Text": "States: a specification of which tile occupies each of the nine squares, including the blank.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "04ce11f4-991e-4d91-9785-10b22d5940ed",
+              "Text": "Initial state: any given configuration of tiles; goal test: compare against the target ordered configuration.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8a785645-a8c2-4334-97a2-b5cf0ecbda36",
+              "Text": "Actions are best described as movements of the blank (Left, Right, Up, Down) rather than of individual tiles, cutting the branching factor to at most four.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "dbf454b7-ee4a-4621-b9c7-1f3a36079242",
+              "Text": "Transition model returns the configuration obtained by swapping the blank with the adjacent tile named by the action.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a155aff1-48bc-4ccf-a1e5-74fb46d78f8e",
+              "Text": "Path cost is 1 per move, so the solution cost equals the number of moves.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "fa8398c6-bae8-4362-8d30-383e9a0cfa67",
+              "Text": "Only half the 9! permutations are reachable from any given state, so parity determines solvability.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "a38b8faa-8537-4214-8339-f21d7353b49a",
+          "TopicId": "305031a4-02d3-4564-8611-3477022d6aad",
+          "Title": "The Vacuum World",
+          "BodyText": "The vacuum world uses a small, discrete environment to make state space enumeration concrete. An agent moves between locations and cleans dirt, with the goal of leaving every square clean.",
+          "Notes": "With n locations the state space has n * 2^n states; two locations give 8 states, which can be drawn as a complete state graph.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:51:06.3527114-04:00",
+          "ModifiedDate": "2026-10-14T19:51:06.3527114-04:00",
+          "Items": [
+            {
+              "Id": "54efc4aa-2935-4873-8ce2-1707809c744a",
+              "Text": "States combine the agent\u0027s location with the dirt status of each square.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e0979126-805a-490e-8cca-12f7f67df7cb",
+              "Text": "Actions are Left, Right, and Suck; the transition model updates location or removes dirt accordingly.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "68571dab-1bc9-49d7-8a58-c556fd63210f",
+              "Text": "Goal test checks that no square contains dirt, regardless of where the agent ends up.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9fdc854f-ddbc-4e52-96cf-fc245878d0f1",
+              "Text": "Path cost is typically one unit per action, so solutions minimise the number of actions.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "f22e4a5f-2e57-4d0d-9a44-3b907dbd5549",
+              "Text": "Bumping into a wall is usually modelled as a no-op that leaves the state unchanged.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "bc7d7783-f623-453d-ab47-8a513798dacf",
+              "Text": "The tiny state space allows the entire state graph to be drawn, making search behaviour easy to trace.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "c87aa5e6-5faa-47f8-beb4-53df0658cd76",
+          "TopicId": "305031a4-02d3-4564-8611-3477022d6aad",
+          "Title": "The 8-Queens Problem and Alternative Formulations",
+          "BodyText": "The 8-queens problem asks for a placement of eight queens on a chessboard so that no queen attacks another. It is the standard illustration of how two correct formulations of the same problem can differ enormously in difficulty.",
+          "Notes": "This contrast shows that pruning illegal states inside the formulation is often more powerful than improving the search algorithm itself.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:51:06.3527114-04:00",
+          "ModifiedDate": "2026-10-14T19:51:06.3527114-04:00",
+          "Items": [
+            {
+              "Id": "beb3ea31-e8fb-438f-9919-8016a516e5cc",
+              "Text": "Incremental formulation: start with an empty board and add one queen per action, building the solution step by step.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "a6d730fa-cb9d-4820-ac9f-c6f460e87f0d",
+              "Text": "The naive incremental version allows a queen on any empty square, producing roughly 1.8 x 10^14 possible sequences.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "32d70afa-7836-4333-97b8-e3176bf6e5ca",
+              "Text": "A restricted incremental version places a queen only in the leftmost empty column and only in a non-attacked square, shrinking the space to about 2,057 states.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "098774a1-61e4-43f9-b3fd-22ace7eb415b",
+              "Text": "Complete-state formulation: start with all eight queens on the board and move queens to reduce attacks, which suits local search.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "de58a72f-cb15-4b23-a87a-01567c0a80d5",
+              "Text": "The goal test is identical across formulations: eight queens placed with no mutual attacks.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "1b7b5c9f-ee42-469a-bf90-468383f20e7d",
+              "Text": "Here the path is irrelevant; only the final configuration matters, so path cost can be ignored.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "cb2cf9b2-d674-4499-aa34-dd2695d4f654",
+          "TopicId": "305031a4-02d3-4564-8611-3477022d6aad",
+          "Title": "Route Finding and Touring Problems",
+          "BodyText": "Route finding formulates travel between locations as search over a map, and underpins navigation systems, airline itinerary planners, and network routing. Touring problems extend it by requiring visits to a set of places.",
+          "Notes": "Romania map example: initial state In(Arad), goal test In(Bucharest), with step costs given by road distances.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:51:06.3527114-04:00",
+          "ModifiedDate": "2026-10-14T19:51:06.3527114-04:00",
+          "Items": [
+            {
+              "Id": "67beac80-7545-4cdb-8789-d8c8a7090ca5",
+              "Text": "States are locations (cities, junctions, or airports) possibly augmented with time, fare class, or fuel level.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "34d107be-c755-4be0-8b4f-323a3efcb20f",
+              "Text": "Actions are the links leaving the current location; the transition model gives the location reached.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "57d034df-5c9e-42d4-b7b6-310241cfe3cc",
+              "Text": "Path cost may represent distance, travel time, fuel consumption, money, or a weighted combination.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "2c1460e9-876f-4ce2-8abe-4f6518f3c7a7",
+              "Text": "A touring problem\u0027s state must include the set of cities already visited, not just the current city.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "c6d58787-da6e-4805-ae40-d39d90e88a2d",
+              "Text": "Adding the visited set expands the state space from n states to roughly n * 2^n states.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "c3ef6d0c-07d8-4042-91fd-2df95c79e5fc",
+              "Text": "The travelling salesperson problem adds the requirement that each city is visited exactly once at minimum cost.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "11940ebe-fa8a-4b2d-8af6-ee2de838957d",
+          "TopicId": "305031a4-02d3-4564-8611-3477022d6aad",
+          "Title": "Comparing Formulations: Abstraction and State Space Size",
+          "BodyText": "The same real-world task can be cast in many ways, and the choice of representation directly determines how large the state space is and how easily a solution is found. Good formulations abstract away detail that does not affect the solution.",
+          "Notes": "A useful abstraction is one where every abstract solution can be expanded into a detailed solution in the real world.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:51:06.3527114-04:00",
+          "ModifiedDate": "2026-10-14T19:51:06.3527114-04:00",
+          "Items": [
+            {
+              "Id": "38af1b2b-7823-4b41-b885-9e5f1e25dcda",
+              "Text": "Abstraction removes irrelevant detail, such as weather or road surface in route finding.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "73252f97-87fe-40b4-9d9d-2130755ebe96",
+              "Text": "Describing 8-puzzle actions as blank moves instead of tile moves reduces branching from many tiles to at most four.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "87c36d81-6f89-4a0a-8a12-685e0ea92d7b",
+              "Text": "Adding constraints to the generator, as in restricted 8-queens, prunes illegal states before search ever sees them.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "aa656b6a-85a4-4dca-aea9-c62936e9a4f5",
+              "Text": "State space size grows combinatorially when extra bookkeeping such as a visited set is added to the state.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "0cd915e5-3cf1-45cf-8b70-92c46ee76283",
+              "Text": "A valid abstraction must preserve solvability: any abstract solution must correspond to a real one.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "c1f670df-4d2a-4db4-b62b-c04c15dac8e3",
+              "Text": "Choosing a representation is a design decision that often matters more than the choice of search algorithm.",
+              "SortOrder": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "c4e9178b-c3b4-4ac6-b36f-e062c25da1a2",
+      "Title": "Search Trees, Nodes, and Expansion",
+      "Summary": "Distinguishes the search tree from the underlying state space graph and defines a node\u0027s state, parent, action, path cost, and depth. Describes expansion, generation of successors, the frontier and explored set, and how repeated states create redundant paths or loops.",
+      "SortOrder": 4,
+      "CreatedDate": "2026-10-14T19:49:34.7558456-04:00",
+      "ModifiedDate": "2026-10-14T19:49:34.7558456-04:00",
+      "Elements": [
+        {
+          "Id": "3103494c-0b23-4ab8-a71d-1cacba29c4be",
+          "TopicId": "c4e9178b-c3b4-4ac6-b36f-e062c25da1a2",
+          "Title": "State Space Graph vs. Search Tree",
+          "BodyText": "The state space is the underlying graph of all reachable configurations, while the search tree is the structure an algorithm builds as it explores paths from the initial state.",
+          "Notes": "A small state space can produce an infinite search tree when actions are reversible, because the same state can be revisited along ever-longer paths.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:51:27.3637052-04:00",
+          "ModifiedDate": "2026-10-14T19:51:27.3637052-04:00",
+          "Items": [
+            {
+              "Id": "05c906fa-c34e-408b-9e9d-cc0c36f5f172",
+              "Text": "In the state space graph, each state appears exactly once and edges represent applicable actions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "fb05bf4e-8e01-45db-9369-7bb989e73f98",
+              "Text": "In the search tree, each node represents a distinct path from the initial state, so one state may appear in many nodes.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "cf5a1a37-2b10-4a15-9449-190e932310b6",
+              "Text": "The root of the search tree always corresponds to the initial state of the problem.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "aeeff0a0-59cd-42c6-987a-49c1a4fb08d3",
+              "Text": "The search tree is generated lazily, node by node, rather than being constructed in advance.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "d4a72db4-6b14-49a6-8d8b-1f897b5d2946",
+              "Text": "Cycles in the state space become infinitely deep branches in the search tree if not detected.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "329494af-7d44-4b8d-b2af-795107ba5858",
+          "TopicId": "c4e9178b-c3b4-4ac6-b36f-e062c25da1a2",
+          "Title": "Anatomy of a Search Node",
+          "BodyText": "A node is a bookkeeping data structure used by the search algorithm, and it carries more information than the state it represents.",
+          "Notes": "Keeping state and node distinct matters: two different nodes can hold the same state but different parents, costs, and depths.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:51:27.3637052-04:00",
+          "ModifiedDate": "2026-10-14T19:51:27.3637052-04:00",
+          "Items": [
+            {
+              "Id": "4172e0e4-c2db-4af7-87f9-aff7d9c90b64",
+              "Text": "node.STATE records the state in the state space to which the node corresponds.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "13e43b62-c13e-4a6d-b14e-62267a241695",
+              "Text": "node.PARENT points to the node that generated this one, enabling the solution path to be recovered.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7387a9e4-51b4-4dcc-b7b2-d5421481e096",
+              "Text": "node.ACTION stores the action applied to the parent to produce this node.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "4f4dfbe0-e46e-433a-a00a-9f6c9d370f78",
+              "Text": "node.PATH-COST (often written g(n)) is the total cost of the path from the initial state to this node.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "4839bdf7-4e7c-4c44-9c7d-8332127c2c4d",
+              "Text": "node.DEPTH is the number of actions along that path, which equals parent depth plus one.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "271d174a-7e83-48ce-9149-4cc01138283e",
+          "TopicId": "c4e9178b-c3b4-4ac6-b36f-e062c25da1a2",
+          "Title": "Expansion and Successor Generation",
+          "BodyText": "Expanding a node means applying every legal action to its state and generating a child node for each resulting successor state.",
+          "Notes": "Expansion is the basic unit of work in search; time complexity is usually measured in nodes generated or expanded.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:51:27.3637052-04:00",
+          "ModifiedDate": "2026-10-14T19:51:27.3637052-04:00",
+          "Items": [
+            {
+              "Id": "4825b630-4850-4be0-acac-6cc3ce3b6552",
+              "Text": "The applicable actions are supplied by the ACTIONS function for the node\u0027s state.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "286943e5-beda-4a69-bb79-7aece8475942",
+              "Text": "Each child state is computed with the transition model RESULT(state, action).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "38b17c26-7e4d-440d-8f93-005715662d6e",
+              "Text": "The child\u0027s path cost is the parent\u0027s path cost plus the step cost of the chosen action.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "28efe77c-f45d-453b-bbfa-2f54be0146c8",
+              "Text": "A node is \u0027generated\u0027 when created and \u0027expanded\u0027 when its successors are produced.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "73274628-0a2e-43cf-ad06-45b3b071ec9b",
+              "Text": "The branching factor b is the average number of successors produced per expansion.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "97a59e36-a0b7-4e76-a174-0c0d1390e312",
+          "TopicId": "c4e9178b-c3b4-4ac6-b36f-e062c25da1a2",
+          "Title": "Frontier and Explored Set",
+          "BodyText": "Search algorithms partition nodes into those waiting to be expanded (the frontier) and those already expanded (the explored set).",
+          "Notes": "The frontier is sometimes called the open list and the explored set the closed list.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:51:27.3637052-04:00",
+          "ModifiedDate": "2026-10-14T19:51:27.3637052-04:00",
+          "Items": [
+            {
+              "Id": "b940c6aa-bd34-4c94-aa03-3323f79413f0",
+              "Text": "The frontier holds all leaf nodes available for expansion and is initialized with the root node.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d4ecd7b8-49ae-4d26-939c-44db204cd9d7",
+              "Text": "The frontier\u0027s queue discipline \u2014 FIFO, LIFO, or priority \u2014 determines which strategy the search implements.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "fbaea2cc-9976-43c4-b181-895a128b7760",
+              "Text": "The explored set records states already expanded, usually as a hash table for constant-time lookup.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "204bc294-409c-4645-b983-bef7494d44a1",
+              "Text": "Every path from the initial state to an unexplored state must pass through a node on the frontier, so the frontier separates explored from unexplored regions.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "cb8f6872-7511-4922-afdd-57521f71f581",
+              "Text": "Space complexity is dominated by how many nodes the frontier and explored set must hold at once.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "8cb33038-f75e-4f34-beab-5d4d3c5ef8c5",
+          "TopicId": "c4e9178b-c3b4-4ac6-b36f-e062c25da1a2",
+          "Title": "Repeated States, Redundant Paths, and Loops",
+          "BodyText": "Because many problems allow several routes to the same state, the search tree can contain redundant paths and even infinite loops.",
+          "Notes": "In a grid world with four movement actions, a plain tree search revisits squares exponentially often, while graph search visits each square once.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:51:27.3637052-04:00",
+          "ModifiedDate": "2026-10-14T19:51:27.3637052-04:00",
+          "Items": [
+            {
+              "Id": "15a93b87-6971-4f2d-adf9-afe0cf4978be",
+              "Text": "A redundant path reaches an already-seen state by a longer or equally long route and wastes effort.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "39a445b9-ba5c-4bbc-b5ff-d6d4cd6444c9",
+              "Text": "Reversible actions create cycles, which produce infinitely deep branches in the search tree.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2d316f28-5a1d-48c7-a7f3-98236be7987b",
+              "Text": "Tree search ignores repeated states and may never terminate on a cyclic state space.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e40775c6-745b-419f-90b0-5c885025b616",
+              "Text": "Graph search adds the explored set and discards newly generated nodes whose states are already explored or on the frontier.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "eba52b7a-70b4-49e8-ab7f-6ef4693fe537",
+              "Text": "When step costs vary, a cheaper path to a frontier state should replace the more expensive node rather than be discarded.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "07466bdb-b421-489c-b487-409e44b42d62",
+          "TopicId": "c4e9178b-c3b4-4ac6-b36f-e062c25da1a2",
+          "Title": "Recovering the Solution Path",
+          "BodyText": "Once the goal test succeeds on a node, the actual solution is extracted by following parent pointers back to the root.",
+          "Notes": "",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:51:27.3637052-04:00",
+          "ModifiedDate": "2026-10-14T19:51:27.3637052-04:00",
+          "Items": [
+            {
+              "Id": "c3f54d83-e22f-4685-9a41-cab3b936d5f8",
+              "Text": "Chaining PARENT links from the goal node to the root yields the path in reverse order.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "daf24b70-6a68-4bc1-a6c8-d8f94fa04ae9",
+              "Text": "Reversing that chain and reading the ACTION fields produces the executable action sequence.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9d5d0258-afe7-41cb-9693-a3ee631b54c2",
+              "Text": "The goal node\u0027s PATH-COST gives the total cost of the returned solution.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "0d4697a1-1adb-405a-b230-9cb08f2fa491",
+              "Text": "Parent pointers let the algorithm avoid storing a full path inside every node, saving memory.",
+              "SortOrder": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "a1a267b9-85ad-48c7-b97b-5ef1cd546063",
+      "Title": "Evaluating Search Algorithms",
+      "Summary": "Introduces the four standard criteria used to compare search strategies: completeness, optimality, time complexity, and space complexity. Explains how complexity is expressed in terms of branching factor, solution depth, and maximum depth, and why memory is often the binding constraint.",
+      "SortOrder": 5,
+      "CreatedDate": "2026-10-14T19:49:34.7558456-04:00",
+      "ModifiedDate": "2026-10-14T19:49:34.7558456-04:00",
+      "Elements": [
+        {
+          "Id": "3625fc48-d285-4e15-bf81-5c0ea7e585aa",
+          "TopicId": "a1a267b9-85ad-48c7-b97b-5ef1cd546063",
+          "Title": "Why We Need Evaluation Criteria",
+          "BodyText": "Once a problem is formulated with states, actions, and a goal test, many different search strategies can solve it. Evaluation criteria give us a consistent, strategy-independent way to compare those alternatives.",
+          "Notes": "A strategy is defined by the order in which it expands nodes; the criteria measure the consequences of that ordering choice.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:51:55.2526248-04:00",
+          "ModifiedDate": "2026-10-14T19:51:55.2526248-04:00",
+          "Items": [
+            {
+              "Id": "64d18ff7-9220-4e11-bb36-5ba590ef96f2",
+              "Text": "Search strategies differ only in which frontier node they choose to expand next.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "94e842bf-b1d6-48d2-bea2-bef82fe898cc",
+              "Text": "Different orderings produce dramatically different costs on the same state space.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8af8d592-ee70-4737-b71f-c67c87875194",
+              "Text": "The four standard criteria are completeness, optimality, time complexity, and space complexity.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "93a91fcc-ae11-4f6e-b68e-420cf9ffe406",
+              "Text": "Criteria let us predict behaviour before running the algorithm on a large instance.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "3908d8b5-62d4-401c-a151-cec2e635f057",
+              "Text": "No single strategy dominates on all four criteria, so selection involves trade-offs.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "00a4ee37-1336-4740-9aee-e55e2c8c738f",
+          "TopicId": "a1a267b9-85ad-48c7-b97b-5ef1cd546063",
+          "Title": "Completeness",
+          "BodyText": "Completeness asks whether the algorithm is guaranteed to find a solution if one exists, and to report failure correctly when none exists. It is a yes/no guarantee about the algorithm, not about a particular run.",
+          "Notes": "Depth-first search is incomplete in infinite or cyclic spaces because it can descend forever down one branch; breadth-first search is complete when the branching factor is finite.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:51:55.2526248-04:00",
+          "ModifiedDate": "2026-10-14T19:51:55.2526248-04:00",
+          "Items": [
+            {
+              "Id": "032542f8-b899-4b29-ab94-a458e0bb817c",
+              "Text": "An algorithm is complete only if it will eventually reach every reachable state.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "8bdb5cfb-0527-469d-8331-fb397eec7b0e",
+              "Text": "Infinite state spaces and loops are the usual causes of incompleteness.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "65489847-2ae1-4647-b2d9-a90a0ed43d50",
+              "Text": "Cycle checking or a visited (explored) set can restore completeness in graphs.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f3e6f1a3-cb9b-4a2b-a9a7-ef35ef7a43c4",
+              "Text": "Completeness may depend on assumptions such as a finite branching factor or positive step costs.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "96e90984-7e07-4886-afb0-80e92e5fd4f4",
+              "Text": "An incomplete algorithm may still be useful if it is fast and solutions are dense.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "9e917406-879f-47c7-ad20-97c72d0996d6",
+          "TopicId": "a1a267b9-85ad-48c7-b97b-5ef1cd546063",
+          "Title": "Optimality",
+          "BodyText": "Optimality asks whether the algorithm always returns a least-cost solution according to the path cost function. A complete algorithm can still be non-optimal if it returns the first solution it happens to find.",
+          "Notes": "Breadth-first search is optimal only when all step costs are equal; uniform-cost search is optimal for any non-negative step costs because it expands nodes in order of increasing path cost.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:51:55.2526248-04:00",
+          "ModifiedDate": "2026-10-14T19:51:55.2526248-04:00",
+          "Items": [
+            {
+              "Id": "898c3ae6-a04d-450a-b2da-0d365dca3328",
+              "Text": "Optimality is defined relative to the path cost function chosen during problem formulation.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "2c10527f-b17f-407e-91d8-7503fffe0d51",
+              "Text": "Shallowest solution and cheapest solution coincide only when all actions cost the same.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a3fb8696-b996-4eff-ad8b-38b895219734",
+              "Text": "Depth-first search returns the first solution found, which may be far from optimal.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "3508e088-a921-4618-b7f5-0e121875a0b7",
+              "Text": "Optimality usually costs extra time or memory compared with settling for any solution.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a35df7c2-58dc-4eeb-8d7c-5361492e3bf1",
+              "Text": "Near-optimal or satisficing solutions are often acceptable in practice.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "9ff9e47e-25f8-4153-9c8f-ae94fa518724",
+          "TopicId": "a1a267b9-85ad-48c7-b97b-5ef1cd546063",
+          "Title": "Measuring Time and Space Complexity",
+          "BodyText": "In search, complexity is measured in terms of the search tree rather than the state graph. Time is counted as the number of nodes generated or expanded, and space as the maximum number of nodes held in memory at once.",
+          "Notes": "Counting nodes rather than seconds keeps the analysis independent of hardware and implementation details.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:51:55.2526248-04:00",
+          "ModifiedDate": "2026-10-14T19:51:55.2526248-04:00",
+          "Items": [
+            {
+              "Id": "138a159e-505f-4124-b831-b61326d6d769",
+              "Text": "Time complexity counts node generations/expansions, each a constant-cost operation.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e72e3527-df01-4c90-994d-2b99feb0ce2c",
+              "Text": "Space complexity counts the peak size of the frontier plus any explored set.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "33914e94-bab3-4bd6-a664-0542fb294876",
+              "Text": "Three parameters describe the tree: branching factor b, depth of the shallowest solution d, and maximum depth m.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "93a6c178-72ba-46d2-958f-48d212b64de1",
+              "Text": "The branching factor b is the maximum number of successors of any node.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6ba22653-e399-4cd9-888d-ae63fc5b44ec",
+              "Text": "In infinite state spaces m may be unbounded, making some analyses meaningless.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "074e4744-9363-4990-b57a-b72ee9f247de",
+          "TopicId": "a1a267b9-85ad-48c7-b97b-5ef1cd546063",
+          "Title": "Exponential Growth and the Branching Factor",
+          "BodyText": "Because each level of the search tree multiplies the number of nodes by roughly the branching factor, costs grow exponentially with depth. This is the central practical obstacle in uninformed search.",
+          "Notes": "With b = 10, level 1 has 10 nodes, level 2 has 100, and level 12 has about a trillion \u2014 the classic illustration that brute-force search does not scale.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:51:55.2526248-04:00",
+          "ModifiedDate": "2026-10-14T19:51:55.2526248-04:00",
+          "Items": [
+            {
+              "Id": "c61019df-659f-4418-998f-5671b0bf79ec",
+              "Text": "A tree of branching factor b has roughly b^d nodes down to depth d.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "1e5b850e-be47-404f-8875-38ff23b9cb2a",
+              "Text": "Breadth-first search has both time and space complexity of O(b^d).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9a86548c-2610-4ed6-8e9f-e855fe0b6e03",
+              "Text": "Depth-first search has time O(b^m) but space only O(bm).",
+              "SortOrder": 2
+            },
+            {
+              "Id": "ef0e6ea3-209c-47bd-9d4b-5aa4c360d343",
+              "Text": "Small increases in d or b cause enormous increases in cost.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "eb9b8851-91c7-4718-8c4e-02bb40d23824",
+              "Text": "Reducing the effective branching factor, for example with heuristics, pays off more than faster hardware.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "ed0dd364-92cf-4933-b306-73a02300686e",
+          "TopicId": "a1a267b9-85ad-48c7-b97b-5ef1cd546063",
+          "Title": "Memory as the Binding Constraint",
+          "BodyText": "In practice, search algorithms usually exhaust available memory long before they exhaust available time. Space complexity is therefore often the criterion that decides whether a strategy is usable at all.",
+          "Notes": "This motivates memory-frugal strategies such as depth-first search, iterative deepening, and later, memory-bounded heuristic search.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:51:55.2526248-04:00",
+          "ModifiedDate": "2026-10-14T19:51:55.2526248-04:00",
+          "Items": [
+            {
+              "Id": "b7abd981-a40d-4ecd-aff7-7d8107e07920",
+              "Text": "Breadth-first search must store an entire frontier level, which grows exponentially.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "8c37a856-70ce-470a-931f-91618026cc6d",
+              "Text": "Depth-first search stores only the current path and its siblings, giving linear memory use.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2afb4521-f9d2-40f6-b4f4-aa332d6b06cb",
+              "Text": "Iterative deepening combines breadth-first completeness and optimality with depth-first memory use.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "4c94d4e8-b35e-4166-bcfd-58eeafb22a25",
+              "Text": "Repeating work to save memory is usually a good trade because of exponential growth.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "938324ad-73cb-4769-b351-9de0bdce60ad",
+              "Text": "An explored set prevents repeated states but adds memory proportional to states visited.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "4faa6775-488c-49fc-8dce-e38a0ebcae9a",
+          "TopicId": "a1a267b9-85ad-48c7-b97b-5ef1cd546063",
+          "Title": "Applying the Criteria to Strategy Selection",
+          "BodyText": "Choosing a search strategy means deciding which criteria matter most for the problem at hand. The right answer depends on the shape of the state space and the requirements of the application.",
+          "Notes": "Example: for route planning with varying road lengths, optimality matters, so uniform-cost or A* is appropriate; for a puzzle where any solution will do and memory is tight, depth-first search may suffice.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T19:51:55.2526248-04:00",
+          "ModifiedDate": "2026-10-14T19:51:55.2526248-04:00",
+          "Items": [
+            {
+              "Id": "114cc23f-3788-45bc-8ad7-ef7201892cc4",
+              "Text": "Compare strategies on a four-column table of completeness, optimality, time, and space.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b7ce8fdf-f65b-4ceb-9460-be138bd23eb1",
+              "Text": "Ask whether a guaranteed cheapest solution is required or any solution will do.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "e30bb60e-a07a-4ce2-9298-61ba527424ef",
+              "Text": "Estimate b and d for the problem to predict feasibility before implementing.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "4a51a5b7-6953-46bf-a654-bbcce7b5440a",
+              "Text": "If the space is infinite or deeply cyclic, prefer complete strategies with cycle detection.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b4126700-1e52-49f2-9900-b3e8b56c1a09",
+              "Text": "If estimates show b^d is infeasible, improve the formulation or add heuristic guidance.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "d2dd520f-ea07-4adc-939d-2d1cdfd79ecd",
+      "Title": "Applying the Framework to New Problems",
+      "Summary": "Provides a practical procedure for turning an unstructured, real-world scenario into a formal search problem and validating the resulting formulation. Highlights common formulation errors such as over-rich states, ill-defined goal tests, and inconsistent cost functions.",
+      "SortOrder": 6,
+      "CreatedDate": "2026-10-14T19:49:34.7558456-04:00",
+      "ModifiedDate": "2026-10-14T19:49:34.7558456-04:00",
+      "Elements": [
+        {
+          "Id": "f17ad572-da46-41fc-985c-0b4001748923",
+          "TopicId": "d2dd520f-ea07-4adc-939d-2d1cdfd79ecd",
+          "Title": "A Step-by-Step Formulation Procedure",
+          "BodyText": "Turning a messy real-world scenario into a formal search problem follows a repeatable sequence of decisions. Working through the steps in order prevents ad hoc choices that later prove inconsistent.",
+          "Notes": "Example: for a delivery-routing scenario, the agent is the vehicle, the state is its current location plus undelivered parcels, actions are legal road moves, and cost is travel time.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:52:18.1206695-04:00",
+          "ModifiedDate": "2026-10-14T19:52:18.1206695-04:00",
+          "Items": [
+            {
+              "Id": "0a104e7c-5acd-4c9b-bec1-4eecd34f3334",
+              "Text": "Identify the decision-making agent and the aspects of the world it can actually change.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0dc21126-3ba5-4f80-bcdc-6943c4bf5ebc",
+              "Text": "Choose a state representation that captures exactly the information needed to decide the next action.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7ed97e7c-bbed-4017-9e2b-aa9b0e5f48b1",
+              "Text": "Specify the initial state from the scenario\u0027s starting conditions.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "94548c89-d447-4bb1-8ccc-47d51fc06fec",
+              "Text": "Define the action set and the transition model that maps each state-action pair to a successor state.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "4571e39a-01b7-4576-80a9-ceb9deb1a07a",
+              "Text": "Write the goal test as a checkable predicate over states, not as a narrative description.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "5a811ec8-5387-43f8-b3a3-364c4d15e845",
+              "Text": "Attach a path cost function that reflects the quantity the problem actually wants minimised.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "504ae80b-80f1-468a-94e4-553b7fe1a34c",
+          "TopicId": "d2dd520f-ea07-4adc-939d-2d1cdfd79ecd",
+          "Title": "Choosing the Right Level of Abstraction",
+          "BodyText": "Abstraction decides which real-world details appear in the state and which are discarded. A good abstraction keeps the problem solvable while still producing solutions that work in reality.",
+          "Notes": "The classic test: every abstract solution must be expandable into a sequence of real actions that achieves the real goal.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:52:18.1206695-04:00",
+          "ModifiedDate": "2026-10-14T19:52:18.1206695-04:00",
+          "Items": [
+            {
+              "Id": "cb157700-74ee-4cfc-bf8a-587690e277c8",
+              "Text": "Include a detail only if it can change which action is optimal.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "568da479-acc0-4b9f-9b97-7423b2e281db",
+              "Text": "Collapse sequences of fine-grained real actions into single abstract actions where the detail does not matter.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1064c606-2733-4299-877d-55c60ee0ad11",
+              "Text": "A valid abstraction must guarantee that abstract solutions remain executable in the real world.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f08fad91-3cf5-4bc6-8423-2fdf22c0e14f",
+              "Text": "Test the abstraction by asking whether two states you called identical would ever require different behaviour.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "ec11f5ec-c0c2-400d-8302-3ee857c45ad5",
+          "TopicId": "d2dd520f-ea07-4adc-939d-2d1cdfd79ecd",
+          "Title": "Validating a Formulation",
+          "BodyText": "Before running any search algorithm, the formulation itself should be checked for internal consistency. Simple sanity checks catch most errors cheaply.",
+          "Notes": "Hand-tracing a tiny instance with three or four states is usually enough to expose structural mistakes.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:52:18.1206695-04:00",
+          "ModifiedDate": "2026-10-14T19:52:18.1206695-04:00",
+          "Items": [
+            {
+              "Id": "a3766711-2857-4ff1-a6ba-bd75c8b4725f",
+              "Text": "Confirm that the initial state satisfies the same representation rules as all other states.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c965647a-ab69-40e6-a5fa-35e04800193b",
+              "Text": "Check that every action produces a state the goal test can legally evaluate.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5d447bf2-dd31-4386-a094-b2c7dc4eb2bb",
+              "Text": "Verify that at least one path from the initial state to a goal state exists in small instances.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "34848647-1d09-461e-90a4-db7c41c4e963",
+              "Text": "Count the reachable states to confirm the state space size is what you expected.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "c115ac7d-db0e-4083-932a-8aa5cdad1a6d",
+              "Text": "Confirm the cost of a hand-computed optimal path matches your intuition about the real problem.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "36064055-84e8-4ff4-a9b3-6085d58eac53",
+          "TopicId": "d2dd520f-ea07-4adc-939d-2d1cdfd79ecd",
+          "Title": "Common Error: Over-Rich States",
+          "BodyText": "A frequent mistake is packing irrelevant information into the state description. This inflates the state space and makes identical situations look distinct.",
+          "Notes": "Example: storing the full history of moves inside the state turns a compact graph into an exponentially large tree.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:52:18.1206695-04:00",
+          "ModifiedDate": "2026-10-14T19:52:18.1206695-04:00",
+          "Items": [
+            {
+              "Id": "ed0a1d65-e5af-4140-b840-dc8d88aa4820",
+              "Text": "Redundant attributes multiply the state space without improving solution quality.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "8c955c4b-a5a0-45de-9a00-bcc8f245a28c",
+              "Text": "Over-rich states defeat repeated-state detection because equivalent situations no longer compare as equal.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "eb13fb59-a39b-4acd-81da-11a0a89c7297",
+              "Text": "Remove any attribute that is derivable from the rest of the state or never read by the transition model.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "56034bb1-153f-4e01-87b3-e7f36c48a980",
+              "Text": "Symmetry in the problem often signals that several distinct state descriptions should be merged into one.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "043cec9c-a885-4b78-b3d9-d87b85a3d8c6",
+          "TopicId": "d2dd520f-ea07-4adc-939d-2d1cdfd79ecd",
+          "Title": "Common Error: Ill-Defined Goal Tests",
+          "BodyText": "The goal test must be a decidable function of a single state. Vague or external goal conditions break the search machinery.",
+          "Notes": "Prefer an explicit set of goal states or a predicate like \u0027all parcels delivered\u0027 over phrasings such as \u0027the customer is happy\u0027.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:52:18.1206695-04:00",
+          "ModifiedDate": "2026-10-14T19:52:18.1206695-04:00",
+          "Items": [
+            {
+              "Id": "3e983844-c462-40c1-a616-d31a9227bf8a",
+              "Text": "Avoid goal conditions that depend on the path taken rather than the state reached.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "5cc5ffac-4feb-4c2a-bfde-4161ae6afc62",
+              "Text": "Make sure the goal test is cheap to evaluate, since it runs on every generated node.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f2408e73-203a-4a38-8d90-7a0621461d0d",
+              "Text": "Handle problems with multiple acceptable goal states by writing a predicate rather than enumerating one target.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f11902cb-6521-43bb-849c-6da064b42038",
+              "Text": "An unreachable or contradictory goal condition causes a complete algorithm to exhaust the space and report failure.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "bdc4d40e-2ad1-40b0-8fd8-74b42ec7deb4",
+          "TopicId": "d2dd520f-ea07-4adc-939d-2d1cdfd79ecd",
+          "Title": "Common Error: Inconsistent Cost Functions",
+          "BodyText": "Path cost must be defined additively over actions and must align with the real objective being optimised. Mixing incompatible units or allowing zero and negative costs undermines optimality guarantees.",
+          "Notes": "If both time and money matter, convert them to a single scalar with explicit weights rather than switching metrics mid-problem.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:52:18.1206695-04:00",
+          "ModifiedDate": "2026-10-14T19:52:18.1206695-04:00",
+          "Items": [
+            {
+              "Id": "4d36b1a0-6fb3-4248-9ba6-20d67f84c489",
+              "Text": "Use one consistent unit for all action costs across the whole problem.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "02713cd5-4794-4b7b-9e76-a271577c6af0",
+              "Text": "Non-negative step costs are required for standard uniform-cost and heuristic search guarantees.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d6036861-db98-406f-be2d-80c40e37f194",
+              "Text": "Zero-cost cycles can let an algorithm loop indefinitely without increasing path cost.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c8fb815f-362e-4fbb-90ae-759ee1d2a4db",
+              "Text": "If the stated objective is \u0027fewest actions\u0027, every action should cost exactly one, not an arbitrary distance.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "618c7ad5-e1ee-4d0e-accb-719cf392d553",
+              "Text": "Check that the cost you minimise is genuinely the quantity the stakeholder cares about.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "TotalElementCount": 43
+}

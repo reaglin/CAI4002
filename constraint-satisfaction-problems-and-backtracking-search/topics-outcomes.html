@@ -1,0 +1,203 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constraint Satisfaction Problems and Backtracking Search — Topics &amp; Learning Outcomes</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:880px;margin:0 auto;padding:32px 24px;color:#222;line-height:1.55}
+h1{font-size:1.6rem;border-bottom:2px solid #dcdcdc;padding-bottom:8px}
+h2{font-size:1.25rem;margin-top:30px;color:#1a3c6e;border-bottom:1px solid #ececec;padding-bottom:4px}
+h3{font-size:1.05rem;margin-top:22px;color:#1a3c6e}
+.toc{border:1px solid #c9d4e3;background:#f5f8fc;border-radius:8px;padding:10px 16px;margin:14px 0 6px;display:flex;gap:18px;flex-wrap:wrap}
+.toc a{color:#1a3c6e;font-weight:600;text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.summary{color:#555;font-style:italic;margin:4px 0 10px}
+ul{margin:6px 0 6px 4px}
+li{margin:5px 0}
+.el-body{color:#555}
+.prefix{color:#555;font-style:italic;margin:6px 0 14px}
+.mo{border:1px solid #e2e2e2;border-radius:6px;padding:12px 16px;margin:12px 0}
+.mo .code{font-size:.8rem;color:#595959;text-transform:uppercase;letter-spacing:.04em}
+.mo .statement{font-weight:600;margin:4px 0 8px}
+.meta span{display:inline-block;background:#eef2f8;color:#1a3c6e;border-radius:3px;padding:1px 8px;margin:0 6px 0 0;font-size:.85rem}
+.meta .map{background:#eaf6ec;color:#137333}
+.co{margin:7px 0}
+.co .code{font-weight:600;color:#1a3c6e;margin-right:6px}
+.empty{color:#595959}
+.tm-jump{margin:2px 0 8px;font-size:.92rem}
+.tm-jump a{color:#1a3c6e;font-weight:600}
+ul.tm li{margin:7px 0}
+ul.tm a{color:#1a3c6e;font-weight:600}
+.tm-kind{display:inline-block;background:#eef2f8;color:#1a3c6e;border-radius:3px;padding:1px 8px;margin-left:6px;font-size:.82rem}
+.tm-also{color:#555;font-size:.88rem}
+.tm-back{margin:0 0 4px;font-size:.88rem}
+.tm-back a{color:#1a3c6e}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Satisfaction Problems and Backtracking Search</a></div>
+<h1>Constraint Satisfaction Problems and Backtracking Search — Topics &amp; Learning Outcomes</h1>
+<div class="toc"><a href="#topics">📋 Module Topics</a><a href="#outcomes">🎯 Student Learning Outcomes</a><a href="#materials">📚 Materials for Each Topic</a></div>
+
+<h2 id="topics">Module Topics</h2>
+<h3 id="topic-1">1. Foundations of Constraint Satisfaction Problems</h3>
+<div class="summary">Introduces the CSP formalism as a triple of variables, domains, and constraints, and contrasts it with general state-space search by exposing problem structure. Explains what constitutes a consistent, complete, and solution assignment.</div>
+<p class="tm-jump"><a href="#materials-topic-1">Materials for topic 1 (3)</a></p>
+<ul>
+<li><strong>The CSP Triple: Variables, Domains, Constraints</strong> <span class="el-body">— A constraint satisfaction problem is defined formally as a triple (X, D, C) that captures what must be decided, what choices exist, and what combinations are legal.</span></li>
+<li><strong>Assignments: Partial, Complete, and Consistent</strong> <span class="el-body">— Solving a CSP means building an assignment of values to variables, and the vocabulary for describing assignments determines when search can stop.</span></li>
+<li><strong>CSPs Versus General State-Space Search</strong> <span class="el-body">— Classical search treats states as indivisible black boxes, whereas CSPs expose the internal structure of each state as a set of variable-value pairs.</span></li>
+<li><strong>Why CSPs Are a Useful Formalism</strong> <span class="el-body">— The CSP formulation is attractive because a single general-purpose solver can handle many superficially different problems once they are expressed in the standard form.</span></li>
+<li><strong>Domain Types and Their Impact</strong> <span class="el-body">— The nature of the variable domains shapes which solution methods are applicable to a given CSP.</span></li>
+</ul>
+<h3 id="topic-2">2. Constraint Types: Unary, Binary, and Global</h3>
+<div class="summary">Distinguishes unary, binary, higher-order, and global constraints such as AllDiff, and shows how constraint graphs and hypergraphs represent them. Covers converting complex constraints into binary form and handling preference (soft) constraints.</div>
+<p class="tm-jump"><a href="#materials-topic-2">Materials for topic 2 (3)</a></p>
+<ul>
+<li><strong>Unary Constraints: Restricting a Single Variable</strong> <span class="el-body">— A unary constraint restricts the values of exactly one variable and is the simplest form of constraint in a CSP.</span></li>
+<li><strong>Binary Constraints and the Constraint Graph</strong> <span class="el-body">— A binary constraint relates exactly two variables, and a CSP in which all constraints are binary is called a binary CSP.</span></li>
+<li><strong>Higher-Order and Global Constraints</strong> <span class="el-body">— Constraints involving three or more variables are higher-order (n-ary); a global constraint involves an arbitrary number of variables and has a specialised, efficient propagation algorithm.</span></li>
+<li><strong>Hypergraph Representation of n-ary Constraints</strong> <span class="el-body">— When constraints involve more than two variables, the ordinary constraint graph is replaced by a constraint hypergraph.</span></li>
+<li><strong>Converting Higher-Order Constraints to Binary Form</strong> <span class="el-body">— Any finite-domain constraint of arity greater than two can be mechanically transformed into an equivalent set of binary constraints, so binary CSP algorithms remain fully general.</span></li>
+<li><strong>Preference (Soft) Constraints and Constrained Optimization</strong> <span class="el-body">— Absolute (hard) constraints must be satisfied for a solution to be legal, whereas preference or soft constraints express which solutions are more desirable.</span></li>
+</ul>
+<h3 id="topic-3">3. Modeling Real Problems as CSPs</h3>
+<div class="summary">Works through canonical formulations including map coloring, Sudoku, N-Queens, cryptarithmetic, and job-shop or timetable scheduling. Emphasizes choosing variables and domains well, since modeling decisions strongly affect solver performance.</div>
+<p class="tm-jump"><a href="#materials-topic-3">Materials for topic 3 (3)</a></p>
+<ul>
+<li><strong>The Modeling Process: From Problem Statement to CSP</strong> <span class="el-body">— Turning a real problem into a CSP means deciding what the unknowns are, what values they may take, and what rules relate them. The same problem can often be encoded in several ways, and the choice matters for solver efficiency.</span></li>
+<li><strong>Map Coloring: The Canonical Binary CSP</strong> <span class="el-body">— Map coloring assigns a color to each region so that no two adjacent regions share a color. It is the textbook example because its constraint graph is immediately visual.</span></li>
+<li><strong>Sudoku: Global Constraints Over a Grid</strong> <span class="el-body">— Sudoku is naturally expressed with one variable per cell and alldifferent constraints over rows, columns, and boxes. It illustrates how global constraints compress many binary constraints into one compact statement.</span></li>
+<li><strong>N-Queens: Choosing Variables to Shrink the Search Space</strong> <span class="el-body">— N-Queens asks for a placement of N queens on an N&#215;N board with no two attacking each other. It is the classic demonstration that variable choice alone can eliminate huge swaths of the search space.</span></li>
+<li><strong>Cryptarithmetic: Auxiliary Variables and Higher-Arity Constraints</strong> <span class="el-body">— Puzzles like SEND + MORE = MONEY assign a distinct digit to each letter so the arithmetic holds. They show how auxiliary variables can convert one unwieldy constraint into several manageable ones.</span></li>
+<li><strong>Scheduling: Job-Shop and Timetabling Formulations</strong> <span class="el-body">— Scheduling problems assign start times or slots to tasks subject to precedence, resource, and availability rules. They are the most common industrial application of CSP technology.</span></li>
+<li><strong>Why Modeling Choices Drive Solver Performance</strong> <span class="el-body">— Two logically equivalent models of the same problem can differ by orders of magnitude in solving time. Good modeling reduces the raw search space and gives propagation more to work with.</span></li>
+</ul>
+<h3 id="topic-4">4. Backtracking Search for CSPs</h3>
+<div class="summary">Develops the depth-first backtracking algorithm that assigns one variable at a time and backs up when a constraint is violated. Analyzes why it outperforms naive generate-and-test and where its exponential worst case arises.</div>
+<p class="tm-jump"><a href="#materials-topic-4">Materials for topic 4 (3)</a></p>
+<ul>
+<li><strong>From Generate-and-Test to Backtracking</strong> <span class="el-body">— Naive search for a CSP solution enumerates complete assignments and checks them afterwards, which is hopelessly wasteful. Backtracking search instead builds assignments incrementally and tests constraints as soon as possible.</span></li>
+<li><strong>The Backtracking Algorithm</strong> <span class="el-body">— Backtracking search is depth-first search specialised to CSPs: it assigns one variable at a time and undoes assignments when it reaches a dead end.</span></li>
+<li><strong>Consistency Checking of Partial Assignments</strong> <span class="el-body">— The consistency test is the heart of the algorithm: a value is acceptable only if it violates no constraint with the variables assigned so far.</span></li>
+<li><strong>Commutativity and the Search Tree</strong> <span class="el-body">— CSPs are commutative: the order in which variables are assigned does not change the resulting assignment. This property dramatically shrinks the search tree backtracking must explore.</span></li>
+<li><strong>Complexity and the Exponential Worst Case</strong> <span class="el-body">— Backtracking is far better than generate-and-test in practice, but its worst-case running time is still exponential in the number of variables.</span></li>
+<li><strong>Where Improvements Come From</strong> <span class="el-body">— The plain algorithm leaves three decision points open, and each is an opportunity to make search dramatically faster without sacrificing completeness.</span></li>
+</ul>
+<h3 id="topic-5">5. Variable Ordering Heuristics</h3>
+<div class="summary">Presents minimum-remaining-values (most constrained variable) and degree heuristics for selecting which variable to assign next. Demonstrates how early detection of failure dramatically prunes the search tree.</div>
+<p class="tm-jump"><a href="#materials-topic-5">Materials for topic 5 (3)</a></p>
+<ul>
+<li><strong>Why Variable Ordering Matters</strong> <span class="el-body">— In backtracking search, the solver is free to choose which unassigned variable to instantiate next, and this choice has no effect on correctness but an enormous effect on efficiency. Good ordering heuristics can reduce the explored search tree by orders of magnitude.</span></li>
+<li><strong>Minimum Remaining Values (MRV)</strong> <span class="el-body">— The minimum-remaining-values heuristic, also called most-constrained-variable or fail-first, selects the unassigned variable with the fewest legal values left in its current domain. It is the single most effective general-purpose variable ordering rule.</span></li>
+<li><strong>The Fail-First Principle</strong> <span class="el-body">— MRV embodies the fail-first principle: if some branch of the search is doomed, it is better to discover that at a shallow depth than after many additional assignments. Early detection of failure prunes exponentially large portions of the tree.</span></li>
+<li><strong>The Degree Heuristic</strong> <span class="el-body">— The degree heuristic selects the variable involved in the largest number of constraints with other unassigned variables. It is most useful as a tie-breaker when several variables share the same minimum domain size.</span></li>
+<li><strong>Combining MRV and Degree in Practice</strong> <span class="el-body">— Practical solvers apply MRV as the primary criterion and the degree heuristic to break ties, producing a robust dynamic variable ordering. The combination is cheap to compute relative to the search effort it saves.</span></li>
+</ul>
+<h3 id="topic-6">6. Value Ordering and Search Efficiency</h3>
+<div class="summary">Covers the least-constraining-value heuristic for ordering domain values and how it complements variable ordering. Compares empirical node counts across heuristic combinations on benchmark problems such as N-Queens and map coloring.</div>
+<p class="tm-jump"><a href="#materials-topic-6">Materials for topic 6 (3)</a></p>
+<ul>
+<li><strong>Why Value Ordering Matters</strong> <span class="el-body">— Once backtracking search selects a variable, it must decide the order in which to try that variable&#39;s remaining domain values. Unlike variable ordering, value ordering only affects how quickly a solution is found, not the size of the full search tree when all solutions are required.</span></li>
+<li><strong>The Least-Constraining-Value Heuristic</strong> <span class="el-body">— The least-constraining-value (LCV) heuristic prefers the value that rules out the fewest choices for the neighbouring variables in the constraint graph. It is a &#39;fail-last&#39; strategy that keeps the remaining search space as flexible as possible.</span></li>
+<li><strong>Combining Variable and Value Ordering</strong> <span class="el-body">— Value ordering is most effective when paired with the minimum-remaining-values and degree heuristics for variable selection. The two kinds of heuristics address complementary questions: which variable to commit to next, and which commitment to make.</span></li>
+<li><strong>Measuring Search Efficiency with Node Counts</strong> <span class="el-body">— Heuristic combinations are compared empirically by counting the number of search nodes expanded or consistency checks performed on benchmark instances. Node counts expose the practical gains that worst-case complexity analysis cannot capture.</span></li>
+<li><strong>Benchmark Results: N-Queens and Map Coloring</strong> <span class="el-body">— Classic CSP benchmarks such as N-Queens and map coloring show dramatic reductions in explored nodes as heuristics are layered on. Naive backtracking becomes impractical at modest problem sizes that heuristic search handles easily.</span></li>
+<li><strong>Practical Guidance and Limitations</strong> <span class="el-body">— Heuristics are informed guesses, not guarantees, and their cost must be weighed against their pruning power. Knowing when LCV helps and when it does not is part of designing an efficient solver.</span></li>
+</ul>
+<h3 id="topic-7">7. Applying and Evaluating CSP Solvers</h3>
+<div class="summary">Guides learners in implementing a backtracking solver with pluggable heuristics and testing it on Sudoku and scheduling instances. Discusses performance measurement, debugging constraint models, and when CSP methods are the right tool.</div>
+<p class="tm-jump"><a href="#materials-topic-7">Materials for topic 7 (3)</a></p>
+<ul>
+<li><strong>Building a Pluggable Backtracking Solver</strong> <span class="el-body">— A practical CSP solver separates the core search loop from the strategies it uses, so heuristics and inference can be swapped without rewriting the engine.</span></li>
+<li><strong>Case Study: Solving Sudoku</strong> <span class="el-body">— Sudoku is an ideal first benchmark because its model is compact and the effect of heuristics is dramatic and easy to observe.</span></li>
+<li><strong>Case Study: Scheduling Instances</strong> <span class="el-body">— Scheduling exercises the solver on messier, real-world structure where constraints are heterogeneous and solutions may not exist.</span></li>
+<li><strong>Measuring Solver Performance</strong> <span class="el-body">— Comparing heuristic configurations requires metrics that are independent of machine speed as well as honest wall-clock timing.</span></li>
+<li><strong>Debugging Constraint Models</strong> <span class="el-body">— Most CSP bugs are modeling errors rather than search errors, so debugging starts with the constraints themselves.</span></li>
+<li><strong>Knowing When CSP Methods Fit</strong> <span class="el-body">— Backtracking search is powerful for the right problem shape, but other paradigms dominate elsewhere.</span></li>
+</ul>
+<h2 id="outcomes">Student Learning Outcomes</h2>
+<p class="prefix">By the end of this module, students will be able to:</p>
+<div class="mo">
+<div class="code">MO1</div>
+<div class="statement">Define a constraint satisfaction problem as a triple of variables, domains, and constraints, including the distinctions between partial, complete, and consistent assignments</div>
+<div class="meta"><span>Level: Understand</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO2</div>
+<div class="statement">Classify constraints as unary, binary, higher-order, or global and represent them using a constraint graph or hypergraph</div>
+<div class="meta"><span>Level: Understand</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO3</div>
+<div class="statement">Formulate real problems such as map coloring, Sudoku, N-Queens, cryptarithmetic, and job-shop scheduling as constraint satisfaction problems with explicit variables, domains, and constraints</div>
+<div class="meta"><span>Level: Apply</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO4</div>
+<div class="statement">Implement a depth-first backtracking search solver that assigns one variable at a time and tests consistency of partial assignments</div>
+<div class="meta"><span>Level: Create</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO5</div>
+<div class="statement">Evaluate the effect of minimum-remaining-values, degree, and least-constraining-value heuristics on solver efficiency using node counts on benchmark instances</div>
+<div class="meta"><span>Level: Evaluate</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<h3>Course Outcomes (reference)</h3>
+<p class="empty">No course outcomes have been defined.</p>
+<h2 id="materials">Materials for Each Topic</h2>
+<p class="prefix">What has been made for each topic. Materials that cover the whole module are listed on the module page.</p>
+<h3 id="materials-topic-1">1. Foundations of Constraint Satisfaction Problems</h3>
+<p class="tm-back"><a href="#topic-1">↑ Back to topic 1</a></p>
+<ul class="tm">
+<li><a href="content/Constraint_Satisfaction_Prob_interactive_t1_detail-video.html">Foundations of Constraint Satisfaction Problems — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Constraint_Satisfaction_Prob_interactive_topics_t1.html">Foundations of Constraint Satisfaction Problems</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Constraint_Satisfaction_Prob_t1_videos.html">Foundations of Constraint Satisfaction Problems — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-2">2. Constraint Types: Unary, Binary, and Global</h3>
+<p class="tm-back"><a href="#topic-2">↑ Back to topic 2</a></p>
+<ul class="tm">
+<li><a href="content/Constraint_Satisfaction_Prob_interactive_t2_detail-video.html">Constraint Types: Unary, Binary, and Global — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Constraint_Satisfaction_Prob_interactive_topics_t2.html">Constraint Types: Unary, Binary, and Global</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Constraint_Satisfaction_Prob_t2_videos.html">Constraint Types: Unary, Binary, and Global — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-3">3. Modeling Real Problems as CSPs</h3>
+<p class="tm-back"><a href="#topic-3">↑ Back to topic 3</a></p>
+<ul class="tm">
+<li><a href="content/Constraint_Satisfaction_Prob_interactive_t3_detail-video.html">Modeling Real Problems as CSPs — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Constraint_Satisfaction_Prob_interactive_topics_t3.html">Modeling Real Problems as CSPs</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Constraint_Satisfaction_Prob_t3_videos.html">Modeling Real Problems as CSPs — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-4">4. Backtracking Search for CSPs</h3>
+<p class="tm-back"><a href="#topic-4">↑ Back to topic 4</a></p>
+<ul class="tm">
+<li><a href="content/Constraint_Satisfaction_Prob_interactive_t4_detail-video.html">Backtracking Search for CSPs — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Constraint_Satisfaction_Prob_interactive_topics_t4.html">Backtracking Search for CSPs</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Constraint_Satisfaction_Prob_t4_videos.html">Backtracking Search for CSPs — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-5">5. Variable Ordering Heuristics</h3>
+<p class="tm-back"><a href="#topic-5">↑ Back to topic 5</a></p>
+<ul class="tm">
+<li><a href="content/Constraint_Satisfaction_Prob_interactive_t5_detail-video.html">Variable Ordering Heuristics — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Constraint_Satisfaction_Prob_interactive_topics_t5.html">Variable Ordering Heuristics</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Constraint_Satisfaction_Prob_t5_videos.html">Variable Ordering Heuristics — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-6">6. Value Ordering and Search Efficiency</h3>
+<p class="tm-back"><a href="#topic-6">↑ Back to topic 6</a></p>
+<ul class="tm">
+<li><a href="content/Constraint_Satisfaction_Prob_interactive_t6_detail-video.html">Value Ordering and Search Efficiency — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Constraint_Satisfaction_Prob_interactive_topics_t6.html">Value Ordering and Search Efficiency</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Constraint_Satisfaction_Prob_t6_videos.html">Value Ordering and Search Efficiency — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-7">7. Applying and Evaluating CSP Solvers</h3>
+<p class="tm-back"><a href="#topic-7">↑ Back to topic 7</a></p>
+<ul class="tm">
+<li><a href="content/Constraint_Satisfaction_Prob_interactive_t7_detail-video.html">Applying and Evaluating CSP Solvers — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Constraint_Satisfaction_Prob_interactive_topics_t7.html">Applying and Evaluating CSP Solvers</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Constraint_Satisfaction_Prob_t7_videos.html">Applying and Evaluating CSP Solvers — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

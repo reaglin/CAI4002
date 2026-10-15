@@ -1,0 +1,308 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>State Space Representation and Abstraction</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Problem Formulation and State Space Representation</a></div>
+  <header>
+    <h1>State Space Representation and Abstraction</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>State Space Representation and Abstraction</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Before any search algorithm can run, a task described in ordinary language — "get the robot from the loading bay to the inspection table", "tidy the two-room office", "solve this sliding tile puzzle" — must be turned into a mathematical object that an algorithm can manipulate. That object is the <strong>state space</strong>: a set of states, together with the actions that move between them. The quality of a search system depends far more on how this space is defined than on which algorithm is later applied to it. A well-chosen representation can turn an apparently hopeless problem into one that is solved in milliseconds; a careless one can make a trivial problem intractable, or worse, can produce "solutions" that cannot be carried out in the real world at all.</p>
+
+<p>This topic examines the design decisions behind a state representation: what information a state must carry, how abstraction discards everything else, how the resulting space is structured as a graph, how large that graph is, and how its shape — measured by branching factor and depth — determines the cost of searching it. It closes by returning to the relationship between the abstract graph and the physical situation it models, because that relationship is where most formulation errors ultimately reveal themselves.</p>
+
+<p><strong>What a State Must Capture</strong></p>
+
+<p>A state is a snapshot of the world, but it is a <em>selective</em> snapshot. The guiding principle is the <strong>Markov property</strong>: the state must contain enough information that the consequences of every future action depend only on the current state, never on the history of how that state was reached. Formally, if <code>s</code> is a state and <code>a</code> an applicable action, the successor <code>RESULT(s, a)</code> must be determined by <code>s</code> and <code>a</code> alone. If two different histories lead to the same recorded state but would lead to different futures, the representation is incomplete — some history-dependent fact has been left out and must be promoted into the state.</p>
+
+<p>A concrete illustration: suppose we model a delivery robot by its grid cell only, <code>(x, y)</code>, but the robot physically carries at most one parcel and cannot pick up a second. Two histories bring the robot to cell <code>(3, 4)</code>: in one it is empty-handed, in the other it is already loaded. The action <code>Pickup</code> is legal in the first case and illegal in the second, yet both map to the same recorded state. The representation violates the Markov property. The fix is not to patch the algorithm but to enrich the state to <code>(x, y, carrying)</code>, where <code>carrying ∈ {none, parcel}</code>.</p>
+
+<p>Errors run in both directions. <strong>Too little information</strong> makes legal actions or the goal test impossible to evaluate. If the vacuum world's state recorded only the agent's room and not the dirt, there would be no way to decide whether the goal "both rooms clean" had been reached; the goal test would be undefined. If a route-finding state recorded only the current city and the goal was "visit every city once", the goal test would again be unevaluable because the set of visited cities is nowhere recorded. The symptom is always the same: an action precondition or the goal predicate needs a fact the state does not contain.</p>
+
+<p><strong>Too much information</strong> is a subtler fault because the formulation still "works" — it just works badly. Each extra state variable multiplies the number of distinct states, and every one of those copies must potentially be stored by a graph search and distinguished from its siblings. Suppose a route-finding state is recorded as <code>(city, current_time, fuel_litres, odometer, weather)</code> when the task is simply to find the shortest road distance between two towns. The <code>odometer</code> reading alone makes every revisit of a city a new state, so the explored set never recognises a repeat, cycles are never pruned, and the search degenerates. Worse, states that should be recognised as identical and merged are kept apart, destroying the main efficiency advantage of graph search over tree search.</p>
+
+<p>A practical two-part test for any candidate representation:</p>
+
+<ul>
+  <li><strong>Sufficiency test:</strong> Taking only the data in the state, can I determine which actions are applicable, compute the resulting state of each, assign its step cost, and evaluate the goal test? If any of these requires looking at the path taken to get here, the state is too thin.</li>
+  <li><strong>Necessity test:</strong> For each variable in the state, if I deleted it, would any action precondition, transition, cost, or goal test become unevaluable? If not, the variable is decoration and should go.</li>
+</ul>
+
+<p>The reason the sufficiency test matters so much is that the remaining four components of a search problem are all <em>written in the vocabulary of the state variables</em>. The initial state is an assignment to those variables. Each action's precondition is a predicate over them. The transition model is a function from an assignment and an action to a new assignment. The goal test is a predicate over them (or a comparison against an explicit goal assignment). Fix the state variables and you have fixed the language in which everything else must be expressed; change them and every other component must be rewritten. This is why representation design precedes, rather than follows, the rest of the formulation.</p>
+
+<pre><code>Vacuum world, two rooms
+  State variables:  agent ∈ {L, R},  dirtL ∈ {clean, dirty},  dirtR ∈ {clean, dirty}
+  Initial state:    (L, dirty, dirty)
+  Actions:          Left, Right, Suck          (all always applicable)
+  Transition model: RESULT((a, dL, dR), Left)  = (L, dL, dR)
+                    RESULT((a, dL, dR), Right) = (R, dL, dR)
+                    RESULT((L, dL, dR), Suck)  = (L, clean, dR)
+                    RESULT((R, dL, dR), Suck)  = (R, dL, clean)
+  Goal test:        dirtL = clean AND dirtR = clean
+  Step cost:        1 per action
+</code></pre>
+
+<p>Notice what is <em>absent</em>: the size of the rooms, the suction power, the battery level, the colour of the carpet, the number of dust particles. None of these is needed to decide which action to take next or to tell when the job is done, so none of them belongs in the state. Notice too that every component after the state list is phrased purely in terms of <code>agent</code>, <code>dirtL</code> and <code>dirtR</code>.</p>
+
+<p><strong>Abstraction: Removing Irrelevant Detail</strong></p>
+
+<p>The process of deciding what to leave out is <strong>abstraction</strong>. An abstract state is not a simplified world; it is a <em>name for a set of real-world situations</em> that the model treats as equivalent. When we write the route-finding state <code>In(Arad)</code>, that single symbol stands for an uncountable collection of genuine physical situations: the car parked on the north side of the square, idling at the traffic lights, the driver's hands at ten-to-two or quarter-past-three, the radio on or off, the temperature at 14°C or 15°C. All of these collapse into one abstract state because none of them changes which roads can be taken next or how far they are.</p>
+
+<p>In the same way, an <strong>abstract action</strong> stands for a large and complicated family of real-world activities. The action <code>Go(Arad, Sibiu)</code> abstracts hundreds of kilometres of steering corrections, gear changes, overtaking decisions, a stop for fuel and a detour around roadworks. The abstraction is a deliberate compression of an enormous amount of physical detail into a single symbol with a single cost label (140 km).</p>
+
+<p>For this compression to be legitimate, two distinct properties are required, and it is worth keeping them apart.</p>
+
+<ul>
+  <li><strong>Validity.</strong> Every abstract solution must be expandable into a solution of the detailed problem. For the route-finding abstraction, this means: for any two adjacent abstract states, there exists at least one sequence of real-world steering and acceleration actions that carries the car from <em>some</em> detailed situation denoted by the first abstract state to <em>some</em> detailed situation denoted by the second. If a road in the map has been closed, or if the "road" is a ferry that only runs in summer, the abstraction is invalid: the abstract plan cannot be refined into real behaviour and the search has produced a fiction.</li>
+  <li><strong>Usefulness.</strong> Carrying out each abstract step must be easier than solving the original problem. An abstraction that validly reduces "get from Arad to Bucharest" to a single abstract action <code>Go(Arad, Bucharest)</code> is valid but useless, because expanding that one step is exactly as hard as the problem we started with. Abstraction buys nothing unless the refinement of each abstract action is comparatively routine — handled by a lower-level controller, a human driver, or a separate and much smaller search.</li>
+</ul>
+
+<p>These two requirements pull in opposite directions, which is why the level of abstraction is a genuine design trade-off between <strong>fidelity</strong> and <strong>tractability</strong>. Consider a mobile robot:</p>
+
+<table>
+  <thead>
+    <tr><th>Level</th><th>State representation</th><th>Approximate state space size</th><th>Fidelity</th><th>Tractability</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Topological</td><td>Named room or junction</td><td>Tens of states</td><td>Low — ignores doorway widths, obstacles</td><td>Instant search; may propose impossible manoeuvres</td></tr>
+    <tr><td>Grid</td><td>Cell <code>(x, y)</code> on a 0.5 m grid</td><td>10<sup>3</sup>–10<sup>5</sup></td><td>Medium — captures obstacles, ignores orientation</td><td>Fast; may ignore turning constraints of the chassis</td></tr>
+    <tr><td>Configuration space</td><td><code>(x, y, θ)</code>, θ discretised to 10°</td><td>10<sup>5</sup>–10<sup>6</sup></td><td>High — respects non-holonomic turning</td><td>Feasible but demanding</td></tr>
+    <tr><td>Dynamic</td><td><code>(x, y, θ, ẋ, ẏ, θ̇)</code></td><td>10<sup>9</sup>+</td><td>Very high — captures momentum, skidding</td><td>Usually intractable for global planning</td></tr>
+  </tbody>
+</table>
+
+<p>Practical systems resolve the trade-off by layering: a topological or grid planner finds the route, and a configuration-space or dynamic controller refines each abstract step locally. Each layer's abstraction must be valid with respect to the layer below it.</p>
+
+<p>The 8-puzzle offers a cleaner example of the same reasoning. The real world contains plastic tiles that can be slid, jiggled, lifted out of the frame, or dropped on the floor. The standard formulation abstracts away the physical act of sliding (replacing it by an instantaneous permutation), abstracts away the intermediate positions of a tile mid-slide, and abstracts away actions such as "shake the puzzle" or "prise out a tile". The last of these is an abstraction of the <em>action set</em> rather than the state, and it is the one that needs justification: we are asserting that a solution exists without cheating. It does, so the abstraction is valid; and each abstract move is trivially executable, so it is useful.</p>
+
+<p><strong>The State Space and Its Graph</strong></p>
+
+<p>Once states and actions are fixed, the state space has the structure of a <strong>directed, labelled graph</strong>. The nodes are states. There is a directed edge from <code>s</code> to <code>s'</code> labelled <code>a</code> whenever <code>a</code> is applicable in <code>s</code> and <code>RESULT(s, a) = s'</code>. Each edge carries a step cost <code>c(s, a, s')</code>. A <strong>path</strong> is a sequence of states linked by such edges; its cost is the sum of the edge costs along it. A <strong>solution</strong> is a path whose first node is the initial state and whose last node satisfies the goal test; an <strong>optimal solution</strong> is a solution of minimum total cost.</p>
+
+<p>Edges are directed because actions are not always reversible. In route finding on a road network with one-way streets, <code>Go(A, B)</code> may exist while <code>Go(B, A)</code> does not. In the vacuum world, <code>Suck</code> turns a dirty room clean but no action turns it dirty again, so many edges are one-way and the graph has a layered structure that drains towards the goal. Reversibility is a property worth noting explicitly, because it affects whether techniques such as bidirectional search are applicable.</p>
+
+<p>The single most important structural fact is that the state space graph is almost always <strong>implicit</strong>. It is not a data structure sitting in memory. It is defined <em>intensionally</em>, by rules: a description of what counts as a legal state, a function that lists the applicable actions for any given state, and a function that computes the successor. The graph is generated on demand, one node at a time, by calling those functions. The 8-puzzle's graph is defined by half a dozen lines of code, even though it contains 181,440 reachable nodes; the 15-puzzle's by the same code, though it contains about 10<sup>13</sup>.</p>
+
+<pre><code># An implicit state space: the whole graph in three definitions
+def actions(state):          # state is a 9-tuple, 0 = blank
+    i = state.index(0)
+    moves = []
+    if i &gt;= 3: moves.append('Up')
+    if i &lt;  6: moves.append('Down')
+    if i % 3 &gt; 0: moves.append('Left')
+    if i % 3 &lt; 2: moves.append('Right')
+    return moves
+
+def result(state, action):   # returns the successor state
+    i = state.index(0)
+    j = {'Up': i-3, 'Down': i+3, 'Left': i-1, 'Right': i+1}[action]
+    s = list(state); s[i], s[j] = s[j], s[i]
+    return tuple(s)
+
+def goal_test(state):
+    return state == (1,2,3,4,5,6,7,8,0)
+</code></pre>
+
+<p>Because the graph is implicit and vast, no search algorithm ever "looks at the state space". It materialises a small neighbourhood of it, starting from the initial state and expanding outwards, and stops as soon as a goal is found. A well-guided A* search on the 15-puzzle may touch a few hundred thousand nodes out of 10<sup>13</sup> — a vanishingly small fraction. The entire purpose of search algorithms, and of heuristics in particular, is to make that explored fraction as small as possible.</p>
+
+<p><strong>Measuring State Space Size</strong></p>
+
+<p>A first estimate of state space size comes from the <strong>product rule</strong>: if the state consists of independent variables <code>v₁ … vₙ</code> with domain sizes <code>|D₁| … |Dₙ|</code>, then the number of syntactically possible states is <code>|D₁| × |D₂| × … × |Dₙ|</code>. For the two-room vacuum world: 2 positions × 2 dirt values × 2 dirt values = 8. For an <em>n</em>-room version: <code>n × 2ⁿ</code> — the exponential term already dominates at n = 10 (10,240 states) and is hopeless at n = 100.</p>
+
+<p>This product is an <strong>upper bound</strong>, not the true size, for two reasons. First, some syntactic combinations may be illegal — they violate a structural constraint of the domain. Second, and more importantly, some legal combinations may be <strong>unreachable</strong> from the initial state. The 8-puzzle is the standard illustration: there are 9! = 362,880 distinct arrangements of eight tiles and a blank in nine cells, but the permutation parity invariant means the reachable set from any given start is exactly half of them, 9!/2 = 181,440. The other half forms a separate connected component that no sequence of legal slides can enter. A formulation that assumes all 362,880 states are reachable will waste effort searching for a goal that is provably unattainable — a correctness problem, not merely an efficiency one.</p>
+
+<table>
+  <thead>
+    <tr><th>Problem</th><th>State variables</th><th>Product bound</th><th>Reachable size</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Vacuum world (2 rooms)</td><td>agent (2), dirtL (2), dirtR (2)</td><td>8</td><td>8</td></tr>
+    <tr><td>8-puzzle</td><td>Contents of 9 cells (a permutation)</td><td>9! = 362,880</td><td>181,440 (half, by parity)</td></tr>
+    <tr><td>15-puzzle</td><td>Contents of 16 cells</td><td>16! ≈ 2.09 × 10<sup>13</sup></td><td>≈ 1.05 × 10<sup>13</sup></td></tr>
+    <tr><td>8-queens (naïve: any squares)</td><td>8 queens on 64 squares, any placement</td><td>64<sup>8</sup> ≈ 2.8 × 10<sup>14</sup></td><td>same (all placements legal states)</td></tr>
+    <tr><td>8-queens (one queen per column)</td><td>8 column variables, domain 8 rows</td><td>8<sup>8</sup> = 16,777,216</td><td>16,777,216</td></tr>
+    <tr><td>8-queens (incremental, no attacks)</td><td>Partial, mutually non-attacking placements</td><td>—</td><td>2,057</td></tr>
+    <tr><td>Romania route finding</td><td>Current city</td><td>20</td><td>20</td></tr>
+  </tbody>
+</table>
+
+<p>The 8-queens rows in that table make the central point about abstraction and size with unusual clarity. All three formulations describe the same puzzle and have the same solutions, but they differ by eleven orders of magnitude. Moving from "place eight queens anywhere" to "place one queen per column" is an abstraction step: it folds together all the placements that differ only by which of several queens occupies a square (queens are indistinguishable) and discards outright the placements with two queens in a column, which can never lead to a solution. Adding the no-attack precondition to the action set shrinks the space to 2,057 — small enough to enumerate exhaustively in a fraction of a second.</p>
+
+<p>Removing a single irrelevant variable has a comparable effect, because its domain size is a <em>multiplicative</em> factor. If a delivery-robot state is <code>(cell, carrying, battery_percent)</code> with 500 cells, 2 carrying values and 101 battery readings, the space has 101,000 states. If the battery is irrelevant to the task — because the robot is on a charging rail, or because any plan under consideration is far shorter than its endurance — deleting it leaves 1,000 states, a hundredfold reduction. Keeping a fine-grained clock, an odometer, or a continuous sensor reading in the state is the single most common way that students accidentally make a small problem enormous.</p>
+
+<p>State space size matters directly because <strong>graph search must store the states it has visited</strong>. The explored set, in the worst case, grows to the size of the reachable state space, so the reachable size is a hard upper bound on the memory a complete graph search may consume. At roughly 100 bytes per stored 15-puzzle state, 10<sup>13</sup> states would require around a petabyte — which is why the 15-puzzle is solved with memory-bounded methods such as IDA* rather than plain breadth-first graph search. Estimating state space size is therefore not an academic exercise; it is the calculation that tells you in advance whether an algorithm is viable at all.</p>
+
+<p><strong>Branching Factor and Depth</strong></p>
+
+<p>Size alone does not determine search cost; the <em>shape</em> of the space matters just as much. Three parameters summarise that shape:</p>
+
+<ul>
+  <li><strong>b</strong>, the <strong>branching factor</strong>: the number of successors generated per state, usually quoted as an average or a maximum.</li>
+  <li><strong>d</strong>, the <strong>depth of the shallowest goal</strong>: the length (in actions) of the shortest solution.</li>
+  <li><strong>m</strong>, the <strong>maximum path length</strong> in the state space, possibly infinite if the space contains cycles and the algorithm does not detect repeated states.</li>
+</ul>
+
+<p>The number of nodes at depth <em>d</em> of a search tree is roughly <code>b^d</code>, and the total generated by a breadth-first search down to that depth is <code>O(b^d)</code>. Because <em>b</em> sits in the base of an exponential, even small reductions compound dramatically. Compare the node counts at depth 12:</p>
+
+<table>
+  <thead>
+    <tr><th>Branching factor b</th><th>b<sup>8</sup></th><th>b<sup>10</sup></th><th>b<sup>12</sup></th></tr>
+  </thead>
+  <tbody>
+    <tr><td>2</td><td>256</td><td>1,024</td><td>4,096</td></tr>
+    <tr><td>3</td><td>6,561</td><td>59,049</td><td>531,441</td></tr>
+    <tr><td>4</td><td>65,536</td><td>1,048,576</td><td>1.7 × 10<sup>7</sup></td></tr>
+    <tr><td>10</td><td>10<sup>8</sup></td><td>10<sup>10</sup></td><td>10<sup>12</sup></td></tr>
+  </tbody>
+</table>
+
+<p>Dropping <em>b</em> from 4 to 3 cuts the depth-12 tree by a factor of about 32; dropping it from 10 to 3 cuts it by roughly two million. There are several standard ways to lower <em>b</em> through representation choices:</p>
+
+<ul>
+  <li><strong>Prune inapplicable actions at the source.</strong> In the 8-puzzle, defining moves in terms of the blank tile rather than the eight numbered tiles reduces <em>b</em> from a potential 8-ish to between 2 (blank in a corner) and 4 (blank in the centre), averaging about 3.</li>
+  <li><strong>Merge symmetric or equivalent actions.</strong> If four rotations of a board position are equivalent, treat them as one state, which both shrinks the space and removes redundant branches.</li>
+  <li><strong>Forbid immediately-undoing moves.</strong> Disallowing the inverse of the previous action cuts <em>b</em> by one — but note carefully that this makes the action set history-dependent and therefore technically requires the last action to be part of the state, or an equivalent check inside the search node. This is a case where an apparently harmless optimisation quietly changes the state representation.</li>
+  <li><strong>Impose an ordering on commutative actions.</strong> In 8-queens, placing queens column by column rather than allowing any queen to be placed anywhere removes all the orderings of the same final placement; the <em>n</em>! permutations of one set of moves collapse into a single path.</li>
+</ul>
+
+<p>Abstraction affects <em>d</em> as well as <em>b</em>, and usually in the helpful direction: a coarser abstraction gives each action more reach, so fewer of them are needed to span the problem. A route planner working on motorway junctions may solve a cross-country trip in 12 abstract steps; the same trip at the level of 10-metre road segments takes tens of thousands of steps. Since cost grows as <code>b^d</code>, shortening <em>d</em> is at least as valuable as shrinking <em>b</em> — though coarse abstractions often raise <em>b</em> slightly (a motorway junction has more outgoing choices than a 10-metre segment, which usually has one), so the net effect must be computed rather than assumed.</p>
+
+<p>The parameter <em>m</em> matters for a different family of algorithms. Depth-first search has space complexity <code>O(bm)</code> and time complexity <code>O(b^m)</code>, so a space with long or unbounded paths punishes it severely even when a shallow goal exists. In the vacuum world, <code>m</code> is infinite under tree search because <code>Left</code> and <code>Right</code> can be alternated forever, even though <code>d</code> is at most 3. That single observation tells you that depth-first tree search is the wrong choice here, and that either a depth limit, a cycle check, or graph search with an explored set is required. In spaces where actions are irreversible — such as the 8-queens incremental formulation, where queens are only ever added — <code>m</code> is bounded by construction (at most 8), and depth-first search becomes an excellent, memory-cheap choice.</p>
+
+<p>For this reason, a formulation should always be reported together with its parameters. A statement such as "the 8-puzzle has 181,440 reachable states, <em>b</em> ≈ 3, average <em>d</em> ≈ 22, and <em>m</em> unbounded without repeated-state detection" conveys more about the practical difficulty of the problem than any prose description, and it is exactly the information that complexity results about completeness, optimality, time and space are stated in terms of.</p>
+
+<table>
+  <thead>
+    <tr><th>Problem (standard formulation)</th><th>b (approx.)</th><th>d (typical/worst)</th><th>m</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>8-puzzle (blank moves)</td><td>2–4, mean ≈ 3</td><td>≈ 22 average, 31 worst</td><td>Unbounded without cycle detection</td></tr>
+    <tr><td>15-puzzle</td><td>2–4, mean ≈ 3</td><td>≈ 53 average, 80 worst</td><td>Unbounded without cycle detection</td></tr>
+    <tr><td>Vacuum world (2 rooms)</td><td>3</td><td>≤ 3</td><td>Unbounded (Left/Right oscillation)</td></tr>
+    <tr><td>8-queens (incremental, no attacks)</td><td>≤ 8, shrinking with depth</td><td>8 exactly</td><td>8</td></tr>
+    <tr><td>Romania route finding</td><td>≈ 3 (roads per city)</td><td>3–5</td><td>Unbounded without cycle detection</td></tr>
+  </tbody>
+</table>
+
+<p><strong>State Space Graph Versus the Physical World</strong></p>
+
+<p>It is worth saying plainly what the graph is and is not. The state space graph is a <em>model</em>. Its nodes are not places, configurations or situations; they are equivalence classes of situations that the modeller has chosen to treat as interchangeable. The many-to-one mapping from physical reality to abstract states is not a defect or an approximation to be apologised for — it is the entire point. Searching would be impossible if every microscopically distinct situation were a separate node, because there would be infinitely many of them and no two would ever repeat.</p>
+
+<p>Alongside the abstraction, the standard search framework carries a set of <strong>environment assumptions</strong> that are usually left implicit and should be made explicit when a formulation is presented:</p>
+
+<ul>
+  <li><strong>Observable:</strong> the agent knows which state it is in, so it can evaluate action preconditions and the goal test directly. If the agent cannot observe the state, the correct object to search is a space of <em>belief states</em> (sets of possible physical states), which is exponentially larger.</li>
+  <li><strong>Deterministic:</strong> each action from each state has exactly one outcome, so <code>RESULT</code> is a function. If outcomes are uncertain, a solution is no longer a sequence but a contingency plan or policy, and the search problem becomes an AND–OR search or a Markov decision process.</li>
+  <li><strong>Discrete:</strong> there are finitely many actions in each state, so successors can be enumerated. Continuous control variables require discretisation (itself an abstraction choice) or entirely different methods.</li>
+  <li><strong>Static:</strong> the world changes only as a result of the agent's actions, so a plan computed now will still be valid when it is executed. A world with other moving agents, deadlines, or weather violates this.</li>
+  <li><strong>Fully known:</strong> the agent knows the actions and their effects in advance, which is what makes offline planning possible.</li>
+</ul>
+
+<p>These assumptions are properties of the <em>model</em>, not of reality. Route finding is treated as static and deterministic even though traffic is neither; the justification is that over the planning horizon, the deviations are small enough to be absorbed by re-planning. The assumptions are therefore claims that must be defended, not free gifts.</p>
+
+<p>The critical correctness condition is this: <strong>every detail the abstraction discards must genuinely be irrelevant to the choice of action and to the executability of the plan.</strong> If a discarded detail does affect either, the abstract solution may be unexecutable, and the search will have returned a confident answer that is simply wrong. Some representative failures:</p>
+
+<ul>
+  <li>A warehouse robot's state records only <code>(cell, carrying)</code>, but some aisles are too narrow for the robot when it is holding a wide pallet. The plan routes a loaded robot down a narrow aisle. The discarded detail — the physical footprint of the load — did affect which actions were applicable. Fix: make the action precondition depend on <code>carrying</code>, or add a <code>load_width</code> variable.</li>
+  <li>A route planner's abstraction assumes every road edge is traversable, but one edge is a seasonal mountain pass. The abstract plan cannot be refined into real driving in winter. Fix: either remove the edge or add a season/date variable and condition the action on it.</li>
+  <li>A delivery plan ignores battery level because "the robot is usually charged". On a long route it halts mid-plan. The omitted variable mattered to executability. Fix: add a discretised battery variable and recharge actions.</li>
+  <li>An 8-puzzle formulation permits a tile to move diagonally because the modeller wrote the successor function in terms of index arithmetic without checking row wrap-around. Cell 2 "moves right" to cell 3, which is physically a different row. The abstraction has invented an edge that does not exist.</li>
+</ul>
+
+<p>The last example illustrates the complementary error: as well as discarding something that mattered, an abstraction can <em>add</em> transitions the real world does not support. Both are failures of validity, and both are detected by the same discipline — <strong>walk each abstract action and ask whether it can actually be executed, from every state in which the model says it is applicable.</strong> A practical validation checklist for a completed formulation:</p>
+
+<ul>
+  <li>For each action, state its precondition in words and check that the real system can perform it whenever that precondition holds, from <em>any</em> physical situation the abstract state might denote.</li>
+  <li>Confirm that the successor state is reachable in reality and that its cost label matches a real resource (distance, time, money, energy) measured consistently across all actions.</li>
+  <li>Check the goal test against the real acceptance criterion — would a stakeholder agree that a state passing the test is a finished job?</li>
+  <li>Confirm the initial state is one the system can actually be in, and is described in the same variables as every other state.</li>
+  <li>Spot-check reachability: is the goal provably reachable from the initial state, or could it lie in a disconnected component (the 8-puzzle parity trap)?</li>
+</ul>
+
+<p>When execution does reveal that information is missing — the robot stalls, the plan calls for an impossible manoeuvre, the goal test passes on a state nobody would accept — the remedy is almost always to <strong>revise the representation, not the algorithm</strong>. Switching from breadth-first to A*, adding a cleverer heuristic, or increasing the node limit will make a flawed formulation fail faster, but it cannot make it correct: the search is answering exactly the question it was asked, and the question was wrong. The repair is to promote the missing fact into a state variable, tighten an action precondition, correct a cost function, or sharpen the goal test — and then to re-check the size, <em>b</em>, <em>d</em> and <em>m</em> consequences, because every enrichment of the state multiplies the space and may change which algorithms remain viable. Representation design is therefore an iterative loop: formulate, estimate, search, attempt execution, and revise.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> The topic defines states, the initial state, actions, the transition model, the goal test and step costs as the vocabulary in which a search problem is written, and shows them instantiated for the vacuum world, the 8-puzzle and route finding, directly supporting the ability to specify all five components for a new task.</li>
+  <li><strong>MO2:</strong> The abstraction section explains abstract states and actions as names for sets of real-world situations, and sets out the validity and usefulness conditions that ensure detail is removed without destroying solvability — the core of this outcome.</li>
+  <li><strong>MO3:</strong> Worked formulations and sizing analyses for the vacuum world, the 8-puzzle, the 15-puzzle, 8-queens (in three variants) and Romania route finding give students concrete models to imitate when formulating these classic problems themselves.</li>
+  <li><strong>MO4:</strong> The topic develops the state space graph as an implicit, rule-defined structure and stresses that search algorithms materialise only a fraction of it, together with the role of the explored set in bounding memory. It therefore provides the state-space side of the distinction; the detailed anatomy of search-tree nodes, the frontier and the explored set is treated in the search-algorithms topic.</li>
+  <li><strong>MO5:</strong> The sufficiency and necessity tests, the catalogue of over-rich-state, invalid-abstraction, unreachable-goal and ill-defined-goal-test errors, and the analysis of state space size, <em>b</em>, <em>d</em> and <em>m</em> against time and space complexity give students the criteria and vocabulary needed to critique a proposed formulation.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Numeric figures used: 8-puzzle 9!/2 = 181,440 reachable states, mean b ≈ 3, average optimal solution length ≈ 22, worst case 31; 15-puzzle ≈ 1.05 × 10^13 reachable states, worst case 80 moves; 8-queens 64^8 ≈ 2.8 × 10^14 naïve, 8^8 = 16,777,216 one-per-column, 2,057 incremental non-attacking placements; Romania map 20 cities, Arad–Sibiu 140 km. These are the standard Russell &amp; Norvig figures and can be cited as such. The robot abstraction-level table gives order-of-magnitude illustrations rather than exact counts and should be presented as indicative. The "forbid immediately-undoing moves" bullet deliberately flags that the optimisation makes the action set history-dependent — a useful discussion point, since students often adopt it without noticing it changes the state. Possible exercises: (1) give a deliberately over-rich state for a delivery task and ask students to apply the necessity test variable by variable; (2) ask students to compute the product bound and the reachable size for a 3-room vacuum world with a battery variable, then recompute after removing the battery; (3) give an 8-puzzle successor function with the row wrap-around bug and ask students to find it by validating actions against the physical puzzle.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Before an AI agent can search for a solution, someone has to decide what a "state" actually is. A state must capture exactly the information needed to decide what happens next — no more, no less. Include too little and the agent cannot tell legal moves apart; include too much (the color of the puzzle tiles, the time of day, the exact pixel position of a robot) and the state space explodes with distinctions that never affect the outcome. Abstraction is the disciplined act of throwing away detail that does not change solvability.</p>
+<p>Once states are defined, the actions connect them, and the result is a state space graph: nodes are states, edges are actions. This graph is a mathematical object, not the physical world — the same physical room can map to a handful of abstract states, and a single abstract action can stand for a long sequence of real-world motions. The size of that graph, its branching factor (how many actions are available on average) and its depth (how far the goal lies from the start) are what determine whether search is feasible at all.</p>
+<p>As you watch the video below, keep asking two questions. First: what information is being packed into one node, and what has been deliberately left out? Second: how fast does the number of reachable states grow as the puzzle gets bigger? Notice especially that a state is often more than just "where the player is" — in many puzzles the positions of several objects must be bundled together into one state.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Theseus and the Minotaur | Exploring State Space</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/umszOeerdsU?cc_load_policy=1&amp;rel=0" title="Video: Theseus and the Minotaur | Exploring State Space (Tom S)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Tom S</strong> · 14:44 · 20,296 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=umszOeerdsU" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>Using the Theseus and the Minotaur puzzle as a running example, this video builds up the idea of a state space and then walks through algorithms that explore it — breadth-first search, Dijkstra's algorithm, and A*. Because the puzzle involves two moving pieces, it naturally illustrates why a state must bundle together several facts (both Theseus's and the Minotaur's positions) rather than just one. The presentation is visual, showing the maze alongside the graph of states that the maze induces.</p>
+<h3>Why this video</h3>
+<p>It is a clear, concrete demonstration of the distinction at the heart of this topic: the physical maze you see versus the abstract state space graph that search actually operates on. The visual treatment makes branching factor, depth, and the growth of reachable states tangible rather than abstract.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>The video supports MO1 by making the components of a search problem concrete — an initial configuration, legal moves, a transition to a new state, and a goal condition — within a single worked puzzle. It directly serves MO4 by separating the maze (the physical world) from the state space graph that algorithms traverse, which is the same distinction you will later apply to search trees versus state space graphs. Its multi-object state also reinforces MO2 and MO5: you can ask which details of the puzzle were kept because they affect future decisions and which were safely abstracted away, and judge whether the resulting representation is too rich or too sparse. For MO3, treat it as a template — the reasoning used here transfers directly to formulating the 8-puzzle, vacuum world, and route finding.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

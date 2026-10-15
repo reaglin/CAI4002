@@ -1,0 +1,268 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selection Strategies</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Genetic Algorithms and Evolutionary Search</a></div>
+  <header>
+    <h1>Selection Strategies</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Selection Strategies</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Selection is the stage of the evolutionary cycle where the algorithm decides <em>who gets to reproduce</em> and <em>who survives</em>. Crossover and mutation generate novelty, but they are blind: they have no idea which regions of the search space are promising. Selection is the only component that reads the fitness function and steers the population. For that reason, the selection scheme is usually the single most influential design decision in a genetic algorithm (GA) — two runs identical in every respect except for their selection operator can behave completely differently, one converging crisply on a good optimum and the other either stagnating in a local optimum within ten generations or wandering aimlessly for thousands.</p>
+
+<p>Two distinct selection events occur in a typical generational loop. <strong>Parent selection</strong> (or mating selection) chooses which individuals contribute genetic material to the offspring. <strong>Survivor selection</strong> (or replacement) decides which individuals from the combined pool of parents and offspring form the next generation. Some algorithms apply pressure almost entirely at the parent stage (for example, classic generational GAs with fitness-proportionate selection and full replacement), while others apply almost none at the parent stage and all of it at the survivor stage (for example, the <code>(μ + λ)</code> evolution strategy, which selects parents uniformly at random but keeps only the best μ of the combined pool).</p>
+
+<p><strong>Selective pressure</strong> is the name given to the strength of the bias that selection applies toward fitter individuals. It is an intuitive notion that can be measured precisely in several ways:</p>
+
+<ul>
+  <li><em>Selection intensity</em>: the increase in mean population fitness caused by one selection step, expressed in units of the population's fitness standard deviation.</li>
+  <li><em>Takeover time</em>: the number of generations required for the single best individual to fill the entire population when only selection operates (no crossover, no mutation). Short takeover times mean high pressure.</li>
+  <li><em>Reproduction rate</em> or expected number of offspring of the best individual in one generation.</li>
+</ul>
+
+<p>High selective pressure accelerates convergence but narrows the search — the population quickly becomes a cloud of near-copies around whatever looked best early on, which is frequently a local optimum. Low selective pressure preserves variety and keeps many regions under investigation, but progress is slow and, in the limit of zero pressure, the GA degenerates into a random walk. Note also that selection is normally performed <strong>with replacement</strong>: a single outstanding individual can be chosen as a parent many times in the same generation, which is precisely the mechanism by which good genetic material is amplified — and also the mechanism by which diversity is destroyed if the bias is too strong.</p>
+
+<p>A crucial conceptual point is that selection does not create anything new. It only changes the <em>distribution</em> of existing genetic material. If an allele (a particular gene value) is eliminated from every individual in the population, selection can never bring it back; only mutation, immigration or restart can. This asymmetry is why the long-term behaviour of a GA depends so heavily on how aggressively selection prunes the population in the early generations.</p>
+
+<p><strong>Roulette wheel (fitness-proportionate) selection</strong> is the classical scheme described in Holland's original work. Imagine a roulette wheel whose circumference is divided into slices, one per individual, each slice sized in proportion to that individual's fitness. Spinning the wheel once selects one parent. Formally, the probability of selecting individual <em>i</em> is:</p>
+
+<pre><code>p_i = f_i / Σ_j f_j         (for j = 1 .. N)</code></pre>
+
+<p>Implementation is straightforward: compute the cumulative fitness array, draw a uniform random number <code>r</code> in <code>[0, F_total)</code>, and walk the array until the cumulative sum exceeds <code>r</code>.</p>
+
+<pre><code>function roulette_select(population):
+    total = sum(f(ind) for ind in population)
+    r     = uniform(0, total)
+    acc   = 0
+    for ind in population:
+        acc = acc + f(ind)
+        if acc &gt; r:
+            return ind
+    return population[last]       # guards against floating-point drift</code></pre>
+
+<p>The method has well-known weaknesses. First, it requires <strong>strictly positive fitness values</strong>, because a negative slice makes no geometric sense. A minimisation problem must therefore be transformed, for example with <code>f = C - cost</code> (where <code>C</code> exceeds the worst cost seen) or <code>f = 1 / (1 + cost)</code>. Both transformations silently alter the relative spacing of fitness values and hence the selective pressure, which is an easy source of unintended behaviour.</p>
+
+<p>Second, the scheme is dominated by the <strong>scale</strong> of fitness, not by rank. Consider a population of five individuals:</p>
+
+<table>
+  <thead>
+    <tr><th>Individual</th><th>Early run fitness</th><th>Early selection probability</th><th>Late run fitness</th><th>Late selection probability</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>A</td><td>100</td><td>60.6%</td><td>100.0</td><td>20.1%</td></tr>
+    <tr><td>B</td><td>30</td><td>18.2%</td><td>99.8</td><td>20.0%</td></tr>
+    <tr><td>C</td><td>20</td><td>12.1%</td><td>99.5</td><td>20.0%</td></tr>
+    <tr><td>D</td><td>10</td><td>6.1%</td><td>99.4</td><td>20.0%</td></tr>
+    <tr><td>E</td><td>5</td><td>3.0%</td><td>99.3</td><td>19.9%</td></tr>
+  </tbody>
+</table>
+
+<p>In the early-run column, individual A is a <strong>super-individual</strong>: it takes over 60% of the wheel and will be chosen roughly three times in five draws. Within a handful of generations the population consists almost entirely of A's descendants and the search collapses. In the late-run column the opposite pathology appears: fitness values have converged, every slice is nearly identical, and roulette selection degenerates into <strong>uniform random selection</strong>. The GA loses its ability to discriminate exactly when fine discrimination matters most.</p>
+
+<p><strong>Fitness scaling</strong> is the traditional remedy, applied as a pre-processing step before the wheel is built:</p>
+
+<ul>
+  <li><em>Linear scaling</em>: <code>f' = a·f + b</code>, with <code>a</code> and <code>b</code> chosen so that the scaled average equals the raw average and the scaled maximum equals <code>C × average</code>, where <code>C</code> is typically 1.2–2.0. This caps the best individual's expected offspring at <code>C</code>. Care is needed to clip negative scaled values near the end of a run.</li>
+  <li><em>Sigma (σ) truncation scaling</em>: <code>f' = max(0, f − (f̄ − c·σ))</code>, with <code>c</code> around 2. Individuals more than <code>c</code> standard deviations below the mean get zero probability; the rest are measured relative to the population's own spread, so the scheme adapts automatically as variance shrinks.</li>
+  <li><em>Power law scaling</em>: <code>f' = f^k</code>. With <code>k &gt; 1</code> pressure increases; with <code>k &lt; 1</code> it decreases. Varying <code>k</code> over the run gives a simple annealing schedule.</li>
+  <li><em>Stochastic Universal Sampling (SUS)</em> is a related improvement that keeps proportionate probabilities but reduces sampling noise: instead of <code>N</code> independent spins, one spin places <code>N</code> equally spaced pointers around the wheel, so each individual receives a number of copies within one of its expected value.</li>
+</ul>
+
+<p><strong>Rank-based selection</strong> sidesteps the scaling problem entirely by discarding fitness magnitudes and using only the <em>ordering</em> of individuals. The population is sorted, each individual receives a rank, and selection probability is a function of rank alone. A super-individual that is a thousand times better than the runner-up receives exactly the same probability as one that is marginally better, so outliers cannot dominate the wheel. Equally important, when fitness values converge late in the run, the ranks remain fully distinct and selective pressure stays constant rather than evaporating.</p>
+
+<p>The standard <em>linear ranking</em> formula assigns, for rank <code>i</code> running from 1 (worst) to <code>N</code> (best):</p>
+
+<pre><code>p_i = (1/N) · [ η⁻ + (η⁺ − η⁻) · (i − 1) / (N − 1) ]
+with  1 ≤ η⁺ ≤ 2   and   η⁻ = 2 − η⁺</code></pre>
+
+<p>Here <code>η⁺</code> is the expected number of offspring of the best individual and <code>η⁻</code> that of the worst. Setting <code>η⁺ = 2</code> gives maximum linear pressure (the worst individual gets probability zero); <code>η⁺ = 1</code> gives uniform random selection. For a population of 10 with <code>η⁺ = 2</code>, the best individual gets 20% of the probability mass, the median around 10%, and the worst 0% — a predictable, bounded spread that is independent of the raw fitness landscape.</p>
+
+<p><em>Exponential ranking</em> uses probabilities proportional to <code>c^(N−i)</code> with <code>0 &lt; c &lt; 1</code>, or to <code>1 − e^(−i)</code> normalised. This produces a much steeper curve, concentrating probability on the top few ranks, and is useful when the population is large and only the elite tail is of interest. The costs of ranking are modest but real: an <code>O(N log N)</code> sort every generation, and the deliberate loss of information about <em>how much</em> better one individual is than another — which can slow progress when a genuinely outstanding solution deserves rapid amplification.</p>
+
+<p><strong>Tournament selection</strong> is today the most widely used scheme in practice. To select one parent, draw <code>k</code> individuals uniformly at random from the population (usually with replacement) and return the fittest of them. Repeat until enough parents have been chosen.</p>
+
+<pre><code>function tournament_select(population, k):
+    best = random_individual(population)
+    repeat (k - 1) times:
+        challenger = random_individual(population)
+        if fitter(challenger, best):
+            best = challenger
+    return best</code></pre>
+
+<p>The tournament size <code>k</code> is a single, intuitive knob for selective pressure. With <code>k = 1</code> selection is purely random. With <code>k = 2</code> (binary tournament) the best individual is expected to produce about two offspring — roughly equivalent to linear ranking with <code>η⁺ = 2</code>. Larger <code>k</code> sharpens the bias quickly; the takeover time is approximately <code>ln(N) / ln(k)</code> generations. The probability that an individual of rank <code>i</code> (1 = worst) wins a tournament is <code>(i^k − (i−1)^k) / N^k</code>, showing how probability mass piles up at the top as <code>k</code> grows.</p>
+
+<table>
+  <thead>
+    <tr><th>Tournament size k</th><th>Expected copies of the best</th><th>Approx. fraction never selected</th><th>Character of the search</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>1</td><td>≈ 37%</td><td>Random drift; no pressure</td></tr>
+    <tr><td>2</td><td>≈ 2</td><td>≈ 13%</td><td>Gentle; good default for long runs</td></tr>
+    <tr><td>4</td><td>≈ 4</td><td>≈ 2%</td><td>Moderate-strong; faster convergence</td></tr>
+    <tr><td>7</td><td>≈ 7</td><td>&lt; 1%</td><td>Strong; common in genetic programming</td></tr>
+  </tbody>
+</table>
+
+<p>(The "never selected" column assumes <code>N</code> tournaments per generation and follows from <code>(1 − 1/N)^(kN) ≈ e^(−k)</code>.) Note the structural consequence: individuals outside the top portion of the population have a vanishing chance of ever winning a tournament against <code>k−1</code> random opponents, so for large <code>k</code> the bottom of the population is effectively dead weight — present in memory but never contributing genes.</p>
+
+<p>Tournament selection has three practical advantages. It needs <strong>no global sorting and no global sum</strong>, only pairwise comparisons, so it costs <code>O(k)</code> per selection and parallelises trivially: each worker node can run tournaments on its own local subpopulation with no synchronisation barrier. It works with <strong>any comparable fitness measure</strong>, including negative values, raw minimisation costs, lexicographic multi-criteria comparisons, and even noisy or Pareto-dominance comparisons, with no transformation required. And <code>k</code> can be <strong>varied during a run</strong>: starting with <code>k = 2</code> for broad exploration and ramping to <code>k = 5</code> or higher in later generations implements a deliberate exploration-to-exploitation schedule. A finer-grained variant, <em>probabilistic tournament</em>, returns the better competitor with probability <code>p</code> (say 0.75) and the worse with probability <code>1 − p</code>, allowing continuous tuning between <code>k = 1</code> and <code>k = 2</code> pressure.</p>
+
+<p><strong>Elitism and survivor selection</strong> govern what happens after offspring are produced. In a pure generational GA the entire parent population is discarded and replaced by offspring. Because crossover and mutation are disruptive, the best offspring may be worse than the best parent — so the best-so-far fitness curve can <em>go down</em> from one generation to the next, and an excellent solution discovered in generation 40 may simply be lost. <strong>Elitism</strong> fixes this by copying the top <code>e</code> individuals unchanged into the next generation. With <code>e ≥ 1</code>, the best fitness in the population is monotonically non-decreasing, which also makes convergence proofs and experimental plots far cleaner.</p>
+
+<p>Elitism must be used sparingly. If <code>e</code> is a large fraction of the population — say 20% of a population of 50 — the surviving elite are repeatedly re-selected as parents, their children resemble them, and within a few generations the population is dominated by copies of two or three genotypes. The effective population size collapses and the GA becomes a slightly noisy hill-climber. A common guideline is to keep one or two elites, or 1–5% of the population, and to combine elitism with a duplicate filter that refuses to admit genotypes already present.</p>
+
+<table>
+  <thead>
+    <tr><th>Replacement model</th><th>How it works</th><th>Selective pressure</th><th>Typical use</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Generational</td><td>All N parents replaced by N offspring each cycle</td><td>Concentrated in parent selection</td><td>Classic binary GAs; easy to parallelise</td></tr>
+    <tr><td>Generational + elitism</td><td>As above but top e individuals preserved</td><td>Slightly higher; guarantees monotone best</td><td>Default for most applied GAs</td></tr>
+    <tr><td>Steady-state (replace-worst)</td><td>1–2 offspring per cycle displace the worst members</td><td>High; good genes spread immediately</td><td>Small populations, expensive evaluations</td></tr>
+    <tr><td>Steady-state (replace-oldest / FIFO)</td><td>Offspring displaces the longest-resident individual</td><td>Low; age-based, fitness-neutral</td><td>When diversity preservation is critical</td></tr>
+    <tr><td>Crowding / RTS</td><td>Offspring replaces the most genotypically similar member of a random subset</td><td>Local; preserves multiple niches</td><td>Multimodal problems, niching</td></tr>
+    <tr><td>(μ + λ) truncation</td><td>Best μ of parents and λ offspring combined survive</td><td>Very high</td><td>Evolution strategies, real-valued tuning</td></tr>
+  </tbody>
+</table>
+
+<p>Steady-state GAs deserve particular mention. Because a new offspring enters the population immediately, its genes become available for mating in the very next operation rather than after a whole generation — this makes the effective pressure higher than the parent-selection scheme alone would suggest. Replace-worst is the most aggressive variant; replace-random and replace-oldest are gentler; <em>deterministic crowding</em> pairs each child with its most similar parent and keeps the better of the two, which preserves distinct niches almost for free.</p>
+
+<p><strong>Balancing exploration and exploitation</strong> is the unifying theme behind all of these mechanisms. Exploration means sampling widely across the search space to discover new basins of attraction; exploitation means refining what has already been found. Too much exploitation (large <code>k</code>, heavy elitism, aggressive scaling) collapses the population onto a single region; once every individual is nearly identical, crossover produces clones and only mutation can generate novelty, so the GA grinds down to an inefficient random mutation hill-climber. Too much exploration (tiny <code>k</code>, no elitism, high mutation) means good building blocks are never consolidated and the algorithm wastes its evaluation budget on essentially random sampling.</p>
+
+<p>Practical designs therefore schedule the balance over time, mirroring simulated annealing's cooling schedule: begin with low pressure so the population spreads across the landscape, then raise pressure (increase <code>k</code>, increase the scaling exponent, reduce mutation) so that the final generations polish the best region found. Complementary <em>diversity-preserving</em> techniques work in parallel:</p>
+
+<ul>
+  <li><strong>Fitness sharing</strong> divides each individual's fitness by the number of neighbours within a niche radius <code>σ_share</code>: <code>f'_i = f_i / Σ_j sh(d_ij)</code>, where <code>sh(d) = 1 − (d/σ_share)^α</code> for <code>d &lt; σ_share</code> and 0 otherwise. Crowded peaks are therefore devalued and the population spreads across multiple optima.</li>
+  <li><strong>Crowding</strong> and <strong>restricted tournament selection</strong> achieve a similar effect through replacement rules based on genotypic similarity rather than fitness modification.</li>
+  <li><strong>Island (multi-deme) models</strong> split the population into semi-isolated subpopulations, each running its own selection locally and occasionally exchanging migrants. Each island may converge, but different islands converge to different optima, so global diversity persists. Migration rate and topology become the knobs controlling how quickly good solutions propagate — a low migration rate is effectively a global diversity-preservation mechanism.</li>
+</ul>
+
+<p><strong>Premature convergence</strong> is the failure mode that results when these balances go wrong: the population loses diversity and settles on a sub-optimal solution long before the evaluation budget is exhausted. Its signature is unmistakable in diagnostic plots — the gap between best fitness and mean fitness shrinks to near zero, the fitness variance collapses, the average pairwise Hamming distance falls, and the best-so-far curve flattens into a long horizontal line.</p>
+
+<p>The common causes map directly onto the mechanisms described above:</p>
+
+<ul>
+  <li>A <strong>super-individual under fitness-proportionate selection</strong>, monopolising the wheel in the first few generations.</li>
+  <li><strong>Small populations</strong>, where genetic drift alone eliminates alleles rapidly even without strong selection; the expected time for an allele to be lost by drift scales with population size, so a population of 20 can go uniform in a handful of generations.</li>
+  <li><strong>Overly aggressive elitism</strong> or <code>(μ + λ)</code> truncation, which floods the gene pool with copies of a few genotypes.</li>
+  <li><strong>Very large tournament sizes</strong> relative to the population, which make the bottom 80% of individuals genetically irrelevant.</li>
+  <li><strong>Low mutation rates</strong> combined with any of the above, leaving no mechanism to restore lost alleles.</li>
+  <li>A <strong>deceptive or badly scaled fitness function</strong> whose steepest gradient points toward a local optimum.</li>
+</ul>
+
+<p>The remedies fall into three families. The first is to <em>reduce the dominance effect</em>: apply sigma or linear fitness scaling so no individual can expect more than about two offspring, or abandon proportionate selection altogether in favour of rank-based or tournament selection, both of which are invariant to fitness outliers. The second is to <em>reintroduce lost genetic material</em>: raise the mutation rate (sometimes adaptively, triggered when a diversity metric drops below a threshold), inject <strong>random immigrants</strong> — a small percentage of fresh random individuals each generation, replacing the worst — or perform a <strong>partial restart</strong> that keeps the elite and re-randomises the remainder. The third is to <em>spread the population out structurally</em>: fitness sharing penalises individuals crowded into the same niche; crowding-based replacement keeps distinct niches alive; island models maintain parallel, independently converging subpopulations.</p>
+
+<p>Because corrective action is far more effective before the population has gone uniform than after, diversity should be <strong>monitored every generation</strong> rather than inferred at the end. Useful, cheap metrics include:</p>
+
+<table>
+  <thead>
+    <tr><th>Metric</th><th>Definition</th><th>Warning signal</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Fitness variance / standard deviation</td><td>Spread of fitness values in the population</td><td>Falls toward zero while best fitness is still mediocre</td></tr>
+    <tr><td>Best − mean fitness gap</td><td>Difference between the top individual and the population average</td><td>Closes early in the run</td></tr>
+    <tr><td>Mean pairwise distance</td><td>Average Hamming (binary), Euclidean (real) or edit/swap distance (permutation) between individuals</td><td>Declines steeply and plateaus near zero</td></tr>
+    <tr><td>Unique genotype count</td><td>Number of distinct chromosomes present</td><td>Drops to a handful of clones</td></tr>
+    <tr><td>Allele frequency / entropy per locus</td><td>Shannon entropy of the values at each gene position</td><td>Entropy at many loci reaches 0 — allele permanently lost</td></tr>
+    <tr><td>Stagnation counter</td><td>Generations since the best-so-far improved</td><td>Exceeds a preset patience threshold</td></tr>
+  </tbody>
+</table>
+
+<p>A practical control loop ties these together. For example: compute mean pairwise Hamming distance each generation; if it falls below 10% of the chromosome length while the stagnation counter exceeds 20 generations, halve the tournament size, double the mutation rate and replace the worst 10% of the population with random immigrants, then restore the original settings once diversity recovers. This kind of feedback-driven adaptation is far more robust than fixing a single selection scheme and hoping its pressure suits every phase of the run.</p>
+
+<p>Finally, a worked illustration of why the scheme matters. Consider a 50-city travelling salesman problem with a population of 100, run for 500 generations. With fitness-proportionate selection on <code>f = 1/tour_length</code>, the fitness values of all tours are numerically very close (every random tour has a length within a narrow band), so the wheel is nearly uniform and the GA barely improves — the method degenerates toward random selection from the start. Switch to binary tournament selection, which is invariant to that compression, and the same algorithm converges steadily. Add one elite and the best-so-far curve becomes monotone; raise the tournament size to 7 and convergence is faster but the final tours are typically worse because the population lost its diversity by generation 80. That trade-off — faster versus better — is the whole subject of selection strategy in one experiment, and it is why these comparisons must be judged over repeated runs rather than a single lucky seed.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong>: The topic develops the selection stage of the generational cycle in depth, distinguishing parent selection from survivor selection and showing how selection interacts with crossover, mutation and evaluation within each generation.</li>
+  <li><strong>MO2</strong>: Chromosome representation is not the subject of this topic; it appears only incidentally, where diversity metrics and crowding are illustrated for binary, real-valued and permutation encodings.</li>
+  <li><strong>MO3</strong>: Fitness function construction is not taught here, although the topic explains how fitness values are transformed and scaled for proportionate selection and why a poorly scaled fitness signal degrades selection quality.</li>
+  <li><strong>MO4</strong>: This is the topic's central concern — roulette wheel, rank-based and tournament selection are each defined, formalised and compared in terms of the selective pressure they generate, including takeover time, expected offspring of the best individual, and tunable parameters such as <code>η⁺</code> and <code>k</code>.</li>
+  <li><strong>MO5</strong>: The sections on premature convergence and diversity monitoring supply the diagnostic apparatus — fitness variance, best−mean gap, pairwise distance, entropy and stagnation counters — used to evaluate convergence behaviour across repeated runs on combinatorial problems such as scheduling and TSP.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Formulae are given in plain text inside &lt;code&gt;/&lt;pre&gt; blocks because mathematical markup tags were not permitted; the linear ranking, tournament win probability, takeover time and fitness sharing expressions follow standard formulations (Baker; Goldberg &amp; Deb; Blickle &amp; Thiele). The "fraction never selected" figures in the tournament table are the e^(−k) approximation and are indicative rather than exact. Suggested practical activity: re-run a single GA on one scheduling instance with only the selection operator varied (roulette, linear rank η⁺=2, tournament k=2/4/7, each with and without one elite), 30 seeds each, plotting best-so-far and mean pairwise distance — this directly supports MO4 and MO5.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Selection is the part of an evolutionary algorithm that decides which individuals get to reproduce and which survive into the next generation. It is the only stage where fitness information actually steers the search: crossover and mutation shuffle and perturb solutions, but selection is what biases the population towards promising regions of the search space. The strength of that bias is called selective pressure, and tuning it is one of the central design decisions in a genetic algorithm.</p>
+<p>In this topic we survey the standard mechanisms. Roulette wheel (fitness-proportionate) selection gives each individual a slice of a wheel sized by its fitness. Rank-based selection replaces raw fitness with position in a sorted list, which protects against one dominant individual taking over. Tournament selection repeatedly samples a small group and keeps the best, giving an easily tuned pressure through the tournament size. Elitism and other survivor-selection rules decide what carries over unchanged between generations. Too much pressure and the population loses diversity and converges prematurely on a local optimum; too little and the search drifts without improving.</p>
+<p>As you watch, keep three questions in mind. First, where exactly does selection sit in the generational loop relative to evaluation, crossover and mutation? Second, how does each scheme convert fitness values into reproduction probabilities, and what happens when fitness values are very similar or very spread out? Third, what practical knobs (tournament size, scaling, elite count) does each method give you for trading exploration against exploitation? The first two videos place selection inside the full GA cycle; the third digs into the sampling mechanics behind the roulette wheel itself.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Learn Genetic Algorithms STEP-BY-STEP with Example ~xRay Pixy</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/HeG2cUp0TVY?cc_load_policy=1&amp;rel=0" title="Video: Learn Genetic Algorithms STEP-BY-STEP with Example ~xRay Pixy (Ritika xRay Pixy)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Ritika xRay Pixy</strong> · 7:29 · 3,978 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=HeG2cUp0TVY" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A step-by-step worked walkthrough of a genetic algorithm, starting from an initial population of strings and generating successive populations. Based on the title and description, it should take a small example through fitness evaluation, selection of parents, crossover and mutation, and show the numbers at each stage.</p>
+<h3>Why this video</h3>
+<p>Seeing selection applied to concrete fitness values in a hand-worked example is the quickest way to understand how fitness is converted into reproduction chances, and it anchors selection within the full generational cycle rather than treating it in isolation.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Artificial Intelligence; Genetic Algorithms:- 15 #AI #geneticalgorithm</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/qq0CgW4rJus?cc_load_policy=1&amp;rel=0" title="Video: Artificial Intelligence; Genetic Algorithms:- 15 #AI #geneticalgorithm (Ameen Academy)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Ameen Academy</strong> · 5:39 · 68 views · 8mo ago · captions — <a href="https://www.youtube.com/watch?v=qq0CgW4rJus" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short lecture-style introduction to genetic algorithms as a search and optimisation technique in AI, framed explicitly around natural selection and survival of the fittest. It is likely to define the core operators and explain the role each plays in the evolutionary loop.</p>
+<h3>Why this video</h3>
+<p>It gives a compact conceptual framing of why selection exists at all and how 'survival of the fittest' is operationalised, which supports the exploration-exploitation and survivor-selection subtopics at an introductory level.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: The Resampling Wheel</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/_dpCQTey04Y?cc_load_policy=1&amp;rel=0" title="Video: The Resampling Wheel (Information Services)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Information Services</strong> · 11:52 · 2,911 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=_dpCQTey04Y" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A focused treatment of the resampling (roulette) wheel, the sampling procedure that underlies fitness-proportionate selection. The description mentions implementing it with binary search for an N log N complexity, so expect attention to how the cumulative-probability array is built and sampled efficiently.</p>
+<h3>Why this video</h3>
+<p>This is the one video that goes beneath the diagram and explains the actual algorithm behind proportionate selection, including its cost, which is useful if you need to implement roulette wheel selection rather than just describe it.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos reinforce MO1 by showing selection in its proper place within the generational cycle of evaluate, select, crossover, mutate. They directly support MO4 by making the mechanics of fitness-proportionate selection concrete, giving you a baseline against which to compare rank-based and tournament schemes and reason about the selective pressure each produces. The worked example also touches MO3, since the fitness values driving selection must come from a graded quality signal. Note that the videos are introductory surveys; for MO5 and for the finer points of elitism, rank scaling and diversity diagnostics you should rely on the module readings and your own experiments with repeated runs.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

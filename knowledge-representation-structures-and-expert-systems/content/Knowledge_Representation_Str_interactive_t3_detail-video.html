@@ -1,0 +1,391 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frames, Scripts, and Structured Representations</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Knowledge Representation Structures and Expert Systems</a></div>
+  <header>
+    <h1>Frames, Scripts, and Structured Representations</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Frames, Scripts, and Structured Representations</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Logic-based representations treat knowledge as a flat collection of independent assertions: <code>colour(fido, brown)</code>, <code>owner(fido, mary)</code>, <code>isa(fido, dog)</code>. This is elegant but psychologically and computationally awkward. When a person thinks about a dog, they do not retrieve a scattered set of unrelated propositions — they activate a bundled, pre-packaged stereotype that already contains expectations about legs, barking, tails, fur, and typical behaviour. Marvin Minsky's 1974 paper <em>A Framework for Representing Knowledge</em> proposed that artificial systems should do the same, organising knowledge into <strong>frames</strong>: chunked data structures that collect everything known about a type of object or situation in one place. Roger Schank and Robert Abelson extended the same intuition to events with <strong>scripts</strong>, which package the stereotypical sequence of actions that constitutes a routine episode such as eating at a restaurant. Together these are the <em>structured representations</em>: they trade the uniformity of logic for organisation, inheritance, defaults, and the ability to embed procedures directly inside the knowledge structure.</p>
+
+<p>The sections below develop frames as slot-and-filler structures, the facet machinery that annotates slots with metadata and procedural attachments, default reasoning and its non-monotonic character, inheritance hierarchies and their conflict problems, scripts and their internal anatomy, the role of all of this in commonsense understanding, and finally an honest accounting of what these representations do well and where they fail.</p>
+
+<p><strong>Frames as slot-and-filler structures.</strong> A frame is a named data structure consisting of a collection of <em>slots</em>, each of which may hold one or more <em>fillers</em>. A slot is an attribute name — <code>colour</code>, <code>number-of-legs</code>, <code>owner</code>, <code>material</code>, <code>employer</code> — and the filler is the value bound to that attribute for the entity the frame describes. The simplest possible reading of a frame is therefore "a record with named fields", but frames go considerably further than records because of what fillers are permitted to be and because of the inheritance and default machinery layered on top.</p>
+
+<p>Fillers come in several kinds, and this variety is what gives frames their expressive reach:</p>
+
+<ul>
+  <li><strong>Literal values</strong> — atomic data such as <code>brown</code>, <code>4</code>, <code>true</code>, or <code>1998-03-12</code>.</li>
+  <li><strong>Pointers to other frames</strong> — the <code>owner</code> slot of a dog frame does not hold the string "Mary" but a reference to the <code>Mary</code> frame, so the system can traverse from the dog to its owner's address, occupation, and other dogs. This is what turns a set of frames into a connected network rather than a flat file.</li>
+  <li><strong>Procedures (procedural attachments)</strong> — a slot may hold a fragment of executable code that computes a value rather than storing it. The <code>age</code> slot of a person might hold a procedure that subtracts the birth date from today's date.</li>
+  <li><strong>Ranges or constraints</strong> — a slot may hold a specification of the <em>permitted</em> fillers rather than an actual filler, for example "an integer between 0 and 130" or "an instance of the frame <code>Person</code>".</li>
+  <li><strong>Sets or lists of fillers</strong> — a <code>children</code> slot may hold many pointers at once.</li>
+</ul>
+
+<p>A straightforward textual rendering of a generic frame might look like this:</p>
+
+<pre><code>Frame: Dog
+  is-a:              Mammal
+  number-of-legs:    default 4
+  covering:          fur
+  sound-made:        bark
+  diet:              carnivore
+  typical-lifespan:  range 8..16 (years)
+  owner:             type Person, cardinality 0..1
+
+Frame: Fido
+  instance-of:       Dog
+  colour:            brown
+  owner:             Mary
+  number-of-legs:    3          ; explicit value overrides the default
+  name:              "Fido"</code></pre>
+
+<p>The value of this organisation is retrieval locality. In a predicate-calculus knowledge base, answering "tell me everything known about Fido" requires scanning the entire assertion set for clauses mentioning <code>fido</code>. With frames, the same query is a single structure lookup followed, if necessary, by a walk up the <code>is-a</code> chain. Frames group related assertions together so that all the knowledge about an entity is physically and logically co-located. This matters for efficiency, but just as importantly it matters for <em>knowledge engineering</em>: a human expert inspecting a frame sees a coherent description of a thing, not a scatter of clauses, which makes authoring and debugging the knowledge base far more tractable.</p>
+
+<p>A crucial distinction runs through every frame system: the difference between <strong>class frames</strong> (also called generic frames) and <strong>instance frames</strong> (also called individual frames). A class frame such as <code>Dog</code>, <code>Restaurant</code>, or <code>Invoice</code> describes a category — what is typically true of any member of it. An instance frame such as <code>Fido</code>, <code>Luigi's-Trattoria</code>, or <code>Invoice-00417</code> describes a particular individual and is linked to its class by an <code>instance-of</code> slot. Class frames are themselves linked to more general class frames by <code>is-a</code> (subclass) slots. Confusing the two relations is one of the classic errors in knowledge modelling: <code>Fido instance-of Dog</code> and <code>Dog is-a Mammal</code> are different kinds of link, and the fact that <code>Dog</code> is a widespread species does not mean <code>Fido</code> is.</p>
+
+<p>Formally, frames are a <em>notational variant</em> of semantic networks. Any frame can be redrawn as a node with labelled outgoing arcs: the frame name becomes the node, each slot becomes an arc label, and each filler becomes the arc's destination node. The assertion "Fido's owner is Mary" is either an <code>owner</code> slot in the <code>Fido</code> frame or an <code>owner</code> arc from node <code>Fido</code> to node <code>Mary</code> — the information content is identical. What differs is the <em>indexing</em>. A semantic network is naturally organised link-by-link: the primitive unit is a single binary relation, and the graph is traversed arc by arc. A frame system is organised entity-by-entity: the primitive unit is the whole bundle of relations emanating from one node. This makes semantic networks convenient for relation-centred queries ("find all pairs connected by <code>owner</code>") and frames convenient for object-centred queries ("describe this object"). Frames also provide a natural home for metadata and procedures attached to a slot, which is cumbersome to attach to a bare arc.</p>
+
+<p><strong>Facets and slot metadata.</strong> A mature frame system does not let a slot be merely a name paired with a value. Each slot is itself a small structure whose components are called <strong>facets</strong>. The facets say things <em>about</em> the slot: what may legally fill it, how many fillers it may take, what to do if it is empty, what to do when it is filled, who asserted the current value, and so on. The slot's actual content is itself just one facet, conventionally called the <code>value</code> facet.</p>
+
+<p>The common facet types are:</p>
+
+<table>
+  <thead>
+    <tr><th>Facet</th><th>Purpose</th><th>Example</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>value</code></td><td>The asserted filler(s) for this instance</td><td><code>colour: value = brown</code></td></tr>
+    <tr><td><code>default</code></td><td>Filler to assume when no value is asserted</td><td><code>number-of-legs: default = 4</code></td></tr>
+    <tr><td><code>range</code> / <code>type</code></td><td>Restricts the set of legal fillers</td><td><code>age: range = integer &gt;= 0</code></td></tr>
+    <tr><td><code>cardinality</code></td><td>Minimum and maximum number of fillers</td><td><code>spouse: cardinality = 0..1</code></td></tr>
+    <tr><td><code>if-needed</code></td><td>Procedure run when the value is requested but absent</td><td>Compute <code>age</code> from <code>birth-date</code></td></tr>
+    <tr><td><code>if-added</code></td><td>Procedure run when a filler is asserted</td><td>Recompute total when a line item is added</td></tr>
+    <tr><td><code>if-removed</code></td><td>Procedure run when a filler is deleted</td><td>Retract conclusions that depended on it</td></tr>
+    <tr><td><code>documentation</code></td><td>Human-readable description for maintainers</td><td>"Legal owner of record, not keeper"</td></tr>
+  </tbody>
+</table>
+
+<p>The <strong>range or type facet</strong> is the frame system's integrity-checking mechanism. Declaring <code>age: range = integer in 0..130</code> means that any attempt to assert <code>age = -5</code> or <code>age = "elderly"</code> is rejected or flagged at assertion time rather than producing nonsense downstream. Ranges can be more than numeric: a <code>supervisor</code> slot may be typed as "an instance of <code>Employee</code>", which simultaneously constrains the filler and tells the system that traversing this slot lands it in a known part of the hierarchy. Type facets are the ancestors of the class restrictions in modern description logics and of the <code>rdfs:range</code> and <code>owl:allValuesFrom</code> constructs in OWL.</p>
+
+<p>The <strong>cardinality facet</strong> states how many fillers a slot may legitimately hold. Written as a minimum and maximum, it distinguishes single-valued slots from multi-valued ones and encodes genuine domain knowledge:</p>
+
+<ul>
+  <li><code>spouse: cardinality 0..1</code> — in a monogamous legal system, a person has at most one spouse; asserting a second should raise an error or trigger a retraction of the first.</li>
+  <li><code>children: cardinality 0..n</code> — any number, including none.</li>
+  <li><code>biological-mother: cardinality 1..1</code> — exactly one, and if it is unknown the system knows that a value <em>exists</em> even though it cannot name it.</li>
+  <li><code>wheels: cardinality 4..4</code> on a <code>Car</code> frame — a useful constraint for consistency checking in a vehicle configuration system.</li>
+</ul>
+
+<p>Cardinality interacts usefully with recognition: if a candidate object has two engines and the <code>Car</code> frame specifies <code>engines: cardinality 1..1</code>, the match fails and the system looks elsewhere in the hierarchy.</p>
+
+<p>The most distinctive facets are the <strong>procedural attachments</strong>, traditionally called <strong>demons</strong> — so named because they lurk in the slot and fire automatically when a triggering event occurs, without any explicit call from the reasoning engine. Three kinds dominate.</p>
+
+<p><em>If-needed demons</em> implement lazy, on-demand computation. The value is not stored; it is manufactured the moment someone asks. Consider a personnel frame:</p>
+
+<pre><code>Frame: Person
+  birth-date:  type Date
+  age:         if-needed = (years-between (slot-value self 'birth-date) (today))
+  full-name:   if-needed = (concat (slot-value self 'given-name) " "
+                                   (slot-value self 'family-name))</code></pre>
+
+<p>Nobody ever asserts an age, because a stored age goes stale. Instead, any query for <code>age</code> triggers the procedure. If-needed demons also support deeper inference: a <code>Room</code> frame's <code>area</code> slot might have an if-needed procedure that multiplies <code>length</code> by <code>width</code>, and a <code>Patient</code> frame's <code>body-mass-index</code> slot might compute from <code>weight</code> and <code>height</code>, failing gracefully if either is missing. Because if-needed demons can themselves query slots with their own if-needed demons, a cascade of computation can be triggered by a single query — this is backward-chaining inference embedded in the representation.</p>
+
+<p><em>If-added demons</em> implement forward propagation of consequences. When a filler is asserted into the slot, the demon runs and updates whatever else must change. Examples:</p>
+
+<ul>
+  <li>Asserting a filler into an <code>Invoice</code>'s <code>line-items</code> slot fires an if-added demon that recomputes <code>subtotal</code>, <code>tax</code>, and <code>total</code>.</li>
+  <li>Asserting <code>employer = Acme</code> on a <code>Person</code> frame fires a demon that adds the reciprocal filler to <code>Acme</code>'s <code>employees</code> slot, keeping inverse relations synchronised — a job that otherwise requires error-prone manual bookkeeping.</li>
+  <li>In a medical monitoring frame, asserting <code>temperature = 39.5</code> fires a demon that adds <code>fever</code> to the <code>symptoms</code> slot and alerts the clinician.</li>
+  <li>Asserting <code>status = deceased</code> fires a demon that removes the individual from all <code>current-employees</code> lists and sets an <code>end-date</code>.</li>
+</ul>
+
+<p><em>If-removed demons</em> preserve consistency when information is withdrawn. They are the mirror image of if-added demons and are essential in any system where the world changes or where the user corrects an earlier input. If removing <code>employer = Acme</code> leaves the reciprocal <code>employees</code> filler dangling, the knowledge base becomes incoherent; an if-removed demon deletes it. More interestingly, if-removed demons can perform rudimentary truth maintenance: if the conclusion <code>eligible-for-discount = true</code> was derived from <code>membership-status = gold</code>, then deleting the membership status fires a demon that retracts the derived eligibility. In full systems this is handled by a dedicated truth maintenance system that records justifications, but if-removed demons provide a lightweight, locally-scoped version of the same discipline.</p>
+
+<p>The deep significance of facets is architectural. A pure logic representation is purely <em>declarative</em>: it states what is true and leaves all computation to a general-purpose inference engine. A pure program is purely <em>procedural</em>: it states how to compute and leaves the facts implicit in the code. Facets let these coexist inside a single structure. The <code>Person</code> frame declaratively records that people have ages and that ages are non-negative integers, and procedurally records how to obtain one. The knowledge engineer can choose, slot by slot, whether a piece of knowledge is better stored or better computed, and can change that decision later without altering how the rest of the system queries the slot. This "representational transparency" — the caller does not know or care whether the value was retrieved, inherited, defaulted, or computed — is one of the most practically valuable features of frame systems and is directly inherited by the attribute/property mechanisms of object-oriented languages.</p>
+
+<p><strong>Default values and non-monotonic reasoning.</strong> A <strong>default</strong> is a filler that the system uses when, and only when, no explicit value has been asserted for the slot. If <code>Elephant</code> has <code>colour: default = grey</code> and nothing has been said about Clyde's colour, the system answers "grey" when asked. If someone later asserts that Clyde is albino white, the asserted value takes precedence and the default is simply not consulted. The precedence order when resolving a slot query is typically: an explicit local value, then an inherited explicit value, then an if-needed procedure, then a local default, then an inherited default, then "unknown".</p>
+
+<p>Defaults encode the overwhelmingly useful but strictly false generalisations that constitute most of commonsense knowledge. "Birds fly", "chairs have four legs", "restaurant meals are paid for", "mammals bear live young" — each of these has exceptions (penguins, three-legged stools, comped meals, the platypus), yet discarding them because they are not universally true would leave a system unable to reason about anything. Defaults let the knowledge base assert the generalisation while leaving room for the exceptions.</p>
+
+<p>The logical price is that <strong>reasoning with defaults is non-monotonic</strong>. Classical logic is monotonic: if a set of premises <em>P</em> entails conclusion <em>C</em>, then any superset of <em>P</em> also entails <em>C</em>. Adding information never destroys a conclusion. Default reasoning violates this. Consider:</p>
+
+<pre><code>Known:   Tweety instance-of Bird
+Default: Bird.can-fly = true
+Derive:  can-fly(Tweety) = true
+
+Now add: Tweety instance-of Penguin
+         Penguin is-a Bird
+         Penguin.can-fly = false      ; explicit override
+Derive:  can-fly(Tweety) = false      ; the earlier conclusion is WITHDRAWN</code></pre>
+
+<p>The conclusion <code>can-fly(Tweety)</code> was perfectly reasonable given what was known, and it became wrong when more was learned. Nothing was retracted — only added — yet a conclusion had to be given up. This is precisely the behaviour required for reasoning under incomplete information, which is the normal human condition, but it means the inference relation is not classical entailment. Theoretical accounts of this behaviour include Reiter's default logic (with its "normal defaults" of the form "if <em>A</em> and it is consistent to assume <em>B</em>, conclude <em>B</em>"), McCarthy's circumscription, and autoepistemic logic. Frame systems implement an informal, procedural version of the same idea: the default fires unless contradicted by a more specific assertion.</p>
+
+<p><strong>Overriding</strong> is the mechanism by which exceptions are handled without damaging the general case. Because defaults are attached to class frames and resolved by walking up the hierarchy from the instance, a more specific frame can simply state a different value, and the search stops at the first value it finds. The generic <code>Bird</code> frame keeps <code>can-fly: default = true</code>, untouched and still correct for the thousands of species it covers; <code>Penguin</code>, <code>Ostrich</code>, and <code>Kiwi</code> each override with <code>can-fly = false</code>. Adding a newly discovered flightless bird requires creating one frame, not editing the general knowledge. Compare the logical alternative, which requires rewriting the universal rule as "all birds that are not penguins and not ostriches and not kiwis and not injured and not newly hatched can fly" — the so-called <em>qualification problem</em>, where the list of exceptions is open-ended and every new exception forces an edit to the original axiom. Defaults with overriding localise change, which is the key maintainability property.</p>
+
+<p>Defaults also drastically <strong>reduce the specification burden</strong>. A knowledge base about hospital patients might define a <code>Patient</code> frame with sensible defaults for <code>consciousness = alert</code>, <code>ambulatory = true</code>, <code>allergies = none-known</code>, <code>consent-status = given</code>. Creating a new patient record then requires asserting only name, identifier, and presenting complaint; everything else is inherited by default and is correct for the great majority of cases. The clinician's data entry is reduced to the unusual, which is also exactly where their attention is most valuable. The same economy underlies object-oriented frameworks, where a subclass overrides only the handful of behaviours that differ from its parent.</p>
+
+<p>The obligation that comes with defaults is <strong>dependency tracking</strong>. If the system concludes "the patient can walk to the X-ray department" partly on the strength of the default <code>ambulatory = true</code>, and a nurse then records that the patient is in a wheelchair, the scheduling conclusion must be revisited. A system that records each derived conclusion together with the set of facts that justified it — distinguishing firmly asserted facts from defaulted assumptions — can identify exactly which conclusions are now in question and recompute only those. This is the job of a <strong>truth maintenance system (TMS)</strong> or <em>reason maintenance system</em>. A justification-based TMS labels each belief IN or OUT and stores its justifications; when an assumption is withdrawn, the TMS propagates the change and relabels dependents. An assumption-based TMS (ATMS) goes further, maintaining multiple contexts simultaneously so the system can reason about several default assumption sets at once. Without any such machinery, a frame system that uses defaults liberally will accumulate stale conclusions, and the resulting inconsistencies are notoriously hard to debug because the offending assumption was never explicitly stated by anyone.</p>
+
+<p><strong>Inheritance and frame hierarchies.</strong> Frames are arranged into a taxonomy by <code>is-a</code> links between classes and <code>instance-of</code> links from individuals to classes. <strong>Inheritance</strong> is the rule that a frame possesses not only its own slots but all the slots of its ancestors. The practical consequence is enormous economy of expression: a specific frame need state only what is <em>distinctive</em> about it.</p>
+
+<pre><code>Frame: LivingThing
+  alive:            default true
+  requires-energy:  true
+
+Frame: Animal
+  is-a:             LivingThing
+  mobile:           default true
+  diet:             type FoodCategory
+
+Frame: Mammal
+  is-a:             Animal
+  body-covering:    default hair
+  thermoregulation: endothermic
+  reproduction:     default live-birth
+
+Frame: Dog
+  is-a:             Mammal
+  number-of-legs:   default 4
+  sound-made:       bark
+  domesticated:     true
+
+Frame: Dachshund
+  is-a:             Dog
+  leg-length:       short
+  typical-weight:   range 7..15 (kg)
+
+Frame: Oscar
+  instance-of:      Dachshund
+  owner:            Mrs-Patel
+  colour:           tan</code></pre>
+
+<p>The frame for Oscar contains three slots, yet a query about Oscar's thermoregulation, body covering, number of legs, or need for energy is answered by climbing the chain. Each generalisation is stated exactly once, at the most general level where it holds — the single-point-of-definition principle. Correcting a mistake about mammals corrects it for every mammal in the knowledge base.</p>
+
+<p>Inheritance is implemented by a search procedure. For a single-parent (tree-structured) hierarchy the algorithm is trivial: look in the frame; if the slot is absent, look in the parent; repeat until found or until the root is reached. Complications arise with <strong>multiple inheritance</strong>, where a frame declares more than one parent. This is often genuinely necessary — <code>WorkingStudent</code> inherits from both <code>Employee</code> and <code>Student</code>; <code>AmphibiousVehicle</code> from both <code>Boat</code> and <code>LandVehicle</code>; <code>Platypus</code> from both <code>Mammal</code> and <code>EggLayer</code>. But multiple parents can supply <em>different</em> fillers for the same slot, and the system must decide which one wins.</p>
+
+<p>The classic illustration is the "Nixon diamond": Nixon is a Quaker, and Quakers are by default pacifists; Nixon is also a Republican, and Republicans are by default non-pacifists. Neither parent is more specific than the other, so the hierarchy alone cannot settle the question. A less contrived version: a <code>WorkingStudent</code> inherits <code>typical-weekday-location = workplace</code> from <code>Employee</code> and <code>typical-weekday-location = campus</code> from <code>Student</code>. Something must break the tie.</p>
+
+<p>The main <strong>conflict resolution strategies</strong> are:</p>
+
+<table>
+  <thead>
+    <tr><th>Strategy</th><th>Rule applied</th><th>Comment</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Specificity (shortest path / inferential distance)</td><td>Prefer the filler from the most specific ancestor — the one nearest in the hierarchy, or the one that is itself a subclass of the other candidate's source</td><td>Captures the intuition that <code>Penguin</code> beats <code>Bird</code>; fails when candidates are incomparable, as in the Nixon diamond</td></tr>
+    <tr><td>Class precedence list</td><td>Linearise all ancestors into a fixed total order and take the first match</td><td>Used by CLOS and by Python's C3 linearisation; always yields an answer, but the answer may be arbitrary</td></tr>
+    <tr><td>Declaration order</td><td>Left-to-right order of the declared parents decides</td><td>Simple and predictable but places a semantic burden on an incidental syntactic choice</td></tr>
+    <tr><td>Explicit override</td><td>The knowledge engineer states the filler directly on the conflicted frame</td><td>Always correct, always safe, but requires anticipating every conflict</td></tr>
+    <tr><td>Multiple / credulous extensions</td><td>Return all candidate fillers and let the reasoner branch, or flag the ambiguity</td><td>Logically honest; expensive and may paralyse a system needing one answer</td></tr>
+    <tr><td>Skeptical inheritance</td><td>Conclude nothing when parents conflict</td><td>Safe; the slot is simply reported unknown</td></tr>
+  </tbody>
+</table>
+
+<p>Specificity is the most defensible of these because it corresponds to a real epistemic principle: more specific classes are based on more information about the individual, so their defaults are better evidence. It is why <code>Dachshund.typical-weight</code> overrides any weight default on <code>Dog</code>. The precedence-list approach is the pragmatic engineering answer — it guarantees determinism, which matters more in a deployed system than philosophical purity — but a knowledge engineer who relies on it without understanding the linearisation will eventually be surprised.</p>
+
+<p>Inheritance applies to <strong>procedural attachments</strong> just as it does to data. If the <code>Employee</code> frame defines an if-needed demon that computes <code>gross-pay</code> from <code>hours</code> and <code>rate</code>, then <code>Manager</code>, <code>Technician</code>, and every instance beneath them acquire that computation for free. A <code>SalariedEmployee</code> subclass can override the demon with one that divides an annual figure by the number of pay periods; the caller still just asks for <code>gross-pay</code> and is unaware of which procedure ran. This is method inheritance and overriding, and the parallel is exact: slot ≈ field, facet ≈ property metadata, if-needed demon ≈ computed getter, if-added demon ≈ setter or observer, class frame ≈ class, instance frame ≈ object, <code>is-a</code> ≈ <code>extends</code>, inheritance conflict resolution ≈ method resolution order. Frame systems of the mid-1970s and object-oriented programming of the late 1970s were developing the same ideas in parallel, and in the Lisp world they literally merged: KEE, Loops, and Flavors fed directly into the Common Lisp Object System. The one substantive difference is emphasis. OOP objects are designed primarily to encapsulate and hide state behind behaviour; frames are designed primarily to be <em>inspected and reasoned over</em>, so their internals are deliberately open to a general inference engine, and they carry declarative metadata (ranges, cardinalities, defaults) that ordinary classes usually lack.</p>
+
+<p><strong>Scripts for stereotypical event sequences.</strong> Frames capture stereotypes of objects and situations; <strong>scripts</strong>, introduced by Schank and Abelson in <em>Scripts, Plans, Goals and Understanding</em> (1977), capture stereotypes of <em>events unfolding over time</em>. A script is a frame-like structure whose slots describe a routine episode: who takes part, what objects are involved, what must be true before it starts, what sequence of actions constitutes it, and what is true once it is over. The canonical example is the restaurant script.</p>
+
+<p>The standard components are:</p>
+
+<ul>
+  <li><strong>Entry conditions</strong> — what must hold for the script to apply. For the restaurant script: the customer is hungry, the customer has money, the restaurant is open. If the entry conditions fail, the script is not an appropriate interpretation of the observed events.</li>
+  <li><strong>Results</strong> — what holds after a normal completion: the customer is no longer hungry, the customer has less money, the restaurant owner has more money, the customer may be pleased or displeased. Results are how a script contributes to onward inference: having recognised a restaurant episode, the system can answer "does the customer still have all their money?" without any of that being stated.</li>
+  <li><strong>Roles</strong> — the slots for participants: <code>customer</code>, <code>waiter</code>, <code>cook</code>, <code>cashier</code>, <code>owner</code>. Roles are typed, much as frame slots are, and are bound to individuals as the narrative is read.</li>
+  <li><strong>Props</strong> — the objects: <code>table</code>, <code>menu</code>, <code>food</code>, <code>bill</code>, <code>money</code>, <code>tip</code>. Props are the reason a system can later refer to "the bill" as though it had always been present.</li>
+  <li><strong>Scenes</strong> — ordered sub-episodes, each a small sequence of primitive actions. The restaurant script's scenes are <em>entering</em>, <em>ordering</em>, <em>eating</em>, and <em>exiting</em>.</li>
+  <li><strong>Tracks</strong> — named variants of the general script that share most structure but differ in detail.</li>
+</ul>
+
+<p>Written out, the restaurant script looks roughly like this:</p>
+
+<pre><code>Script: RESTAURANT
+  Track:            coffee-shop
+  Roles:            customer (S), waiter (W), cook (C), cashier (M), owner (O)
+  Props:            table, menu, food (F), bill, money, tip
+  Entry conditions: S is hungry; S has money; restaurant is open
+  Results:          S is not hungry; S has less money;
+                    O has more money; F is consumed
+
+  Scene 1 — ENTERING
+     S PTRANS S into restaurant
+     S ATTEND eyes to tables
+     S MBUILD which table to sit at
+     S PTRANS S to table
+     S MOVE S to sitting position
+
+  Scene 2 — ORDERING
+     S PTRANS menu to S          (or W PTRANS menu to S)
+     S MBUILD choice of F
+     S MTRANS signal to W
+     W PTRANS W to table
+     S MTRANS 'I want F' to W
+     W MTRANS F to C
+     C DO (prepare F)
+     W PTRANS F to S
+
+  Scene 3 — EATING
+     S INGEST F
+     (optionally repeated for further courses)
+
+  Scene 4 — EXITING
+     W MTRANS bill to S
+     S ATRANS money to W (or to M)
+     S PTRANS tip to table
+     S PTRANS S out of restaurant</code></pre>
+
+<p>The capitalised verbs are Schank's <em>conceptual dependency</em> primitives — <code>PTRANS</code> (physical transfer of location), <code>ATRANS</code> (transfer of abstract possession), <code>MTRANS</code> (transfer of mental information), <code>MBUILD</code> (construction of a new thought), <code>INGEST</code>, <code>ATTEND</code>, <code>MOVE</code>, <code>PROPEL</code>, <code>GRASP</code>, <code>SPEAK</code>, <code>EXPEL</code>. Reducing every action to a small set of primitives means that "Jack ordered a hamburger", "Jack asked for a hamburger", and "Jack requested a hamburger" all map to the same <code>MTRANS</code> structure, so paraphrases are recognised as the same script step. This canonicalisation is essential; without it the matcher would be defeated by ordinary variation in wording.</p>
+
+<p><strong>Tracks</strong> handle the fact that "going to a restaurant" is not one routine but a family of them. The <em>coffee-shop</em> track has a waiter, table service, and payment at the end; the <em>fast-food</em> track replaces Scene 2 and Scene 4 entirely — the customer queues at a counter, orders and pays before eating, carries the food to the table, and may clear the tray afterwards; the <em>fine-dining</em> track adds a maître d', a reservation, a wine waiter, multiple courses, and a longer exit scene; a <em>cafeteria</em> track has a serving line and a cashier but no waiter. All tracks share the roles, props, entry conditions and results of the general <code>RESTAURANT</code> script and differ only in the scenes, which is exactly the inheritance-with-override pattern seen in frames, applied to event structure. Selecting the right track is part of comprehension: "Jack went to McDonald's" selects fast-food, and the system should therefore <em>not</em> expect a waiter and should expect payment before eating.</p>
+
+<p>The most powerful property of scripts is that <strong>unstated steps are inferred by default</strong>. Consider the two-sentence story:</p>
+
+<pre><code>John went into a restaurant. He ordered a hamburger.
+Later he paid and left.
+
+Question: Did John eat the hamburger?
+Answer:   Yes (Scene 3, INGEST, inferred by default).
+
+Question: Did John sit at a table?
+Answer:   Yes (Scene 1, inferred).
+
+Question: Did a waiter bring the food?
+Answer:   Yes (Scene 2, inferred from the coffee-shop track).
+
+Question: Who did John give the money to?
+Answer:   The waiter or cashier (Scene 4 role binding).</code></pre>
+
+<p>None of this is stated. The script supplies it, and the script supplies it <em>defeasibly</em> — exactly as frame defaults do. Consequently a narrative need mention only what is unusual or what violates the script. This is a deep observation about human communication: ordinary text is radically elliptical because writer and reader share scripts, and a writer who spelled out every script step would be both tedious and faintly insulting. "John went to a restaurant. The hamburger was burnt. He left without paying." is intelligible and even dramatic precisely because the script fills in the twenty actions that were not mentioned and makes the three that were mentioned stand out.</p>
+
+<p><strong>Role in commonsense reasoning and understanding.</strong> The practical payoff of frames and scripts is the ability to reason sensibly from fragmentary input, which is the defining characteristic of commonsense competence.</p>
+
+<p><em>Gap filling through expectation.</em> Once a script is activated — typically by a trigger such as the mention of a restaurant, a menu, or an act of ordering — it generates a set of expectations about what else is true. Those expectations are used in two directions. Forward, they predict what will happen next, which supports anticipation and planning (a system that knows a bill is coming can prepare to handle payment). Backward, they fill in what must already have happened, so an incomplete narrative or a partial observation is completed into a coherent whole. The same mechanism operates with object frames: observing that something is a chair licenses the inference that it has a seat and a back and will support a person's weight, even if those parts were not perceived.</p>
+
+<p><em>Reference resolution.</em> Natural language is full of definite references to things never previously mentioned. "John sat down and read <em>the menu</em>." "She finished and asked for <em>the bill</em>." "He left <em>a tip</em> on the table." The definite article signals that the hearer should already be able to identify the referent; in these cases the referent is identifiable only because the script introduced a prop slot for it. A system that has activated the restaurant script can bind <em>the menu</em> and <em>the bill</em> to script props immediately. Without a script, these are unresolvable — a classic failure mode of purely syntactic anaphora resolution, which can only look for an antecedent noun phrase that does not exist. The same applies to pronouns whose resolution depends on role knowledge: in "John asked the waiter for a hamburger. He brought it ten minutes later", <em>he</em> is the waiter rather than John, because the script assigns the food-delivery action to the waiter role. Scripts also license bridging inferences: "John got into the taxi. The driver was listening to the radio" — <em>the driver</em> is resolved through the taxi script's role structure.</p>
+
+<p><em>Salience of deviation.</em> Because the script supplies the routine, anything that does not match it is informative. If the input says "John ordered a hamburger and the waiter brought him a salad", the mismatch between the ordered item and the delivered item is detected immediately as a script violation, and it is precisely the point of the story. Script-based understanders therefore use deviation as a control signal: matched steps are consumed silently and cheaply, while unmatched or contradictory events are flagged for deeper, non-routine reasoning — reasoning about plans, goals, intentions, errors, and repairs. Schank's later work on <em>plans</em>, <em>goals</em>, and <em>themes</em>, and on MOPs (memory organisation packets) and TOPs (thematic organisation points), was motivated by exactly this: scripts handle the routine, and something more general must take over when the routine breaks. The computational economy is important — treating the expected as unremarkable is what makes it affordable to think hard about the unexpected. This mirrors human attention: nobody remembers the individual steps of a thousand ordinary commutes, but a single morning on which the train caught fire is retained in detail.</p>
+
+<p><em>Recognition and prediction with frames.</em> Frame-based recognition works by matching observed features against the slots of candidate stereotypes and selecting the frame whose constraints are best satisfied. Given an observation of a four-legged, hairy, barking animal on a lead, the <code>Dog</code> frame matches; the system then <em>predicts</em> the unobserved — that it is warm-blooded, that it has an owner, that it eats meat, that it will not fly away. Minsky's original formulation included the idea that frames are linked by <em>similarity networks</em> or difference pointers, so that when a match fails the system can jump directly to a better candidate: if the "dog" turns out to have hooves, a pointer leads to a more suitable ungulate frame rather than forcing a search of the entire taxonomy. In diagnostic expert systems the same pattern appears as a differential: the observed findings partially instantiate several disease frames, the best-matching one is pursued, and the frame's unfilled slots tell the system which further tests would be most discriminating. This blending of recognition with prediction, and of data-driven with expectation-driven processing, is the main cognitive claim made on behalf of structured representations.</p>
+
+<p><strong>Strengths and limitations of structured representations.</strong> The strengths are substantial and explain why the core ideas survive everywhere in modern software and knowledge engineering:</p>
+
+<ul>
+  <li><strong>Modularity and locality</strong> — all knowledge about an entity lives in one structure, so authoring, inspecting, and editing are localised; changing the <code>Mammal</code> frame changes the right things and nothing else.</li>
+  <li><strong>Readable organisation</strong> — frame hierarchies correspond to the way domain experts already carve up their fields, which makes knowledge elicitation and validation with non-programmers far easier than with clause sets.</li>
+  <li><strong>Efficient inheritance</strong> — each general fact is stored once and retrieved by a short, cheap traversal; storage and maintenance costs grow with the number of distinctive facts, not with the number of instances.</li>
+  <li><strong>Natural handling of defaults and exceptions</strong> — the representation directly supports the defeasible generalisations that dominate commonsense knowledge, and new exceptions are added without disturbing the general rule.</li>
+  <li><strong>Unification of declarative and procedural knowledge</strong> — facets let computation live beside fact, with the choice invisible to the caller.</li>
+  <li><strong>Expectation-driven processing</strong> — structured stereotypes give a principled, cheap way of filling gaps and focusing effort on the abnormal.</li>
+</ul>
+
+<p>The limitations are equally real:</p>
+
+<ul>
+  <li><strong>Absent or implementation-dependent formal semantics.</strong> Early frame systems were defined by their code, not by a model theory. What does it <em>mean</em> for a slot to be inherited? Is an unfilled slot with a range an existential claim that some filler exists, or merely a placeholder? When a subclass overrides a parent's default, is the parent's statement false, or was it never a universal claim at all? Different systems answered differently, so identical-looking knowledge bases behaved differently and could not be interchanged or verified. Woods's "What's in a Link?" (1975) and Brachman's critiques forced the issue, and the response — KL-ONE and its descendants — was to separate the strictly definitional, logically interpretable part of the representation (necessary and sufficient conditions, which support sound classification) from the defeasible, assertional part (defaults and typicality, which do not).</li>
+  <li><strong>Brittleness of scripts.</strong> A script works beautifully inside its stereotype and collapses outside it. A story in which the restaurant is robbed, the customer proposes marriage, the waiter is an old friend, or the meal is eaten in a dream has no matching script, and a script-driven system either fails to understand or, worse, forces the input into the wrong stereotype and confidently produces false inferences. Genuine novelty requires reasoning from first principles about goals and plans, which scripts by design do not do.</li>
+  <li><strong>Script selection and boundary problems.</strong> Real episodes interleave, nest, and switch. Deciding which script is active, when one has ended, and how to handle two running concurrently (a business lunch is simultaneously a restaurant script and a negotiation) is itself hard and was never fully solved.</li>
+  <li><strong>Knowledge acquisition cost.</strong> Building a usable library of frames and scripts is slow, expensive, expert-dependent manual labour — the <em>knowledge acquisition bottleneck</em>. Cyc has absorbed decades of human effort for this reason. Maintenance is also costly: as domains change, hierarchies must be refactored, and badly chosen abstractions are expensive to correct once many frames depend on them.</li>
+  <li><strong>Multiple inheritance ambiguity.</strong> As shown above, conflicting defaults from incomparable ancestors have no principled resolution; any chosen policy is either arbitrary or incomplete.</li>
+  <li><strong>Limited reasoning power.</strong> Frames excel at taxonomic and attribute reasoning and are poor at expressing disjunction, negation, quantified constraints across entities, and temporal or causal relationships beyond simple sequence. Most practical systems therefore pair a frame-based knowledge base with a rule engine or a logic layer.</li>
+</ul>
+
+<p>The modern descendants are direct and numerous. <strong>Description logics</strong> (KL-ONE, LOOM, CLASSIC, and the SHOIN/SROIQ family) retained concepts, roles, and subsumption but gave them a formal model-theoretic semantics and decidable automatic classification, at the price of dropping unrestricted defaults. <strong>OWL</strong> and the Semantic Web stack are description logics standardised for the web: <code>owl:Class</code> is the class frame, <code>owl:ObjectProperty</code> and <code>owl:DatatypeProperty</code> are slots, <code>rdfs:domain</code> and <code>rdfs:range</code> are type facets, <code>owl:cardinality</code> and <code>owl:minCardinality</code> are cardinality facets, <code>rdfs:subClassOf</code> is <code>is-a</code>, and individuals are instance frames. <strong>Frame-based ontology editors</strong> such as Protégé began explicitly as a frames tool and still present slots and facets in its interface. <strong>Object-oriented programming</strong> absorbed classes, instances, inheritance, method resolution orders, and computed properties. <strong>Property graphs and knowledge graphs</strong> (Freebase, Wikidata, enterprise knowledge graphs) are semantic networks with frame-like node property bundles at industrial scale. And script-like structures persist in <em>case frames</em> and <em>semantic role labelling</em> (FrameNet is a direct intellectual descendant of Minsky and Fillmore), in event schemas and narrative schemas learned automatically from text corpora, in task models for dialogue systems and robotic planning, and in the slot-filling architecture of commercial conversational assistants, where a "book a flight" intent is precisely a script with roles (origin, destination, date, passengers) that the dialogue must fill. The hand-coded libraries proved unscalable; the representational ideas did not.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — The topic examines frames and scripts as symbolic schemes that encode declarative knowledge (slots, fillers, taxonomies) alongside procedural knowledge (if-needed, if-added and if-removed demons), and assesses them against adequacy criteria: expressiveness is discussed through the kinds of fillers and the known weaknesses with disjunction and negation; inferential adequacy through inheritance, defaults and non-monotonic reasoning; and computational efficiency through retrieval locality, cheap hierarchy traversal and expectation-driven gap filling.</li>
+  <li><strong>MO2</strong> — The worked frame hierarchies (LivingThing–Animal–Mammal–Dog–Dachshund–Oscar, and the Person, Patient and Invoice examples) demonstrate directly how to construct a domain model using is-a and instance-of links, slots, facets such as range and cardinality, and inherited default values, including how to override defaults for exceptional cases.</li>
+  <li><strong>MO3</strong> — The topic does not teach forward or backward chainingover a production rule base; however, it does note the close analogy, since if-needed demons perform a backward-chaining style of on-demand computation and if-added demons propagate consequences forward in the manner of data-driven inference, which gives useful background for that outcome.</li>
+  <li><strong>MO4</strong> — The topic does not analyse expert system components such as the inference engine, working memory, user interface or explanation facility during a consultation. It contributes only indirectly, by showing how a frame hierarchy can serve as the knowledge base that such components operate over, and how frame-based recognition supports differential diagnosis.</li>
+  <li><strong>MO5</strong> — The topic does not cover certainty factors, Bayesian belief networks, Dempster-Shafer theory or fuzzy logic. It does, however, treat a different kind of incompleteness — defeasible defaults and non-monotonic revision with truth maintenance — which can be contrasted with numeric uncertainty methods when that outcome is addressed.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Key names and dates used: Minsky, "A Framework for Representing Knowledge" (1974); Schank and Abelson, "Scripts, Plans, Goals and Understanding" (1977); Woods, "What's in a Link?" (1975); Brachman's KL-ONE critiques; Reiter's default logic; McCarthy's circumscription. Conceptual dependency primitives listed (PTRANS, ATRANS, MTRANS, MBUILD, INGEST, ATTEND, MOVE, PROPEL, GRASP, SPEAK, EXPEL) follow Schank's standard set. Two HTML tables are included: one on facet types and one on multiple-inheritance conflict resolution strategies. Code blocks are illustrative pseudo-syntax in the style of classic frame languages (KRL/FRL/KEE), not any single real system's syntax. Possible tutorial extensions: ask students to write the fast-food track of the restaurant script, to resolve a Nixon-diamond style conflict under each strategy in the table, and to map a given frame hierarchy onto equivalent OWL constructs.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Logic-based representations are precise, but they say little about how knowledge is organized. Frames and scripts take a different approach: they bundle everything typically known about an object, situation, or event into a single named structure made of slots (attributes) and fillers (values). A "restaurant" frame, for example, might carry slots for cuisine, price range, and opening hours, while a "restaurant script" captures the usual sequence of entering, ordering, eating, and paying. These structures are the bridge between raw symbolic logic and the chunked, stereotyped knowledge people actually use when they understand a story or make a quick judgment.</p>
+<p>In this module the ideas matter for two reasons. First, frames are the direct ancestor of the object-oriented and ontological representations used in modern knowledge engineering: slots have facets (metadata such as type restrictions, allowed values, or attached procedures), frames are arranged in is-a hierarchies, and child frames inherit values from parents. Second, frames introduce default reasoning — a filler that holds unless contradicted — which makes the resulting inference non-monotonic: adding new facts can retract earlier conclusions. That behavior is a key contrast with the classical logic you have already seen.</p>
+<p>As you watch the videos below, keep a few questions in mind. What exactly sits in a slot, and what distinguishes a slot from a facet? How does inheritance flow down a frame hierarchy, and what happens when a default is overridden? Where do frames give you efficient, well-organized retrieval, and where do they struggle to express things logic handles easily? Try sketching your own frame system for a small domain while you watch — the travel-planning example in particular is easy to imitate.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Knowledge Structures: Frames</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/x3ADdteXGVQ?cc_load_policy=1&amp;rel=0" title="Video: Knowledge Structures: Frames (NPTEL-NOC IITM)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>NPTEL-NOC IITM</strong> · 17:46 · 2,101 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=x3ADdteXGVQ" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>The core lecture on frames as slot-and-filler structures. It should cover how a frame names a concept and attaches slots with values, the use of facets and slot metadata, default fillers, and the organization of frames into is-a hierarchies where properties are inherited by more specific frames. Expect discussion of how inference in such a system works by matching, filling, and inheriting rather than by theorem proving.</p>
+<h3>Why this video</h3>
+<p>This video maps almost one-to-one onto the central subtopics — slots, facets, defaults, and inheritance — and presents them in the standard AI-textbook terminology you will be expected to use in assessments.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: A Frame System for Travel Planning</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/_LeCpVbq120?cc_load_policy=1&amp;rel=0" title="Video: A Frame System for Travel Planning (NPTEL-NOC IITM)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>NPTEL-NOC IITM</strong> · 7:59 · 1,543 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=_LeCpVbq120" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A worked example that builds a frame system for the domain of travel planning. It should show how a domain is decomposed into frames (trips, legs, transport modes, bookings and the like), how slots and defaults are chosen, and how specific instances inherit from more general frames when a plan is instantiated.</p>
+<h3>Why this video</h3>
+<p>Seeing a complete small knowledge model built end to end is the fastest way to learn the modelling decisions behind frames, and it gives you a template to imitate when you construct your own domain model.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: Knowledge Structures</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/veY6UNfewGA?cc_load_policy=1&amp;rel=0" title="Video: Knowledge Structures (NPTEL-NOC IITM)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>NPTEL-NOC IITM</strong> · 13:01 · 1,733 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=veY6UNfewGA" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>An introductory lecture on knowledge structures as a general idea: why AI systems need knowledge organized into larger chunks rather than scattered individual assertions, and how structured representations relate to earlier schemes such as semantic networks and logic. Expect motivation and framing for the move from flat facts to bundled, stereotypical knowledge, including the kinds of commonsense understanding tasks such structures are meant to support.</p>
+<h3>Why this video</h3>
+<p>It is the natural starting point of the sequence, giving the conceptual background before the formal machinery of frames, and it comes from Prof. Deepak Khemani's well-regarded NPTEL AI course from IIT Madras.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these three videos support MO1 by situating frames among symbolic representation schemes and inviting comparison of their expressiveness, inferential power, and efficiency against logic and semantic networks. They most directly serve MO2: the frames lecture supplies the vocabulary of slots, facets, is-a hierarchies, and inherited defaults, while the travel-planning video demonstrates the construction of an actual domain knowledge model you can use as a pattern for your own. The structured, default-driven reasoning shown here also provides useful background for the expert system components in MO4, since frame-based knowledge bases are a common alternative or complement to production rules; forward and backward chaining (MO3) and uncertainty methods (MO5) are covered by other resources in this module.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

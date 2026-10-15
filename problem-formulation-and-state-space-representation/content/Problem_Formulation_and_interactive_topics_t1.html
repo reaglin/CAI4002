@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Why Problem Formulation Matters</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Problem Formulation and State Space Representation</a></div>
+  <header>
+    <h1>Why Problem Formulation Matters</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Why Problem Formulation Matters</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Almost every introductory treatment of artificial intelligence begins with search, and almost every disappointment with search begins with a bad problem formulation. The algorithms themselves — breadth-first search, uniform-cost search, A* — are short, well understood, and provably correct under stated conditions. What varies enormously from one application to another is the <em>description</em> of the problem that we hand to those algorithms. That description is not given to us by the world; it is constructed by a designer who decides what counts as a situation, what counts as a move, and what counts as success. The quality of those decisions determines whether a problem is solved in milliseconds, solved after a week of computation, or never solved at all. This topic examines the translation step from a messy real task to a precise computational object, the standard parts that object must have, and the judgement calls — above all, abstraction — that make the difference between a workable and an unworkable formulation.</p>
+
+<p><strong>From a real task to a search problem</strong></p>
+
+<p>A <strong>search problem</strong> is a task in which an agent must find a <em>sequence of actions</em> leading from a starting situation to a desired situation. The emphasis on <em>sequence</em> matters. Many computational tasks ask for a single answer — classify this image, predict tomorrow's temperature — and are not search problems in this sense. A search problem asks for a plan: do this, then this, then this, and you will have arrived. The output of a search algorithm is therefore a path, and the quality of the output is judged by both the destination (does it satisfy the goal?) and the route (how expensive was it?).</p>
+
+<p>The striking property of this framing is that the agent needs no task-specific cleverness at all. A breadth-first search routine contains no knowledge of maps, puzzles, chemistry, or logistics. It knows only how to ask three questions repeatedly: <em>Is this state a goal?</em> <em>What actions are available here?</em> <em>Where does each action lead?</em> Given honest answers, it will systematically enumerate possibilities until it finds a solution. All of the domain intelligence has been pushed into the description. This is a genuine engineering advantage, because it means one well-tested implementation can serve many domains — but it is also the source of the risk, because the algorithm cannot compensate for a description that is wrong, redundant, or astronomically large.</p>
+
+<p>Consider a traveller in Arad, Romania, who must reach Bucharest by tomorrow. The real task is awash in irrelevant detail: the colour of the car, the price of petrol at each station, the passengers' conversation, the weather, the exact position of the vehicle on the carriageway measured in centimetres. The formulation step discards all of this and declares that a <em>state</em> is simply the name of the city the traveller is currently in, an <em>action</em> is driving along a road to an adjacent city, and the <em>goal</em> is being in Bucharest. The resulting problem has twenty states and can be solved by hand. Nothing about the real journey has been made impossible by this simplification: every abstract plan such as <code>Arad &rarr; Sibiu &rarr; Fagaras &rarr; Bucharest</code> can actually be driven.</p>
+
+<p>The same translation can be performed on tasks that look nothing like navigation. Assembling a protein-folding sequence, scheduling aircraft turnarounds, routing a packet, configuring a product line, solving a Rubik's cube, and planning a robot's grasp can all be cast in this mould. Once cast, they all accept the same algorithms. The formulation is the universal adapter between the world and the solver.</p>
+
+<p><strong>The standard components of a formulation</strong></p>
+
+<p>A problem formulation in the classical framework consists of five components. They are not arbitrary: each one answers a question that any systematic explorer must be able to ask.</p>
+
+<table>
+  <thead>
+    <tr><th>Component</th><th>Question it answers</th><th>Route finding (Romania)</th><th>8-puzzle</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>State space</td><td>What situations exist?</td><td>The 20 named cities</td><td>All 9! = 362,880 arrangements of eight tiles and a blank (half reachable)</td></tr>
+    <tr><td>Initial state</td><td>Where does search begin?</td><td><code>In(Arad)</code></td><td>The given scrambled board</td></tr>
+    <tr><td>Actions</td><td>What can the agent do here?</td><td>Drive to each adjacent city</td><td>Slide the blank up, down, left, right (where legal)</td></tr>
+    <tr><td>Transition model</td><td>What results from an action?</td><td><code>Result(In(Arad), Go(Sibiu)) = In(Sibiu)</code></td><td>Board with blank and the adjacent tile swapped</td></tr>
+    <tr><td>Goal test</td><td>When may search stop?</td><td>Is the state <code>In(Bucharest)</code>?</td><td>Does the board equal the target arrangement?</td></tr>
+    <tr><td>Path cost</td><td>How good is this solution?</td><td>Sum of road distances in kilometres</td><td>Number of moves (each step costs 1)</td></tr>
+  </tbody>
+</table>
+
+<p>The <strong>state</strong> is a description of the relevant configuration of the world at one moment. "Relevant" is doing an enormous amount of work in that sentence, and the section on abstraction below is devoted to unpacking it. The <strong>state space</strong> is the set of all states reachable from the initial state by any sequence of actions; it is usually defined implicitly, by giving the initial state and the transition model, rather than by listing states, because listing them is often impossible.</p>
+
+<p>The <strong>initial state</strong> anchors the search. It need not be a single state in every variant of the framework — some problems have a set of possible starting points — but in the classical formulation it is one definite state. The <strong>goal test</strong> is a predicate applied to a state, returning true or false. Crucially, a goal test need not name a specific state. In the 8-queens problem the goal test is "no two queens attack each other", which is satisfied by 92 distinct boards; in a chess endgame it may be "the opponent is checkmated"; in a shopping task it may be "the basket contains milk, bread, and coffee" regardless of the order they were added.</p>
+
+<p>The <strong>actions</strong> function, written <code>Actions(s)</code>, returns the set of actions applicable in state <code>s</code>. The <strong>transition model</strong>, written <code>Result(s, a)</code>, returns the state reached by performing action <code>a</code> in state <code>s</code>. Together they define the directed graph that search explores: nodes are states, edges are actions. Note that the pair must agree — if <code>Actions</code> offers a move that <code>Result</code> cannot evaluate, or offers a move that would produce an illegal state, the formulation is broken. In the 8-puzzle, <code>Actions</code> must exclude sliding the blank off the edge of the board; one may instead define all four moves always and have <code>Result</code> return the unchanged state for illegal ones, but then the state space contains self-loops that waste search effort.</p>
+
+<p><strong>Path cost</strong> is a function assigning a number to a sequence of actions, almost always as the sum of individual <strong>step costs</strong> <code>c(s, a, s')</code>. Its purpose is to make solutions comparable so that "optimal" means something. Without a cost function one can only speak of finding <em>a</em> solution; with one, we can ask for the cheapest. Two properties are usually required for the standard optimality guarantees of algorithms such as uniform-cost search and A*: step costs must be non-negative, and (for most practical purposes) bounded away from zero by some small &epsilon;. Negative step costs allow a search to improve a path forever by going round a loop, and zero-cost loops allow an infinite path of finite cost, both of which break termination and optimality arguments.</p>
+
+<p><strong>Formulation determines tractability</strong></p>
+
+<p>The combinatorial consequence of a formulation decision is rarely intuitive, because state spaces grow multiplicatively. Each independent feature you store in a state multiplies the number of distinct states by the number of values that feature can take. Adding one Boolean doubles the space; adding a variable with ten values multiplies it by ten.</p>
+
+<p>Take the vacuum world. With two locations and a Boolean dirt flag per location, plus the robot's location, the state space has <code>2 &times; 2<sup>2</sup> = 8</code> states — small enough to draw on a napkin. Now extend to a realistic floor plan.</p>
+
+<table>
+  <thead>
+    <tr><th>Formulation of the vacuum world</th><th>State description</th><th>Number of states</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>2 squares, dirt only</td><td>Agent location + 2 dirt bits</td><td>8</td></tr>
+    <tr><td>10 squares, dirt only</td><td>Agent location + 10 dirt bits</td><td>10 &times; 2<sup>10</sup> = 10,240</td></tr>
+    <tr><td>10 squares, plus battery level 0–100</td><td>Above, plus charge</td><td>10,240 &times; 101 &asymp; 1.03 million</td></tr>
+    <tr><td>10 squares, battery, plus dust-bag fullness 0–100</td><td>Above, plus bag</td><td>&asymp; 104 million</td></tr>
+    <tr><td>10 squares, battery, bag, plus a timestamp in minutes over a day</td><td>Above, plus clock</td><td>&asymp; 1.5 &times; 10<sup>11</sup></td></tr>
+  </tbody>
+</table>
+
+<p>Nothing about the physical robot changed between these rows. Only the designer's notion of a "state" changed. If the task is simply "clean every square", the battery, bag, and clock are irrelevant and their inclusion inflates the search space by a factor of ten million for no benefit — and worse, it fragments the space, because two states that differ only in the clock will be treated as different and re-explored, destroying the benefit of duplicate detection.</p>
+
+<p>The two quantities that govern the cost of uninformed search are the <strong>branching factor</strong> <em>b</em> (how many successors a typical state has) and the <strong>solution depth</strong> <em>d</em> (how many actions a typical solution contains). Breadth-first search examines on the order of <em>b<sup>d</sup></em> nodes. The exponent is the depth, so small changes in either number have large consequences.</p>
+
+<table>
+  <thead>
+    <tr><th>b</th><th>d</th><th>Approximate nodes generated (b<sup>d</sup>)</th><th>At 1 million nodes/second</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>3</td><td>10</td><td>59,049</td><td>&lt; 0.1 s</td></tr>
+    <tr><td>3</td><td>20</td><td>3.5 &times; 10<sup>9</sup></td><td>&asymp; 1 hour</td></tr>
+    <tr><td>10</td><td>10</td><td>10<sup>10</sup></td><td>&asymp; 3 hours</td></tr>
+    <tr><td>10</td><td>14</td><td>10<sup>14</sup></td><td>&asymp; 3 years</td></tr>
+    <tr><td>30</td><td>14</td><td>&asymp; 5 &times; 10<sup>20</sup></td><td>&asymp; 16 million years</td></tr>
+  </tbody>
+</table>
+
+<p>A good formulation attacks both numbers. The classic illustration is 8-queens. The naive <em>incremental</em> formulation says: a state is any arrangement of zero to eight queens on the board; an action places a queen on any empty square. The branching factor at the first move is 64, and the number of distinct sequences to consider is roughly <code>64 &times; 63 &times; &hellip; &times; 57 &asymp; 1.8 &times; 10<sup>14</sup></code>. A smarter formulation says: a state is an arrangement of <em>k</em> queens, one in each of the leftmost <em>k</em> columns, with no queen attacking another; an action places a queen in the leftmost empty column in any non-attacked square. Now the branching factor is at most 8, the depth is exactly 8, and only 2,057 states exist in the whole space. The problem has gone from hopeless-by-brute-force to solvable instantly, and <em>no algorithm was changed</em>. This is the single most important lesson of the topic: effort invested in representation typically pays a far higher return than effort invested in tuning the search procedure.</p>
+
+<p>Deeper formulation changes can do even more. Choosing to search backwards from the goal, searching from both ends simultaneously, exploiting symmetry (in 8-queens, reflections and rotations collapse the 92 solutions to 12 fundamental ones), or replacing a path-finding formulation with a <em>complete-state</em> formulation suited to local search are all representational decisions made before a single line of search code runs.</p>
+
+<p><strong>Abstraction: choosing what to ignore</strong></p>
+
+<p><strong>Abstraction</strong> is the process of removing detail from a representation. It is not a regrettable approximation forced on us by weak computers; it is the mechanism that makes reasoning possible at all. Any real situation contains an unbounded amount of detail, so <em>every</em> usable state is already an abstraction. The question is never whether to abstract but where to draw the line.</p>
+
+<p>The practical test for inclusion is narrow and useful: <em>a feature belongs in the state only if it affects which actions are legal, which state an action leads to, whether the goal test succeeds, or what an action costs.</em> If a feature influences none of these four things, it cannot change the behaviour of the search and should be dropped. In the Romanian route-finding problem, the weather fails this test (it affects none of the four), so it is dropped; the current city passes it (it determines which roads are available), so it stays. If we added a constraint that mountain roads are closed in winter, then the season would suddenly affect action legality and would have to be promoted into the state.</p>
+
+<p>Two properties distinguish a good abstraction from a merely small one:</p>
+
+<ul>
+  <li><strong>Validity.</strong> Every abstract solution must be expandable into a solution of the original, more detailed problem. Formally, for each abstract path from the abstract initial state to an abstract goal, there must exist a corresponding detailed path in the real world. The city-level route plan is valid because the abstract step "drive from Sibiu to Fagaras" can always be realised as some sequence of real steering, accelerating, and braking actions.</li>
+  <li><strong>Usefulness.</strong> Carrying out each abstract action must be easy relative to solving the whole problem — otherwise we have merely relocated the difficulty. An abstraction whose single action is "get from Arad to Bucharest" is valid and trivially small, and entirely useless, because expanding that one action is the original problem. Abstraction must decompose difficulty, not hide it.</li>
+</ul>
+
+<p>The two failure modes sit on either side of the sweet spot. <strong>Over-abstraction</strong> discards information the problem actually needs, producing plans that are wrong or unexecutable: a delivery planner that ignores vehicle capacity will happily produce a route loading forty parcels into a van that holds twenty; a puzzle formulation that records only which tiles are present but not where they are cannot distinguish a solved board from a scrambled one, so the goal test becomes meaningless. <strong>Under-abstraction</strong> retains information that changes nothing, producing state explosion, exhausted memory, and failure of duplicate detection: two states identical in every respect that matters but differing in a stored timestamp will be treated as distinct, so the search re-explores the same situation endlessly.</p>
+
+<p>A worked example sharpens the point. Suppose a hospital porter must collect a patient from Ward B and deliver them to Radiology. A thoughtful state might be <code>(porter_location, patient_location, patient_on_trolley?)</code> — three features, each needed: location determines which corridors are available, patient location and trolley status determine whether "deliver" is legal and whether the goal holds. Adding the porter's name, shift number, the lift's current floor, or the corridor's lighting level would multiply the space without changing any decision. But if lifts can be out of service, the lift's status <em>does</em> affect action legality and must be added. Abstraction decisions are therefore relative to the task, not absolute properties of the domain.</p>
+
+<p><strong>Assumptions behind the classical formulation</strong></p>
+
+<p>The five-component framework is not universally applicable. It rests on four assumptions about the environment, and when one of them fails, the formulation must be extended or replaced.</p>
+
+<ul>
+  <li><strong>Observable.</strong> The agent knows which state it is in, so <code>Result</code> can be applied to a known state and the goal test can be evaluated with certainty. If the environment is partially observable, the agent must instead reason about <em>belief states</em> — sets of states it might be in. A vacuum robot with no sensors starting anywhere in a two-square world must plan over the eight-element power set of physical states, and its "goal test" becomes "every state in my belief set is clean". The search problem is still a search problem, but the state space has changed character and size dramatically.</li>
+  <li><strong>Discrete.</strong> There is a finite (or at least countable) set of actions at each state, so successors can be enumerated. Continuous control problems — steering angle anywhere in a real interval — have infinitely many successors and require discretisation, sampling, or entirely different techniques such as optimisation or sampling-based motion planning.</li>
+  <li><strong>Deterministic.</strong> Each action in each state produces exactly one known successor. This is what lets a solution be a simple sequence: the agent can compute the whole plan in advance and execute it blindly, confident about where each step lands. If actions may fail or have random outcomes, a sequence is no longer adequate; the solution becomes a <em>contingency plan</em> or <em>policy</em> that specifies what to do for each possible outcome, and the analysis moves toward AND–OR search or Markov decision processes.</li>
+  <li><strong>Static.</strong> The world does not change while the agent deliberates, so a plan computed now is still valid when execution begins. In a dynamic environment — a moving obstacle, a competing agent, a fluctuating price — a plan can be invalidated before it is executed, and the agent must either replan continually or include the environment's evolution in the state (typically by adding time, with the attendant explosion in state count).</li>
+</ul>
+
+<p>A fifth, often-implicit assumption is that the environment is <strong>single-agent</strong>: nobody else is acting to help or to frustrate the plan. Games violate this and require adversarial search. It is good practice, when writing down a formulation, to state explicitly which of these assumptions you are relying on, because readers and future maintainers can then see immediately when the formulation has outgrown its setting.</p>
+
+<p><strong>Evaluating a formulation before searching</strong></p>
+
+<p>A formulation can and should be criticised on paper, before any code runs. Four checks catch most of the common defects.</p>
+
+<ul>
+  <li><strong>Are all states reachable and meaningful?</strong> A description may admit states the world cannot produce. The 8-puzzle is the standard example: of the 362,880 permutations of the nine symbols, only 181,440 are reachable from any given board, because sliding moves preserve the parity of the permutation. A formulation that assumes the whole space is connected will waste effort, or will promise a solution to an unsolvable instance. Similarly, a state with three queens in the same column is syntactically expressible but meaningless under the constraints, and should either be excluded by the <code>Actions</code> function or recognised as a dead end.</li>
+  <li><strong>How big is the space, and how deep is a solution?</strong> Multiply out the feature cardinalities to estimate the state count; estimate <em>b</em> by counting typical legal actions; estimate <em>d</em> from known or sample solutions. Then compare <em>b<sup>d</sup></em> with the memory and time you actually have. A back-of-the-envelope calculation that yields 10<sup>18</sup> nodes tells you immediately that uninformed search is pointless and that you need a better representation, a heuristic, or both. The 8-puzzle has about 1.8 &times; 10<sup>5</sup> reachable states and is trivial; the 15-puzzle has about 1.3 &times; 10<sup>13</sup> and needs good heuristics; the 24-puzzle has about 10<sup>25</sup> and remains hard.</li>
+  <li><strong>Is the goal test cheap and unambiguous?</strong> It is applied to every generated node, so an expensive test dominates the running time. More seriously, an <em>ill-defined</em> goal test is a silent killer: "the room is tidy", "the route is reasonable", and "the schedule is fair" are not predicates a program can evaluate. Each must be reduced to a checkable condition over the state — "every dirt bit is false", "total distance &le; 300 km", "no worker has more than two night shifts". A goal test that cannot return a definite true or false means the search has no stopping condition at all.</li>
+  <li><strong>Does the cost function measure what you care about?</strong> Minimising the number of road segments is not the same as minimising distance, which is not the same as minimising driving time, fuel, tolls, or emissions. Choosing step cost 1 per action — common and convenient — implicitly declares that all actions are equally undesirable, which is right for the 8-puzzle and wrong for route planning across roads of unequal length. The cost function must also be internally consistent: mixing kilometres on some edges with minutes on others makes "optimal" meaningless, and negative costs break optimality guarantees. If several objectives genuinely matter, they must be combined explicitly into a single scalar (for example, <code>cost = time + &lambda; &times; tolls</code>) with the trade-off weight stated, or handled with a multi-objective method.</li>
+</ul>
+
+<p>Running these checks produces a short, defensible document: the five components written out precisely, the assumptions named, the estimated size of the space, and a justification for each feature included in the state. That document is the real deliverable of problem formulation. The search algorithm applied afterwards is, by comparison, an off-the-shelf part.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> The topic defines and illustrates each standard component — state space, initial state, actions, transition model, goal test, and path cost — and shows them instantiated side by side for route finding and the 8-puzzle, giving students the template to apply to a new task description.</li>
+  <li><strong>MO2:</strong> The sections on abstraction and on formulation-dependent tractability directly address how removing irrelevant detail shrinks the state space, and the validity and usefulness criteria explain how solvability is preserved.</li>
+  <li><strong>MO3:</strong> Route finding in Romania, the vacuum world, the 8-puzzle, and both the naive and column-by-column formulations of 8-queens are worked through as formal search problems, demonstrating the formulation process on exactly these classic tasks.</li>
+  <li><strong>MO4:</strong> This topic deals with the problem description rather than the mechanics of searching it, so it touches the state space graph (states as nodes, actions as edges) only in passing and does not develop node attributes, the frontier, or the explored set; those distinctions are addressed elsewhere in the module.</li>
+  <li><strong>MO5:</strong> The tractability estimates, the discussion of over- and under-abstraction, and the four pre-search checks supply explicit criteria — reachability, state-space size and solution depth, cheap and unambiguous goal tests, and consistent non-negative cost functions — for critiquing a proposed formulation and naming its errors.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The &lt;code&gt;b&lt;/code&gt;/&lt;code&gt;d&lt;/code&gt; and vacuum-world tables use rounded figures intended for order-of-magnitude reasoning rather than exact arithmetic; the 8-queens counts (1.8 &#215; 10&lt;sup&gt;14&lt;/sup&gt; naive sequences, 2,057 states in the constrained formulation, 92 solutions reducing to 12 fundamental ones) and the 8-puzzle reachability figure (181,440 of 362,880 permutations) are the standard values from Russell &amp; Norvig. The four environment assumptions are deliberately framed so that each can be lifted later in the course — partial observability to belief-state search, non-determinism to AND–OR search and MDPs, multi-agent settings to adversarial search.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

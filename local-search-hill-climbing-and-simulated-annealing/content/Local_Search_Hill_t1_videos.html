@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundations of Local Search</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Local Search: Hill Climbing and Simulated Annealing</a></div>
+<h1>Foundations of Local Search</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: Constraint Satisfaction Problems (CSPs) 7 - Local Search | Stanford CS221: AI (Autumn 2021)</a>
+<a href="#sec3">Video 2: Hill Climbing Search</a>
+<a href="#sec4">Video 3: Constraint Satisfaction Problems (CSPs) 6 - Beam Search | Stanford CS221: AI (Autumn 2021)</a>
+<a href="#sec5">How These Videos Support the Learning Outcomes</a>
+<a href="#sec6">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>Most of the search methods you have seen so far build a path: they start at an initial state, expand nodes, and return the sequence of actions that leads to a goal. Local search works differently. It begins with a complete candidate solution — every variable already has a value — and then repeatedly tweaks that candidate with small moves, keeping track of only the current state (and perhaps a few neighbors) rather than a frontier and an explored set. For problems like n-queens, scheduling, or constraint satisfaction with thousands of variables, the question is simply &quot;what is the best configuration?&quot; and the route taken to reach it carries no information worth storing.</p>
+<p>The mental model that makes this work is the state-space landscape: imagine every complete state laid out on a surface whose height is the value of an objective function. Local search is then the act of standing somewhere on that surface and moving to a neighboring point that is higher (or lower, if you are minimizing cost). This picture explains both the appeal and the risk. Memory use is essentially constant and the method scales to spaces far too large — even infinite — to enumerate, but because the algorithm sees only its immediate neighborhood, it can be neither complete nor optimal: it may stall on a local maximum, a plateau, or a ridge and never discover that a better region exists elsewhere.</p>
+<p>As you watch the videos below, keep four questions in mind. What exactly counts as a &quot;state&quot; and what counts as a &quot;neighbor&quot;? What objective is being improved at each step? What is the algorithm storing in memory at any moment? And what guarantees — if any — does it give you when it stops? Pay particular attention to the trade-off framing: local search exchanges the completeness and optimality guarantees of systematic search for speed, tiny memory footprint, and the ability to attack problems of realistic size.</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: Constraint Satisfaction Problems (CSPs) 7 - Local Search | Stanford CS221: AI (Autumn 2021)</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/VwZKPlK6jUg?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problems (CSPs) 7 - Local Search | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 12:43 · 8,037 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=VwZKPlK6jUg" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A segment from Stanford&#39;s CS221 lecture sequence on constraint satisfaction problems, this video introduces local search as an approach to CSPs. Based on its placement in the series, it should show how a complete assignment is iteratively repaired by changing the value of one variable at a time to reduce the number of violated constraints, rather than building an assignment incrementally through backtracking. Expect discussion of why this works well on large CSPs and where it can get stuck.</p>
+<h3>Why this video</h3>
+<p>It comes from a university AI course taught at the level of this class, and it directly illustrates the central idea of the topic — optimizing over complete states where only the final configuration matters — while contrasting local search with the systematic backtracking search covered earlier in the same series.</p>
+</section>
+<section class="item" id="sec3">
+<h2>Video 2: Hill Climbing Search</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/VoUotaCmDk4?cc_load_policy=1&amp;rel=0" title="Video: Hill Climbing Search (Zareen Zulkarnain)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Zareen Zulkarnain</strong> · 5:20 · 26,025 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=VoUotaCmDk4" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A compact, focused explanation of hill climbing search, the simplest concrete instance of local search. The video should walk through the basic loop of evaluating neighbors of the current state and moving to a better one, and is likely to use the state-space landscape picture to show why the algorithm terminates where it does. Note that a music-free version is linked in the description if you prefer it.</p>
+<h3>Why this video</h3>
+<p>At just over five minutes it gives you the mechanics of a local search algorithm quickly and concretely, which makes the abstract ideas of neighbors, objective functions, and the landscape metaphor much easier to hold onto.</p>
+</section>
+<section class="item" id="sec4">
+<h2>Video 3: Constraint Satisfaction Problems (CSPs) 6 - Beam Search | Stanford CS221: AI (Autumn 2021)</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/XuWMeIHGkus?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problems (CSPs) 6 - Beam Search | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 14:30 · 10,791 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=XuWMeIHGkus" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>Another segment from the same Stanford CS221 CSP sequence, this one on beam search. It should cover how beam search keeps a limited number of candidate partial or complete states rather than just one, controlled by a beam width parameter, and how that width interpolates between a greedy, memory-light method and a more exhaustive search.</p>
+<h3>Why this video</h3>
+<p>Beam search makes the memory-versus-thoroughness trade-off explicit and tunable, which sharpens the discussion of why keeping only the current state buys efficiency at the cost of completeness and optimality.</p>
+</section>
+<section class="item" id="sec5">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>Together these videos build the conceptual groundwork the module outcomes depend on. The hill climbing video gives you the neighbor/move-operator and objective-function machinery operating inside a state-space landscape (MO1) and a concrete algorithm trace you can extend to the steepest-ascent, first-choice, stochastic, and random-restart variants covered later (MO3), while also exposing where a purely greedy climb stalls (MO4). The Stanford CSP local search segment shows a real optimization problem formulated as states, moves, and a cost to minimize, which is exactly the modeling skill asked for in MO2. The beam search segment frames the memory, completeness, and solution-quality trade-offs that you will later use to justify choosing hill climbing or simulated annealing, and an appropriate cooling schedule, for a large-scale problem (MO5).</p>
+</section>
+<section class="item" id="sec6">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

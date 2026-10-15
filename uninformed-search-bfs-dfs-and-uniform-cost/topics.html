@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uninformed Search: BFS, DFS, and Uniform Cost — Module Topics</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:880px;margin:0 auto;padding:32px 24px;color:#222;line-height:1.55}
+h1{font-size:1.6rem;border-bottom:2px solid #dcdcdc;padding-bottom:8px}
+h2{font-size:1.2rem;margin-top:28px;color:#1a3c6e}
+.summary{color:#555;font-style:italic;margin:4px 0 10px}
+ul{margin:6px 0 6px 4px}
+li{margin:5px 0}
+.el-body{color:#555}
+.empty{color:#595959}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Uninformed Search: BFS, DFS, and Uniform Cost</a></div>
+<h1>Uninformed Search: BFS, DFS, and Uniform Cost — Module Topics</h1>
+<h2>Foundations of Uninformed Search</h2>
+<div class="summary">Introduces search problem formulation — states, actions, transition model, goal test, and path cost — and the generic tree/graph search framework with frontier and explored sets. Establishes why these strategies are called &#39;uninformed&#39; and the evaluation criteria of completeness, optimality, time, and space complexity.</div>
+<ul>
+<li><strong>Formulating a Search Problem</strong> <span class="el-body">— Before any algorithm can run, a problem must be expressed in a standard five-part formulation that search algorithms understand.</span></li>
+<li><strong>State Space, Paths, and Solutions</strong> <span class="el-body">— The problem formulation implicitly defines a state space graph that search algorithms explore to find a solution path.</span></li>
+<li><strong>The Generic Search Framework: Tree Search</strong> <span class="el-body">— All the algorithms in this module are variations of a single generic loop that repeatedly expands nodes from a frontier.</span></li>
+<li><strong>Graph Search and the Explored Set</strong> <span class="el-body">— Tree search can revisit states endlessly when the state space contains cycles or multiple paths to the same state, so graph search adds an explored set.</span></li>
+<li><strong>What Makes a Strategy &#39;Uninformed&#39;</strong> <span class="el-body">— Uninformed (blind) search strategies use only the information contained in the problem definition itself.</span></li>
+<li><strong>Four Criteria for Evaluating Search Algorithms</strong> <span class="el-body">— Every search strategy is judged against the same four measures, which allow fair comparison of BFS, DFS, and uniform-cost search.</span></li>
+</ul>
+<h2>Breadth-First Search</h2>
+<div class="summary">Covers BFS using a FIFO queue, including step-by-step traces on simple graphs and the 8-puzzle, goal-test timing, and duplicate detection. Analyzes its completeness, optimality on unit-cost problems, and O(b^d) time and space behavior.</div>
+<ul>
+<li><strong>BFS and the FIFO Frontier</strong> <span class="el-body">— Breadth-first search expands the shallowest unexpanded node first, which it achieves by storing the frontier in a first-in, first-out queue. This simple data-structure choice is what gives BFS all of its characteristic behaviour.</span></li>
+<li><strong>Tracing BFS on a Simple Graph</strong> <span class="el-body">— A hand trace on a small graph makes the level-by-level expansion order concrete. Writing out the frontier contents after each step is the fastest way to confirm you understand the algorithm.</span></li>
+<li><strong>Goal-Test Timing: Generation vs. Expansion</strong> <span class="el-body">— BFS tests each node for the goal when the node is generated, not when it is selected for expansion. This early goal test saves an entire extra level of work.</span></li>
+<li><strong>Duplicate Detection and Repeated States</strong> <span class="el-body">— Without duplicate detection, BFS on a graph re-generates the same states along different paths and may loop forever. Combining an explored set with a frontier membership check converts tree search into graph search.</span></li>
+<li><strong>BFS on the 8-Puzzle</strong> <span class="el-body">— The 8-puzzle gives BFS a concrete testbed: states are tile configurations, actions move the blank up, down, left, or right, and each move costs one. BFS returns the solution with the fewest moves.</span></li>
+<li><strong>Completeness, Optimality, and Complexity</strong> <span class="el-body">— BFS is complete and, under unit step costs, optimal, but it pays for these guarantees with exponential memory. The standard analysis uses branching factor b and goal depth d.</span></li>
+</ul>
+<h2>Depth-First Search</h2>
+<div class="summary">Examines DFS with a LIFO stack and recursive formulations, tracing its exploration order and backtracking on the same problems. Discusses its linear space advantage, incompleteness on infinite or cyclic spaces, and the depth-limited and iterative-deepening variants.</div>
+<ul>
+<li><strong>DFS Strategy and the LIFO Frontier</strong> <span class="el-body">— Depth-first search expands the deepest node in the current frontier, diving down one branch before considering alternatives. It is realised by swapping BFS&#39;s FIFO queue for a LIFO stack.</span></li>
+<li><strong>Recursive Formulation and Backtracking</strong> <span class="el-body">— DFS has a natural recursive expression in which the call stack replaces the explicit frontier stack. When a branch is exhausted, control returns to the most recent unexplored alternative — this is backtracking.</span></li>
+<li><strong>Tracing DFS on the Same Problems</strong> <span class="el-body">— Running DFS on the route-finding map and 8-puzzle used for BFS highlights how dramatically the expansion order changes. The same graph yields a different visit sequence and a different first solution.</span></li>
+<li><strong>Space and Time Complexity</strong> <span class="el-body">— DFS&#39;s main attraction is its memory footprint: it stores only the nodes along the current path plus their unexpanded siblings. This linear space requirement contrasts sharply with BFS&#39;s exponential growth.</span></li>
+<li><strong>Completeness, Optimality, and Infinite Branches</strong> <span class="el-body">— DFS is neither complete nor optimal in the general case. It can descend forever down an infinite branch or loop endlessly in a cyclic state space.</span></li>
+<li><strong>Depth-Limited Search</strong> <span class="el-body">— Depth-limited search fixes DFS&#39;s infinite-branch failure by imposing a cutoff depth L and refusing to expand nodes beyond it. Nodes at depth L are simply treated as having no successors.</span></li>
+<li><strong>Iterative Deepening Search</strong> <span class="el-body">— Iterative deepening repeatedly runs depth-limited search with limits 0, 1, 2, ... until a solution is found. It combines DFS&#39;s linear memory use with BFS&#39;s completeness and shallow-solution guarantee.</span></li>
+</ul>
+<h2>Uniform-Cost Search</h2>
+<div class="summary">Presents uniform-cost search as a priority-queue expansion by cumulative path cost g(n), with traces on weighted route-finding maps. Explains why goal testing occurs at expansion rather than generation and how re-opening nodes with cheaper paths preserves optimality.</div>
+<ul>
+<li><strong>From BFS to Uniform-Cost Search</strong> <span class="el-body">— Uniform-cost search (UCS) generalises breadth-first search to problems where actions have different costs. Instead of expanding the shallowest node, it always expands the node with the lowest cumulative path cost g(n).</span></li>
+<li><strong>The Priority Queue Frontier</strong> <span class="el-body">— UCS stores the frontier in a priority queue ordered by g(n), so the cheapest known partial path is always expanded next. An explored set and a lookup into the frontier prevent redundant work.</span></li>
+<li><strong>Goal Test at Expansion, Not Generation</strong> <span class="el-body">— UCS applies the goal test when a node is selected for expansion rather than when it is first generated. This delay is what guarantees that the returned solution is optimal.</span></li>
+<li><strong>Re-opening Nodes with Cheaper Paths</strong> <span class="el-body">— When UCS generates a child that is already on the frontier, it compares costs and keeps only the cheaper path. This bookkeeping ensures that no state is expanded along a suboptimal route.</span></li>
+<li><strong>Tracing UCS on a Weighted Route Map</strong> <span class="el-body">— Hand-tracing UCS on a small weighted map makes the ordering of expansions concrete. At each step record the frontier contents with their g values and the node chosen for expansion.</span></li>
+<li><strong>Properties and Complexity</strong> <span class="el-body">— UCS is complete and optimal under mild assumptions, but it can explore a very large portion of the state space because it ignores the goal&#39;s location.</span></li>
+</ul>
+<h2>Data Structures and Implementation</h2>
+<div class="summary">Details the queues, stacks, priority queues, hash-based explored sets, and node/state representations needed to implement each strategy efficiently. Includes coding exercises that build BFS, DFS, and UCS solvers for the 8-puzzle and a route-finding graph with path reconstruction.</div>
+<ul>
+<li><strong>The Search Node: More Than Just a State</strong> <span class="el-body">— Every frontier entry must carry enough information to reconstruct a solution, so search algorithms wrap each state in a node record rather than storing bare states.</span></li>
+<li><strong>Frontier Structures: Queue, Stack, and Priority Queue</strong> <span class="el-body">— The three uninformed strategies differ mainly in the data structure used for the frontier, which determines the order of expansion.</span></li>
+<li><strong>Explored Sets and Frontier Membership Tests</strong> <span class="el-body">— To avoid re-expanding states and looping forever in cyclic graphs, graph search maintains an explored set and checks frontier membership.</span></li>
+<li><strong>Decrease-Key and Duplicate Handling in UCS</strong> <span class="el-body">— Uniform-cost search must handle the case where a cheaper path to a frontier state is discovered after that state is already queued.</span></li>
+<li><strong>Reconstructing and Returning the Solution Path</strong> <span class="el-body">— Once the goal node is found, the solution is recovered by walking parent pointers back to the root and reversing the sequence.</span></li>
+<li><strong>Coding Exercise: 8-Puzzle Solver</strong> <span class="el-body">— Implement BFS, DFS, and UCS over the 8-puzzle using a shared problem interface so only the frontier structure changes between strategies.</span></li>
+<li><strong>Coding Exercise: Route Finding on a Weighted Graph</strong> <span class="el-body">— Build a route-finder over a weighted adjacency map, such as the Romania road map, to show where UCS and BFS diverge.</span></li>
+</ul>
+<h2>Comparative Analysis and Strategy Selection</h2>
+<div class="summary">Compares the three algorithms side by side on completeness, optimality, branching-factor-driven time and space costs, and empirical node counts. Provides guidance for choosing a strategy based on problem structure, edge costs, memory limits, and solution depth.</div>
+<ul>
+<li><strong>The Four Evaluation Criteria</strong> <span class="el-body">— Every search strategy is judged on the same four properties, which provide a common vocabulary for comparison.</span></li>
+<li><strong>Side-by-Side Complexity Table</strong> <span class="el-body">— Placing BFS, DFS, and UCS in a single table exposes the trade-offs each strategy makes.</span></li>
+<li><strong>Memory as the Binding Constraint</strong> <span class="el-body">— In practice BFS and UCS fail because of memory long before they fail because of time.</span></li>
+<li><strong>Empirical Node Counts on Benchmark Problems</strong> <span class="el-body">— Running the three algorithms on the 8-puzzle and route-finding problems turns asymptotic formulas into concrete numbers.</span></li>
+<li><strong>Choosing a Strategy for a Given Problem</strong> <span class="el-body">— Strategy selection follows directly from the structure of the problem: edge costs, solution depth, memory budget, and whether the space is finite.</span></li>
+<li><strong>Limitations Shared by All Uninformed Methods</strong> <span class="el-body">— None of these strategies uses knowledge of where the goal lies, which caps how far they can scale.</span></li>
+</ul>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

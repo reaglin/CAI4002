@@ -1,0 +1,307 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crossover and Mutation Operators</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Genetic Algorithms and Evolutionary Search</a></div>
+  <header>
+    <h1>Crossover and Mutation Operators</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Crossover and Mutation Operators</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Selection decides <em>which</em> individuals get to reproduce, but it creates nothing new: a population under selection alone simply loses diversity until every member is a copy of the best individual it started with. The creative work in an evolutionary algorithm is done by the <strong>variation operators</strong> — crossover (recombination) and mutation. Crossover is the <em>assembling</em> operator: it takes material that already exists in two or more parents and recombines it into new configurations. Mutation is the <em>innovating</em> operator: it introduces allele values that may be absent from the entire population. Together they define the shape of the neighbourhood that the algorithm can reach from its current state, and the way they interact with the chromosome encoding largely determines whether a GA converges to a high-quality solution or stalls in mediocrity.</p>
+
+<p>A useful mental model is that crossover performs a <em>structured jump</em> within the hull spanned by the parents, while mutation performs a <em>local random perturbation</em> around a single individual. Neither is sufficient alone. A GA with crossover only can never create a gene value that has been lost from the gene pool; a GA with mutation only degenerates into a set of parallel, poorly coordinated hill-climbers. The sections below develop the main families of operators, the biases they carry, and the tuning considerations that follow from those biases.</p>
+
+<p><strong>The role of crossover in evolutionary search</strong></p>
+
+<p>Crossover is normally applied probabilistically. After two parents have been selected, a random number is drawn and compared to the crossover probability <code>p_c</code>; if the draw succeeds, the parents are recombined and the offspring are returned, otherwise the parents are copied unchanged into the offspring pool. Typical settings for <code>p_c</code> lie between 0.6 and 0.95. The reason the rate is not simply 1.0 is that a fraction of unrecombined parents acts as a conservative channel through which intact, high-quality genotypes survive the generational turnover; the reason it is not very low is that recombination is the main mechanism by which partial solutions discovered in different lineages are merged.</p>
+
+<pre><code>for each pair (p1, p2) drawn from the mating pool:
+    if random() &lt; p_c:
+        c1, c2 = crossover(p1, p2)
+    else:
+        c1, c2 = copy(p1), copy(p2)
+    c1 = mutate(c1, p_m)
+    c2 = mutate(c2, p_m)
+    offspring.add(c1); offspring.add(c2)</code></pre>
+
+<p>The classical justification for crossover is the <strong>building block hypothesis</strong>: short, low-order schemata of above-average fitness (building blocks) are sampled increasingly often by selection, and crossover combines building blocks from different parents into longer, fitter composites. Consider a 12-bit problem whose fitness is the sum of three independent 4-bit subproblems, each maximised by the pattern <code>1111</code>. If parent A is <code>1111 0010 0101</code> and parent B is <code>0110 1111 1101</code>, a cut between the first and second blocks yields the child <code>1111 1111 1101</code>, which strictly dominates both parents. This is the merging effect that no mutation operator can produce efficiently: mutation would have to flip several specific bits simultaneously, an event with probability on the order of <code>p_m^3</code> or worse.</p>
+
+<p>The same example shows the danger. If the cut point falls <em>inside</em> a 4-bit block, the block is destroyed and the child inherits a broken partial solution. The probability that a single-point cut disrupts a schema of defining length <code>δ</code> on a chromosome of length <code>L</code> is <code>δ/(L−1)</code>. Thus short building blocks that sit close together on the string survive; long, spread-out ones are shredded. If disruption dominates — because the operator is too mixing, the encoding spreads interacting genes far apart, or <code>p_c</code> is too high relative to the structure of the problem — the algorithm behaves less like a recombinative search and more like a repeated random restart, and the population's accumulated information is wasted each generation.</p>
+
+<p>This brings in the notion of <strong>linkage</strong>: the degree to which genes that interact epistatically (whose joint setting matters, not their individual settings) are placed near one another on the chromosome. A deceptive trap function built from 4-bit blocks is easy for a GA if the bits of each block are contiguous, and extremely hard if the bits of each block are scattered uniformly along a 200-bit string, even though the two problems are mathematically identical. Because of this, encoding design and crossover choice are a single joint decision, not two independent ones. Advanced methods — linkage learning GAs, messy GAs, and estimation-of-distribution algorithms such as BOA — attempt to <em>discover</em> linkage at runtime rather than assume the designer got the gene ordering right.</p>
+
+<p>A further property worth noting is that recombination is <em>respectful</em> and <em>assorting</em>: where both parents agree on a gene value, most crossover operators pass that value to the child unchanged. Consequently, as the population converges and parents become similar, crossover automatically produces offspring that differ from their parents in fewer and fewer positions. Crossover therefore exhibits a natural, self-scaling transition from exploration (diverse early population, offspring far from parents) to exploitation (converged late population, offspring near parents). Mutation does not share this property, which is one reason it is needed as an independent source of variation.</p>
+
+<p><strong>Single-point and multi-point crossover</strong></p>
+
+<p><strong>Single-point crossover</strong> draws one cut position <code>k</code> uniformly from <code>1 … L−1</code>, and exchanges the tails of the two parents beyond that point:</p>
+
+<pre><code>P1 = 1 0 1 1 | 0 0 1 0 1 1
+P2 = 0 1 0 0 | 1 1 0 1 0 0
+---------------------------
+C1 = 1 0 1 1 | 1 1 0 1 0 0
+C2 = 0 1 0 0 | 0 0 1 0 1 1</code></pre>
+
+<p><strong>Two-point crossover</strong> draws two cut positions and exchanges the segment between them. Its principal advantage over the single-point version is the removal of <em>endpoint bias</em>. Under single-point crossover, the two extreme genes of the chromosome can never be separated from their immediate neighbours by fewer than... in fact, gene 1 and gene <code>L</code> are always separated by any cut, so the pair (first gene, last gene) is broken with probability 1, whereas a pair of adjacent interior genes is broken with probability <code>1/(L−1)</code>. Two-point crossover is equivalent to treating the chromosome as a <strong>ring</strong> and cutting it in two places, which means any contiguous arc — including one that wraps from the end of the string back to the beginning — can be transferred intact. The disruption probability becomes a function of the arc length only, not of where the arc happens to sit.</p>
+
+<p><strong>k-point crossover</strong> generalises this: draw <code>k</code> cut points, sort them, and alternate between taking segments from parent A and parent B. As <code>k</code> increases, the expected number of inherited contiguous blocks rises and the operator becomes progressively more disruptive — more mixing, less preservation. In the limit of <code>k → L−1</code>, k-point crossover converges in behaviour to uniform crossover.</p>
+
+<table>
+  <thead>
+    <tr><th>Operator</th><th>Cut points</th><th>Mixing rate</th><th>Positional bias</th><th>Preserves contiguous blocks?</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Single-point</td><td>1</td><td>Low</td><td>Strong, plus endpoint bias</td><td>Very well</td></tr>
+    <tr><td>Two-point</td><td>2</td><td>Low–moderate</td><td>Strong, endpoint bias removed</td><td>Very well</td></tr>
+    <tr><td>k-point (k = 4–8)</td><td>k</td><td>Moderate–high</td><td>Moderate</td><td>Short blocks only</td></tr>
+    <tr><td>Uniform</td><td>n/a (mask)</td><td>Maximal</td><td>None</td><td>Poorly</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Positional bias</strong> is the defining characteristic of point-based operators: the probability that two genes are inherited from the same parent depends on how far apart they are on the string. For single-point crossover, genes at positions <code>i</code> and <code>j</code> stay together with probability <code>1 − |i−j|/(L−1)</code>. This is a liability when the encoding places interacting genes arbitrarily, but it is an asset when adjacency is meaningful. Examples of the latter include a neural-network weight vector laid out layer by layer, a production schedule in which consecutive genes are consecutive time slots, or a parameter vector in which a cluster of genes jointly describes one physical component. In those cases a two-point operator transfers a coherent sub-assembly — one complete layer, one shift, one component — from a parent to a child, which is exactly the behaviour the building block hypothesis wants.</p>
+
+<p><strong>Uniform and arithmetic crossover</strong></p>
+
+<p><strong>Uniform crossover</strong> abandons segments entirely. A random binary mask of length <code>L</code> is generated, each bit set to 1 with probability <code>p</code> (conventionally 0.5); the first child takes gene <code>i</code> from parent A where the mask bit is 1 and from parent B where it is 0, and the second child takes the complement.</p>
+
+<pre><code>Mask = 1 0 0 1 1 0 1 0 0 1
+P1   = 1 0 1 1 0 0 1 0 1 1
+P2   = 0 1 0 0 1 1 0 1 0 0
+---------------------------
+C1   = 1 1 0 1 0 1 1 1 0 1
+C2   = 0 0 1 0 1 0 0 0 1 0</code></pre>
+
+<p>Because each locus is decided independently, there is <strong>no positional bias</strong> whatsoever: any two genes are separated with the same probability 0.5 regardless of their distance apart. This is exactly the right behaviour when the designer has no knowledge of linkage, and it gives the maximum possible mixing rate, which helps small populations explore effectively. The price is <strong>distributional bias</strong> and high disruption: an order-<code>o</code> schema survives uniform crossover with probability only <code>(1/2)^(o−1)</code>, so a 6-bit building block is passed intact just 3% of the time. A rule of thumb that follows: use uniform crossover when genes are weakly coupled or the linkage structure is unknown and the population is small; use two-point or k-point crossover when contiguous groups of genes are known to interact.</p>
+
+<p>A softened variant, <strong>parameterised uniform crossover</strong>, sets the mask probability to something like 0.7/0.3 rather than 0.5/0.5, so each child resembles one designated parent more than the other. This reduces disruption while keeping the absence of positional bias.</p>
+
+<p>For <strong>real-valued encodings</strong>, swapping whole gene values is not the only option — genes can be blended numerically. <strong>Arithmetic crossover</strong> produces children as convex combinations of the parents:</p>
+
+<pre><code>c1_i = alpha * p1_i + (1 - alpha) * p2_i
+c2_i = alpha * p2_i + (1 - alpha) * p1_i      with alpha in [0, 1]</code></pre>
+
+<ul>
+  <li><strong>Whole arithmetic crossover</strong> applies the same <code>alpha</code> to every gene, producing a child on the straight line segment joining the two parent points in search space.</li>
+  <li><strong>Single arithmetic crossover</strong> blends only one randomly chosen gene and copies the rest from the parents.</li>
+  <li><strong>Simple arithmetic crossover</strong> picks a cut point and blends all genes after it, copying the prefix intact.</li>
+</ul>
+
+<p>A worked instance: with <code>p1 = (2.0, 8.0, 5.0)</code>, <code>p2 = (6.0, 4.0, 1.0)</code> and <code>alpha = 0.25</code>, whole arithmetic crossover gives <code>c1 = (5.0, 5.0, 2.0)</code> and <code>c2 = (3.0, 7.0, 4.0)</code>. Note that both children lie strictly inside the box defined by the parents.</p>
+
+<p>That containment property is a serious weakness. Because every arithmetic child lies in the convex hull of its parents, the population's bounding box can only shrink, never grow. Repeated application therefore contracts the population toward its centroid — a textbook route to <strong>premature convergence</strong> in real-valued GAs. <strong>Blend crossover (BLX-α)</strong> fixes this by sampling <em>outside</em> the parental interval. For each gene, let <code>d = |p1_i − p2_i|</code>, and draw the child's value uniformly from</p>
+
+<pre><code>[ min(p1_i, p2_i) - alpha*d ,  max(p1_i, p2_i) + alpha*d ]      typically alpha = 0.5</code></pre>
+
+<p>With <code>p1_i = 2.0</code>, <code>p2_i = 6.0</code> and <code>alpha = 0.5</code>, the sampling interval is <code>[0.0, 8.0]</code> rather than <code>[2.0, 6.0]</code>. The outward extension exactly balances the inward contraction for <code>alpha ≈ 0.5</code>, so population spread is maintained without an explicit diversity mechanism. <strong>Simulated binary crossover (SBX)</strong> achieves a similar effect with a different distribution: it concentrates offspring near the parents (mimicking the behaviour of single-point crossover on binary strings) but has unbounded tails, with a distribution index <code>η</code> controlling how tightly children cluster around the parents. SBX is the standard recombination operator in NSGA-II and related multi-objective algorithms.</p>
+
+<p>The decision rule across this whole family is the same: <em>match the operator's bias to the encoding's linkage structure</em>. Strongly interacting, contiguous genes favour point-based operators; independent or unknown-linkage genes favour uniform; continuous parameters where interpolation is meaningful favour arithmetic, BLX or SBX.</p>
+
+<p><strong>Order-based crossover for permutation encodings</strong></p>
+
+<p>Permutation chromosomes — tours in the TSP, job orderings in a flow shop, sequences of tasks in a schedule — carry a hard constraint: every element must appear exactly once. Applying single-point crossover to two permutations almost always breaks this constraint. Take <code>P1 = (1 2 3 | 4 5 6 7)</code> and <code>P2 = (3 7 5 | 1 6 2 4)</code>; the naive child <code>(1 2 3 1 6 2 4)</code> contains 1 and 2 twice and omits 5 and 7. It is an <em>illegal</em> chromosome. Repairing such offspring is possible but costs time and, worse, the repair procedure injects an arbitrary bias that has nothing to do with either parent's structure. The standard answer is to use operators that are closed over the space of permutations by construction.</p>
+
+<p><strong>Order crossover (OX)</strong> preserves relative order. Copy a randomly chosen segment from parent 1 into the child at the same positions. Then, starting just after the segment's end and wrapping around, scan parent 2 in order and fill the remaining child positions with those elements of parent 2 not already present.</p>
+
+<pre><code>P1 = 1 2 [3 4 5] 6 7 8 9
+P2 = 9 3 [7 8 2] 6 5 1 4
+
+Child gets 3 4 5 at positions 3-5.
+Scan P2 from position 6 onward, wrapping: 6, 5, 1, 4, 9, 3, 7, 8, 2
+Remove those already in child (3,4,5):     6, 1, 9, 7, 8, 2
+Fill child positions 6,7,8,9,1,2 in that order:
+Child = 7 8 [3 4 5] 6 1 9 2</code></pre>
+
+<p>OX is the natural choice for problems where <em>relative sequence</em> is what matters — a TSP tour is the same tour no matter which city you list first, and in many scheduling problems only the precedence of jobs affects the objective.</p>
+
+<p><strong>Partially mapped crossover (PMX)</strong> preserves absolute positions more aggressively. Choose two cut points; copy parent 1's segment into the child and record the positional mapping implied by aligning parent 1's and parent 2's segments. Then copy the remaining genes from parent 2, and wherever that would create a duplicate, follow the mapping chain until a free value is found.</p>
+
+<pre><code>P1 = 1 2 3 | 4 5 6 7 | 8 9
+P2 = 4 5 2 | 1 8 7 6 | 9 3
+
+Child segment from P1: _ _ _ | 4 5 6 7 | _ _
+Mapping: 4&lt;-&gt;1, 5&lt;-&gt;8, 6&lt;-&gt;7, 7&lt;-&gt;6
+Copy P2 outside segment: 4 -&gt; conflicts, map 4-&gt;1, place 1
+                          5 -&gt; conflicts, map 5-&gt;8, place 8
+                          2 -&gt; free, place 2
+                          9 -&gt; free, place 9
+                          3 -&gt; free, place 3
+Child = 1 8 2 | 4 5 6 7 | 9 3</code></pre>
+
+<p><strong>Cycle crossover (CX)</strong> goes further still: every gene in the child occupies the absolute position it held in <em>one</em> of its parents. Starting at position 1, follow the cycle — take <code>P1[1]</code>, find where that value sits in <code>P2</code>, move to that index, take <code>P1</code>'s value there, and continue until the cycle closes. All positions in that cycle are filled from P1; the next cycle is filled from P2, and so on, alternating. CX introduces less variation than OX or PMX but guarantees absolute positional inheritance, which suits problems where "job <em>j</em> is in slot 5" is itself the meaningful unit.</p>
+
+<p><strong>Edge recombination (ERX)</strong> was designed specifically for the TSP, where the objective depends on which cities are <em>adjacent</em>, not on position or order. ERX builds an adjacency (edge) table listing, for each city, all cities that neighbour it in either parent. The child is grown one city at a time: from the current city, move to the neighbour with the fewest remaining unused edges (a heuristic that avoids stranding cities with no available links), breaking ties randomly and jumping to a random unvisited city if the list is exhausted. Typical implementations transmit 90–95% of parental edges to the child, far more than OX achieves, and ERX is correspondingly strong on Euclidean TSP instances.</p>
+
+<table>
+  <thead>
+    <tr><th>Operator</th><th>What it preserves</th><th>Best suited to</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Order crossover (OX)</td><td>Relative order of elements</td><td>TSP, sequencing where precedence matters</td></tr>
+    <tr><td>Partially mapped (PMX)</td><td>Position, with mapping-based repair</td><td>Assignment-flavoured permutation problems</td></tr>
+    <tr><td>Cycle crossover (CX)</td><td>Absolute position of every element</td><td>Problems where slot identity is meaningful</td></tr>
+    <tr><td>Edge recombination (ERX)</td><td>Adjacency / neighbour relationships</td><td>Symmetric TSP and routing problems</td></tr>
+  </tbody>
+</table>
+
+<p>The general lesson generalises beyond permutations: when a representation carries a feasibility constraint, it is almost always better to design operators that are <em>closed</em> over the feasible set than to generate illegal offspring and repair them afterwards.</p>
+
+<p><strong>Mutation schemes for different encodings</strong></p>
+
+<p>Mutation's job is to guarantee reachability — in principle, any point in the search space should be reachable from any other through a finite sequence of mutations — and to restore allele diversity that selection has eroded. Like crossover, it must respect the encoding.</p>
+
+<ul>
+  <li><strong>Binary:</strong> <em>bit-flip mutation</em>, applied independently to each gene with probability <code>p_m</code>. The conventional default is <code>p_m = 1/L</code>, which yields an expected one flipped bit per chromosome; this is a well-supported choice across many problem classes. A common alternative is <code>p_m</code> between <code>1/L</code> and <code>1/(2L)</code> for long chromosomes. Note that bit-flip mutation on a binary-coded integer has uneven effect: flipping the most significant bit of an 8-bit gene changes the decoded value by 128, flipping the least significant by 1. <strong>Gray coding</strong> is often used to remove such "Hamming cliffs", so that adjacent integer values differ by exactly one bit.</li>
+  <li><strong>Real-valued:</strong> <em>Gaussian perturbation</em>, <code>x_i' = x_i + N(0, sigma)</code>, is the standard. The step size <code>sigma</code> is the critical parameter: too small and the algorithm crawls, too large and it cannot refine. Many implementations use a schedule that decays <code>sigma</code> over generations, or <strong>self-adaptive mutation</strong> in which each individual carries its own strategy parameter that is itself mutated and inherited — the mechanism central to evolution strategies:
+<pre><code>sigma' = sigma * exp(tau * N(0,1))        with tau approx 1/sqrt(n)
+x_i'   = x_i + sigma' * N_i(0,1)
+x_i'   = clamp(x_i', lower_i, upper_i)</code></pre>
+    Individuals whose step sizes happen to suit the current landscape produce fitter children, so good step sizes propagate indirectly through selection. <em>Cauchy</em> perturbation is sometimes substituted for Gaussian because its heavy tails make occasional long jumps far more likely, which helps escape local optima in multimodal landscapes. In every case, <strong>boundary clamping</strong> (or reflection, or resampling) is needed to keep genes inside their legal ranges; naive clamping piles probability mass onto the bounds, so reflection or resampling is preferable when many optima lie on the interior.</li>
+  <li><strong>Integer:</strong> two schemes dominate. <em>Random resetting</em> replaces the gene with a uniformly drawn legal value — appropriate for categorical integers such as "machine ID" or "colour", where values have no ordinal meaning. <em>Creep mutation</em> adds a small signed offset drawn from a narrow distribution (for example <code>±1</code> or <code>±2</code> with geometrically decreasing probability) — appropriate for ordinal integers such as "number of servers" or "start time slot", where nearby values give similar fitness. Choosing creep where resetting is appropriate makes the operator unable to move between distant categories; choosing resetting where creep is appropriate destroys local refinement.</li>
+  <li><strong>Permutation:</strong> any operator must return a permutation, so mutation rearranges rather than replaces. The four standard schemes differ in how much structure they disturb:
+    <ul>
+      <li><em>Swap (exchange):</em> pick two positions and exchange their contents. <code>(1 2 3 4 5 6)</code> → <code>(1 5 3 4 2 6)</code>. Minimal disturbance to positions, but it breaks four adjacency relations at once, which makes it a mediocre TSP operator.</li>
+      <li><em>Insert:</em> remove one element and reinsert it elsewhere, sliding the rest along. <code>(1 2 3 4 5 6)</code> → <code>(1 3 4 5 2 6)</code>. Preserves most relative order, so it pairs naturally with OX.</li>
+      <li><em>Scramble:</em> select a subsequence and randomly shuffle it. Highly disruptive; useful as an occasional large perturbation.</li>
+      <li><em>Inversion (2-opt move):</em> select a subsequence and reverse it. <code>(1 2 3 4 5 6)</code> → <code>(1 5 4 3 2 6)</code>. In a symmetric TSP this breaks exactly two edges and creates two new ones, leaving all interior adjacencies intact — which is why inversion is the canonical TSP mutation and the basis of 2-opt local search.</li>
+    </ul>
+  </li>
+  <li><strong>Tree / program (genetic programming):</strong> <em>subtree mutation</em> selects a random node in the program tree and replaces the subtree rooted there with a freshly generated random subtree, grown under the same depth limits used for initialisation. Choosing the node uniformly over all nodes tends to pick leaves (most nodes in a tree are leaves), producing tiny changes; Koza's 90/10 rule biases selection toward internal nodes to get more meaningful variation. Related schemes include <em>point mutation</em>, which swaps a single node for another of the same arity (<code>+</code> becomes <code>×</code>, <code>x</code> becomes <code>y</code>), <em>hoist mutation</em>, which replaces the whole individual with one of its subtrees, and <em>shrink mutation</em>, which replaces a subtree with a random terminal. The latter two act as size-control operators countering bloat.</li>
+</ul>
+
+<p>Two cross-cutting points apply to all of these. First, mutation rate and mutation <em>strength</em> are different knobs: <code>p_m</code> controls how many genes change, step size or scheme controls how far each changed gene moves. Second, some implementations apply mutation per individual rather than per gene (mutate exactly one random gene with probability <code>p_m</code>), which gives quite different dynamics for long chromosomes; it is worth checking which convention a library uses before interpreting a published parameter setting.</p>
+
+<p><strong>Balancing exploration, exploitation, and diversity</strong></p>
+
+<p>The whole operator design problem reduces to a single trade-off. <strong>Exploration</strong> is sampling new regions of the search space; <strong>exploitation</strong> is refining what has already been found. Selection pressure and crossover push toward exploitation; mutation and recombination between dissimilar parents push toward exploration. The two failure modes sit at opposite ends.</p>
+
+<table>
+  <thead>
+    <tr><th>Configuration</th><th>Symptom</th><th>Diagnosis</th><th>Typical remedy</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>High <code>p_c</code>, very low <code>p_m</code>, strong selection</td><td>Best fitness plateaus early and never improves; population members nearly identical</td><td>Premature convergence on a local optimum — crossover of identical parents produces identical children, so variation has ceased</td><td>Raise <code>p_m</code>, weaken selection pressure, add fitness sharing / crowding, restart or inject random immigrants</td></tr>
+    <tr><td>Very high <code>p_m</code></td><td>Best-of-generation fitness fluctuates wildly; no sustained improvement</td><td>Degeneration toward random search — building blocks are destroyed as fast as selection assembles them</td><td>Lower <code>p_m</code> toward <code>1/L</code>, add elitism</td></tr>
+    <tr><td>Low <code>p_c</code> and low <code>p_m</code></td><td>Extremely slow progress</td><td>Insufficient variation of any kind; algorithm is nearly pure selection</td><td>Raise both rates into conventional ranges</td></tr>
+  </tbody>
+</table>
+
+<p>Because the symptoms are distinguishable, they can be <em>measured</em>, and measurement is what turns parameter tuning from guesswork into engineering. Useful <strong>diversity metrics</strong> include:</p>
+
+<ul>
+  <li><strong>Average pairwise Hamming distance</strong> (binary or integer encodings): the mean number of differing loci across all pairs, often normalised by <code>L</code>. A value trending toward 0 signals convergence of the gene pool.</li>
+  <li><strong>Allele frequency / entropy per locus</strong>: for each position, the Shannon entropy of the allele distribution across the population. A locus with zero entropy has <em>fixed</em> — no crossover can ever restore the lost value there, only mutation can.</li>
+  <li><strong>Fitness variance or standard deviation</strong>: cheap to compute since fitness is already known, but it can be misleading — a population can be genotypically diverse yet have near-identical fitness on a plateau, or genotypically converged with high fitness variance if a few mutants are very poor.</li>
+  <li><strong>Mean Euclidean distance to the population centroid</strong> for real-valued encodings, which measures the shrinkage of the population's bounding region directly.</li>
+  <li><strong>Number of distinct genotypes</strong>, a crude but very cheap indicator of duplicate explosion under elitist or steady-state schemes.</li>
+</ul>
+
+<p>These metrics can drive <strong>adaptive operator rates</strong>. A simple and effective controller raises mutation when diversity falls below a threshold and lowers it when diversity is healthy:</p>
+
+<pre><code>d = mean_normalised_hamming(population)
+if d &lt; d_low:
+    p_m = min(p_m * 1.5, p_m_max)      # inject variation
+elif d &gt; d_high:
+    p_m = max(p_m / 1.5, p_m_min)      # consolidate
+</code></pre>
+
+<p>More refined schemes exist. Srinivas and Patnaik's <em>adaptive GA</em> scales <code>p_c</code> and <code>p_m</code> per individual according to how far that individual's fitness lies above the population mean, so that above-average solutions are protected and below-average ones are mutated hard. <em>Adaptive operator selection</em> (for example, probability matching or multi-armed-bandit credit assignment) maintains a portfolio of several crossover and mutation operators and reallocates application probability toward whichever has recently produced the largest fitness improvements. Deterministic schedules — annealing <code>p_m</code> from, say, 0.1 down to <code>1/L</code> over the run — are cruder but often adequate.</p>
+
+<p>Whenever mutation rates are raised, <strong>elitism</strong> becomes essential. With a high <code>p_m</code> there is a real chance that every member of the next generation is worse than the current best, and without elitism that best genotype is simply lost; the recorded best-so-far curve then becomes non-monotonic and the algorithm can wander away from a good basin it had already found. Copying the top 1–2 individuals unchanged into the next generation (or using a steady-state replacement rule that never evicts the incumbent best) guarantees monotone improvement of the best-so-far while leaving the remaining 95%+ of the population free to explore aggressively. The combination "strong elitism + generous mutation" is often far more robust than "no elitism + cautious mutation", because it decouples safety from exploration.</p>
+
+<p>Finally, there is no universally optimal setting. The No Free Lunch results formalise the intuition that an operator configuration tuned to one class of landscape must pay for that advantage elsewhere, and in practice the right rates depend on chromosome length, population size, selection pressure, epistasis and the evaluation budget. The practical procedure is empirical: choose a small set of <em>representative</em> instances (not just the easiest ones), run a factorial or Latin-hypercube sweep over <code>p_c</code>, <code>p_m</code>, population size and operator type, repeat each configuration 20–30 times with different random seeds because a GA is stochastic, and compare distributions of final fitness and time-to-target rather than single best runs. Conventional starting points — <code>p_c</code> in 0.6–0.95, <code>p_m ≈ 1/L</code>, population 50–200, tournament size 2–4, elitism 1–2 — are good initial guesses, not answers; the tuned configuration should always be validated on held-out instances to avoid over-fitting the parameters to the tuning set.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> Strongly supported. The topic develops two of the four stages of the generational cycle — crossover and mutation — in detail, including where they sit in the generational loop (the pseudocode showing selection, probabilistic recombination, mutation and insertion into the offspring pool) and how they interact with selection and elitism.</li>
+  <li><strong>MO2:</strong> Supported indirectly but substantially. Each operator family is tied to a specific encoding (binary, integer, real-valued, permutation, tree), and the discussion of linkage, positional bias and closure over feasible sets shows that representation choice and operator choice are a single joint decision — material that informs, though does not by itself teach, the selection of a chromosome representation.</li>
+  <li><strong>MO3:</strong> Not directly addressed. Fitness function design, graded quality signals, penalty terms and repair of constraint violations are outside this topic's scope; the only adjacent point is the argument that permutation constraints are better handled by closed operators than by post-hoc repair of offspring.</li>
+  <li><strong>MO4:</strong> Only peripherally addressed. Selection strategies and selective pressure are not compared here, although the topic repeatedly notes how selection pressure interacts with crossover and mutation rates to produce premature convergence or random-search behaviour, which provides context for that comparison.</li>
+  <li><strong>MO5:</strong> Substantially supported. The diversity diagnostics (average Hamming distance, per-locus entropy, fitness variance, distance to centroid, distinct genotypes), the table of convergence failure modes and their symptoms, and the insistence on repeated runs with multiple seeds give students the specific tools needed to evaluate the convergence behaviour of a GA on scheduling and combinatorial problems.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Worked examples are self-consistent and can be verified by hand: the OX, PMX and arithmetic/BLX examples all use small instances suitable for in-class or tutorial reproduction. Suggested practical exercises to accompany this topic: (1) implement single-point, two-point and uniform crossover on a 100-bit royal road or concatenated-trap function and plot best-so-far fitness to expose the linkage effect; (2) run a TSP instance with OX+swap versus OX+inversion versus ERX+inversion to show that operator pairing matters more than either operator alone; (3) instrument a GA with per-locus entropy logging and demonstrate locus fixation preceding the fitness plateau. Note for consistency with other modules: the chapter assumes per-gene mutation probability unless stated otherwise, and uses p_c / p_m notation throughout.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Crossover and mutation are the variation operators that actually generate new candidate solutions in a genetic algorithm. Selection decides which individuals get to reproduce, but it is crossover and mutation that determine what the next generation looks like. Crossover recombines material from two parents in the hope of merging useful partial solutions, or "building blocks", while mutation makes small random changes that reintroduce lost genetic material and keep the population from collapsing onto a single solution too early.</p>
+<p>The operators you can use depend entirely on how you encoded the chromosome. Binary strings invite single-point, multi-point, and uniform crossover with bit-flip mutation; real-valued vectors suit arithmetic or blend crossover with Gaussian perturbation; permutation encodings, such as a tour in the travelling salesman problem, break under naive crossover because they would produce invalid solutions with repeated or missing cities, so order-based operators (order crossover, PMX, cycle crossover) and swap or inversion mutations are used instead. Behind all of these choices sits the same trade-off: too much disruption and the search becomes random, too little and the population converges prematurely.</p>
+<p>As you watch the videos below, pay attention to three things: exactly where the cut points or exchange decisions are made in each crossover scheme, how the operator is adapted so that the offspring remain valid for the chosen encoding, and what role the mutation rate plays in maintaining diversity. Try to map each worked example back onto the generational cycle you have already seen, and ask yourself what would happen if the mutation rate were set to zero or to one.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: ML Lesson 9 | Genetic Algorithms: Selection, Crossover &amp; Mutation</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/XA2vL4E-Zts?cc_load_policy=1&amp;rel=0" title="Video: ML Lesson 9 | Genetic Algorithms: Selection, Crossover &amp; Mutation (QuietLoom AI Lab)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>QuietLoom AI Lab</strong> · 12:18 · 9 views · 3w ago · captions — <a href="https://www.youtube.com/watch?v=XA2vL4E-Zts" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A lesson-format walkthrough of the core genetic algorithm operators, covering selection, crossover, and mutation together as stages of a single evolutionary cycle. The description indicates it traces an evolutionary search run and compares the best candidate found against the known exact optimum, which gives a concrete sense of how well the operators actually perform. It sits as lesson 9 in a longer machine learning sequence, so it frames genetic algorithms within a broader search and optimisation context.</p>
+<h3>Why this video</h3>
+<p>Because it presents crossover and mutation alongside selection rather than in isolation, it helps you see how the operators interact within the generational loop and how operator choices affect whether the search reaches the optimum.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Learn Genetic Algorithms STEP-BY-STEP with Example ~xRay Pixy</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/HeG2cUp0TVY?cc_load_policy=1&amp;rel=0" title="Video: Learn Genetic Algorithms STEP-BY-STEP with Example ~xRay Pixy (Ritika xRay Pixy)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Ritika xRay Pixy</strong> · 7:29 · 3,978 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=HeG2cUp0TVY" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A compact step-by-step tutorial that starts from a population of strings and works through the generation of successive populations. Expect the standard worked example on binary or string encodings, showing how parents are paired, where the crossover point is placed, and how mutation flips individual symbols. The short running time makes it a quick reference to replay when you are working a problem by hand.</p>
+<h3>Why this video</h3>
+<p>It is a widely viewed, clearly structured hand-worked example, which makes it a good match for the single-point crossover and bit-level mutation subtopics and a useful model for the calculations you will be asked to do yourself.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: Traveling Salesman Problem (TSP) + Python + Genetic Algorithm (public version)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/ukFfrOePrJc?cc_load_policy=1&amp;rel=0" title="Video: Traveling Salesman Problem (TSP) + Python + Genetic Algorithm (public version) (Prototype Project)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Prototype Project</strong> · 7:38 · 2,069 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=ukFfrOePrJc" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>An applied video that implements a genetic algorithm in Python for the travelling salesman problem, the classic permutation-encoded combinatorial task. Because a TSP tour is an ordering of cities, the code must use operators that preserve valid permutations, so this is where order-based crossover and swap-style mutation become necessary rather than optional. The video is part of a wider TSP framework series from the Prototype Project channel.</p>
+<h3>Why this video</h3>
+<p>It grounds the order-based crossover subtopic in real code and shows directly why naive crossover fails on permutation encodings, linking operator design to a concrete combinatorial optimisation problem.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos reinforce the generational cycle of selection, crossover, mutation, and evaluation (MO1) by showing it both as a taught sequence and as working code. The contrast between the string-based worked examples and the permutation-based TSP implementation highlights how representation drives operator choice (MO2) and how constraints such as visiting each city exactly once must be respected by the variation operators rather than patched afterwards (MO3). The lessons that include selection alongside crossover give a reference point for comparing selective pressure (MO4), while the TSP run, with its comparison of the evolved solution against an exact optimum, models the kind of convergence and solution-quality assessment you will carry out on a combinatorial problem (MO5).</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

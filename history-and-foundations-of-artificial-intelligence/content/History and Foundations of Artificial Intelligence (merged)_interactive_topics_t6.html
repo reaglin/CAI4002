@@ -1,0 +1,361 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern Breakthroughs and Current Trends</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ History and Foundations of Artificial Intelligence</a></div>
+  <header>
+    <h1>Modern Breakthroughs and Current Trends</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Modern Breakthroughs and Current Trends</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>The modern era of artificial intelligence is best understood as a story of <em>method replacement</em>. For roughly the first three decades of the field, the dominant engineering strategy was to interrogate a human expert, extract their knowledge as symbols and rules, and encode those rules in software. That strategy produced genuine successes — expert systems such as MYCIN for infectious-disease diagnosis and XCON for configuring VAX computer orders — but it also produced a structural bottleneck that the field came to call the <strong>knowledge acquisition bottleneck</strong>. Every new domain demanded a fresh, expensive, manual knowledge-engineering effort, and the resulting rule bases became brittle, contradictory, and almost impossible to maintain at scale. What follows is an account of how the field escaped that bottleneck by learning from data instead, how deep learning then removed a second bottleneck (hand-crafted features), and how the convergence of data, compute, and algorithms produced the foundation models and generative systems that define the current moment.</p>
+
+<p><strong>From Rule-Based Systems to Machine Learning</strong></p>
+
+<p>Machine learning inverts the classical programming relationship. In conventional software engineering, the developer supplies the rules and the data, and the computer produces answers. In machine learning, the developer supplies the data and the answers (or a reward signal, or merely the raw data), and the computer <em>induces</em> the rules. Formally, a learning algorithm is said to learn a task <code>T</code> from experience <code>E</code> with respect to a performance measure <code>P</code> if its performance on <code>T</code>, as measured by <code>P</code>, improves with <code>E</code>. This definition, due to Tom Mitchell, is useful because it forces precision: a spam filter's task is classifying email, its experience is a corpus of labelled messages, and its performance measure might be precision and recall on held-out mail.</p>
+
+<p>The practical consequence is that the system's competence can grow without a programmer editing a line of logic. Consider postal address recognition. A rule-based approach would require explicit geometric descriptions of every handwritten digit — "a 7 has a horizontal stroke with a descending diagonal" — which fails immediately on crossed European sevens, stylised numerals, and smudged ink. A learned classifier trained on tens of thousands of labelled digit images absorbs that variation statistically, without anyone articulating what a seven looks like.</p>
+
+<p>Three paradigms came to dominate, distinguished by the kind of feedback the learner receives.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Paradigm</th>
+      <th>Nature of the training signal</th>
+      <th>Canonical tasks</th>
+      <th>Representative algorithms</th>
+      <th>Worked example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Supervised learning</strong></td>
+      <td>Each input is paired with a correct output label provided by a human or an automated process</td>
+      <td>Classification, regression, ranking</td>
+      <td>Logistic regression, SVMs, random forests, gradient-boosted trees, deep networks</td>
+      <td>Predicting loan default from an applicant's financial history, trained on past loans with known outcomes</td>
+    </tr>
+    <tr>
+      <td><strong>Unsupervised learning</strong></td>
+      <td>No labels; the learner must find structure in the inputs themselves</td>
+      <td>Clustering, dimensionality reduction, density estimation, anomaly detection</td>
+      <td>k-means, hierarchical clustering, PCA, Gaussian mixture models, autoencoders</td>
+      <td>Segmenting retail customers into behavioural groups that no one defined in advance</td>
+    </tr>
+    <tr>
+      <td><strong>Reinforcement learning</strong></td>
+      <td>Delayed, scalar reward following sequences of actions in an environment</td>
+      <td>Sequential decision making, control, game playing</td>
+      <td>Q-learning, SARSA, policy gradients, actor–critic, Deep Q-Networks</td>
+      <td>A data-centre cooling controller that learns set-points minimising energy use over hours of operation</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Reinforcement learning deserves a note because its feedback structure is genuinely harder. The learner faces the <strong>credit assignment problem</strong>: if a chess agent loses on move 60, which of the preceding 59 decisions was at fault? It also faces the <strong>exploration–exploitation trade-off</strong>: should it repeat the action that has worked so far, or try something unfamiliar that might work better? These difficulties explain why reinforcement learning matured later than supervised learning despite being conceptually older.</p>
+
+<p>Through the 1990s and 2000s, applied AI was overwhelmingly statistical rather than neural. <strong>Support vector machines</strong>, introduced in their modern form by Cortes and Vapnik in 1995, were particularly influential: they find the decision boundary that maximises the margin between classes, and through the "kernel trick" they can represent highly non-linear boundaries without ever explicitly computing coordinates in the high-dimensional space. SVMs had strong theoretical guarantees, worked well with modest data, and had few hyperparameters — properties that made them the default choice for text categorisation and bioinformatics.</p>
+
+<p>Alongside them, <strong>decision tree ensembles</strong> became the workhorse for structured, tabular data. A single decision tree is interpretable but unstable; small changes in the training set produce very different trees. Ensembles exploit this instability. <em>Random forests</em> (Breiman, 2001) train many trees on bootstrap samples with randomly restricted feature subsets and average their votes, reducing variance. <em>Gradient boosting</em> instead trains trees sequentially, each new tree fitting the residual errors of the ensemble so far; modern implementations such as XGBoost and LightGBM still win a large share of tabular-data competitions and remain the sensible first choice for credit scoring, churn prediction, and fraud detection.</p>
+
+<p>None of this would have mattered without data. The digitisation of commerce, medicine, government, and communication in the 1990s and 2000s produced machine-readable records at a scale no knowledge engineer could rival. Supermarket loyalty schemes logged every basket; search engines logged every click; hospitals digitised records; and the web itself became a vast, free, if noisy, corpus of text and images. The economics shifted decisively: writing a thousand rules for a credit-risk system costs expert salaries and months of effort and still generalises poorly, whereas fitting a model to ten million historical loan records is a matter of days of engineering and produces a system that improves automatically as new data arrives.</p>
+
+<p>This shift is the central reason AI recovered from the funding contractions of the 1970s and late 1980s. Those contractions followed inflated promises and demonstrable failure to scale; the learning-based approach offered something the earlier paradigm could not — <em>measurable, incremental, benchmarked progress</em> on tasks with commercial value. Crucially, much of this progress arrived under other names. Spam filtering, search ranking, recommendation, speech dictation, and optical character recognition were commercialised as "statistics", "data mining", or "predictive analytics" rather than as AI, which allowed the underlying research to be funded by industry even while the label "artificial intelligence" remained unfashionable.</p>
+
+<p><strong>The Deep Learning Revolution</strong></p>
+
+<p>Classical machine learning removed the need to hand-author rules, but it did not remove the need to hand-author <em>features</em>. An SVM applied to images did not see pixels; it saw a vector of descriptors — SIFT keypoints, HOG gradients, colour histograms — designed over years by computer-vision researchers. Feature engineering was the new knowledge acquisition bottleneck, and deep learning dissolved it.</p>
+
+<p>A deep neural network is a composition of many simple parametrised transformations, each followed by a non-linearity, trained end-to-end by gradient descent using backpropagation. Because the layers are stacked, the network builds a <em>hierarchy of representations</em>: in a vision network, early layers respond to oriented edges and colour gradients; intermediate layers respond to textures, corners, and motifs; later layers respond to object parts such as wheels, eyes, or wings; and the final layers respond to whole object categories. Nobody specifies this hierarchy. It emerges because it is the most efficient way for the network to reduce its loss.</p>
+
+<p><strong>Convolutional neural networks (CNNs)</strong> made this practical for images by encoding two architectural assumptions that match the structure of visual data. First, <em>local connectivity</em>: a neuron looks at a small patch rather than the whole image, because pixels near each other are informative about each other. Second, <em>weight sharing</em>: the same filter is slid across every position, because an edge detector useful in the top-left is equally useful in the bottom-right. Together these give translation equivariance and reduce the parameter count by orders of magnitude compared with a fully connected network.</p>
+
+<p>The decisive public demonstration came in 2012, when AlexNet — a CNN trained on two consumer GPUs — won the ImageNet Large Scale Visual Recognition Challenge with a top-5 error rate of about 15.3%, against roughly 26% for the best hand-engineered runner-up. A gap of that size in a mature benchmark was unprecedented and effectively ended the hand-crafted-feature era in vision within two years. Subsequent architectures deepened the stack: VGG showed that small 3×3 filters stacked deeply worked well; ResNet (2015) introduced <em>residual connections</em> that let gradients bypass layers, making networks of 150+ layers trainable and pushing error below the commonly cited human benchmark of around 5%.</p>
+
+<p>Sequential data required different machinery. <strong>Recurrent neural networks (RNNs)</strong> maintain a hidden state that is updated at each time step, giving them a form of memory. Plain RNNs suffer from vanishing and exploding gradients over long sequences, which <strong>Long Short-Term Memory (LSTM)</strong> units address with gated cells that decide what to retain, forget, and output. LSTMs and the related GRUs drove a step change in speech recognition around 2012 and in machine translation around 2014–2016, when encoder–decoder architectures replaced decades of phrase-based statistical translation machinery.</p>
+
+<p>Recurrence, however, is inherently sequential: step <code>t</code> cannot be computed until step <code>t−1</code> is finished, which caps training throughput. <strong>Attention mechanisms</strong>, introduced to help translation models align source and target words, provided the escape. Attention lets every output position look directly at every input position, weighting them by learned relevance. The 2017 paper "Attention Is All You Need" removed recurrence entirely, keeping only attention and feed-forward layers, and produced the <strong>transformer</strong> — now the dominant architecture for text, and increasingly for vision, audio, and biological sequences.</p>
+
+<p>Two further enabling factors are easy to overlook. First, <strong>open-source frameworks</strong> — Theano, Caffe, Torch, then TensorFlow (2015) and PyTorch (2016) — supplied automatic differentiation, GPU kernels, and reusable layers, turning what had been a months-long C++ implementation exercise into a few dozen lines of Python. Model zoos and pre-trained checkpoints meant a researcher could fine-tune a published network on a new task in an afternoon. Second, the culture of sharing architectures, weights, and code on preprint servers and public repositories compressed the cycle between publication and replication from years to days.</p>
+
+<pre><code># The conceptual shape of a modern training loop, framework-agnostic
+for epoch in range(num_epochs):
+    for batch_inputs, batch_targets in training_data:
+        predictions = model(batch_inputs)          # forward pass
+        loss        = loss_fn(predictions, batch_targets)
+        gradients   = backpropagate(loss, model.parameters)
+        optimizer.step(model.parameters, gradients) # e.g. Adam update
+    validate(model, held_out_data)                  # monitor generalisation
+</code></pre>
+
+<p><strong>Representation learning</strong> is the unifying idea behind all of this. The network's internal activations constitute a learned encoding of the input in which semantically similar things lie close together. This is why embeddings transfer: a network trained to classify a thousand ImageNet categories produces features that work well for medical imaging, satellite imagery, or industrial defect detection with only a small amount of task-specific fine-tuning. The same principle gave word embeddings such as word2vec and GloVe, where vector arithmetic captures relational structure (the famous <code>king − man + woman ≈ queen</code> result), and it underwrites the entire practice of transfer learning.</p>
+
+<p><strong>The Three Enablers: Data, Compute, and Algorithms</strong></p>
+
+<p>It is a common and misleading simplification to attribute the deep learning revolution to a single breakthrough. The core ideas — multilayer perceptrons, backpropagation, convolutional architectures — were substantially in place by the late 1980s. What changed was that three independent curves crossed thresholds at roughly the same time.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Enabler</th>
+      <th>What changed</th>
+      <th>Illustrative evidence</th>
+      <th>Consequence for practice</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Data</strong></td>
+      <td>Web-scale digitisation plus crowdsourced labelling</td>
+      <td>ImageNet's ~14 million hand-labelled images; Common Crawl's petabytes of web text; LibriSpeech, MS-COCO, and similar public benchmarks</td>
+      <td>Models with hundreds of millions of parameters could be fitted without catastrophic overfitting</td>
+    </tr>
+    <tr>
+      <td><strong>Compute</strong></td>
+      <td>GPUs repurposed for dense linear algebra; later TPUs and other accelerators</td>
+      <td>GPUs offer thousands of cores suited to the matrix multiplications that dominate network training, giving order-of-magnitude speedups over CPUs</td>
+      <td>Experiments that would have taken months finished overnight, so the research iteration loop tightened dramatically</td>
+    </tr>
+    <tr>
+      <td><strong>Algorithms</strong></td>
+      <td>Training techniques that made deep stacks stable and transformers that made training parallel</td>
+      <td>ReLU, Adam, dropout, batch/layer normalisation, residual connections, Xavier/He initialisation</td>
+      <td>Depth became an asset rather than a liability; results became reproducible across labs</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>On the <em>data</em> side, scale alone is not the whole story — <em>labelled</em> scale mattered for supervised breakthroughs, while self-supervision later unlocked the far larger pool of <em>unlabelled</em> data. Self-supervised objectives invent labels from the data itself: predict the next word, predict a masked word, predict whether two image crops come from the same photograph. This is what allows a language model to be trained on trillions of tokens of raw text that no human ever annotated.</p>
+
+<p>On the <em>compute</em> side, the key insight was that neural network training is dominated by dense matrix multiplication — exactly the workload graphics hardware was built for. Once CUDA made GPUs programmable for general purposes, researchers could buy a hundredfold speedup off the shelf. Later, purpose-built accelerators (Google's TPUs, and various NPUs) optimised further by using reduced numerical precision such as bfloat16, trading unnecessary precision for throughput and memory bandwidth.</p>
+
+<p>On the <em>algorithmic</em> side, several specific innovations deserve naming because each solved a concrete failure mode:</p>
+
+<ul>
+  <li><strong>ReLU activations</strong> replaced sigmoids and tanh, whose gradients saturate near zero and vanish through deep stacks; the rectifier's gradient is exactly one for positive inputs.</li>
+  <li><strong>Adaptive optimisers</strong> such as RMSProp and Adam maintain per-parameter learning rates from running estimates of gradient magnitude, making training far less sensitive to hyperparameter choice.</li>
+  <li><strong>Regularisation</strong> — dropout (randomly zeroing units during training), weight decay, early stopping, and data augmentation — controlled overfitting in heavily over-parametrised models.</li>
+  <li><strong>Normalisation</strong> — batch normalisation and later layer normalisation — rescaled intermediate activations, smoothing the optimisation landscape and permitting much higher learning rates.</li>
+  <li><strong>Residual connections</strong> gave gradients a short path back to early layers, making very deep networks trainable at all.</li>
+</ul>
+
+<p>The <strong>transformer</strong> is worth singling out as the architectural enabler. Because self-attention computes all pairwise interactions in a sequence simultaneously as a few large matrix operations, an entire sequence can be processed in parallel on a GPU rather than one token at a time. The trade-off is that attention cost grows quadratically with sequence length, which is why efficient-attention variants, sparse attention, and long-context engineering are active research areas. The transformer's second virtue is generality: the same block, with minimal modification, handles text, image patches (Vision Transformers), audio spectrograms, protein sequences, and video — a convergence that lets hardware and software optimisation effort concentrate on one design.</p>
+
+<p>Finally, <strong>cloud infrastructure</strong> changed who could participate. Renting GPU hours by the minute meant a doctoral student or a three-person startup could run experiments that previously required an institutional supercomputer. Managed training services, pre-built container images, and spot pricing further flattened the curve. The qualification is important, though: cloud access democratised <em>fine-tuning and mid-scale research</em>, while frontier-scale pre-training — costing tens of millions of dollars in compute for a single run — concentrated in a small number of well-capitalised organisations. Access was widened at one end of the distribution and narrowed at the other.</p>
+
+<p><strong>Landmark Milestones</strong></p>
+
+<p>Certain public demonstrations function as punctuation marks in the field's history. They matter less for the techniques they introduced than for what they proved was possible, and for how they shifted funding, talent, and public expectation.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Year</th>
+      <th>System</th>
+      <th>Achievement</th>
+      <th>Core technique</th>
+      <th>Why it mattered</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1997</td>
+      <td>Deep Blue (IBM)</td>
+      <td>Defeated reigning world chess champion Garry Kasparov 3½–2½</td>
+      <td>Massively parallel alpha–beta search on custom chess hardware with a hand-tuned evaluation function and opening/endgame databases</td>
+      <td>Toppled a centuries-old emblem of human intellect — but by brute-force search, prompting debate about whether this was "intelligence" at all</td>
+    </tr>
+    <tr>
+      <td>2011</td>
+      <td>Watson (IBM)</td>
+      <td>Beat champions Ken Jennings and Brad Rutter at <em>Jeopardy!</em></td>
+      <td>Ensemble of parsing, information retrieval, and evidence-scoring pipelines over a large unstructured corpus, with confidence-weighted wagering</td>
+      <td>Showed open-domain natural-language question answering under time pressure, including puns and oblique clues</td>
+    </tr>
+    <tr>
+      <td>2012</td>
+      <td>AlexNet</td>
+      <td>Won ImageNet by a ~10-point margin</td>
+      <td>Deep CNN with ReLU, dropout, GPU training</td>
+      <td>Triggered the industrial adoption of deep learning across vision</td>
+    </tr>
+    <tr>
+      <td>2015</td>
+      <td>ResNet and successors</td>
+      <td>Surpassed the commonly cited human top-5 error benchmark on ImageNet</td>
+      <td>Very deep residual CNNs</td>
+      <td>Established that learned perception could exceed careful human classification on a constrained, large-scale visual task</td>
+    </tr>
+    <tr>
+      <td>2016</td>
+      <td>AlphaGo (DeepMind)</td>
+      <td>Defeated Lee Sedol 4–1 at Go</td>
+      <td>Policy and value networks trained by supervised learning and self-play reinforcement learning, guiding Monte Carlo tree search</td>
+      <td>Go's enormous branching factor made brute force hopeless; victory required learned <em>intuition</em> about position quality</td>
+    </tr>
+    <tr>
+      <td>2020–2021</td>
+      <td>AlphaFold 2 (DeepMind)</td>
+      <td>Achieved near-experimental accuracy in protein structure prediction at CASP14</td>
+      <td>Attention-based architecture over sequence alignments and residue-pair representations, with structural priors</td>
+      <td>Moved AI from games and benchmarks to a 50-year-old grand challenge in biology, with a public database of over 200 million predicted structures</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Reading these in sequence reveals a trajectory. Deep Blue encoded human chess expertise in its evaluation function and searched enormously; its intelligence was largely the programmers'. Watson still relied on heavily engineered pipelines but operated over messy natural language. AlphaGo learned its own evaluation of board positions and played moves — notably move 37 in game two — that professional commentators initially judged to be mistakes and later recognised as deep strategy. AlphaGo Zero went further still, discarding human game records entirely and learning from self-play alone. AlphaFold then demonstrated that these methods generate <em>new scientific knowledge</em>, not merely competitive performance: structures it predicted have accelerated work on enzymes for plastic degradation, neglected-disease drug targets, and antibiotic resistance.</p>
+
+<p>Two cautions belong here. First, "surpassing human performance" is always relative to a specific benchmark under specific conditions; ImageNet-beating classifiers can still be fooled by adversarial perturbations imperceptible to a person, and can fail on image distributions unlike their training data. Second, each milestone wasnarrow: a system that plays Go at superhuman level cannot play chess, read a sentence, or recognise a face without being rebuilt from scratch. The generality that arrived with foundation models is precisely what makes the next section a genuine discontinuity rather than another increment.</p>
+
+<p><strong>Foundation Models and Generative AI</strong></p>
+
+<p>A <strong>foundation model</strong> is a large model trained with self-supervision on broad, unlabelled data that can then be adapted to a wide range of downstream tasks. The term, coined at Stanford in 2021, captures an economic and engineering change as much as a technical one: instead of training a bespoke model per task, organisations now take one expensively pre-trained base model and specialise it cheaply many times over.</p>
+
+<p><strong>Large language models (LLMs)</strong> are the most visible instance. Pre-training typically uses a next-token prediction objective over a corpus assembled from web crawls, books, code repositories, and reference works. The objective looks trivial — predict the word that comes next — but succeeding at it across trillions of tokens requires the model to internalise syntax, factual associations, discourse structure, arithmetic conventions, programming semantics, and a great deal of pragmatics. Adaptation then proceeds through several mechanisms that differ sharply in cost:</p>
+
+<ul>
+  <li><strong>Full fine-tuning</strong>: continue training all parameters on task-specific data. Most effective, most expensive, and produces a separate copy of the model per task.</li>
+  <li><strong>Parameter-efficient fine-tuning</strong> (such as LoRA and adapters): freeze the base weights and train a small number of additional parameters, often under 1% of the total, making per-task specialisation cheap to train, store, and swap.</li>
+  <li><strong>Instruction tuning</strong>: fine-tune on a broad mixture of tasks phrased as instructions, so the model generalises to instructions it has never seen.</li>
+  <li><strong>Prompting</strong>: no weight changes at all. <em>Zero-shot</em> prompting states the task in words; <em>few-shot</em> or in-context learning supplies worked examples inside the prompt; <em>chain-of-thought</em> prompting asks the model to produce intermediate reasoning steps before its answer, which substantially improves multi-step arithmetic and logical tasks.</li>
+</ul>
+
+<pre><code>Zero-shot:  "Classify the sentiment of this review: 'The battery died in a week.'"
+
+Few-shot:   "Review: 'Arrived early, works perfectly.' -> Positive
+             Review: 'Screen cracked on day two.'    -> Negative
+             Review: 'The battery died in a week.'   -> "
+
+Chain-of-thought: "A shop sells pens at 3 for £2. How much for 12 pens?
+                   Think step by step before answering."
+</code></pre>
+
+<p><strong>Scaling laws</strong> gave this enterprise its strategic logic. Empirical studies — most influentially by Kaplan and colleagues in 2020 and the Chinchilla work by Hoffmann and colleagues in 2022 — found that test loss falls as a smooth power-law function of model parameters, dataset size, and training compute, over many orders of magnitude. Two consequences follow. First, performance became <em>predictable</em>: a laboratory could estimate from small pilot runs what a model a hundred times larger would achieve, which is what justified eight- and nine-figure training budgets to investors. Second, the Chinchilla result corrected a widespread error — many earlier models were substantially <em>under-trained</em> for their size, and for a fixed compute budget it is better to train a smaller model on far more data. That finding redirected the field from a pure parameter-count race toward data quality and quantity.</p>
+
+<p><strong>Emergent capabilities</strong> complicate the smooth picture. While aggregate loss improves gradually, certain specific abilities appear to switch on over a narrow range of scale: multi-step arithmetic, translating between low-resource language pairs, answering questions in a language the model was barely trained on, or following complex compositional instructions. A model at one scale performs at chance; a model a few times larger performs well. There is a legitimate scientific debate here — some researchers argue that apparent emergence is partly an artefact of discontinuous, all-or-nothing metrics such as exact-match accuracy, and that smoother metrics reveal gradual improvement. Either way, the practical implication is uncomfortable: the full capability profile of a frontier model is not known in advance of training it, which is why evaluation has become a research discipline in its own right and why pre-deployment red-teaming is now standard practice.</p>
+
+<p><strong>Multimodal models</strong> extend the same architecture across sensory channels by projecting images, audio, or video into the same token-like representation space as text. A single model can then describe a photograph, read a chart, transcribe speech, answer questions about a video clip, or generate an image from a description. Concrete illustrations include a maintenance engineer photographing a corroded valve and asking for a diagnosis; a radiology assistant drafting a report from a scan alongside a patient's notes; a visually impaired user receiving a spoken description of a street scene; and text-to-image systems such as diffusion models that iteratively denoise random noise into a coherent picture conditioned on a caption. The deeper significance is that modalities reinforce one another — grounding language in pixels and sound supplies a kind of referential anchor that text alone lacks.</p>
+
+<p>A pre-trained base model, however, is merely a very good text predictor. It will happily continue an offensive passage, invent citations, or respond to "how do I…" with content that is fluent and harmful, because the training objective contains no notion of helpfulness or safety. <strong>Alignment</strong> techniques bridge that gap. The canonical pipeline is:</p>
+
+<ul>
+  <li><strong>Supervised fine-tuning</strong> on high-quality demonstrations of the desired response style written or curated by humans.</li>
+  <li><strong>Reward modelling</strong>: human annotators rank multiple candidate responses to the same prompt, and a separate model is trained to predict those preferences, turning sparse human judgement into a dense, automatable scoring function.</li>
+  <li><strong>Reinforcement learning from human feedback (RLHF)</strong>: the language model is optimised against the reward model using a policy-gradient method such as PPO, with a penalty term keeping it from drifting too far from the supervised-fine-tuned starting point.</li>
+</ul>
+
+<p>Variants have proliferated — Direct Preference Optimisation removes the separate reinforcement learning stage by optimising preferences directly, and <em>Constitutional AI</em> replaces much of the human labelling with model-generated critiques against an explicit written set of principles. All share the same limitation: they align the model with the preferences of whichever annotator population produced the data, under whatever guidelines they were given. Alignment is therefore a value-laden engineering choice, not a neutral technical correction, and known failure modes persist — sycophancy (agreeing with a user's stated view), reward hacking (optimising the proxy rather than the intent), and confidently stated falsehoods, commonly called <em>hallucinations</em>, which arise because the model is trained to produce plausible continuations rather than verified ones.</p>
+
+<p><strong>Current Directions Driving the Field</strong></p>
+
+<p>The frontier is no longer defined solely by making models larger. Six overlapping strands characterise current work, and they are best understood as responses to the specific weaknesses of the foundation-model paradigm.</p>
+
+<p><strong>Agentic AI</strong> addresses the fact that a chat model produces text but does not <em>do</em> anything. An agentic system wraps a model in a loop: it decomposes a goal into subgoals, selects and calls external tools (a code interpreter, a database query, a web search, a calendar API), observes the results, and revises its plan. A research assistant agent asked to "summarise this quarter's competitor pricing" might search the web, download PDFs, extract tables, run a comparison in code, and produce a formatted report. The classic pattern interleaves reasoning and action:</p>
+
+<pre><code>Goal:    Find the cheapest supplier for part X and draft a purchase order.
+Thought: I need current prices; I cannot know these from training data.
+Action:  search_catalogue(part="X")
+Observe: 3 suppliers returned with prices and lead times.
+Thought: Supplier B is cheapest but lead time exceeds the deadline.
+Action:  check_stock(supplier="C")
+Observe: In stock, ships in 2 days.
+Thought: C satisfies both constraints. Draft the order.
+Action:  create_purchase_order(supplier="C", part="X", qty=40)
+</code></pre>
+
+<p>The open problems are reliability and safety. Errors compound across steps — a 95% per-step success rate yields barely 60% success over ten steps — and an agent with write access to real systems can cause real damage, which is why sandboxing, permission scoping, human-in-the-loop checkpoints, and resistance to prompt injection are active engineering concerns.</p>
+
+<p><strong>Efficiency</strong> responds to cost, latency, privacy, and energy. Inference, repeated billions of times, now dominates the lifetime compute of a deployed model, and data-centre electricity and water use have become matters of public policy. The main techniques are:</p>
+
+<ul>
+  <li><strong>Knowledge distillation</strong>: a small "student" model is trained to reproduce the outputs of a large "teacher", often recovering most of the teacher's quality at a fraction of the size.</li>
+  <li><strong>Quantisation</strong>: storing and computing weights at 8-bit or 4-bit precision rather than 16- or 32-bit, cutting memory and bandwidth requirements dramatically with modest accuracy loss.</li>
+  <li><strong>Pruning and sparsity</strong>: removing weights or whole attention heads that contribute little.</li>
+  <li><strong>Mixture-of-experts</strong>: routing each token to only a few of many expert sub-networks, so the parameter count is large but the compute per token stays small.</li>
+  <li><strong>Small language models and on-device inference</strong>: models of a few billion parameters running on phones and laptops, keeping data local, working offline, and eliminating per-query cloud cost.</li>
+</ul>
+
+<p><strong>Explainability and interpretability</strong> respond to opacity. The two terms are usefully distinguished. <em>Post-hoc explainability</em> attributes a particular decision to particular inputs — SHAP values, LIME surrogates, saliency maps, counterfactual explanations of the form "the loan would have been approved had income been £4,000 higher". <em>Mechanistic interpretability</em> is more ambitious: it attempts to reverse-engineer what internal components actually compute, identifying circuits that perform specific operations and using techniques such as sparse autoencoders to decompose tangled activations into human-nameable features. The motivation is partly scientific and partly regulatory: clinical, credit, employment, and criminal-justice deployments increasingly face legal requirements to justify automated decisions, and auditors cannot certify what no one can inspect.</p>
+
+<p><strong>Retrieval-augmented generation (RAG)</strong> responds to hallucination and staleness. Rather than relying on knowledge frozen into the weights at training time, the system embeds the user's query, searches a vector index of an authoritative corpus, retrieves the most relevant passages, and places them in the model's context with an instruction to answer from the supplied evidence and to cite it. The advantages are considerable: the knowledge base can be updated instantly without retraining, access can be restricted to documents the user is entitled to see, outputs carry traceable citations, and private corporate data never enters anyone's training set. A legal assistant grounded in a firm's own case files, or a support bot grounded in current product documentation, are typical deployments. RAG does not eliminate error — retrieval can surface irrelevant or contradictory passages, and a model may still mis-summarise what it retrieved — but it converts an unverifiable assertion into one a human can check against a named source.</p>
+
+<p><strong>Open-weight and proprietary models</strong> now coexist, and the tension between them shapes access, competition, and governance. Proprietary frontier systems are served through APIs; the provider controls safety filtering, pricing, and versioning, and users gain capability without infrastructure but accept vendor lock-in and limited auditability. Open-weight releases publish the trained parameters, enabling local deployment, domain fine-tuning, independent safety research, and reproducible science — valuable for regulated sectors that cannot send data to third parties, and for languages and communities a commercial vendor would never prioritise. The counter-argument is that published weights cannot be recalled and safety fine-tuning can be stripped off by anyone with modest resources. Note also the vocabulary: "open weights" is not the same as "open source", since training data, code, and full methodology are often withheld.</p>
+
+<p><strong>AI for science</strong> is arguably the direction with the greatest long-run significance. Following AlphaFold, machine learning now participates across the scientific pipeline: screening candidate molecules for drug discovery by predicting binding affinity and toxicity before synthesis; proposing stable inorganic crystals for batteries, catalysts, and semiconductors, with systems such as GNoME predicting hundreds of thousands of candidate materials; emulating physical simulations, where weather models like GraphCast produce forecasts in minutes on a single machine that previously required hours on a supercomputer; accelerating fusion research through reinforcement-learned plasma control; and automating literature synthesis and experimental planning in self-driving laboratories that design, run, and interpret experiments in closed loops. The pattern throughout is the same: wherever a slow, expensive simulation or experiment can be approximated by a learned surrogate, the search space a scientist can explore expands by orders of magnitude — with the standing caveat that predictions remain hypotheses requiring empirical confirmation.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — This topic does not directly teach the four classic definitions of AI, but it supplies illustrative material for the axes: Deep Blue and search-based systems exemplify <em>acting rationally</em> through optimisation, while large language models trained on human-generated text and aligned to human preferences exemplify systems judged against <em>human performance</em>.</li>
+  <li><strong>MO2</strong> — The topic does not address the procedure of Turing's imitation game. It does, however, provide relevant context, since conversational foundation models are the systems most often discussed in relation to Turing-style evaluation and the limits of behavioural tests of intelligence.</li>
+  <li><strong>MO3</strong> — The topic supports this outcome substantially. The progression from task-specific systems (Deep Blue, AlexNet, AlphaGo) to broadly adaptable foundation and multimodal models gives students concrete contemporary cases to classify against weak/narrow versus strong/general capability criteria, including the observation that each landmark system remained confined to its single domain.</li>
+  <li><strong>MO4</strong> — The topic supports this outcome by explaining the technical and economic conditions that ended the funding contractions: the knowledge acquisition bottleneck and brittleness of rule-based systems that caused earlier failures, and the data availability, benchmarked progress, and commercial returns of statistical learning that enabled recovery. Understanding what resolved the winters clarifies what caused them.</li>
+  <li><strong>MO5</strong> — The topic supports this outcome by naming specific ethical risk mechanisms arising from modern methods: opacity of learned representations (addressed by explainability and interpretability research), hallucination and unverifiable outputs (addressed by retrieval-augmented generation and citation), value-laden alignment choices embedded in RLHF annotation, privacy pressures that motivate on-device inference, and accountability questions raised by agentic systems acting on real infrastructure and by open-weight release decisions.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Dates, benchmark figures, and system names used here are standard and well documented: AlexNet&#39;s ~15.3% top-5 ImageNet error (2012), ResNet residual connections (2015), &quot;Attention Is All You Need&quot; (2017), AlphaGo vs Lee Sedol 4–1 (2016), AlphaFold 2 at CASP14 (2020), Deep Blue vs Kasparov 3&#189;–2&#189; (1997), Watson on Jeopardy! (2011). Scaling-law references are Kaplan et al. (2020) and Hoffmann et al. (Chinchilla, 2022); the &quot;foundation model&quot; term is from the Stanford CRFM report (2021). The emergence discussion deliberately presents both the standard claim and the metric-artefact critique (Schaeffer et al.) so instructors can stage a discussion. Human-level ImageNet comparison figures (~5% top-5) are included with the caveat that they derive from a single annotator study and should not be over-interpreted. Suggested activities: have students classify three contemporary systems on the narrow/general spectrum; have them map a RAG pipeline for a named organisation; have them critique a scaling-law extrapolation.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Depth-Limited, Iterative Deepening, and Bidirectional Search — Module Topics</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:880px;margin:0 auto;padding:32px 24px;color:#222;line-height:1.55}
+h1{font-size:1.6rem;border-bottom:2px solid #dcdcdc;padding-bottom:8px}
+h2{font-size:1.2rem;margin-top:28px;color:#1a3c6e}
+.summary{color:#555;font-style:italic;margin:4px 0 10px}
+ul{margin:6px 0 6px 4px}
+li{margin:5px 0}
+.el-body{color:#555}
+.empty{color:#595959}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Depth-Limited, Iterative Deepening, and Bidirectional Search</a></div>
+<h1>Depth-Limited, Iterative Deepening, and Bidirectional Search — Module Topics</h1>
+<h2>Depth-Limited Search</h2>
+<div class="summary">Introduces depth-limited search as a modification of depth-first search that imposes a cutoff depth to avoid infinite paths. Examines how the choice of limit affects completeness and optimality, including the risk of missing shallower-than-limit or deeper goals.</div>
+<ul>
+<li><strong>Motivation: Taming Depth-First Search</strong> <span class="el-body">— Depth-limited search (DLS) exists because plain depth-first search can descend forever down an infinite or very deep branch and never return. Imposing a maximum depth guarantees the search terminates.</span></li>
+<li><strong>How the Algorithm Works</strong> <span class="el-body">— DLS performs an ordinary recursive depth-first expansion but refuses to generate children once the current node&#39;s depth equals the limit. It reports one of three outcomes rather than the usual two.</span></li>
+<li><strong>Completeness and the Choice of Limit</strong> <span class="el-body">— DLS is only complete when the chosen limit is at least as large as the depth of the shallowest goal. Choosing badly turns a solvable problem into an apparent failure.</span></li>
+<li><strong>Optimality Concerns</strong> <span class="el-body">— Even when DLS finds a goal, there is no guarantee it is the shallowest or cheapest one. The depth-first ordering means the first goal encountered is simply the leftmost one within the limit.</span></li>
+<li><strong>Complexity and Memory Profile</strong> <span class="el-body">— DLS inherits the favourable space behaviour of depth-first search while bounding its time cost by the limit rather than by the depth of the state space.</span></li>
+<li><strong>Choosing a Limit in Practice</strong> <span class="el-body">— Sometimes problem knowledge supplies a natural cutoff; more often it does not, which motivates a more adaptive strategy.</span></li>
+</ul>
+<h2>Iterative Deepening Search</h2>
+<div class="summary">Explains how iterative deepening repeatedly applies depth-limited search with increasing limits to combine the memory efficiency of DFS with the completeness and optimality of BFS. Covers the algorithm&#39;s mechanics and why repeated node regeneration costs little in practice.</div>
+<ul>
+<li><strong>What Iterative Deepening Search Is</strong> <span class="el-body">— Iterative deepening search (IDS) repeatedly runs depth-limited search with a depth limit that increases by one on each iteration until a goal is found. It is designed to capture the best properties of both breadth-first and depth-first search.</span></li>
+<li><strong>How the Algorithm Works Step by Step</strong> <span class="el-body">— Each pass of iterative deepening is a fresh depth-first exploration that refuses to expand nodes beyond the current limit. The outer loop simply increments the limit and restarts.</span></li>
+<li><strong>Completeness and Optimality</strong> <span class="el-body">— Because iterative deepening explores depths in increasing order, it inherits the guarantees normally associated with breadth-first search. It is complete whenever the branching factor is finite.</span></li>
+<li><strong>Memory and Time Complexity</strong> <span class="el-body">— Iterative deepening keeps only the current path in memory, giving it the linear space profile of depth-first search while still running in the same asymptotic time as breadth-first search.</span></li>
+<li><strong>Why Repeated Node Regeneration Costs Little</strong> <span class="el-body">— Iterative deepening regenerates the upper levels of the tree many times, which seems wasteful, but the overhead is small because the bottom level dominates the node count.</span></li>
+<li><strong>Variants and Practical Use</strong> <span class="el-body">— The iterative deepening idea generalises beyond uniform-cost step counts and underpins several widely used search algorithms.</span></li>
+</ul>
+<h2>Bidirectional Search</h2>
+<div class="summary">Describes searching simultaneously forward from the initial state and backward from the goal until the two frontiers meet, reducing effective search cost from b^d to roughly 2b^(d/2). Discusses requirements such as predecessor generation, frontier intersection testing, and explicit goal states.</div>
+<ul>
+<li><strong>Core Idea of Bidirectional Search</strong> <span class="el-body">— Bidirectional search runs two simultaneous searches: one forward from the initial state and one backward from the goal state. The search stops when the two frontiers intersect, meaning a complete path has been found.</span></li>
+<li><strong>The Complexity Advantage</strong> <span class="el-body">— The appeal of bidirectional search lies in the exponential savings it achieves. Instead of generating b^d nodes, it generates roughly 2b^(d/2) nodes.</span></li>
+<li><strong>Requirement: Generating Predecessors</strong> <span class="el-body">— The backward half of the search requires the ability to compute the predecessors of any state. This is not always straightforward or even possible.</span></li>
+<li><strong>Requirement: Explicit and Few Goal States</strong> <span class="el-body">— Backward search must start from an actual goal state, so the goal must be described explicitly rather than by an abstract property. Problems with many or implicitly defined goals weaken the approach.</span></li>
+<li><strong>Testing for Frontier Intersection</strong> <span class="el-body">— Bidirectional search must efficiently check whether a newly generated node already appears in the opposite frontier. This test is performed each time a node is generated.</span></li>
+<li><strong>Choosing the Search Strategy for Each Half</strong> <span class="el-body">— Each half of a bidirectional search can use any search algorithm, and the choice affects completeness and optimality.</span></li>
+<li><strong>Practical Limitations and When to Use It</strong> <span class="el-body">— Despite its theoretical advantage, bidirectional search is only usable under fairly restrictive conditions. Understanding these guides when to apply it.</span></li>
+</ul>
+<h2>Comparing Uninformed Search Strategies</h2>
+<div class="summary">Compares breadth-first, uniform-cost, depth-first, depth-limited, iterative deepening, and bidirectional search across completeness, optimality, time complexity, and space complexity. Highlights the key trade-offs between memory usage and solution guarantees.</div>
+<ul>
+<li><strong>Four Criteria for Evaluating Search Strategies</strong> <span class="el-body">— Every uninformed search algorithm is judged on the same four dimensions, which make fair comparison possible.</span></li>
+<li><strong>Notation Used in the Comparison</strong> <span class="el-body">— The complexity formulas rely on a small set of problem parameters that must be defined before the table can be read.</span></li>
+<li><strong>Breadth-First and Uniform-Cost Search</strong> <span class="el-body">— Both strategies expand the frontier in order of increasing cost or depth and therefore offer strong guarantees at a high memory price.</span></li>
+<li><strong>Depth-First and Depth-Limited Search</strong> <span class="el-body">— These strategies trade away guarantees in exchange for dramatically smaller memory footprints.</span></li>
+<li><strong>Iterative Deepening and Bidirectional Search</strong> <span class="el-body">— These two strategies are engineered to recover guarantees or reduce effective depth without the memory cost of breadth-first search.</span></li>
+<li><strong>The Core Trade-Off: Memory Versus Guarantees</strong> <span class="el-body">— Reading the comparison table as a whole reveals one dominant tension that drives algorithm selection.</span></li>
+<li><strong>Guidance for Selecting a Strategy</strong> <span class="el-body">— Practical selection follows from a few questions about the problem structure and available resources.</span></li>
+</ul>
+<h2>Selecting an Appropriate Strategy</h2>
+<div class="summary">Provides practical guidance for choosing an uninformed search strategy based on problem characteristics such as branching factor, solution depth, step costs, memory constraints, and availability of goal and predecessor information.</div>
+<ul>
+<li><strong>Start by Characterising the Problem</strong> <span class="el-body">— Strategy selection begins with measuring a handful of structural properties of the search problem. These properties determine which uninformed algorithm will terminate in acceptable time and memory.</span></li>
+<li><strong>Choosing When Memory Is the Binding Constraint</strong> <span class="el-body">— Memory, not time, is usually the first resource to be exhausted in uninformed search. When space is tight, depth-first style strategies that store only the current path are preferred.</span></li>
+<li><strong>Choosing Based on Step Costs and Optimality Needs</strong> <span class="el-body">— Whether an optimal solution is required, and how action costs are defined, strongly narrows the candidate strategies.</span></li>
+<li><strong>Deciding Whether Bidirectional Search Applies</strong> <span class="el-body">— Bidirectional search can cut the effective cost from O(b^d) to roughly O(b^(d/2)), but only when specific preconditions hold.</span></li>
+<li><strong>Setting a Depth Limit Sensibly</strong> <span class="el-body">— When depth-limited search is chosen, the quality of the limit determines whether the search succeeds at all.</span></li>
+<li><strong>A Practical Decision Heuristic</strong> <span class="el-body">— The selection rules can be condensed into a short sequence of checks applied in order.</span></li>
+</ul>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

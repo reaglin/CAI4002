@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Uniform-Cost Search</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Uninformed Search: BFS, DFS, and Uniform Cost</a></div>
+<h1>Uniform-Cost Search</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: Uniform Cost Search | Algorithm | Simple Python Tutorials</a>
+<a href="#sec3">Video 2: Uniform Cost Search | Python Challenge</a>
+<a href="#sec4">Video 3: Uniform Cost Search || Uninformed Searching Strategies in AI ||Artificial Intelligence</a>
+<a href="#sec5">How These Videos Support the Learning Outcomes</a>
+<a href="#sec6">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>Breadth-first search finds the shallowest solution, which is only the cheapest solution when every edge costs the same. Uniform-cost search (UCS) removes that assumption: instead of a FIFO queue, the frontier is a priority queue ordered by g(n), the cumulative cost of the path from the start node to n. The algorithm always expands the cheapest-so-far node, which is why it returns an optimal solution on graphs with non-negative edge weights, and why it is essentially Dijkstra&#39;s algorithm rephrased in search-problem language.</p>
+<p>Two details separate a correct UCS implementation from a subtly broken one. First, the goal test happens when a node is expanded (popped from the frontier), not when it is generated (pushed), because a goal discovered along an expensive path may later be reached more cheaply. Second, when a node already on the frontier is reached again by a cheaper path, its priority must be lowered — or the cheaper entry inserted and the stale one ignored — so that optimality is preserved. Both points will come up repeatedly when you trace UCS by hand on a weighted route map.</p>
+<p>While watching, keep a pen and paper trace running alongside the video: write down the frontier as a list of (node, g-value) pairs after each expansion, mark the explored set, and note exactly when the goal is detected. Also watch how each presenter handles the priority queue in code, since that data structure is what you will use in your own implementation. Finally, think about complexity in terms of the cheapest edge cost rather than depth, and about when UCS degenerates back into BFS.</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: Uniform Cost Search | Algorithm | Simple Python Tutorials</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/dLXhXcG45Tg?cc_load_policy=1&amp;rel=0" title="Video: Uniform Cost Search | Algorithm | Simple Python Tutorials (Dr Codie)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Dr Codie</strong> · 14:45 · 5,523 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=dLXhXcG45Tg" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A tutorial walkthrough of uniform-cost search presented as the last of the uninformed search algorithms, combining an explanation of the algorithm with a simple Python implementation. Expect coverage of how cumulative path cost drives the ordering of the frontier and how a priority queue is used in code to always pop the cheapest node. The length allows time for both a worked example on a weighted graph and the corresponding code.</p>
+<h3>Why this video</h3>
+<p>At nearly fifteen minutes it is the most complete single treatment in this set, pairing the conceptual priority-queue-by-g(n) idea with a concrete implementation, which maps directly onto the frontier and tracing subtopics.</p>
+</section>
+<section class="item" id="sec3">
+<h2>Video 2: Uniform Cost Search | Python Challenge</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Wz0uY6bEDfw?cc_load_policy=1&amp;rel=0" title="Video: Uniform Cost Search | Python Challenge (Dr Codie)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Dr Codie</strong> · 12:18 · 611 views · 2y ago · captions — <a href="https://www.youtube.com/watch?v=Wz0uY6bEDfw" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A follow-up challenge video from the same channel that examines UCS code taken from widely circulated online sources and tests whether those implementations actually behave correctly. It is framed as a critique and debugging exercise rather than a first introduction to the algorithm.</p>
+<h3>Why this video</h3>
+<p>Common online UCS code fails exactly on the subtle points this topic emphasizes — goal testing at expansion rather than generation, and updating nodes reached by cheaper paths — so this video is a useful check on your own understanding after watching the main tutorial.</p>
+</section>
+<section class="item" id="sec4">
+<h2>Video 3: Uniform Cost Search || Uninformed Searching Strategies in AI ||Artificial Intelligence</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/nLLUhzrbS6U?cc_load_policy=1&amp;rel=0" title="Video: Uniform Cost Search || Uninformed Searching Strategies in AI ||Artificial Intelligence (CSDesk)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>CSDesk</strong> · 3:45 · 307 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=nLLUhzrbS6U" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A brief lecture-style overview of uniform-cost search within the broader family of uninformed searching strategies in artificial intelligence. In under four minutes it is likely to state the basic idea of expanding by lowest path cost and summarize the strategy&#39;s properties such as completeness and optimality.</p>
+<h3>Why this video</h3>
+<p>It serves as a fast review or orientation before the longer tutorials, and its placement within a series on uninformed strategies helps you see how UCS contrasts with BFS and DFS.</p>
+</section>
+<section class="item" id="sec5">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>Together these videos target the UCS half of the module&#39;s outcomes. The main tutorial and the short overview support MO2 by showing how expansion order and frontier contents evolve on a weighted graph, and MO4 by stating the completeness and optimality properties that distinguish UCS from BFS and DFS. The Python tutorial and its companion challenge support MO3 directly, since both center on a priority-queue frontier with an explored set and on the implementation errors that break path reconstruction or optimality. Understanding why edge costs, not depth, govern UCS behavior feeds into MO5, and the problem setups used in the traces reinforce the five-part search formulation of MO1, in particular the path cost component.</p>
+</section>
+<section class="item" id="sec6">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

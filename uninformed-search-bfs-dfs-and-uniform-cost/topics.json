@@ -1,0 +1,1456 @@
+{
+  "ModuleFolderName": "Uninformed_Search_BFS",
+  "CourseName": "CAI4002 - Intro to AI",
+  "GeneratedDate": "2026-10-14T19:52:33.2047193-04:00",
+  "ModifiedDate": "2026-10-14T19:55:06.3032924-04:00",
+  "Outcomes": [],
+  "Topics": [
+    {
+      "Id": "27b1da30-4b9e-489d-b4a9-a684cf40c433",
+      "Title": "Foundations of Uninformed Search",
+      "Summary": "Introduces search problem formulation \u2014 states, actions, transition model, goal test, and path cost \u2014 and the generic tree/graph search framework with frontier and explored sets. Establishes why these strategies are called \u0027uninformed\u0027 and the evaluation criteria of completeness, optimality, time, and space complexity.",
+      "SortOrder": 0,
+      "CreatedDate": "2026-10-14T19:52:33.2047193-04:00",
+      "ModifiedDate": "2026-10-14T19:52:33.2047193-04:00",
+      "Elements": [
+        {
+          "Id": "9268c511-c509-4e29-a618-b8711e72a90e",
+          "TopicId": "27b1da30-4b9e-489d-b4a9-a684cf40c433",
+          "Title": "Formulating a Search Problem",
+          "BodyText": "Before any algorithm can run, a problem must be expressed in a standard five-part formulation that search algorithms understand.",
+          "Notes": "Example: in route finding, states are cities, actions are roads taken, the transition model gives the city reached, the goal test checks arrival at the destination, and path cost is total distance travelled.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:52:56.3844821-04:00",
+          "ModifiedDate": "2026-10-14T19:52:56.3844821-04:00",
+          "Items": [
+            {
+              "Id": "e4434e5b-de01-41f9-9a5e-88567277d489",
+              "Text": "The initial state describes where the agent begins, such as the scrambled configuration of an 8-puzzle.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "998b3ef1-369f-4734-ae4e-e840361632f6",
+              "Text": "The set of applicable actions defines what the agent may legally do from any given state.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f0d240fc-6011-429b-895e-2429367c86ae",
+              "Text": "The transition model (or successor function) maps a state and action to the resulting state.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "30e6ec22-c259-4d36-95e2-af0b11f3681a",
+              "Text": "The goal test determines whether a given state satisfies the objective, either by explicit enumeration or by a property check.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "62d91667-e424-45ca-994e-669b84004d0f",
+              "Text": "The path cost function assigns a numeric cost to each path, usually as the sum of individual step costs.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "0d667893-7351-4ad8-bf1b-b788bd3e24db",
+          "TopicId": "27b1da30-4b9e-489d-b4a9-a684cf40c433",
+          "Title": "State Space, Paths, and Solutions",
+          "BodyText": "The problem formulation implicitly defines a state space graph that search algorithms explore to find a solution path.",
+          "Notes": "The 8-puzzle has 9!/2 = 181,440 reachable states; route-finding maps may have thousands of nodes but far fewer edges per node.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:52:56.3844821-04:00",
+          "ModifiedDate": "2026-10-14T19:52:56.3844821-04:00",
+          "Items": [
+            {
+              "Id": "ca710ed0-3192-4ebe-ba92-f948752224a5",
+              "Text": "The state space is the set of all states reachable from the initial state via any sequence of actions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c531bdb6-bd8a-4d59-a638-ab3942d44ed1",
+              "Text": "A path is a sequence of states connected by actions; a solution is a path from the initial state to a goal state.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "0d66c733-8336-486f-9469-1519bed01002",
+              "Text": "An optimal solution is a solution with the lowest path cost among all solutions.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "6813b3ff-838c-4e6c-b94d-3f25557eee01",
+              "Text": "State spaces can be enormous or even infinite, so algorithms build only the portions they need.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "1dff7aaf-a6a7-4270-a649-af6b29974978",
+              "Text": "Branching factor b and solution depth d are the key structural parameters used in later analysis.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "7196db54-233d-487a-8dc8-a3eedd779d3c",
+          "TopicId": "27b1da30-4b9e-489d-b4a9-a684cf40c433",
+          "Title": "The Generic Search Framework: Tree Search",
+          "BodyText": "All the algorithms in this module are variations of a single generic loop that repeatedly expands nodes from a frontier.",
+          "Notes": "A node stores the state plus bookkeeping: parent pointer, generating action, path cost g(n), and depth \u2014 allowing the solution path to be recovered by following parent links.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:52:56.3844821-04:00",
+          "ModifiedDate": "2026-10-14T19:52:56.3844821-04:00",
+          "Items": [
+            {
+              "Id": "81307681-b98e-4edf-813e-bef9dd0cc29d",
+              "Text": "Initialise the frontier with a node containing the initial state.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "07e2ca0d-50c6-4734-a209-9a13f4494f16",
+              "Text": "Loop: if the frontier is empty, return failure; otherwise remove a node according to the strategy\u0027s rule.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2fa7059e-5033-4f64-8333-a88543520045",
+              "Text": "Apply the goal test to the chosen node, and if it passes, return the solution path.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e1b6616a-8c23-4811-b565-3a3bbfd5d5de",
+              "Text": "Otherwise expand the node, generating child nodes for each applicable action and adding them to the frontier.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "75e78330-dc1f-4a47-a20f-efdbcce10185",
+              "Text": "The only difference between BFS, DFS, and uniform-cost search is which node the frontier returns next.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "5c338a3a-2d89-4bc4-9ea6-a6f014c315ce",
+          "TopicId": "27b1da30-4b9e-489d-b4a9-a684cf40c433",
+          "Title": "Graph Search and the Explored Set",
+          "BodyText": "Tree search can revisit states endlessly when the state space contains cycles or multiple paths to the same state, so graph search adds an explored set.",
+          "Notes": "In route finding, tree search could loop A\u2192B\u2192A\u2192B forever; graph search eliminates this by remembering that A and B were already expanded.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:52:56.3844821-04:00",
+          "ModifiedDate": "2026-10-14T19:52:56.3844821-04:00",
+          "Items": [
+            {
+              "Id": "396ce896-437d-4c6b-82a2-928f255ffed9",
+              "Text": "The explored (closed) set records every state that has already been expanded.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "7219b40b-d70e-4809-b8b4-cead86963097",
+              "Text": "A newly generated child is discarded if its state is already in the explored set or already in the frontier.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "97a9ea7c-c7cd-4071-b8fa-82c05f7d6ce3",
+              "Text": "Graph search guarantees termination on finite state spaces and avoids redundant work from repeated states.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "869470fe-6e83-461b-89c6-dcbb0713914f",
+              "Text": "The cost is memory: the explored set grows with the number of distinct states visited.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "fd4d1730-7b17-4808-a420-a673a3fb8915",
+              "Text": "A hash set keyed on a canonical state representation gives near-constant-time membership checks.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "84b20152-74f6-4428-9b79-99c5f4547c37",
+          "TopicId": "27b1da30-4b9e-489d-b4a9-a684cf40c433",
+          "Title": "What Makes a Strategy \u0027Uninformed\u0027",
+          "BodyText": "Uninformed (blind) search strategies use only the information contained in the problem definition itself.",
+          "Notes": "Informed strategies such as greedy best-first and A* add a heuristic h(n) estimating distance to the goal; those are outside the scope of this module.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:52:56.3844821-04:00",
+          "ModifiedDate": "2026-10-14T19:52:56.3844821-04:00",
+          "Items": [
+            {
+              "Id": "4bc32b0f-ace5-4ee4-99a8-c0d76d7a9062",
+              "Text": "They have no estimate of how close a non-goal state is to a goal.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "ca33292c-7a43-4af2-a000-e501a69a0d0b",
+              "Text": "They can distinguish a goal state from a non-goal state only via the goal test.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8d71416a-f776-4d1d-a409-e52fcf7a4d49",
+              "Text": "Ordering decisions rely solely on structural facts such as depth or accumulated path cost g(n).",
+              "SortOrder": 2
+            },
+            {
+              "Id": "65d63ec6-b60f-4681-bc3c-fe324aec5bc3",
+              "Text": "This makes them general-purpose and domain-independent, but often inefficient on large state spaces.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "e7100822-ade1-40c9-ae12-da60a661c975",
+              "Text": "Understanding them is essential because informed algorithms are built directly on the same generic framework.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "43fd26a8-6efb-4fb7-813e-212faefebb0c",
+          "TopicId": "27b1da30-4b9e-489d-b4a9-a684cf40c433",
+          "Title": "Four Criteria for Evaluating Search Algorithms",
+          "BodyText": "Every search strategy is judged against the same four measures, which allow fair comparison of BFS, DFS, and uniform-cost search.",
+          "Notes": "Parameters used: b = branching factor, d = depth of shallowest goal, m = maximum depth of the state space, C* = cost of optimal solution, \u03B5 = minimum step cost.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:52:56.3844821-04:00",
+          "ModifiedDate": "2026-10-14T19:52:56.3844821-04:00",
+          "Items": [
+            {
+              "Id": "ddba6aa6-f8d3-4751-8190-8be13fee53bf",
+              "Text": "Completeness: is the algorithm guaranteed to find a solution when one exists?",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b2f0a0d5-cde3-4654-8346-9bfee5b27184",
+              "Text": "Optimality: does it always return the least-cost solution?",
+              "SortOrder": 1
+            },
+            {
+              "Id": "bad7f88e-d29c-4276-943c-781c6986ef6e",
+              "Text": "Time complexity: how many nodes are generated, typically expressed in terms of b and d.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d5d7c5b9-4695-401a-a9b2-f1d63f770169",
+              "Text": "Space complexity: how many nodes must be held in memory at once \u2014 often the binding constraint in practice.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "8d8c46fd-da1f-40ef-9502-d7e8ca0c4460",
+              "Text": "In search problems, complexity is measured in nodes rather than seconds or bytes, making results hardware-independent.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "5ab5edbd-7f99-4995-8b90-ce6ee47cd65a",
+      "Title": "Breadth-First Search",
+      "Summary": "Covers BFS using a FIFO queue, including step-by-step traces on simple graphs and the 8-puzzle, goal-test timing, and duplicate detection. Analyzes its completeness, optimality on unit-cost problems, and O(b^d) time and space behavior.",
+      "SortOrder": 1,
+      "CreatedDate": "2026-10-14T19:52:33.2047193-04:00",
+      "ModifiedDate": "2026-10-14T19:52:33.2047193-04:00",
+      "Elements": [
+        {
+          "Id": "7964acfd-4d4c-4e72-8bcf-faca8cf801b7",
+          "TopicId": "5ab5edbd-7f99-4995-8b90-ce6ee47cd65a",
+          "Title": "BFS and the FIFO Frontier",
+          "BodyText": "Breadth-first search expands the shallowest unexpanded node first, which it achieves by storing the frontier in a first-in, first-out queue. This simple data-structure choice is what gives BFS all of its characteristic behaviour.",
+          "Notes": "Contrast with DFS, which differs only in using a LIFO stack for the frontier.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:53:21.8898873-04:00",
+          "ModifiedDate": "2026-10-14T19:53:21.8898873-04:00",
+          "Items": [
+            {
+              "Id": "75791afe-b94d-4437-8815-113763769c21",
+              "Text": "New successors are appended to the back of the queue while expansion always removes from the front.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "1fdceb24-5b44-4aa7-a36e-13fca9324070",
+              "Text": "Because every node at depth d enters the queue before any node at depth d\u002B1, the search sweeps the tree level by level.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "42f61124-35bc-4cab-8286-98f29b95e533",
+              "Text": "Each node stores its state, parent pointer, generating action, and path cost so the solution can be recovered by following parents back to the root.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d5aa1d4e-1f44-42c9-9b15-1d6473771c73",
+              "Text": "An explored set (closed list) records states already expanded, and a lookup structure over frontier states prevents redundant insertions.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "8348b196-ac2d-44ef-8a03-3beff4e0baa0",
+              "Text": "Queue operations are O(1), so the data structure itself never dominates the running time.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "f98904e4-6d8b-47b5-accf-2debb373bc80",
+          "TopicId": "5ab5edbd-7f99-4995-8b90-ce6ee47cd65a",
+          "Title": "Tracing BFS on a Simple Graph",
+          "BodyText": "A hand trace on a small graph makes the level-by-level expansion order concrete. Writing out the frontier contents after each step is the fastest way to confirm you understand the algorithm.",
+          "Notes": "Example: with root A, children B and C, B\u0027s children D and E, and C\u0027s child F, the expansion order is A, B, C, D, E, F.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:53:21.8898873-04:00",
+          "ModifiedDate": "2026-10-14T19:53:21.8898873-04:00",
+          "Items": [
+            {
+              "Id": "9d8b947f-6381-4836-b0f6-deb965443a4e",
+              "Text": "Start by placing the initial state in the queue and the explored set empty.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0f3199f0-8c6d-417a-88aa-059e8b89f361",
+              "Text": "At each iteration, dequeue the front node, add its state to the explored set, and generate its successors.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "cbb8a4ba-9b99-4ffa-9af7-6cec0250275d",
+              "Text": "Successors are enqueued in a fixed order (often alphabetical or left-to-right) so traces are reproducible.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "8029e63a-9e5a-48bd-b21e-07290c2c8518",
+              "Text": "Record the frontier as an ordered list after every expansion to see the level boundaries emerge.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "4764ee84-04af-4087-a242-a9d195dfb40d",
+              "Text": "Terminate as soon as a goal is detected, then reconstruct the path through parent links.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "a3fe61ec-8251-4086-9489-ab2d54c1ddc0",
+          "TopicId": "5ab5edbd-7f99-4995-8b90-ce6ee47cd65a",
+          "Title": "Goal-Test Timing: Generation vs. Expansion",
+          "BodyText": "BFS tests each node for the goal when the node is generated, not when it is selected for expansion. This early goal test saves an entire extra level of work.",
+          "Notes": "Graph-search variants of other algorithms, such as uniform-cost search, must delay the goal test until expansion because a cheaper path may still be found.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:53:21.8898873-04:00",
+          "ModifiedDate": "2026-10-14T19:53:21.8898873-04:00",
+          "Items": [
+            {
+              "Id": "fd9ae677-46b8-4d53-8b43-43d7b0cb6802",
+              "Text": "Testing at generation lets BFS return as soon as the first goal node appears in the successor list.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "41400aea-9148-4367-9165-a369f71d774a",
+              "Text": "Delaying the test to expansion would force BFS to generate the whole of depth d\u002B1 before reporting, multiplying work by roughly b.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5299b079-ef59-4740-9fdb-62ba556409df",
+              "Text": "The early test is safe for BFS only because all nodes at a given depth are equally shallow.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a7cb6b0b-4abc-44c5-86a8-37579ec4b8ef",
+              "Text": "If step costs vary, testing at generation can return a suboptimal solution, which is why uniform-cost search abandons it.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "921f9912-aae5-4306-82ed-53e010ebd7ac",
+          "TopicId": "5ab5edbd-7f99-4995-8b90-ce6ee47cd65a",
+          "Title": "Duplicate Detection and Repeated States",
+          "BodyText": "Without duplicate detection, BFS on a graph re-generates the same states along different paths and may loop forever. Combining an explored set with a frontier membership check converts tree search into graph search.",
+          "Notes": "In the 8-puzzle, moving the blank left then right returns to the parent state; duplicate detection discards it immediately.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:53:21.8898873-04:00",
+          "ModifiedDate": "2026-10-14T19:53:21.8898873-04:00",
+          "Items": [
+            {
+              "Id": "8bfe51e7-3f49-4dcd-8ef3-3bf9106bb038",
+              "Text": "Discard a newly generated child if its state is already in the explored set or already on the frontier.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e841cadf-cfc5-49a7-84d5-2671a96fd721",
+              "Text": "For BFS the first path found to any state is guaranteed to be a shortest-in-steps path, so later duplicates can be discarded safely.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "121a5863-e114-4ec6-bc65-9cc8cdd89665",
+              "Text": "Use a hash set keyed on a canonical state representation (for example a tuple or string of the 8-puzzle tiles) for O(1) lookups.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "2d60852b-c83e-49a5-b2b5-8ad39beb4130",
+              "Text": "Duplicate detection bounds the number of nodes by the number of distinct states rather than the number of paths.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "ab16b0bd-b1a5-42b5-9d4c-871dbadd9edc",
+          "TopicId": "5ab5edbd-7f99-4995-8b90-ce6ee47cd65a",
+          "Title": "BFS on the 8-Puzzle",
+          "BodyText": "The 8-puzzle gives BFS a concrete testbed: states are tile configurations, actions move the blank up, down, left, or right, and each move costs one. BFS returns the solution with the fewest moves.",
+          "Notes": "The 8-puzzle has 9!/2 = 181,440 reachable states, so BFS is feasible; the 15-puzzle\u0027s 10^13 states are not.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:53:21.8898873-04:00",
+          "ModifiedDate": "2026-10-14T19:53:21.8898873-04:00",
+          "Items": [
+            {
+              "Id": "64ee1ead-1afd-438c-b346-9dac4e821094",
+              "Text": "The branching factor varies from 2 (blank in a corner) to 4 (blank in the centre), averaging about 3.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "4df884d4-5fc3-427f-b54d-42cb424e34fd",
+              "Text": "BFS explores all one-move configurations, then all two-move configurations, and so on until the goal appears.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "6a8a08b6-6725-4ad1-9dd6-ca1a1328caf9",
+              "Text": "Because every move costs the same, the first goal reached is a minimum-move solution.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "6c94ee6b-687d-47f5-9362-683cb4bf3000",
+              "Text": "Memory, not time, is the binding constraint: the frontier can hold tens of thousands of boards at moderate depths.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "2d0ef894-fbbf-48d9-9a09-b43a53f9af15",
+          "TopicId": "5ab5edbd-7f99-4995-8b90-ce6ee47cd65a",
+          "Title": "Completeness, Optimality, and Complexity",
+          "BodyText": "BFS is complete and, under unit step costs, optimal, but it pays for these guarantees with exponential memory. The standard analysis uses branching factor b and goal depth d.",
+          "Notes": "With b = 10 and one million nodes generated per second at 1 KB per node, depth 12 needs roughly 10^12 nodes \u2014 about 13 days and a petabyte of memory.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:53:21.8898873-04:00",
+          "ModifiedDate": "2026-10-14T19:53:21.8898873-04:00",
+          "Items": [
+            {
+              "Id": "5301e319-3bd4-4073-807a-40cfe861e189",
+              "Text": "Completeness: if a solution exists at finite depth and b is finite, BFS will find it.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f602b40a-564c-40a4-9548-6f5bde69150a",
+              "Text": "Optimality: BFS returns a shallowest goal, which is a least-cost goal only when all step costs are equal (or non-decreasing with depth).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "b8565cf4-427b-40b0-804d-3d4032acf667",
+              "Text": "Time complexity is O(b^d) nodes generated when the goal test is applied at generation.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "788665c1-eb69-4021-a6f0-042eff544a37",
+              "Text": "Space complexity is also O(b^d), since the frontier alone holds O(b^d) nodes at the deepest level.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a43b1acd-f186-454c-aa61-e4f5136fa45d",
+              "Text": "Memory is the practical killer: exponential space exhausts RAM long before an exponential time bound becomes intolerable.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "7dc2d085-8ca5-4275-b98c-061419f5c405",
+              "Text": "For non-unit costs, uniform-cost search must be used instead to retain optimality.",
+              "SortOrder": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "58178308-2389-452a-af5b-5dff596647bd",
+      "Title": "Depth-First Search",
+      "Summary": "Examines DFS with a LIFO stack and recursive formulations, tracing its exploration order and backtracking on the same problems. Discusses its linear space advantage, incompleteness on infinite or cyclic spaces, and the depth-limited and iterative-deepening variants.",
+      "SortOrder": 2,
+      "CreatedDate": "2026-10-14T19:52:33.2047193-04:00",
+      "ModifiedDate": "2026-10-14T19:52:33.2047193-04:00",
+      "Elements": [
+        {
+          "Id": "d4dcb1f1-7ecc-4a21-9429-fc8493327444",
+          "TopicId": "58178308-2389-452a-af5b-5dff596647bd",
+          "Title": "DFS Strategy and the LIFO Frontier",
+          "BodyText": "Depth-first search expands the deepest node in the current frontier, diving down one branch before considering alternatives. It is realised by swapping BFS\u0027s FIFO queue for a LIFO stack.",
+          "Notes": "In the 8-puzzle, DFS commits to sliding tiles down a single line of moves until no new states remain at that depth, unlike BFS which fans out level by level.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:53:51.1968658-04:00",
+          "ModifiedDate": "2026-10-14T19:53:51.1968658-04:00",
+          "Items": [
+            {
+              "Id": "f42d6c2a-a68f-4cd1-959e-dda558716cc2",
+              "Text": "The frontier is a stack: the most recently generated successor is the next node expanded.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "09acef36-642b-47f1-baeb-b9949e5bb6ab",
+              "Text": "Successors are typically pushed in reverse order so the first-listed child is explored first.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2d9bc903-46a3-4b4b-88d7-0b784e2a7f8c",
+              "Text": "Exploration follows a single path to its maximum depth before any sibling is considered.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "18e5cbc2-350a-4ee0-8d2e-0f3544f6a6fa",
+              "Text": "Goal testing is usually done on expansion (or on generation in the tree-search variant).",
+              "SortOrder": 3
+            },
+            {
+              "Id": "58737809-edde-47b8-b74b-18945d4877d3",
+              "Text": "Unlike BFS, the shallowest goal is not found first, so the first solution returned may be far from optimal.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "732607ec-11ad-4dab-8af8-15c1f992054e",
+          "TopicId": "58178308-2389-452a-af5b-5dff596647bd",
+          "Title": "Recursive Formulation and Backtracking",
+          "BodyText": "DFS has a natural recursive expression in which the call stack replaces the explicit frontier stack. When a branch is exhausted, control returns to the most recent unexplored alternative \u2014 this is backtracking.",
+          "Notes": "A recursive DFS(node, depth) returns a solution, failure, or cutoff; the caller then tries the next successor.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:53:51.1968658-04:00",
+          "ModifiedDate": "2026-10-14T19:53:51.1968658-04:00",
+          "Items": [
+            {
+              "Id": "91000725-f7ac-47b6-8bdc-d355f59341d5",
+              "Text": "Each recursive call handles one node and loops over its successors.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "634159cf-be2f-4e75-9e52-6ae080fa08e7",
+              "Text": "Returning from a call pops the implicit stack and resumes the parent\u0027s successor loop.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "616bb591-cb48-4d9a-9102-98f3e281bc28",
+              "Text": "Backtracking occurs at dead ends, at already-visited states, or when a depth limit is reached.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "92644801-9886-49dd-ad3e-8a5f93a8538f",
+              "Text": "A backtracking variant generates one successor at a time, storing only the next action per node.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a255ee7c-8b64-4f73-a352-b6407c889bc4",
+              "Text": "Recursion depth is bounded by path length, so very deep searches can overflow the call stack.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "1fa388c4-5b2d-420f-9a69-bdb7b0d055ea",
+          "TopicId": "58178308-2389-452a-af5b-5dff596647bd",
+          "Title": "Tracing DFS on the Same Problems",
+          "BodyText": "Running DFS on the route-finding map and 8-puzzle used for BFS highlights how dramatically the expansion order changes. The same graph yields a different visit sequence and a different first solution.",
+          "Notes": "Compare the DFS trace table (frontier stack contents, explored set, node expanded) with the BFS table row by row.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:53:51.1968658-04:00",
+          "ModifiedDate": "2026-10-14T19:53:51.1968658-04:00",
+          "Items": [
+            {
+              "Id": "5238cab0-c45b-4357-a36f-5994614dff13",
+              "Text": "On the route map, DFS may follow a long detour to the goal while BFS returns the fewest-hop route.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "14a06551-ccfd-42fc-9f50-ebf964b4ff61",
+              "Text": "On the 8-puzzle, DFS can plunge hundreds of moves deep without nearing a solved configuration.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a94ef774-91c3-4a10-b536-144bec940770",
+              "Text": "Record the stack contents at each step to see how children are pushed and popped.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "bc1ea217-7e31-48e8-ac26-8fa658695d2a",
+              "Text": "Graph-search DFS uses an explored set to avoid revisiting states; tree-search DFS does not.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "140f09b7-def8-46aa-af8f-82822af4fbad",
+              "Text": "The solution path is recovered by following parent pointers from the goal node back to the root.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "0a1a4722-5e31-46e2-86ea-952a392f4764",
+          "TopicId": "58178308-2389-452a-af5b-5dff596647bd",
+          "Title": "Space and Time Complexity",
+          "BodyText": "DFS\u0027s main attraction is its memory footprint: it stores only the nodes along the current path plus their unexpanded siblings. This linear space requirement contrasts sharply with BFS\u0027s exponential growth.",
+          "Notes": "With b = 10 and m = 12, DFS needs on the order of 120 nodes while BFS could need over a trillion.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:53:51.1968658-04:00",
+          "ModifiedDate": "2026-10-14T19:53:51.1968658-04:00",
+          "Items": [
+            {
+              "Id": "1452f46c-1475-4077-9e26-f9ba4576a692",
+              "Text": "Space complexity is O(bm) for tree search, where b is the branching factor and m the maximum depth.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d1e17693-56cb-4f08-a805-ab8b9691193d",
+              "Text": "Backtracking DFS reduces this further to O(m) by generating successors one at a time.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "b7c9518c-004d-494c-bf20-30c6d1c5ff1b",
+              "Text": "Time complexity is O(b^m), which can be far worse than BFS when m greatly exceeds the goal depth d.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "ffb1b237-d163-4458-90c2-60e8171a0c0b",
+              "Text": "Graph-search DFS loses the space advantage because the explored set can grow to the size of the state space.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "53b03a1e-95af-4efd-9581-82310875e422",
+              "Text": "DFS is preferred when memory is the binding constraint and solutions are dense at depth.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "12061eca-9c2a-432a-85b8-682cc7fc9200",
+          "TopicId": "58178308-2389-452a-af5b-5dff596647bd",
+          "Title": "Completeness, Optimality, and Infinite Branches",
+          "BodyText": "DFS is neither complete nor optimal in the general case. It can descend forever down an infinite branch or loop endlessly in a cyclic state space.",
+          "Notes": "A repeated-state check makes DFS complete in finite state spaces, but it remains non-optimal.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:53:51.1968658-04:00",
+          "ModifiedDate": "2026-10-14T19:53:51.1968658-04:00",
+          "Items": [
+            {
+              "Id": "62f97198-3d87-45d8-853c-c3a985ee87e7",
+              "Text": "Tree-search DFS can cycle indefinitely between repeated states and never reach the goal.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "31ea2694-f119-4622-bf1e-a8d8940376ce",
+              "Text": "In infinite-depth spaces, DFS may follow a non-goal branch forever even when a shallow solution exists.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "0c869c6c-e114-496a-92b8-d7d99e3c1455",
+              "Text": "Graph-search DFS is complete in finite state spaces because the explored set blocks repeats.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "4cbbef4e-765d-4a4a-92b0-f236ffbeb7b2",
+              "Text": "DFS returns the first goal it encounters, which is rarely the shallowest or cheapest one.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "4f38062a-4a98-4e16-b3d8-61e4074896ab",
+              "Text": "Step costs are ignored entirely, so DFS offers no cost guarantees even with a cost-weighted graph.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "b8f26665-89d0-4d89-93d2-e4ba6bea86ff",
+          "TopicId": "58178308-2389-452a-af5b-5dff596647bd",
+          "Title": "Depth-Limited Search",
+          "BodyText": "Depth-limited search fixes DFS\u0027s infinite-branch failure by imposing a cutoff depth L and refusing to expand nodes beyond it. Nodes at depth L are simply treated as having no successors.",
+          "Notes": "In route finding over a map of n cities, any solution path is at most n-1 steps, giving a natural diameter-based limit.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:53:51.1968658-04:00",
+          "ModifiedDate": "2026-10-14T19:53:51.1968658-04:00",
+          "Items": [
+            {
+              "Id": "584b90bc-b758-4688-b04c-14ae960e15ef",
+              "Text": "The algorithm returns one of three outcomes: solution, failure, or cutoff.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "7ad1d844-9bc2-4873-84b1-2aa5de19b003",
+              "Text": "A \u0027cutoff\u0027 result signals that a solution might exist deeper than the limit.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "aa8160e6-4384-4752-90bf-35e09539d1a5",
+              "Text": "Choosing L too small makes the search incomplete; choosing L too large wastes effort.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "529c0dca-fac5-491f-876a-267da6e77aa3",
+              "Text": "Problem knowledge, such as the state-space diameter, can supply a sound limit.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "66275ac3-d864-462c-ae26-1115ea91e1a8",
+              "Text": "Complexity becomes O(b^L) time and O(bL) space.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "a17e43d2-3bc8-4ad5-a234-0b364122490d",
+          "TopicId": "58178308-2389-452a-af5b-5dff596647bd",
+          "Title": "Iterative Deepening Search",
+          "BodyText": "Iterative deepening repeatedly runs depth-limited search with limits 0, 1, 2, ... until a solution is found. It combines DFS\u0027s linear memory use with BFS\u0027s completeness and shallow-solution guarantee.",
+          "Notes": "Regenerating shallow nodes is cheap because most nodes in a tree lie at the deepest level; with b = 10 the overhead is roughly 11%.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T19:53:51.1968658-04:00",
+          "ModifiedDate": "2026-10-14T19:53:51.1968658-04:00",
+          "Items": [
+            {
+              "Id": "6cd5bb83-4089-4985-8ca6-812432ac820f",
+              "Text": "Memory use stays at O(bd), the same order as plain DFS.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0a4bdbc9-05dc-4156-858b-cb3115ca0d72",
+              "Text": "Time complexity is O(b^d), asymptotically the same as BFS despite repeated regeneration.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "cc3ad471-8810-43d4-94e0-ffc8b2785626",
+              "Text": "It is complete whenever the branching factor is finite and optimal when all step costs are equal.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a2c4c31c-3cca-471d-935c-d3aa900278cc",
+              "Text": "Nodes near the root are regenerated once per iteration, but the redundant work is a small constant factor.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6d6e747b-ff9f-47e9-bbfb-5705512220d3",
+              "Text": "Iterative deepening is the preferred uninformed strategy when the solution depth is unknown and memory is limited.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "c6b74b09-00d2-4bf3-ac4a-1fdd9fcae70a",
+      "Title": "Uniform-Cost Search",
+      "Summary": "Presents uniform-cost search as a priority-queue expansion by cumulative path cost g(n), with traces on weighted route-finding maps. Explains why goal testing occurs at expansion rather than generation and how re-opening nodes with cheaper paths preserves optimality.",
+      "SortOrder": 3,
+      "CreatedDate": "2026-10-14T19:52:33.2047193-04:00",
+      "ModifiedDate": "2026-10-14T19:52:33.2047193-04:00",
+      "Elements": [
+        {
+          "Id": "298359db-18f9-4203-bcc8-b851f2567a02",
+          "TopicId": "c6b74b09-00d2-4bf3-ac4a-1fdd9fcae70a",
+          "Title": "From BFS to Uniform-Cost Search",
+          "BodyText": "Uniform-cost search (UCS) generalises breadth-first search to problems where actions have different costs. Instead of expanding the shallowest node, it always expands the node with the lowest cumulative path cost g(n).",
+          "Notes": "In route finding, edges are weighted by distance or travel time, so counting edges (as BFS does) no longer corresponds to the cheapest route.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:54:15.3105351-04:00",
+          "ModifiedDate": "2026-10-14T19:54:15.3105351-04:00",
+          "Items": [
+            {
+              "Id": "61d8ac43-b8ae-4908-8574-e8af014b7118",
+              "Text": "BFS is optimal only when every action has the same cost; UCS removes that restriction.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "068a8207-6bdc-418a-b24b-c3299216ac03",
+              "Text": "g(n) is the total cost of the path from the start state to node n.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "58797e70-dd58-46e5-8266-8acfb8e0c086",
+              "Text": "UCS reduces exactly to BFS when all step costs are equal and positive.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9384e48b-a2a8-4372-9f1f-a8b083e2f36a",
+              "Text": "UCS requires non-negative step costs, otherwise a later cheap edge could undercut an already-expanded node.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "aeebf407-b39f-44e8-9535-b0d5622ed70a",
+              "Text": "The strategy is still uninformed: it uses no estimate of the remaining distance to the goal.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "78b31ca3-d952-4300-9a34-d8e78a883398",
+          "TopicId": "c6b74b09-00d2-4bf3-ac4a-1fdd9fcae70a",
+          "Title": "The Priority Queue Frontier",
+          "BodyText": "UCS stores the frontier in a priority queue ordered by g(n), so the cheapest known partial path is always expanded next. An explored set and a lookup into the frontier prevent redundant work.",
+          "Notes": "Typical implementation: a binary heap of (g, state, path) entries plus a dictionary mapping states to their current best g value.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:54:15.3105351-04:00",
+          "ModifiedDate": "2026-10-14T19:54:15.3105351-04:00",
+          "Items": [
+            {
+              "Id": "34a23458-23e6-439c-a936-8f45e5641187",
+              "Text": "Pop operations return the frontier node with the minimum cumulative cost.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "92090d38-17e1-42c0-a2d4-28ee15d404a6",
+              "Text": "Each generated child\u0027s cost is computed as g(child) = g(parent) \u002B cost(parent, child).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "322f9d3c-d792-4b43-9639-d4d388d17b7a",
+              "Text": "An explored set records states already expanded so they are not processed twice.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "25bd1ce4-2f19-4f13-ab23-da5023d2d066",
+              "Text": "A state already in the frontier is kept only once, holding its cheapest known cost.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ea58b9b5-dcf8-4acc-ab62-082af88fe28f",
+              "Text": "Heap operations cost O(log n), so the queue discipline adds only a logarithmic overhead per node.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "0b210d91-ca16-4b9b-9ebe-6e0b8c28eeee",
+          "TopicId": "c6b74b09-00d2-4bf3-ac4a-1fdd9fcae70a",
+          "Title": "Goal Test at Expansion, Not Generation",
+          "BodyText": "UCS applies the goal test when a node is selected for expansion rather than when it is first generated. This delay is what guarantees that the returned solution is optimal.",
+          "Notes": "Example: a direct edge S\u2192G of cost 10 may be generated early, while the path S\u2192A\u2192G of cost 6 is discovered later; testing at generation would return the costlier route.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:54:15.3105351-04:00",
+          "ModifiedDate": "2026-10-14T19:54:15.3105351-04:00",
+          "Items": [
+            {
+              "Id": "df472ed3-d78c-4e67-947c-8bdb9d390c8c",
+              "Text": "A goal node generated early may still be reachable by a cheaper path not yet explored.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "8ff64060-19c5-4d94-a028-54b62e5ce8b9",
+              "Text": "Because the queue is ordered by g, the first goal node popped must have minimal cost.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "893b8f6b-b924-4d27-8315-50001cda60f5",
+              "Text": "BFS can safely test at generation only because all paths of equal depth have equal cost.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "cd69403c-740e-4065-9e63-ebccf5921352",
+              "Text": "Testing at expansion costs a little extra work but preserves the optimality guarantee.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "75a8f5c4-9e08-488c-9057-920be6297c75",
+              "Text": "The same reasoning explains why UCS may expand nodes whose cost equals the optimal solution cost.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "38a6884a-896b-4ca4-9528-e825cdce3b9d",
+          "TopicId": "c6b74b09-00d2-4bf3-ac4a-1fdd9fcae70a",
+          "Title": "Re-opening Nodes with Cheaper Paths",
+          "BodyText": "When UCS generates a child that is already on the frontier, it compares costs and keeps only the cheaper path. This bookkeeping ensures that no state is expanded along a suboptimal route.",
+          "Notes": "Many implementations use \u0027lazy deletion\u0027: push the cheaper entry and discard stale pops whose cost exceeds the recorded best.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:54:15.3105351-04:00",
+          "ModifiedDate": "2026-10-14T19:54:15.3105351-04:00",
+          "Items": [
+            {
+              "Id": "f2ba0d6f-54ab-4e24-a4f7-9b4e7b55035f",
+              "Text": "If the new path to a frontier state is cheaper, decrease its key and update its parent pointer.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "68723ee4-36d5-4202-874e-82ff99fa87d1",
+              "Text": "If the new path is more expensive or equal, discard the child immediately.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "b7010322-f84d-487a-8610-709ef200870f",
+              "Text": "States already in the explored set need not be revisited when step costs are non-negative.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "ee972d46-6374-442b-9f69-29ad183131fc",
+              "Text": "Updating the parent pointer keeps the reconstructed solution path consistent with the recorded cost.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "031fb6e8-aef3-4beb-8e4a-27ac05f81bed",
+              "Text": "Omitting this check can return a valid but suboptimal path.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "169c6cda-8e9b-4d2a-aada-54255dc44504",
+          "TopicId": "c6b74b09-00d2-4bf3-ac4a-1fdd9fcae70a",
+          "Title": "Tracing UCS on a Weighted Route Map",
+          "BodyText": "Hand-tracing UCS on a small weighted map makes the ordering of expansions concrete. At each step record the frontier contents with their g values and the node chosen for expansion.",
+          "Notes": "A classic exercise is the Romania road map: from Arad, UCS expands Sibiu, Timisoara, Zerind and others strictly in increasing order of distance travelled.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:54:15.3105351-04:00",
+          "ModifiedDate": "2026-10-14T19:54:15.3105351-04:00",
+          "Items": [
+            {
+              "Id": "28d8536a-1b6a-4d10-9e4e-0240b6dbe570",
+              "Text": "Initialise the frontier with the start state at cost zero and an empty explored set.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "965ec3fc-be49-417e-a238-46d1cb98ef02",
+              "Text": "Pop the cheapest node, goal-test it, add it to the explored set, then expand its successors.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d12320b4-096b-4315-bed8-8ed069a8cfdb",
+              "Text": "Note that expansion order follows increasing g, producing expanding \u0027cost contours\u0027 around the start.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d56aebab-b720-42ba-94f1-051b4ce9616d",
+              "Text": "UCS may expand a node far from the goal if its cumulative cost is low, unlike a heuristic search.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "0e9ac466-ddcf-478c-acea-275acc7213b3",
+              "Text": "Record the final path and total cost to verify the result matches the shortest route.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "2ae4e516-8537-41c6-9012-e3e4ee0761ab",
+          "TopicId": "c6b74b09-00d2-4bf3-ac4a-1fdd9fcae70a",
+          "Title": "Properties and Complexity",
+          "BodyText": "UCS is complete and optimal under mild assumptions, but it can explore a very large portion of the state space because it ignores the goal\u0027s location.",
+          "Notes": "Complexity is often written as O(b^(1\u002B\u230AC*/\u03B5\u230B)), which can be far worse than O(b^d) when small step costs exist.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:54:15.3105351-04:00",
+          "ModifiedDate": "2026-10-14T19:54:15.3105351-04:00",
+          "Items": [
+            {
+              "Id": "adf1f458-9bad-4233-ad76-a1d8949d0c12",
+              "Text": "Complete, provided every step cost is at least some small positive constant \u03B5.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "877c3186-75df-411b-9119-3cbc8cc7c7f3",
+              "Text": "Optimal: the first goal node expanded has the lowest possible path cost.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d7fa95f1-12c8-4126-8ec2-885b3e6cf3e1",
+              "Text": "Time and space are governed by C*, the optimal solution cost, divided by \u03B5 rather than by depth.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c8c2f047-82cb-4a64-ba1a-c66d20b628d4",
+              "Text": "Memory use is a major limitation, since the frontier and explored set grow exponentially.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "f8f252c7-62e5-42fa-8d69-25efdabb46fc",
+              "Text": "UCS is equivalent to Dijkstra\u0027s algorithm run from a single source until the goal is reached.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "f4277733-6759-4c64-874e-ef8b16c9f75a",
+      "Title": "Data Structures and Implementation",
+      "Summary": "Details the queues, stacks, priority queues, hash-based explored sets, and node/state representations needed to implement each strategy efficiently. Includes coding exercises that build BFS, DFS, and UCS solvers for the 8-puzzle and a route-finding graph with path reconstruction.",
+      "SortOrder": 4,
+      "CreatedDate": "2026-10-14T19:52:33.2047193-04:00",
+      "ModifiedDate": "2026-10-14T19:52:33.2047193-04:00",
+      "Elements": [
+        {
+          "Id": "f6dfdf11-1083-418a-a3e4-8ade0880d85e",
+          "TopicId": "f4277733-6759-4c64-874e-ef8b16c9f75a",
+          "Title": "The Search Node: More Than Just a State",
+          "BodyText": "Every frontier entry must carry enough information to reconstruct a solution, so search algorithms wrap each state in a node record rather than storing bare states.",
+          "Notes": "A typical Python implementation uses a small class or a namedtuple: Node(state, parent, action, path_cost, depth).",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:54:44.5809323-04:00",
+          "ModifiedDate": "2026-10-14T19:54:44.5809323-04:00",
+          "Items": [
+            {
+              "Id": "39e8e3b9-815b-4698-85d6-b919491b74f0",
+              "Text": "A node stores the state, a pointer to its parent node, the action that produced it, and the cumulative path cost g(n).",
+              "SortOrder": 0
+            },
+            {
+              "Id": "2a96fd43-5312-4067-b839-fd39a4139e72",
+              "Text": "Depth may be stored explicitly for depth-limited variants, or derived by counting parent links.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "20bd614d-48f6-4a9e-b948-4a2593412c2d",
+              "Text": "Distinguish state from node: many distinct nodes can share the same state via different paths.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "4ecea05f-7f32-4e10-b5ed-3cc1a4b99aef",
+              "Text": "The parent pointer is what makes path reconstruction possible without storing full paths in every entry.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "cffd8b06-5ffb-496a-be78-29b7d7b9aa4f",
+              "Text": "Keeping nodes immutable avoids subtle bugs when the same state is re-expanded along a cheaper route.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "b8500ea6-4634-4097-9e40-2e8405e25e1a",
+          "TopicId": "f4277733-6759-4c64-874e-ef8b16c9f75a",
+          "Title": "Frontier Structures: Queue, Stack, and Priority Queue",
+          "BodyText": "The three uninformed strategies differ mainly in the data structure used for the frontier, which determines the order of expansion.",
+          "Notes": "In Python, collections.deque gives O(1) popleft for BFS and O(1) pop for DFS; heapq provides the UCS priority queue.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:54:44.5809323-04:00",
+          "ModifiedDate": "2026-10-14T19:54:44.5809323-04:00",
+          "Items": [
+            {
+              "Id": "dbc562c0-e1a1-48a6-aadb-148fd62240ba",
+              "Text": "BFS uses a FIFO queue so nodes are expanded in the order they were discovered, guaranteeing shallowest-first order.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "534adde5-29a7-4c71-a017-57abe2889782",
+              "Text": "DFS uses a LIFO stack so the most recently generated node is expanded next, driving the search deep quickly.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d440130e-f8be-4e1f-bf5f-549c18ee6890",
+              "Text": "UCS uses a min-priority queue keyed on path cost g(n), popping the cheapest frontier node each iteration.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "5aed989d-6707-4758-a034-ac29dd63dbf8",
+              "Text": "A plain Python list with pop(0) is O(n) per operation and will silently make BFS quadratic \u2014 use deque instead.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "7557d174-78c9-4c4b-9537-759ca9c258ff",
+              "Text": "Recursive DFS uses the call stack implicitly, trading explicit control for simpler code and risk of stack overflow.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "ebc5f4f0-aae1-4ff7-befc-96ce1a001e74",
+          "TopicId": "f4277733-6759-4c64-874e-ef8b16c9f75a",
+          "Title": "Explored Sets and Frontier Membership Tests",
+          "BodyText": "To avoid re-expanding states and looping forever in cyclic graphs, graph search maintains an explored set and checks frontier membership.",
+          "Notes": "States must be hashable: encode the 8-puzzle board as a tuple of 9 integers or a string like \u002712345678_\u0027.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:54:44.5809323-04:00",
+          "ModifiedDate": "2026-10-14T19:54:44.5809323-04:00",
+          "Items": [
+            {
+              "Id": "fe530607-1781-47a5-aaf9-d0b436827cd6",
+              "Text": "Use a hash set (Python set, Java HashSet) so membership tests are average O(1) rather than O(n).",
+              "SortOrder": 0
+            },
+            {
+              "Id": "5e3df0f3-bbeb-4dfc-82a6-d136526fcb19",
+              "Text": "Before pushing a child, test whether its state is already in the explored set or already on the frontier.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "51783884-46ae-4277-8288-a74bce1e45ac",
+              "Text": "Maintain a parallel dictionary mapping state to its best known frontier cost so UCS can detect cheaper duplicates.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b4a07cba-43b7-4e8e-aac0-0003f3f84211",
+              "Text": "Mutable structures like lists or 2-D arrays cannot be hashed directly; convert to tuples or canonical strings first.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "12183dd5-d033-460c-971f-03480fd09ec9",
+              "Text": "Omitting the explored set turns graph search into tree search, which may loop infinitely on graphs with cycles.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "b22c4ae1-4fe2-4c44-8faf-621602240f18",
+          "TopicId": "f4277733-6759-4c64-874e-ef8b16c9f75a",
+          "Title": "Decrease-Key and Duplicate Handling in UCS",
+          "BodyText": "Uniform-cost search must handle the case where a cheaper path to a frontier state is discovered after that state is already queued.",
+          "Notes": "Python\u0027s heapq has no decrease-key, so lazy deletion is the idiomatic approach.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:54:44.5809323-04:00",
+          "ModifiedDate": "2026-10-14T19:54:44.5809323-04:00",
+          "Items": [
+            {
+              "Id": "937f36d4-2d7c-425c-829b-b1606a0baa69",
+              "Text": "The textbook version replaces the frontier entry when a new path has lower g(n) \u2014 a decrease-key operation.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d6f047b3-62fc-48d6-901f-ffe5b70299d8",
+              "Text": "The lazy-deletion alternative pushes a second entry and discards any popped node whose state is already explored.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f6071cdf-ed75-48cc-8949-c5e4591336b1",
+              "Text": "Push tuples of (cost, tiebreak_counter, node) so the heap never attempts to compare Node objects directly.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "780855cd-650f-41ea-a9a7-e9074901ca8c",
+              "Text": "A monotonically increasing counter makes ordering deterministic and reproducible across runs.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "9fc31e9e-0e28-4ab3-a549-cb969f3e6310",
+              "Text": "The goal test is applied when a node is popped, not when generated, otherwise UCS may return a suboptimal path.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "bb8e46e9-c238-4d35-b1ec-f5e0307aa310",
+          "TopicId": "f4277733-6759-4c64-874e-ef8b16c9f75a",
+          "Title": "Reconstructing and Returning the Solution Path",
+          "BodyText": "Once the goal node is found, the solution is recovered by walking parent pointers back to the root and reversing the sequence.",
+          "Notes": "A helper function solution(node) returning (actions, states, total_cost) keeps the main loop clean.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:54:44.5809323-04:00",
+          "ModifiedDate": "2026-10-14T19:54:44.5809323-04:00",
+          "Items": [
+            {
+              "Id": "92f367f0-903b-4343-acc2-850708f5a660",
+              "Text": "Collect the action stored at each node while following parent links until parent is None.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "990292ba-515a-4933-bd2d-98cd3b77b942",
+              "Text": "Reverse the collected list to produce the actions in start-to-goal order.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "08e1464d-03cc-49df-a450-bad71b106baf",
+              "Text": "Return the total path cost from the goal node\u0027s g value rather than recomputing by summation.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "cba40fd9-0b5c-4376-b035-a083034d9826",
+              "Text": "Return a sentinel such as None or \u0027failure\u0027 when the frontier empties without reaching a goal.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "fc1a99ab-b3dd-4ccf-8e7a-50a93bee73d5",
+              "Text": "Also returning nodes-generated and nodes-expanded counts makes empirical comparison of the three strategies easy.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "23f1b04c-e265-4edc-a79d-92b5657ddd51",
+          "TopicId": "f4277733-6759-4c64-874e-ef8b16c9f75a",
+          "Title": "Coding Exercise: 8-Puzzle Solver",
+          "BodyText": "Implement BFS, DFS, and UCS over the 8-puzzle using a shared problem interface so only the frontier structure changes between strategies.",
+          "Notes": "On unit-cost moves UCS reduces to BFS; comparing their node counts verifies your implementation.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:54:44.5809323-04:00",
+          "ModifiedDate": "2026-10-14T19:54:44.5809323-04:00",
+          "Items": [
+            {
+              "Id": "78d65db0-e1f9-4524-b3ec-c51dda17830d",
+              "Text": "Represent a board as a 9-tuple and locate the blank to generate up, down, left, and right successors.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c6e6dfa8-1d9f-4d0f-aa40-3260a987dc7f",
+              "Text": "Write a successors(state) generator that respects edge constraints so the blank never leaves the grid.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "07d22817-236d-4da5-9313-b4435d96d9d0",
+              "Text": "Run BFS and record nodes expanded for depth-10 and depth-14 instances to observe exponential growth.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "25f936dc-2f5e-4966-b066-0c48110c585d",
+              "Text": "Apply a depth limit to DFS to prevent it from descending uselessly deep in this large state space.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "efe24837-eccc-479c-b42b-06d395a2df15",
+              "Text": "Verify that every returned action sequence, when replayed from the start state, actually reaches the goal.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "f89644c4-80fe-449a-bf00-b58dc9afb4cd",
+          "TopicId": "f4277733-6759-4c64-874e-ef8b16c9f75a",
+          "Title": "Coding Exercise: Route Finding on a Weighted Graph",
+          "BodyText": "Build a route-finder over a weighted adjacency map, such as the Romania road map, to show where UCS and BFS diverge.",
+          "Notes": "Store the graph as a dict of dicts: graph[\u0027Arad\u0027] = {\u0027Zerind\u0027: 75, \u0027Sibiu\u0027: 140, \u0027Timisoara\u0027: 118}.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T19:54:44.5809323-04:00",
+          "ModifiedDate": "2026-10-14T19:54:44.5809323-04:00",
+          "Items": [
+            {
+              "Id": "1fd0cde2-ab07-4356-90c9-325c07557fa4",
+              "Text": "Model cities as keys and neighbour-to-distance mappings as values for O(1) successor lookup.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "a58c8d26-8d10-4fe5-8aa5-b012a1e1033b",
+              "Text": "Run BFS and UCS from Arad to Bucharest and compare the returned routes and total kilometres.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1594b651-5fcb-4b33-867b-830c27215511",
+              "Text": "Observe that BFS returns the fewest-hops route while UCS returns the genuinely shortest-distance route.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9b0a5c40-795a-43d2-8a8a-d9dcf52c319d",
+              "Text": "Print the frontier contents at each iteration to trace how the priority queue reorders candidates.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "2ef50b23-3dfb-4f85-a2ec-c0cb65da27d5",
+              "Text": "Add a cycle or a zero-cost edge and confirm the explored set keeps the search terminating correctly.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "0ed7fb45-7845-480f-a008-a3c22334c575",
+      "Title": "Comparative Analysis and Strategy Selection",
+      "Summary": "Compares the three algorithms side by side on completeness, optimality, branching-factor-driven time and space costs, and empirical node counts. Provides guidance for choosing a strategy based on problem structure, edge costs, memory limits, and solution depth.",
+      "SortOrder": 5,
+      "CreatedDate": "2026-10-14T19:52:33.2047193-04:00",
+      "ModifiedDate": "2026-10-14T19:52:33.2047193-04:00",
+      "Elements": [
+        {
+          "Id": "66d94f01-d535-4ae7-8706-af15d1628ff0",
+          "TopicId": "0ed7fb45-7845-480f-a008-a3c22334c575",
+          "Title": "The Four Evaluation Criteria",
+          "BodyText": "Every search strategy is judged on the same four properties, which provide a common vocabulary for comparison.",
+          "Notes": "Let b be the branching factor, d the depth of the shallowest goal, m the maximum depth of the search tree, and C* the cost of the optimal solution with minimum edge cost \u03B5.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:55:06.3031913-04:00",
+          "ModifiedDate": "2026-10-14T19:55:06.3031913-04:00",
+          "Items": [
+            {
+              "Id": "130695a8-09c4-4953-a99e-8e5b075b7559",
+              "Text": "Completeness asks whether the algorithm is guaranteed to find a solution when one exists.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "3fb3e78b-abd0-4ad3-a509-d48e99590573",
+              "Text": "Optimality asks whether the solution returned is guaranteed to be the cheapest or shallowest one.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "88d6b980-4140-4059-a432-25f7d7208847",
+              "Text": "Time complexity counts the number of nodes generated or expanded before termination.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "2b213357-3870-4b25-b387-83ff3bbb2129",
+              "Text": "Space complexity counts the maximum number of nodes stored in memory at any one time.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "2b0f791d-7469-4d82-8ae9-2fffa6fba894",
+              "Text": "All four are expressed in terms of b, d, m, C*, and \u03B5 so that algorithms can be compared on equal footing.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "bea9b07d-4ef0-4586-9192-bf279e15df45",
+          "TopicId": "0ed7fb45-7845-480f-a008-a3c22334c575",
+          "Title": "Side-by-Side Complexity Table",
+          "BodyText": "Placing BFS, DFS, and UCS in a single table exposes the trade-offs each strategy makes.",
+          "Notes": "Tree-search DFS is incomplete in infinite or cyclic spaces; graph-search DFS with a visited set is complete in finite spaces but still not optimal.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:55:06.3031913-04:00",
+          "ModifiedDate": "2026-10-14T19:55:06.3031913-04:00",
+          "Items": [
+            {
+              "Id": "829502eb-558d-48ca-ab22-239454d367c1",
+              "Text": "BFS: complete, optimal only when all step costs are equal, time O(b^d), space O(b^d).",
+              "SortOrder": 0
+            },
+            {
+              "Id": "098fe217-a607-4994-b9e9-f12733088df7",
+              "Text": "DFS: complete only in finite spaces with cycle checking, never optimal, time O(b^m), space O(bm).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c3f42890-4984-42d2-9756-554e19d55593",
+              "Text": "UCS: complete when step costs exceed some \u03B5 \u003E 0, always optimal, time and space O(b^(1\u002B\u230AC*/\u03B5\u230B)).",
+              "SortOrder": 2
+            },
+            {
+              "Id": "3c1e0a70-d097-4df5-a83e-2f4b92c98bc2",
+              "Text": "UCS degenerates to BFS behaviour when every edge has identical cost.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "128723bb-7100-4a2d-aed4-9db857485063",
+              "Text": "The decisive difference between BFS and DFS is space: linear versus exponential.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "0b266e48-203b-46d9-83ea-6e1708f7a53a",
+          "TopicId": "0ed7fb45-7845-480f-a008-a3c22334c575",
+          "Title": "Memory as the Binding Constraint",
+          "BodyText": "In practice BFS and UCS fail because of memory long before they fail because of time.",
+          "Notes": "A classic illustration: at b = 10 and one million nodes generated per second with 100 bytes per node, depth 12 requires roughly 1 terabyte of frontier storage.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:55:06.3031913-04:00",
+          "ModifiedDate": "2026-10-14T19:55:06.3031913-04:00",
+          "Items": [
+            {
+              "Id": "113aad68-6d0e-47c0-a478-5374a18d5a93",
+              "Text": "Exponential frontier growth means BFS exhausts RAM while the CPU still has capacity.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "11b88069-f074-4dfa-a426-f4b2f04ed755",
+              "Text": "DFS stores only the current path plus siblings, giving modest O(bm) memory usage.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5d9e4156-47bb-4b37-bb3d-21eb1a81b28d",
+              "Text": "Depth-limited and iterative-deepening DFS recover BFS-style optimality at DFS-style memory cost.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "804dcbc0-3f2e-49c7-9281-b1972d30a4aa",
+              "Text": "Iterative deepening repeats shallow work, but the overhead is a small constant factor because the deepest level dominates node counts.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "fcf82ac3-a614-4b6b-b308-3982f81c7fda",
+          "TopicId": "0ed7fb45-7845-480f-a008-a3c22334c575",
+          "Title": "Empirical Node Counts on Benchmark Problems",
+          "BodyText": "Running the three algorithms on the 8-puzzle and route-finding problems turns asymptotic formulas into concrete numbers.",
+          "Notes": "Instrument your implementations with counters for nodes generated, nodes expanded, and maximum frontier size to produce these comparisons.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:55:06.3031913-04:00",
+          "ModifiedDate": "2026-10-14T19:55:06.3031913-04:00",
+          "Items": [
+            {
+              "Id": "39be441c-2eee-486f-9001-6cf7c833318c",
+              "Text": "On the 8-puzzle, BFS expands tens of thousands of nodes for solutions only a dozen moves deep.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e22f476d-4f49-4b7b-9ef6-04f002a80032",
+              "Text": "DFS on the same puzzle may wander to great depth and return a solution hundreds of moves long.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f30fb57d-c5d8-434a-95a1-e712c8be621b",
+              "Text": "On a weighted road map, UCS expands nodes in order of increasing distance from the start, producing a growing cost contour.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f92accbd-14d3-49d0-a248-1aefb105ac50",
+              "Text": "BFS on a weighted map returns the route with the fewest road segments, which is often not the fastest route.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "d83b5bd8-df4a-4871-83c0-d3fd0f905d5c",
+              "Text": "Measured frontier sizes confirm the exponential-versus-linear memory prediction.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "74620574-bd8a-4847-8b32-3f605ed99f3e",
+          "TopicId": "0ed7fb45-7845-480f-a008-a3c22334c575",
+          "Title": "Choosing a Strategy for a Given Problem",
+          "BodyText": "Strategy selection follows directly from the structure of the problem: edge costs, solution depth, memory budget, and whether the space is finite.",
+          "Notes": "",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:55:06.3031913-04:00",
+          "ModifiedDate": "2026-10-14T19:55:06.3031913-04:00",
+          "Items": [
+            {
+              "Id": "817d1469-83bd-4116-b33d-cdc305caec02",
+              "Text": "Use BFS when all actions cost the same and the goal is expected to be shallow.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "dd770a9b-2380-45b7-9875-80675217457d",
+              "Text": "Use UCS when edge costs vary and a genuinely cheapest solution is required.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "fcabbcc2-6582-4062-8070-88639511dffb",
+              "Text": "Use DFS when memory is tight, solutions are plentiful and deep, or the state space is a finite tree.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "bf617a68-05c1-4946-9330-42209284934e",
+              "Text": "Use iterative deepening when you need BFS guarantees but cannot afford BFS memory.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "9167a5bc-185c-4539-99fa-2929410852dd",
+              "Text": "Always add cycle detection in graph spaces, otherwise DFS can loop forever and BFS wastes effort on duplicates.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "b52f3d37-9c49-4f1f-845f-bf099e191329",
+          "TopicId": "0ed7fb45-7845-480f-a008-a3c22334c575",
+          "Title": "Limitations Shared by All Uninformed Methods",
+          "BodyText": "None of these strategies uses knowledge of where the goal lies, which caps how far they can scale.",
+          "Notes": "This limitation motivates the move to heuristic search methods such as greedy best-first and A*.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:55:06.3031913-04:00",
+          "ModifiedDate": "2026-10-14T19:55:06.3031913-04:00",
+          "Items": [
+            {
+              "Id": "5a8f776f-7fe4-4d00-b045-4b4799b4c421",
+              "Text": "Each algorithm explores blindly according to a fixed ordering rule rather than goal proximity.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "9a09d79f-5ad2-4ef8-af12-c6e5a43c3f4f",
+              "Text": "Exponential growth in b and d makes large state spaces intractable regardless of which uninformed strategy is chosen.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ae2aa2d4-0649-455e-ae34-7516e4ac91fc",
+              "Text": "Performance improvements come mainly from better problem formulation, smaller branching factors, and duplicate elimination.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9276b661-cb19-4468-b8f3-39d2509d0ec3",
+              "Text": "Domain knowledge encoded as a heuristic function is the next lever for reducing the number of nodes expanded.",
+              "SortOrder": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "TotalElementCount": 38
+}

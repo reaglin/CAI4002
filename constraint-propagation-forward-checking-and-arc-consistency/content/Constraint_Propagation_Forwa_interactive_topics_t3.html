@@ -1,0 +1,290 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arc Consistency and the AC-3 Algorithm</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Propagation: Forward Checking and Arc Consistency</a></div>
+  <header>
+    <h1>Arc Consistency and the AC-3 Algorithm</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Arc Consistency and the AC-3 Algorithm</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Backtracking search alone explores a combinatorial space blindly: it assigns a value, discovers a conflict many levels deeper, and then undoes a great deal of work. <em>Constraint propagation</em> changes the economics of that search by reasoning about the constraints <em>before</em> committing to assignments. Rather than asking "which value shall I try next?", propagation asks "which values could never participate in any solution, given what I already know?" and deletes them. Arc consistency is the workhorse of this idea for binary constraint satisfaction problems (CSPs), and AC-3 is the algorithm that made it practical. Everything that follows — the REVISE subroutine, the queue of arcs, the termination analysis, the complexity bounds, and the comparison with forward checking and higher levels of consistency — is an elaboration of one simple principle: <strong>a value that has no support is a value that can be thrown away.</strong></p>
+
+<p><strong>Defining arc consistency</strong></p>
+
+<p>A CSP is a triple of variables, domains and constraints. For a <em>binary</em> CSP, each constraint relates exactly two variables, say <code>X</code> and <code>Y</code>, and can be viewed as a set of permitted pairs <code>C(X,Y) ⊆ D(X) × D(Y)</code>. Each binary constraint gives rise to two directed <em>arcs</em>: <code>(X, Y)</code> and <code>(Y, X)</code>. The direction matters, because arc consistency is a statement about one variable's domain being supported by the other's.</p>
+
+<p>Formally: the arc <code>(X, Y)</code> is <strong>arc consistent</strong> if and only if, for every value <code>x ∈ D(X)</code>, there exists at least one value <code>y ∈ D(Y)</code> such that the pair <code>(x, y)</code> satisfies the constraint between <code>X</code> and <code>Y</code>. Such a <code>y</code> is called a <em>support</em> for <code>x</em> on that arc. A value with no support anywhere in <code>D(Y)</code> is <strong>unsupported</strong>.</p>
+
+<p>Note the asymmetry carefully. Arc <code>(X, Y)</code> being consistent says nothing about arc <code>(Y, X)</code>. Consider <code>D(X) = {1, 2, 3}</code>, <code>D(Y) = {1, 2, 3, 4, 5}</code> and the constraint <code>X &lt; Y</code>. Arc <code>(X, Y)</code> is already consistent: 1 is supported by 2, 2 by 3, 3 by 4. But arc <code>(Y, X)</code> is not: <code>y = 1</code> needs some <code>x ∈ D(X)</code> with <code>x &lt; 1</code>, and none exists, so 1 must be deleted from <code>D(Y)</code>. A CSP as a whole is <strong>arc consistent</strong> only when <em>every</em> arc, in <em>both</em> directions, is arc consistent.</p>
+
+<p>Why is deleting an unsupported value safe? Suppose <code>x ∈ D(X)</code> has no support in <code>D(Y)</code>. Any complete solution must assign some value to <code>Y</code> drawn from <code>D(Y)</code>, and that value must be compatible with <code>X</code>'s value. If <code>X = x</code>, no legal choice for <code>Y</code> exists, so <strong>no solution contains <code>X = x</code></strong>. Deleting <code>x</code> therefore removes zero solutions: the pruned CSP is <em>equivalent</em> to the original in the sense that it has exactly the same solution set. This is the crucial property that lets us interleave propagation with search without compromising completeness.</p>
+
+<p>Arc consistency is best understood as <strong>inference, not search</strong>. It never guesses a value, never branches, and never creates a choice point. It deduces consequences of the constraints and records those consequences by shrinking domains. Because it is sound (it deletes only values that cannot appear in a solution) but incomplete (an arc-consistent network may still have no solution), it is used as an accelerator inside search rather than as a replacement for it.</p>
+
+<p>A small worked illustration of pure inference: let <code>D(X) = D(Y) = {0,1,2,...,9}</code> with the constraint <code>Y = X²</code>.</p>
+
+<ul>
+  <li>REVISE on arc <code>(X, Y)</code>: the value <code>x</code> survives only if <code>x² ∈ D(Y)</code>. Thus 0, 1, 2, 3 survive (squares 0, 1, 4, 9), while 4..9 are deleted (16, 25, ... exceed 9). New <code>D(X) = {0,1,2,3}</code>.</li>
+  <li>REVISE on arc <code>(Y, X)</code>: the value <code>y</code> survives only if some <code>x ∈ D(X)</code> has <code>x² = y</code>. So <code>D(Y) = {0,1,4,9}</code>.</li>
+</ul>
+
+<p>Both arcs are now consistent and the network has been reduced from 100 candidate pairs to 4, with no assignment made and no solution lost.</p>
+
+<p>Many real constraints are not binary: <code>Alldiff(A,B,C,D)</code>, <code>A + B + C = 10</code>, or a table constraint over five variables. <strong>Generalized arc consistency (GAC)</strong>, also called hyper-arc consistency or domain consistency, extends the definition to any arity: a constraint <code>C(X₁,...,X_k)</code> is GAC with respect to variable <code>X_i</code> if, for every value <code>v ∈ D(X_i)</code>, there exists a tuple in <code>C</code> containing <code>v</code> whose other components are all drawn from the current domains of the other variables. Such a tuple is the support. Enforcing GAC on an arbitrary <code>k</code>-ary constraint by brute-force search over tuples costs <code>O(d^k)</code>, which is why practical solvers attach a specialised <em>propagator</em> to each global constraint — an algorithm that achieves GAC for that constraint far faster than enumeration. Binary arc consistency is simply the case <code>k = 2</code>.</p>
+
+<p><strong>The REVISE step</strong></p>
+
+<p>REVISE is the atomic operation of arc consistency: it makes a single arc consistent by deleting unsupported values from the <em>tail</em> variable's domain. It never touches the head variable's domain.</p>
+
+<pre><code>function REVISE(csp, X, Y) returns true if D(X) was changed
+    revised ← false
+    for each x in D(X) do
+        if no value y in D(Y) satisfies the constraint C(X, Y) with x then
+            delete x from D(X)
+            revised ← true
+    return revised</code></pre>
+
+<p>Three details deserve emphasis:</p>
+
+<ul>
+  <li><strong>Only <code>D(X)</code> is modified.</strong> To make the relationship symmetric you must also call <code>REVISE(csp, Y, X)</code>, which is exactly why the queue is initialised with arcs in both directions.</li>
+  <li><strong>The boolean return value is the propagation trigger.</strong> Returning <code>true</code> means at least one value disappeared from <code>D(X)</code>. Any other variable <code>Z</code> constrained with <code>X</code> may have had values whose only support was one of the just-deleted values, so arcs <code>(Z, X)</code> must be re-examined. Returning <code>false</code> means the arc was already consistent; nothing changed, so nothing downstream can have become inconsistent because of this call, and no new work is scheduled. This simple flag is what turns a collection of local checks into a cascading global propagation.</li>
+  <li><strong>Implementation hygiene.</strong> Deleting from a collection while iterating over it is a classic bug; implementations typically iterate over a snapshot of <code>D(X)</code> or collect deletions in a buffer and apply them afterwards. Solvers that support backtracking must also record deletions on a trail so they can be undone when search retreats.</li>
+</ul>
+
+<p>The cost of the naive version is <code>O(d²)</code> where <code>d = max|D|</code>: the outer loop runs up to <code>d</code> times, and for each <code>x</code> the inner search for a support may scan all <code>d</code> values of <code>D(Y)</code> before giving up. The inner loop can of course exit early the moment a support is found, which is why REVISE is usually much cheaper than <code>d²</code> in practice — but the worst case is realised whenever many values are genuinely unsupported.</p>
+
+<p>A concrete trace: <code>D(X) = {1,2,3,4}</code>, <code>D(Y) = {2,3}</code>, constraint <code>X &gt; Y</code>, arc <code>(X, Y)</code>.</p>
+
+<table>
+  <thead>
+    <tr><th>Value x</th><th>Candidate supports y ∈ D(Y)</th><th>Support found?</th><th>Action</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>2 (1&gt;2 false), 3 (1&gt;3 false)</td><td>No</td><td>Delete 1 from D(X)</td></tr>
+    <tr><td>2</td><td>2 (2&gt;2 false), 3 (2&gt;3 false)</td><td>No</td><td>Delete 2 from D(X)</td></tr>
+    <tr><td>3</td><td>2 (3&gt;2 true)</td><td>Yes</td><td>Keep 3</td></tr>
+    <tr><td>4</td><td>2 (4&gt;2 true)</td><td>Yes</td><td>Keep 4</td></tr>
+  </tbody>
+</table>
+
+<p>REVISE returns <code>true</code> with <code>D(X) = {3,4}</code>. Observe that the asymmetry persists: arc <code>(Y, X)</code> would next delete nothing, since 2 is supported by 3 and 3 is supported by 4.</p>
+
+<p><strong>The AC-3 algorithm and its queue of arcs</strong></p>
+
+<p>AC-3 (Mackworth, 1977) drives REVISE to a fixed point using a worklist of arcs that still need checking.</p>
+
+<pre><code>function AC-3(csp) returns false if an inconsistency is found, true otherwise
+    queue ← all arcs (Xi, Xj) of csp, both directions for every binary constraint
+    while queue is not empty do
+        (X, Y) ← REMOVE-FIRST(queue)
+        if REVISE(csp, X, Y) then
+            if size of D(X) = 0 then return false        // wipe-out: failure
+            for each Z in NEIGHBOURS(X) \ {Y} do
+                add arc (Z, X) to queue
+    return true</code></pre>
+
+<p>The logic of each line:</p>
+
+<ul>
+  <li><strong>Initialisation.</strong> Every arc, in both directions, must be examined at least once, because at the start we know nothing about which arcs are already consistent. For a CSP with <code>c</code> binary constraints the queue starts with <code>2c</code> directed arcs. (When AC-3 is used for <em>maintaining</em> arc consistency inside search, the initial queue is smaller — typically only the arcs pointing <em>into</em> the variable just assigned — because the rest of the network was already arc consistent before the assignment.)</li>
+  <li><strong>Pop and revise.</strong> The queue is really a set-like worklist: order affects speed but not the final result. A FIFO queue gives breadth-first-like propagation; a LIFO stack often reaches a wipe-out faster; many solvers use a priority scheme that revises arcs with small domains first. Whichever discipline is used, the <em>fixed point reached is unique</em> — arc consistency defines the largest sub-domains closed under the support condition, independently of processing order.</li>
+  <li><strong>Re-enqueuing neighbours.</strong> If <code>D(X)</code> shrank, then for any neighbour <code>Z</code> of <code>X</code> there may be a value <code>z ∈ D(Z)</code> whose only support in <code>D(X)</code> was one of the deleted values. That is precisely the arc <code>(Z, X)</code>, pointing <em>into</em> the shrunken variable, so <code>(Z, X)</code> goes back on the queue. The arc <code>(Y, X)</code> is excluded because <code>Y</code>'s domain was untouched by this REVISE and every value of <code>Y</code> that had support in the old <code>D(X)</code> still has it: the values just deleted from <code>D(X)</code> were by definition unsupported <em>by</em> <code>D(Y)</code>, so they were supporting nothing in <code>D(Y)</code>. Arcs of the form <code>(X, Z)</code> are also not re-added, since shrinking the tail domain cannot make the tail arc inconsistent.</li>
+  <li><strong>Loop to emptiness.</strong> When the queue drains, no arc can be revised further, which is the definition of a globally arc-consistent network.</li>
+</ul>
+
+<p>A full worked example on map colouring. Take the Australian states <code>WA, NT, SA, Q, NSW, V, T</code> with colours <code>{R, G, B}</code> and "adjacent regions differ" constraints: WA–NT, WA–SA, NT–SA, NT–Q, SA–Q, SA–NSW, SA–V, Q–NSW, NSW–V (T is isolated). Suppose search has assigned <code>WA = R</code> and <code>Q = G</code>, so <code>D(WA) = {R}</code> and <code>D(Q) = {G}</code>, with every other domain still <code>{R,G,B}</code>. Running AC-3 produces:</p>
+
+<table>
+  <thead>
+    <tr><th>Step</th><th>Arc revised</th><th>Deletion</th><th>Resulting domain</th><th>Arcs re-queued</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>(NT, WA)</td><td>R has no support in D(WA)={R}</td><td>D(NT) = {G,B}</td><td>(SA,NT), (Q,NT)</td></tr>
+    <tr><td>2</td><td>(SA, WA)</td><td>R unsupported</td><td>D(SA) = {G,B}</td><td>(NT,SA), (Q,SA), (NSW,SA), (V,SA)</td></tr>
+    <tr><td>3</td><td>(NT, Q)</td><td>G unsupported (D(Q)={G})</td><td>D(NT) = {B}</td><td>(WA,NT), (SA,NT)</td></tr>
+    <tr><td>4</td><td>(SA, Q)</td><td>G unsupported</td><td>D(SA) = {B}</td><td>(WA,SA), (NT,SA), (NSW,SA), (V,SA)</td></tr>
+    <tr><td>5</td><td>(NSW, Q)</td><td>G unsupported</td><td>D(NSW) = {R,B}</td><td>(SA,NSW), (V,NSW)</td></tr>
+    <tr><td>6</td><td>(NT, SA)</td><td>B unsupported: D(SA)={B} and B=B violates the constraint</td><td>D(NT) = { } — <strong>empty</strong></td><td>— AC-3 returns <code>false</code></td></tr>
+  </tbody>
+</table>
+
+<p>The decisive moment is step 6. The deletions in steps 3 and 4 reduced <code>NT</code> and <code>SA</code> to the same single colour, and since they are adjacent this is impossible. AC-3 discovers it by inference, with no further assignments: the partial assignment <code>{WA=R, Q=G}</code> cannot be extended, and search backtracks immediately.</p>
+
+<p><strong>Termination conditions and outcomes</strong></p>
+
+<p>An AC-3 run ends in exactly one of two ways, and the "success" case subdivides into three situations of practical interest.</p>
+
+<ul>
+  <li><strong>Failure (domain wipe-out).</strong> Some <code>D(X)</code> becomes empty. Since every variable must receive a value, the current partial assignment has no extension to a solution. AC-3 returns <code>false</code> and the search backtracks at once — crucially, <em>before</em> wasting effort on the subtree below. Detecting failure early is the main source of AC-3's speed-up.</li>
+  <li><strong>Success (queue empties, all domains non-empty).</strong> The network is now arc consistent, and the pruned CSP is equivalent to the original. Three sub-cases:
+    <ul>
+      <li><em>All domains are singletons.</em> Then the unique remaining combination is forced and, because the network is arc consistent, every pair of neighbouring assignments is mutually supporting — so a solution has been read off directly by inference, with no search at all. (This is the dream case; it occurs, for example, in easy Sudoku puzzles solvable by simple elimination rules.)</li>
+      <li><em>Some domain is empty — impossible here by assumption</em>, so the remaining case is that at least one domain has two or more values. The reduced domains are handed back to the search algorithm, which chooses a variable and value as usual but now over strictly smaller domains. Smaller domains also sharpen value-ordering and variable-ordering heuristics: minimum-remaining-values (MRV) and degree heuristics become far more informative after propagation.</li>
+      <li><em>No pruning at all occurred.</em> The network was already arc consistent; AC-3 has cost time without reducing anything. This is the overhead that must be weighed against the pruning benefit.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>It is essential to remember that an arc-consistent network is <strong>not necessarily solvable</strong>. The canonical counterexample is 2-colouring a triangle: variables <code>A, B, C</code>, domains <code>{R, B}</code>, with <code>A≠B</code>, <code>B≠C</code>, <code>A≠C</code>. Every value has support on every arc (for <code>A=R</code>, <code>B=B</code> works; for <code>A=B</code>, <code>B=R</code> works, and so on), so the network is perfectly arc consistent — yet no solution exists, because a triangle needs three colours. Arc consistency reasons only about pairs; it cannot see the three-way interaction. That limitation motivates stronger consistency levels, discussed below.</p>
+
+<p><strong>Why termination is guaranteed.</strong> Consider the quantity <code>Φ = (total number of values remaining in all domains, size of queue)</code> ordered lexicographically. Each iteration pops one arc. Either REVISE deletes at least one value — which strictly decreases the first component, and the first component is a non-negative integer bounded by <code>nd</code> — or REVISE deletes nothing, in which case no arcs are added and the queue strictly shrinks. Since <code>Φ</code> cannot decrease forever in a well-founded order, the loop must terminate. In other words, arcs can only be re-enqueued as a consequence of a deletion, and there are finitely many values to delete.</p>
+
+<p><strong>Complexity analysis of AC-3</strong></p>
+
+<p>Let <code>n</code> be the number of variables, <code>d</code> the maximum domain size, and <code>c</code> the number of binary constraints (so <code>2c</code> directed arcs).</p>
+
+<ul>
+  <li><strong>How often can an arc enter the queue?</strong> An arc <code>(Z, X)</code> is inserted initially (once) and thereafter only when <code>D(X)</code> loses a value. <code>D(X)</code> can lose at most <code>d</code> values in total over the entire run, because deletions are never undone within a run. Hence each directed arc is processed <code>O(d)</code> times.</li>
+  <li><strong>Cost per processing.</strong> Each REVISE is <code>O(d²)</code>.</li>
+  <li><strong>Total time.</strong> <code>O(2c · d · d²) = O(c d³)</code>. Since a binary CSP on <code>n</code> variables has at most <code>n(n−1)/2 = O(n²)</code> constraints, the bound can equivalently be written <code>O(n² d³)</code>.</li>
+  <li><strong>Space.</strong> The queue holds directed arcs and never needs duplicates (a well-implemented worklist checks membership before inserting), so it is <code>O(c)</code>, i.e. <code>O(n²)</code>. Added to that is the storage for the domains themselves, <code>O(nd)</code>, plus — in a backtracking solver — a trail of deletions so that propagation can be undone on backtrack.</li>
+</ul>
+
+<p>Comparing the three figures for a sense of scale:</p>
+
+<table>
+  <thead>
+    <tr><th>Quantity</th><th>Bound</th><th>Reason</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Insertions per directed arc</td><td>O(d)</td><td>One initial insertion plus one per value deleted from the head variable's domain</td></tr>
+    <tr><td>Cost of one REVISE</td><td>O(d²)</td><td>Up to d values of X, each scanning up to d values of Y</td></tr>
+    <tr><td>Total time (AC-3)</td><td>O(c d³) = O(n² d³)</td><td>2c arcs × O(d) insertions × O(d²) per revision</td></tr>
+    <tr><td>Space</td><td>O(c) + O(nd)</td><td>Queue of arcs plus the domains (plus a trail inside search)</td></tr>
+    <tr><td>Optimal algorithms (AC-4, AC-6, AC-2001)</td><td>O(c d²)</td><td>Support counters or "last support" pointers avoid rescanning D(Y) from scratch</td></tr>
+  </tbody>
+</table>
+
+<p>The <code>O(cd³)</code> figure is a genuine worst case and is rarely approached. Three reasons explain the gap between theory and practice. First, most arcs are revised only once or twice: a revision re-enqueues neighbours only when it actually deletes something, and in a typical network the great majority of REVISE calls delete nothing. Second, the inner support search exits at the first support found, so for loose constraints (where almost every pair is permitted) the first candidate <code>y</code> usually works and REVISE behaves like <code>O(d)</code>. Third, domains shrink as propagation proceeds, so later revisions operate on smaller <code>d</code> than the bound assumes. The practical consequence is that AC-3 is simple, cache-friendly and fast enough that it remains the default generic propagator in many teaching solvers, even though AC-4, AC-6 and AC-2001 have asymptotically better <code>O(cd²)</code> bounds (which is worst-case optimal). AC-4 achieves this by precomputing support counters for every value pair, but the up-front cost of building those structures often makes it slower than AC-3 on real instances; AC-2001 reaches the optimal bound with much lighter bookkeeping by remembering, for each value <code>x</code> and arc, the last support found, and resuming the scan from there.</p>
+
+<p><strong>AC-3 versus forward checking</strong></p>
+
+<p>Forward checking (FC) and arc consistency sit on the same spectrum; they differ only in <em>how far</em> the inference is pushed.</p>
+
+<p>When search assigns <code>Y = v</code>, forward checking revises exactly the arcs <code>(X, Y)</code> for each unassigned neighbour <code>X</code> of <code>Y</code>, deleting from <code>D(X)</code> every value incompatible with <code>v</code>. It then stops. Nothing is re-enqueued; if <code>D(X)</code> shrinks, the consequences of that shrinkage for <code>X</code>'s own neighbours are never explored. In the AC-3 pseudocode, forward checking is what you get if you delete the inner <code>for each Z in NEIGHBOURS(X)</code> loop and initialise the queue with only the arcs into the newly assigned variable. In other words, <strong>forward checking is one round of revision with no propagation</strong>; AC-3 is revision driven to a fixed point.</p>
+
+<p>Maintaining arc consistency (MAC) is the standard name for running AC-3 (or a stronger AC algorithm) after every assignment during backtracking search, starting the queue with the arcs <code>(X, Y)</code> for unassigned neighbours <code>X</code> of the just-assigned <code>Y</code>, and letting the cascade run.</p>
+
+<p>The Australian map-colouring trace above shows the difference sharply. After <code>WA = R</code> and <code>Q = G</code>, forward checking would set <code>D(NT) = {B}</code> (removing R because of WA and G because of Q), <code>D(SA) = {B}</code> (same reasoning), and <code>D(NSW) = {R,B}</code>. No domain is empty, so forward checking reports no problem and search continues, only to discover the NT/SA clash one or two levels deeper. AC-3, by contrast, re-examines arc <code>(NT, SA)</code> because <code>D(SA)</code> changed, finds that NT's only value B has no support in SA's only value B, wipes out <code>D(NT)</code>, and backtracks immediately. This is the characteristic pattern: <strong>forward checking cannot detect inconsistency between two unassigned variables; arc consistency can.</strong></p>
+
+<table>
+  <thead>
+    <tr><th>Aspect</th><th>Forward checking</th><th>AC-3 / MAC</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Arcs revised per node</td><td>Only (X, Y) for unassigned neighbours X of the assigned Y</td><td>All arcs reachable by cascading from the change, to a fixed point</td></tr>
+    <tr><td>Propagation depth</td><td>One level, no re-enqueuing</td><td>Unbounded cascade until the queue empties</td></tr>
+    <tr><td>Inconsistencies detected</td><td>Assigned-vs-unassigned conflicts only</td><td>Also unassigned-vs-unassigned conflicts</td></tr>
+    <tr><td>Pruning power</td><td>Weaker — a strict subset of AC's deletions</td><td>Stronger — every FC deletion plus more</td></tr>
+    <tr><td>Cost per search node</td><td>Low, O(number of neighbours × d)</td><td>Higher, up to O(cd³) in the worst case</td></tr>
+    <tr><td>Nodes expanded</td><td>More</td><td>Fewer, often by orders of magnitude</td></tr>
+    <tr><td>Best suited to</td><td>Loose, sparsely constrained problems</td><td>Tight, densely constrained problems</td></tr>
+  </tbody>
+</table>
+
+<p>The trade-off is therefore between <em>nodes expanded</em> and <em>work per node</em>, and neither metric alone decides the winner — only their product, total runtime, does. On tightly constrained problems (many constraints, small domains, few solutions) propagation pays for itself many times over, because most branches are dead and AC-3 kills them near the root; MAC is the standard choice for hard instances such as large Sudoku variants, graph colouring near the chromatic threshold, or scheduling with tight resources. On loosely constrained problems (large domains, few constraints, many solutions) almost every branch leads to a solution anyway, AC-3 deletes little, and its overhead at every node is pure waste; forward checking — or even plain backtracking with good heuristics — can be the faster overall choice. Hybrid strategies exist: run full arc consistency once as a preprocessing step before search begins (cheap, done only once, and often a big win), then use forward checking during the search itself.</p>
+
+<p><strong>Stronger consistency: path and k-consistency</strong></p>
+
+<p>The triangle-colouring example showed the ceiling of arc consistency: it reasons about one constraint at a time and cannot see interactions among three or more variables. Higher levels of consistency raise that ceiling.</p>
+
+<p><strong>Path consistency</strong> (equivalently 3-consistency) considers pairs of variables and a third witness. A pair <code>{X, Y}</code> is path consistent with respect to <code>Z</code> if, for every assignment <code>{X = a, Y = b}</code> consistent with the constraint on <code>X,Y</code>, there exists some <code>c ∈ D(Z)</code> such that <code>{X = a, Z = c}</code> and <code>{Y = b, Z = c}</code> are both consistent. A CSP is path consistent when this holds for every pair and every third variable. Unlike arc consistency, enforcing path consistency may delete <em>pairs</em>, not just values — it tightens the binary constraints themselves, possibly adding explicit constraints between variables that previously had none.</p>
+
+<p>Path consistency cracks the triangle example immediately. With <code>D(A)=D(B)=D(C)={R,B}</code> and all-different constraints, take the consistent pair <code>{A=R, B=B}</code> and the witness <code>C</code>: <code>C=R</code> clashes with <code>A</code>, and <code>C=B</code> clashes with <code>B</code>. No witness exists, so the pair <code>(R, B)</code> is deleted from the constraint on <code>{A, B}</code>. By symmetry the pair <code>(B, R)</code> also goes, leaving the constraint on <code>{A,B}</code> empty — an immediate, inference-only proof that the problem is unsolvable, which arc consistency could never produce.</p>
+
+<p><strong>k-consistency</strong> generalises the pattern. A CSP is <em>k</em>-consistent if, for any consistent assignment to any <code>k−1</code> variables, and any <code>k</code>-th variable, there is a value for that <code>k</code>-th variable extending the assignment consistently. The hierarchy lines up as follows:</p>
+
+<table>
+  <thead>
+    <tr><th>Level</th><th>Name</th><th>What it guarantees</th><th>What it prunes</th><th>Typical enforcement cost</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>k = 1</td><td>Node consistency</td><td>Every value satisfies all unary constraints on its own variable</td><td>Single values</td><td>O(nd)</td></tr>
+    <tr><td>k = 2</td><td>Arc consistency</td><td>Every value of every variable has support in each neighbour</td><td>Single values</td><td>O(cd³) with AC-3; O(cd²) optimal</td></tr>
+    <tr><td>k = 3</td><td>Path consistency</td><td>Every consistent pair extends to any third variable</td><td>Pairs of values</td><td>O(n³d⁵) for the classic PC algorithms</td></tr>
+    <tr><td>general k</td><td>k-consistency</td><td>Every consistent (k−1)-assignment extends to any k-th variable</td><td>(k−1)-tuples</td><td>Exponential in k</td></tr>
+    <tr><td>k = n</td><td>Strong n-consistency</td><td>A solution can be read off backtrack-free</td><td>—</td><td>As hard as solving the CSP</td></tr>
+  </tbody>
+</table>
+
+<p>A CSP is <em>strongly k-consistent</em> if it is j-consistent for every <code>j ≤ k</code>. Strong <code>n</code>-consistency on an <code>n</code>-variable problem means a solution can be constructed greedily without ever backtracking — but establishing it is NP-hard in general (it essentially amounts to solving the problem), and in the worst case requires space exponential in <code>n</code>. This is the central practical lesson of the hierarchy: <strong>consistency levels above arc consistency buy pruning at a price that rises exponentially in <code>k</code></strong>, and beyond <code>k = 2</code> — occasionally <code>k = 3</code> on small, very tight subproblems — the price usually exceeds the benefit. Arc consistency sits at the sweet spot of the cost/pruning curve, which is why MAC, not "maintaining path consistency", is the industry default. There is one notable structural exception: if the constraint graph is a tree, enforcing arc consistency (directionally, along a topological ordering of the tree) is sufficient to guarantee a backtrack-free solution in <code>O(nd²)</code> time.</p>
+
+<p>Modern solvers get stronger-than-arc pruning by a different route: <strong>specialised propagators for global constraints</strong>. The classic example is <code>Alldiff(X₁,...,X_k)</code>. Decomposed into <code>k(k−1)/2</code> pairwise <code>≠</code> constraints and handled by generic arc consistency, it prunes very little — with <code>D(X₁)=D(X₂)=D(X₃)={R,B}</code> and pairwise <code>≠</code>, arc consistency detects nothing, exactly as in the triangle example. Treated as a single global constraint, however, GAC can be enforced using Régin's algorithm, which models the value–variable relation as a bipartite graph and uses maximum matching plus a strongly-connected-components analysis (Hopcroft–Karp and Tarjan) to delete, in roughly <code>O(k^1.5 d)</code> time, every value that belongs to no maximum matching. That immediately detects the three-variables/two-values wipe-out. A cheaper but still very effective rule is the <em>pigeonhole</em> or Hall-interval check: if any set of <code>m</code> variables in an Alldiff collectively has fewer than <code>m</code> values available, fail; if their union is exactly <code>m</code> values, those values can be removed from all other variables in the constraint. Similar dedicated propagators exist for <code>Sum</code>, <code>Cumulative</code>, <code>Element</code>, <code>Regular</code> and many others. The general principle is that <em>semantic</em> knowledge of a constraint buys more pruning per unit of time than any <em>syntactic</em> increase in the generic consistency level — a far better trade than climbing the k-consistency ladder.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> Directly supported. The topic defines arc consistency as local consistency enforced by inference, proves that deleting unsupported values preserves the solution set, and shows how the resulting domain reductions are fed back into backtracking search (including immediate backtracking on domain wipe-out).</li>
+  <li><strong>MO2:</strong> Partially supported. Forward checking is characterised precisely as a single round of revision on the arcs into the just-assigned variable, and the Australian map-colouring example gives the domain reductions it produces after <code>WA = R</code> and <code>Q = G</code>, contrasted with the deeper reductions AC-3 obtains on the same instance.</li>
+  <li><strong>MO3:</strong> Directly supported. Pseudocode for both REVISE and AC-3 is given, together with the queue initialisation rule, the re-enqueuing rule for neighbour arcs, the wipe-out failure test, and the implementation details (iteration-safe deletion, duplicate-free worklist, trailing for backtracking) needed to code it correctly.</li>
+  <li><strong>MO4:</strong> Directly supported for forward checking versus MAC: the comparison table and surrounding discussion set per-node cost against pruning power and explain when each wins. Min-conflicts local search is not covered by this topic and must be met elsewhere in the module.</li>
+  <li><strong>MO5:</strong> Indirectly supported. The complexity analysis supplies the theoretical basis for the two metrics benchmarking must combine — nodes expanded (pruning power) and runtime (per-node cost) — and explains why worst-case bounds such as <code>O(cd³)</code> overstate observed performance, but the topic does not itself cover running or interpreting benchmark experiments.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Worked examples use the standard Australia map-colouring CSP and a small arithmetic constraint so they can be checked by hand. The AC-3 trace assumes a FIFO queue; a different queue discipline would reach the same wipe-out by a different route, which is worth stating in class when students&#39; traces differ. Optimal AC algorithms (AC-4/AC-6/AC-2001) and R&#233;gin&#39;s Alldiff propagator are included as accurate background beyond the listed subtopics; they can be treated as optional reading. Note the deliberate caveat that an arc-consistent network may still be unsolvable (triangle 2-colouring), as this is the most common student misconception.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

@@ -1,0 +1,754 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Core Python Constructs for Algorithm Implementation</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Python Programming Toolkit for AI Development</a></div>
+  <header>
+    <h1>Core Python Constructs for Algorithm Implementation</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Core Python Constructs for Algorithm Implementation</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Artificial intelligence textbooks present algorithms as pseudocode: compact, mathematical descriptions such as <code>function BREADTH-FIRST-SEARCH(problem) returns a solution, or failure</code>. The gap between that pseudocode and working software is bridged by a surprisingly small set of Python constructs. If you choose those constructs deliberately, your implementation reads almost line-for-line like the book; if you choose them carelessly, you end up with a tangle of global variables and nested loops that is impossible to test or to compare against the published algorithm. This topic works through the core constructs — functions, classes, comprehensions, generators, recursion, exceptions, and type hints — with an emphasis on how each one maps onto the shapes that appear in AI pseudocode.</p>
+
+<p><strong>Functions as building blocks for algorithms.</strong> Pseudocode is written as a set of named procedures, and the cleanest translation is one Python function per procedure. A function that does exactly one thing is easier to name, easier to reason about, and — critically for assignment work — easier to test in isolation. Compare the two versions below. The first mixes search, path reconstruction, and reporting; the second separates them.</p>
+
+<pre><code># Poor: one function doing three jobs, printing as a side effect
+def search(problem):
+    frontier = [problem.initial]
+    explored = set()
+    while frontier:
+        state = frontier.pop(0)
+        if problem.goal_test(state):
+            print("Found goal:", state)   # reporting mixed into search
+            return
+        explored.add(state)
+        for action in problem.actions(state):
+            frontier.append(problem.result(state, action))
+
+# Better: one responsibility each
+def breadth_first_search(problem):
+    """Return a goal Node, or None if no solution exists."""
+    node = Node(problem.initial)
+    if problem.goal_test(node.state):
+        return node
+    frontier = deque([node])
+    explored = set()
+    while frontier:
+        node = frontier.popleft()
+        explored.add(node.state)
+        for child in expand(node, problem):
+            if child.state not in explored and child not in frontier:
+                if problem.goal_test(child.state):
+                    return child
+                frontier.append(child)
+    return None
+
+def solution_path(node):
+    """Return the list of states from the root to this node."""
+    path = []
+    while node is not None:
+        path.append(node.state)
+        node = node.parent
+    return list(reversed(path))
+</code></pre>
+
+<p>Notice the parameter and variable names: <code>problem</code>, <code>node</code>, <code>frontier</code>, <code>explored</code>. These are not arbitrary. They are the names used in the pseudocode, and using them means a reader (or marker) can place your code beside the textbook and verify correctness by inspection. Descriptive names also remove the need for most comments: <code>frontier.popleft()</code> already says "remove the shallowest node from the frontier".</p>
+
+<p><strong>Return values, not global mutation.</strong> A function that writes to a module-level variable is effectively communicating through a hidden channel. Two tests running in the same session can interfere with each other, and you cannot call the function twice with different problems. Prefer returning the result:</p>
+
+<pre><code># Fragile: hidden state
+best_path = None
+def dfs(state):
+    global best_path
+    ...
+    best_path = path          # caller must know to read this afterwards
+
+# Robust: explicit result
+def dfs(problem, state, path):
+    ...
+    return path               # caller receives the answer directly
+</code></pre>
+
+<p>The second form is <em>referentially cleaner</em>: given the same arguments it produces the same result and leaves nothing behind. That property is exactly what makes unit testing straightforward — <code>assert dfs(p, p.initial, []) == expected</code> needs no setup or teardown.</p>
+
+<p><strong>Default and keyword arguments for optional components.</strong> Many AI algorithms have optional parts: a depth limit, a cost function, a heuristic, a tie-breaking rule. Default arguments let you express the common case concisely while leaving the knob available.</p>
+
+<pre><code>def best_first_search(problem, f=None, limit=float("inf")):
+    """Generic best-first search; f(node) gives the priority.
+    With f = lambda n: n.path_cost this is uniform-cost search.
+    """
+    if f is None:
+        f = lambda node: node.path_cost
+    ...
+
+# Calls read clearly because the optional parts are named:
+best_first_search(problem)
+best_first_search(problem, f=lambda n: n.path_cost + h(n))
+best_first_search(problem, limit=12)
+</code></pre>
+
+<p>One important caution: never use a mutable object such as <code>[]</code> or <code>{}</code> as a default value. Defaults are evaluated once, when the function is defined, so the same list is shared across every call.</p>
+
+<pre><code># Bug: the list persists between calls
+def record(step, log=[]):
+    log.append(step)
+    return log
+
+# Correct idiom
+def record(step, log=None):
+    if log is None:
+        log = []
+    log.append(step)
+    return log
+</code></pre>
+
+<p><strong>Functions as first-class objects.</strong> In Python a function is an ordinary value: it can be stored in a variable, placed in a list or dictionary, passed to another function, and returned from one. This is what makes a single generic search routine usable for uniform-cost search, greedy search and A* — you simply pass a different evaluation function.</p>
+
+<pre><code>def astar_search(problem, h):
+    """A* = best-first search with f(n) = g(n) + h(n)."""
+    return best_first_search(problem, f=lambda n: n.path_cost + h(n))
+
+def manhattan(node):
+    (r1, c1), (r2, c2) = node.state, GOAL
+    return abs(r1 - r2) + abs(c1 - c2)
+
+def straight_line(node):
+    x1, y1 = COORDS[node.state]
+    x2, y2 = COORDS[GOAL]
+    return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+
+# A dispatch table of heuristics, selected at run time
+HEURISTICS = {"manhattan": manhattan, "sld": straight_line}
+result = astar_search(problem, HEURISTICS[args.heuristic])
+</code></pre>
+
+<p><strong>Classes for modelling problems, agents and nodes.</strong> Where a function captures a procedure, a class captures a <em>thing with state</em>. In search code the recurring things are the problem definition, the search node, and the agent. The standard pattern is an abstract base class that declares the interface every algorithm relies on, followed by one subclass per concrete problem.</p>
+
+<pre><code>class Problem:
+    """Abstract formulation of a search problem."""
+
+    def __init__(self, initial, goal=None):
+        self.initial = initial
+        self.goal = goal
+
+    def actions(self, state):
+        """Return an iterable of actions legal in `state`."""
+        raise NotImplementedError
+
+    def result(self, state, action):
+        """Return the state reached by doing `action` in `state`."""
+        raise NotImplementedError
+
+    def goal_test(self, state):
+        return state == self.goal
+
+    def step_cost(self, state, action, next_state):
+        return 1        # sensible default; override for weighted graphs
+
+
+class RomaniaMap(Problem):
+    def __init__(self, initial, goal, graph):
+        super().__init__(initial, goal)
+        self.graph = graph
+
+    def actions(self, state):
+        return list(self.graph[state])
+
+    def result(self, state, action):
+        return action          # the action *is* the neighbouring city
+
+    def step_cost(self, state, action, next_state):
+        return self.graph[state][next_state]
+</code></pre>
+
+<p>Because <code>breadth_first_search</code> only ever calls <code>actions</code>, <code>result</code> and <code>goal_test</code>, it works unchanged on an 8-puzzle, a maze, or a map of Romania. This is the practical payoff of programming to an interface: algorithms and problems vary independently.</p>
+
+<p><strong>Dunder methods: <code>__repr__</code>, <code>__eq__</code> and <code>__hash__</code>.</strong> Search code stores states in sets and dictionaries, compares nodes, and prints them during debugging. Python's default behaviours are wrong for all three purposes unless you supply the special methods.</p>
+
+<pre><code>class Node:
+    def __init__(self, state, parent=None, action=None, path_cost=0):
+        self.state = state
+        self.parent = parent
+        self.action = action
+        self.path_cost = path_cost
+        self.depth = 0 if parent is None else parent.depth + 1
+
+    def __repr__(self):
+        return f"&lt;Node {self.state} g={self.path_cost} d={self.depth}&gt;"
+
+    def __eq__(self, other):
+        return isinstance(other, Node) and self.state == other.state
+
+    def __hash__(self):
+        return hash(self.state)
+
+    def __lt__(self, other):
+        # Needed so heapq can break ties between equal priorities
+        return self.path_cost &lt; other.path_cost
+</code></pre>
+
+<p>Three rules govern these methods. First, <code>__repr__</code> should produce an unambiguous developer-facing string — without it you see <code>&lt;__main__.Node object at 0x7f1c...&gt;</code> and learn nothing. Second, if you define <code>__eq__</code> you must define a consistent <code>__hash__</code>, because Python sets <code>__hash__</code> to <code>None</code> on any class that overrides <code>__eq__</code>, making instances unhashable. Third, objects that compare equal must hash equal, and anything used as a dictionary key or set member must be immutable in the fields that feed the hash. That is why states are typically tuples or frozensets rather than lists:</p>
+
+<pre><code># 8-puzzle state as an immutable tuple -> hashable, usable in `explored`
+state = (1, 2, 3,
+         4, 0, 6,
+         7, 5, 8)
+explored = set()
+explored.add(state)           # fine
+
+bad_state = [1, 2, 3, 4, 0, 6, 7, 5, 8]
+explored.add(bad_state)       # TypeError: unhashable type: 'list'
+</code></pre>
+
+<p><strong>Dataclasses to remove boilerplate.</strong> For plain record types — a transition, a training example, a configuration bundle — <code>@dataclass</code> generates <code>__init__</code>, <code>__repr__</code> and <code>__eq__</code> automatically. Adding <code>frozen=True</code> makes instances immutable and gives you <code>__hash__</code> for free, which is perfect for states.</p>
+
+<pre><code>from dataclasses import dataclass, field
+
+@dataclass(frozen=True)
+class GridState:
+    row: int
+    col: int
+
+@dataclass
+class Transition:
+    state: GridState
+    action: str
+    reward: float
+    next_state: GridState
+    done: bool = False
+
+@dataclass(order=True)
+class PrioritisedNode:
+    priority: float
+    node: Node = field(compare=False)   # compare on priority only
+</code></pre>
+
+<p>That last pattern is the standard way to push objects onto a <code>heapq</code> priority queue without requiring the payload itself to be orderable.</p>
+
+<p><strong>Comprehensions for concise data transformation.</strong> A comprehension expresses "build a collection by transforming and filtering another collection" in one line. The single most common use in search code is node expansion:</p>
+
+<pre><code>def expand(node, problem):
+    """Return the list of child nodes reachable from `node`."""
+    return [child_node(node, problem, action)
+            for action in problem.actions(node.state)]
+
+def child_node(node, problem, action):
+    next_state = problem.result(node.state, action)
+    cost = node.path_cost + problem.step_cost(node.state, action, next_state)
+    return Node(next_state, parent=node, action=action, path_cost=cost)
+</code></pre>
+
+<p>A set comprehension deduplicates automatically, which is useful when several actions lead to the same successor state:</p>
+
+<pre><code>successors = {problem.result(state, a) for a in problem.actions(state)}
+</code></pre>
+
+<p>A dictionary comprehension builds lookup tables — exactly the shape needed for utility tables in value iteration, or word counts in text processing:</p>
+
+<pre><code>utility = {s: 0.0 for s in problem.states}                 # initialise V(s)
+policy  = {s: best_action(s, utility) for s in problem.states}
+counts  = {w: text.count(w) for w in set(text.split())}
+inverse = {value: key for key, value in index.items()}      # invert a mapping
+</code></pre>
+
+<p>An <code>if</code> clause filters inline, letting you express "generate the frontier additions, skipping anything already seen" in a single readable expression:</p>
+
+<pre><code>new_nodes = [child for child in expand(node, problem)
+             if child.state not in explored and child.state not in frontier_states]
+</code></pre>
+
+<p>Comprehensions earn their place through clarity, not cleverness. The guideline is at most two levels of nesting — one iteration plus one filter, or two iterations over a small cross-product. Beyond that, write the loop.</p>
+
+<pre><code># Acceptable: two levels, still readable
+cells = [(r, c) for r in range(rows) for c in range(cols) if grid[r][c] != WALL]
+
+# Unreadable: refactor into an explicit loop
+scores = [f(a, b, c) for a in A for b in B(a) for c in C(a, b) if valid(a, b, c)]
+</code></pre>
+
+<p><strong>Generators and lazy evaluation.</strong> A generator function contains <code>yield</code>; calling it does not run the body but returns a generator object. Each time you ask for the next item, the body resumes exactly where it left off, with all local variables intact, runs to the next <code>yield</code>, and suspends again. The practical consequence is that values are produced one at a time, on demand, so memory stays flat no matter how many values there are.</p>
+
+<pre><code>def expand(node, problem):
+    """Yield children lazily; callers that find a goal early stop the work."""
+    for action in problem.actions(node.state):
+        next_state = problem.result(node.state, action)
+        yield Node(next_state, node, action,
+                   node.path_cost + problem.step_cost(node.state, action, next_state))
+
+def all_states(problem):
+    """Enumerate the reachable state space without ever materialising it."""
+    seen, stack = {problem.initial}, [problem.initial]
+    while stack:
+        state = stack.pop()
+        yield state
+        for action in problem.actions(state):
+            nxt = problem.result(state, action)
+            if nxt not in seen:
+                seen.add(nxt)
+                stack.append(nxt)
+</code></pre>
+
+<p>A generator expression is the same idea in expression form — parentheses instead of square brackets. Use it whenever the sequence is consumed exactly once, especially inside <code>any</code>, <code>all</code>, <code>sum</code>, <code>min</code> and <code>max</code>, which stop as soon as they can.</p>
+
+<pre><code>if any(problem.goal_test(child.state) for child in expand(node, problem)):
+    ...
+total_cost = sum(n.path_cost for n in path)
+best = min(expand(node, problem), key=lambda c: c.path_cost + h(c))
+</code></pre>
+
+<p>Generators compose beautifully with <code>itertools</code>, which supplies lazy combinatorial building blocks:</p>
+
+<pre><code>from itertools import islice, chain, product, permutations, count
+
+first_ten = list(islice(all_states(problem), 10))        # peek without exhausting memory
+every_cell = product(range(8), range(8))                 # 64 (row, col) pairs, lazily
+tours = permutations(cities)                             # n! orderings, one at a time
+combined = chain(frontier_a, frontier_b)                 # iterate two sources as one
+for episode in count(1):                                 # infinite counter for training loops
+    ...
+</code></pre>
+
+<p>The one trap is exhaustion: a generator yields its values once and is then empty. If you need to iterate twice, materialise it.</p>
+
+<pre><code>children = expand(node, problem)        # generator
+print(sum(1 for _ in children))         # 4
+print(sum(1 for _ in children))         # 0  -- already exhausted!
+
+children = list(expand(node, problem))  # now reusable
+</code></pre>
+
+<p>The table below summarises when each construct is the right tool.</p>
+
+<table>
+  <thead>
+    <tr><th>Construct</th><th>Syntax</th><th>Memory</th><th>Reusable?</th><th>Typical AI use</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>List comprehension</td><td><code>[f(x) for x in xs]</code></td><td>O(n)</td><td>Yes</td><td>Child nodes you will scan more than once</td></tr>
+    <tr><td>Set comprehension</td><td><code>{f(x) for x in xs}</code></td><td>O(n)</td><td>Yes</td><td>Deduplicated successor states</td></tr>
+    <tr><td>Dict comprehension</td><td><code>{k: v for ...}</code></td><td>O(n)</td><td>Yes</td><td>State→utility, word→count tables</td></tr>
+    <tr><td>Generator expression</td><td><code>(f(x) for x in xs)</code></td><td>O(1)</td><td>No</td><td>One-pass aggregation with <code>any</code>/<code>sum</code></td></tr>
+    <tr><td>Generator function</td><td><code>def g(): ... yield</code></td><td>O(1)</td><td>No</td><td>Streaming huge or infinite state spaces</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Recursion for tree and graph algorithms.</strong> Many AI algorithms are defined recursively because the problems themselves are recursive: the value of a game position is defined in terms of the values of its successor positions. Translating such a definition into Python is almost mechanical, provided you write the base case first.</p>
+
+<pre><code>def depth_limited_search(problem, node, limit):
+    if problem.goal_test(node.state):          # base case 1: success
+        return node
+    if limit == 0:                             # base case 2: cutoff
+        return "cutoff"
+    cutoff_occurred = False
+    for child in expand(node, problem):
+        result = depth_limited_search(problem, child, limit - 1)
+        if result == "cutoff":
+            cutoff_occurred = True
+        elif result is not None:
+            return result
+    return "cutoff" if cutoff_occurred else None
+</code></pre>
+
+<p>Adversarial search is the showcase example. Minimax is a pair of <em>mutually recursive</em> functions, and alpha–beta pruning adds two accumulator parameters that thread through the recursion:</p>
+
+<pre><code>def alphabeta_decision(game, state):
+    best_score, best_action = -INF, None
+    alpha, beta = -INF, INF
+    for action in game.actions(state):
+        score = min_value(game, game.result(state, action), alpha, beta)
+        if score &gt; best_score:
+            best_score, best_action = score, action
+        alpha = max(alpha, best_score)
+    return best_action
+
+def max_value(game, state, alpha, beta):
+    if game.terminal_test(state):                 # explicit base case
+        return game.utility(state)
+    value = -INF
+    for action in game.actions(state):
+        value = max(value, min_value(game, game.result(state, action), alpha, beta))
+        if value &gt;= beta:                         # beta cutoff: prune
+            return value
+        alpha = max(alpha, value)
+    return value
+
+def min_value(game, state, alpha, beta):
+    if game.terminal_test(state):
+        return game.utility(state)
+    value = INF
+    for action in game.actions(state):
+        value = min(value, max_value(game, game.result(state, action), alpha, beta))
+        if value &lt;= alpha:                        # alpha cutoff: prune
+            return value
+        beta = min(beta, value)
+    return value
+</code></pre>
+
+<p>Note that <code>alpha</code>, <code>beta</code> and (in depth-limited variants) <code>depth</code> are passed as parameters. Each recursive call then gets its own copy, which is exactly the semantics the algorithm requires; using globals would let one branch's bounds leak into a sibling branch and silently produce wrong answers.</p>
+
+<p><strong>Memoisation.</strong> Recursive formulations frequently re-solve the same subproblem many times. <code>functools.lru_cache</code> converts exponential recomputation into linear work with one decorator, provided the arguments are hashable.</p>
+
+<pre><code>from functools import lru_cache
+
+@lru_cache(maxsize=None)
+def fib(n):
+    return n if n &lt; 2 else fib(n - 1) + fib(n - 2)
+
+@lru_cache(maxsize=None)
+def minimax_value(state, player):
+    """State must be an immutable tuple for caching to work."""
+    if terminal(state):
+        return utility(state)
+    scores = (minimax_value(apply(state, a), -player) for a in actions(state))
+    return max(scores) if player == 1 else min(scores)
+
+print(fib.cache_info())   # CacheInfo(hits=..., misses=..., maxsize=None, currsize=...)
+</code></pre>
+
+<p>In game-playing code this cache is the <em>transposition table</em>: different move orders that reach the same position are evaluated only once. Be aware that the cache keys on all arguments, so a mutable or unhashable argument raises <code>TypeError</code>, and that an unbounded cache grows without limit — set <code>maxsize</code> for long-running processes.</p>
+
+<p><strong>When recursion is the wrong choice.</strong> CPython's default recursion limit is about 1000 frames, and each frame costs memory. A depth-first search over a deep graph will raise <code>RecursionError</code>. Rather than raising the limit (which risks a hard interpreter crash), convert the recursion to a loop with an explicit stack — the transformation is mechanical, because the stack simply holds what the call frames held.</p>
+
+<pre><code># Recursive DFS: fails on deep graphs
+def dfs_recursive(graph, state, visited):
+    visited.add(state)
+    for nxt in graph[state]:
+        if nxt not in visited:
+            dfs_recursive(graph, nxt, visited)
+
+# Iterative DFS: depth limited only by heap memory
+def dfs_iterative(graph, start):
+    visited, stack = set(), [start]
+    while stack:
+        state = stack.pop()
+        if state in visited:
+            continue
+        visited.add(state)
+        stack.extend(nxt for nxt in graph[state] if nxt not in visited)
+    return visited
+</code></pre>
+
+<p><strong>Exception handling for robust algorithm code.</strong> Algorithms meet the outside world at their boundaries — reading a maze file, parsing a CSV of training data, converting a string to a float — and that is exactly where failures occur. Wrap the risky operation, not the whole program, and catch the specific exceptions you can actually handle.</p>
+
+<pre><code>def load_graph(path):
+    try:
+        with open(path, encoding="utf-8") as f:
+            return parse_graph(f)
+    except FileNotFoundError:
+        raise InvalidStateError(f"Map file not found: {path}") from None
+    except PermissionError as exc:
+        raise InvalidStateError(f"Cannot read {path}: {exc}") from exc
+
+def parse_weight(text):
+    try:
+        return float(text)
+    except ValueError:
+        return 1.0            # a missing weight defaults to unit cost
+</code></pre>
+
+<p>The reason to avoid a bare <code>except:</code> (or even a broad <code>except Exception:</code>) is that it swallows everything — including <code>KeyboardInterrupt</code>, typos that raise <code>NameError</code>, and genuine logic bugs. A search that silently returns <code>None</code> because you masked an <code>AttributeError</code> is far harder to debug than one that crashes loudly with a traceback.</p>
+
+<pre><code># Dangerous: hides bugs and makes Ctrl-C impossible
+try:
+    result = astar_search(problem, h)
+except:
+    result = None
+
+# Precise: each clause states a failure mode you have thought about
+try:
+    cost = costs[state]
+except KeyError:
+    cost = float("inf")            # unvisited state has infinite cost
+
+try:
+    probability = successes / trials
+except ZeroDivisionError:
+    probability = 0.0              # no trials yet
+</code></pre>
+
+<p><strong>Custom exceptions express domain errors.</strong> Returning <code>None</code> to mean "no solution" is workable, but it conflates "there is no path" with "you gave me a malformed problem". Defining a small exception hierarchy makes the distinction explicit and lets callers choose which failures to handle.</p>
+
+<pre><code>class SearchError(Exception):
+    """Base class for all search-related failures."""
+
+class SearchFailure(SearchError):
+    """Raised when the state space is exhausted without reaching a goal."""
+
+class InvalidStateError(SearchError):
+    """Raised when a state or problem definition is malformed."""
+
+class ResourceLimitExceeded(SearchError):
+    """Raised when a node or time budget is exhausted."""
+
+
+def breadth_first_search(problem, max_nodes=1_000_000):
+    expanded = 0
+    ...
+    while frontier:
+        expanded += 1
+        if expanded &gt; max_nodes:
+            raise ResourceLimitExceeded(f"Gave up after {max_nodes} expansions")
+        ...
+    raise SearchFailure(f"No path from {problem.initial} to {problem.goal}")
+
+
+# The caller distinguishes between the cases it cares about
+try:
+    node = breadth_first_search(problem)
+except ResourceLimitExceeded as exc:
+    print("Try a heuristic search instead:", exc)
+except SearchFailure:
+    print("The goal is genuinely unreachable.")
+</code></pre>
+
+<p><strong>Failing fast with <code>raise</code>.</strong> Validate preconditions at the top of a function so that an error is reported at the point where the mistake was made, not fifty expansions later in an unrelated line.</p>
+
+<pre><code>def astar_search(problem, h):
+    if not callable(h):
+        raise TypeError("h must be a function Node -&gt; float")
+    if problem.initial is None:
+        raise InvalidStateError("Problem has no initial state")
+    if h(Node(problem.initial)) &lt; 0:
+        raise ValueError("Heuristic must be non-negative to remain admissible")
+    ...
+</code></pre>
+
+<p><strong>Cleaning up with <code>finally</code> and context managers.</strong> Resources — open files, timers, database handles, pools of worker processes — must be released whether the block succeeds or raises. The <code>with</code> statement does this automatically and is always preferable to manual <code>open</code>/<code>close</code> pairs. You can write your own context manager for cross-cutting concerns such as timing an experiment.</p>
+
+<pre><code>import time
+from contextlib import contextmanager
+
+@contextmanager
+def timer(label):
+    start = time.perf_counter()
+    try:
+        yield
+    finally:                                   # runs even if the body raises
+        elapsed = time.perf_counter() - start
+        print(f"{label}: {elapsed:.3f}s")
+
+with timer("A* on 8-puzzle"), open("results.csv", "w") as out:
+    try:
+        node = astar_search(problem, manhattan)
+        out.write(f"{problem.initial},{node.path_cost}\n")
+    except SearchFailure:
+        out.write(f"{problem.initial},unsolved\n")
+</code></pre>
+
+<p>The table below maps common failure situations in AI assignment code onto the exception you should expect and the sensible response.</p>
+
+<table>
+  <thead>
+    <tr><th>Situation</th><th>Exception raised</th><th>Recommended handling</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Dataset file missing or path typo</td><td><code>FileNotFoundError</code></td><td>Catch, report the path, exit cleanly</td></tr>
+    <tr><td>Non-numeric field in a CSV column</td><td><code>ValueError</code></td><td>Catch per row; skip or impute a default</td></tr>
+    <tr><td>Lookup of an unvisited state in a cost dictionary</td><td><code>KeyError</code></td><td>Catch and substitute infinity, or use <code>dict.get</code></td></tr>
+    <tr><td>Normalising probabilities when the total is zero</td><td><code>ZeroDivisionError</code></td><td>Catch and return a uniform distribution</td></tr>
+    <tr><td>Using a list as a set member or dict key</td><td><code>TypeError</code></td><td>Do not catch — fix the state representation (use a tuple)</td></tr>
+    <tr><td>Depth-first recursion on a deep graph</td><td><code>RecursionError</code></td><td>Do not catch — rewrite iteratively with an explicit stack</td></tr>
+    <tr><td>Frontier emptied without reaching a goal</td><td><code>SearchFailure</code> (custom)</td><td>Catch at the top level and report "no solution"</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Type hints and readable, reusable code.</strong> Annotations record, in the signature itself, what a function expects and produces. Python does not enforce them at run time — they are documentation that tooling can check — but editors use them for autocompletion and error highlighting, and <code>mypy</code> can verify them statically. For algorithm code they are especially valuable because a signature such as <code>def h(node: Node) -&gt; float</code> tells a reader instantly how to supply a heuristic.</p>
+
+<pre><code>from typing import Callable, Iterator, Optional
+
+def heuristic(node: Node) -&gt; float:
+    """Estimated cost from `node` to the goal."""
+    ...
+
+def expand(node: Node, problem: Problem) -&gt; Iterator[Node]:
+    ...
+
+def best_first_search(
+    problem: Problem,
+    f: Callable[[Node], float],
+    max_nodes: int = 1_000_000,
+) -&gt; Optional[Node]:
+    """Return a goal node, or None if the frontier empties."""
+    ...
+</code></pre>
+
+<p><strong>Typing constructs for complex signatures.</strong> <code>Optional[X]</code> means "an <code>X</code> or <code>None</code>" and is the right annotation for a search that may fail. <code>Callable[[Node], float]</code> describes a function argument precisely: one <code>Node</code> parameter, a <code>float</code> result. <code>Iterator[Node]</code> is the return type of a generator. <code>List</code>, <code>Dict</code>, <code>Set</code> and <code>Tuple</code> from <code>typing</code> are the legacy spellings; from Python 3.9 onwards the built-ins <code>list[Node]</code>, <code>dict[str, float]</code> and <code>tuple[int, ...]</code> are preferred.</p>
+
+<table>
+  <thead>
+    <tr><th>Annotation</th><th>Meaning</th><th>Example use in AI code</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>Optional[Node]</code></td><td><code>Node</code> or <code>None</code></td><td>Search result that may be failure</td></tr>
+    <tr><td><code>list[Node]</code></td><td>List of nodes</td><td>A fully materialised solution path</td></tr>
+    <tr><td><code>dict[State, float]</code></td><td>Mapping of state to number</td><td>Utility table <em>V(s)</em> in value iteration</td></tr>
+    <tr><td><code>Callable[[Node], float]</code></td><td>Function taking a node, returning a number</td><td>Heuristic or evaluation function</td></tr>
+    <tr><td><code>Iterator[Node]</code></td><td>Lazily produced nodes</td><td>Return type of a generator-based <code>expand</code></td></tr>
+    <tr><td><code>Sequence[float]</code></td><td>Read-only indexable sequence</td><td>A feature vector the function must not modify</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Type aliases.</strong> When a type expression repeats or grows long, name it. The alias documents intent as well as structure — <code>State</code> says more than <code>tuple[int, ...]</code>, even though they are the same type.</p>
+
+<pre><code>State = tuple[int, ...]                  # an 8-puzzle board, flattened
+Action = str
+Heuristic = Callable[["Node"], float]
+Policy = dict[State, Action]
+Transitions = dict[tuple[State, Action], list[tuple[float, State]]]
+
+def value_iteration(trans: Transitions, gamma: float = 0.9) -&gt; dict[State, float]:
+    ...
+
+def greedy_policy(utility: dict[State, float]) -&gt; Policy:
+    ...
+</code></pre>
+
+<p><strong>Docstrings that cite the pseudocode.</strong> Because the algorithms you implement are published, your docstring should say which algorithm it is and where the pseudocode came from. This is traceability: a marker, a teammate, or you in six weeks can check the implementation against the source without guessing.</p>
+
+<pre><code>def uniform_cost_search(problem: Problem) -&gt; Optional[Node]:
+    """Uniform-cost search (Dijkstra's algorithm on an implicit graph).
+
+    Implements UNIFORM-COST-SEARCH, Russell &amp; Norvig,
+    *Artificial Intelligence: A Modern Approach*, 4th ed., Figure 3.14.
+
+    Args:
+        problem: A Problem exposing actions(), result(), goal_test()
+            and step_cost().
+
+    Returns:
+        A goal Node whose parent chain gives the cheapest path,
+        or None if the frontier is exhausted.
+
+    Complexity:
+        O(b^(1 + C*/eps)) time and space, where C* is the optimal cost
+        and eps the minimum step cost.
+    """
+</code></pre>
+
+<p><strong>PEP 8 and reviewable code.</strong> PEP 8 is the style guide the Python community agrees on, and following it means your submitted code looks like everyone else's — which is precisely the point, since consistent code is faster to read and review. The essentials: four spaces per indent level, <code>snake_case</code> for functions and variables, <code>CapWords</code> for classes, <code>UPPER_SNAKE_CASE</code> for constants, lines kept to a reasonable width, two blank lines between top-level definitions, imports grouped as standard library, third party, then local. Tools such as <code>black</code> (formatter), <code>flake8</code> or <code>ruff</code> (linters) apply and check these automatically.</p>
+
+<pre><code># Not PEP 8
+import heapq,sys
+class node:
+  def __init__(self,S,P = None): self.S=S;self.P=P
+def AStarSearch( problem,H ): ...
+
+# PEP 8
+import heapq
+import sys
+
+from search.problem import Problem
+
+
+class Node:
+    def __init__(self, state: State, parent: Optional["Node"] = None) -&gt; None:
+        self.state = state
+        self.parent = parent
+
+
+def astar_search(problem: Problem, h: Heuristic) -&gt; Optional[Node]:
+    ...
+</code></pre>
+
+<p><strong>Short, side-effect-free functions are testable functions.</strong> Every guideline in this topic converges on the same goal: a function small enough to understand at a glance, whose output depends only on its inputs, can be verified by a two-line test. That is what lets you build an algorithm incrementally and know each piece works before combining them.</p>
+
+<pre><code>def test_child_node_accumulates_cost():
+    problem = RomaniaMap("Arad", "Bucharest", ROMANIA)
+    root = Node("Arad")
+    child = child_node(root, problem, "Sibiu")
+    assert child.state == "Sibiu"
+    assert child.parent is root
+    assert child.path_cost == 140
+    assert child.depth == 1
+
+def test_bfs_finds_shortest_hop_path():
+    problem = RomaniaMap("Arad", "Bucharest", ROMANIA)
+    assert solution_path(breadth_first_search(problem)) == [
+        "Arad", "Sibiu", "Fagaras", "Bucharest"
+    ]
+
+def test_search_failure_is_raised_for_unreachable_goal():
+    problem = RomaniaMap("Arad", "Atlantis", ROMANIA)
+    try:
+        breadth_first_search(problem)
+        assert False, "expected SearchFailure"
+    except SearchFailure:
+        pass
+</code></pre>
+
+<p>Taken together, these constructs form a toolkit with a consistent philosophy: name things as the pseudocode names them, let functions compute rather than mutate, let classes hold the interface that algorithms depend on, let comprehensions and generators express transformation without clutter, let recursion mirror recursive definitions (and know when to unroll it), let exceptions express failure explicitly, and let type hints and docstrings record your intent for the next reader.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1</strong> — Not addressed. This topic covers language constructs rather than virtual environment creation, library installation, or dependency pinning in a requirements file.</li>
+  <li><strong>MO2</strong> — Directly supported. Functions, classes, comprehensions, generators and recursion are presented specifically as the means of turning AI pseudocode (breadth-first search, depth-limited search, minimax with alpha–beta) into working Python.</li>
+  <li><strong>MO3</strong> — Partially supported. The topic shows why states must be hashable for set-based <code>explored</code> tracking, uses <code>deque</code> for the FIFO frontier, and introduces the <code>@dataclass(order=True)</code> wrapper pattern used with <code>heapq</code> priority queues, providing the structural groundwork for comparing those trade-offs.</li>
+  <li><strong>MO4</strong> — Indirectly supported. Generators for streaming training data, dictionary comprehensions for building tables, custom exceptions for parsing failures, and type hints for data-processing signatures are foundations for a pandas/NumPy/scikit-learn workflow, but the fit/predict pattern itself is not covered here.</li>
+  <li><strong>MO5</strong> — Not addressed. Git commits, branches, merges and remote pushes are outside the scope of this topic, although its PEP 8 and docstring conventions make committed code easier to review.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Code examples assume Python 3.9+ for built-in generic types (&lt;code&gt;list[Node]&lt;/code&gt;, &lt;code&gt;tuple[int, ...]&lt;/code&gt;); on 3.8 substitute &lt;code&gt;List&lt;/code&gt;/&lt;code&gt;Tuple&lt;/code&gt; from &lt;code&gt;typing&lt;/code&gt;. The &lt;code&gt;Problem&lt;/code&gt;/&lt;code&gt;Node&lt;/code&gt;/&lt;code&gt;expand&lt;/code&gt; interface follows Russell &amp;amp; Norvig conventions so examples carry over to later search topics. Suggested follow-up activity: give students a working recursive DFS that raises &lt;code&gt;RecursionError&lt;/code&gt; on a 5,000-node chain graph and ask them to convert it to the explicit-stack form, then verify both produce identical visited sets on a small graph.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

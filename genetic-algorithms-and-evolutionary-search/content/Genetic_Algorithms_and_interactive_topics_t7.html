@@ -1,0 +1,298 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Case Studies in Scheduling, Design, and Optimization</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Genetic Algorithms and Evolutionary Search</a></div>
+  <header>
+    <h1>Case Studies in Scheduling, Design, and Optimization</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Case Studies in Scheduling, Design, and Optimization</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Genetic algorithms earn their reputation not in textbook function optimisation but in messy, constraint-laden industrial problems where the search space is combinatorial, the objective is defined by a simulator or a business rule rather than a closed-form equation, and exact methods run out of time long before they run out of nodes to explore. This topic walks through four families of applied case study — job-shop scheduling, timetabling and resource allocation, engineering design, and classical combinatorial optimisation — then steps back to compare evolutionary search with its main competitors and to distil the engineering lessons that determine whether a deployed system succeeds or quietly gets switched off. The recurring theme is that the <em>representation and decoder</em> do most of the heavy lifting: once the mapping from genotype to solution is right, the generational machinery of selection, crossover, mutation, and evaluation is almost boilerplate.</p>
+
+<p><strong>Job-shop scheduling with genetic algorithms.</strong> The job-shop scheduling problem (JSSP) gives <code>n</code> jobs, each consisting of an ordered chain of operations, and <code>m</code> machines. Every operation must run on a specified machine for a specified duration, operations within a job must respect their precedence chain, and a machine processes one operation at a time. The usual objective is to minimise the <em>makespan</em> <code>C_max</code>, the completion time of the last operation. JSSP is NP-hard, and the notorious 10×10 instance FT10 published by Fisher and Thompson in 1963 resisted proof of optimality (makespan 930) for roughly a quarter of a century.</p>
+
+<p>The first design decision is what a chromosome holds. A naive encoding — a vector of raw start times — is almost unusable: crossover of two valid schedules nearly always yields overlapping operations or violated precedences, so every offspring needs expensive repair. Practical GAs therefore encode something more abstract:</p>
+<ul>
+<li><strong>Operation-based (permutation with repetition) encoding.</strong> A chromosome is a sequence in which the job identifier <code>j</code> appears exactly <code>m</code> times; the <code>k</code>-th occurrence of <code>j</code> denotes the <code>k</code>-th operation of job <code>j</code>. Any permutation of this multiset is automatically precedence-feasible, because reading left to right can only schedule a job's operations in order. For three jobs of three operations each, <code>[2,1,1,3,2,3,1,2,3]</code> is a legal genotype.</li>
+<li><strong>Machine-priority / dispatching-rule encoding.</strong> Each gene selects a priority rule (SPT, LPT, MWKR, EDD, FIFO) to be applied at a decision point, or at a given machine. The GA then evolves a <em>policy</em> rather than a schedule, which generalises well to dynamic shops where jobs arrive over time.</li>
+<li><strong>Random-key encoding.</strong> Each operation receives a real number in <code>[0,1)</code>; sorting the keys produces a sequence. Because any real vector decodes to a valid sequence, ordinary real-valued operators can be reused unchanged.</li>
+</ul>
+
+<p>The second decision is the <strong>decoder</strong>, the routine that turns a genotype into a timetable. The standard choice is the Giffler–Thompson algorithm, which builds an <em>active</em> schedule — one in which no operation could be started earlier without delaying another. Active schedules are attractive because the set of active schedules provably contains an optimal solution, so restricting the search to that set loses nothing while shrinking the space enormously. A <em>non-delay</em> schedule, in which no machine idles while an operation is waiting, is an even smaller set that is not guaranteed to contain the optimum but often contains very good solutions and is cheaper to search.</p>
+
+<pre><code>decode(chromosome):                       # operation-based genotype -> active schedule
+    for each job j: next_op[j] = 0
+    machine_free[*] = 0 ; job_free[*] = 0
+    for gene in chromosome:               # gene is a job id
+        j  = gene
+        op = next_op[j]; next_op[j] += 1
+        mc = machine_of(j, op)
+        start  = max(machine_free[mc], job_free[j])
+        finish = start + duration(j, op)
+        record(j, op, mc, start, finish)
+        machine_free[mc] = finish ; job_free[j] = finish
+    return max over jobs of job_free[j]    # makespan</code></pre>
+
+<p>Because the decoder enforces feasibility, <em>repair is rarely needed</em> — a major practical saving. Fitness is then derived from the decoded schedule. A common form is <code>fitness = 1 / (1 + C_max)</code>, or for a minimisation-aware selection scheme simply <code>-C_max</code>. Real shops rarely care about makespan alone, so the objective is usually a weighted composite:</p>
+
+<pre><code>cost = w1 * C_max
+     + w2 * sum_j ( weight_j * max(0, completion_j - due_j) )   # weighted tardiness
+     + w3 * total_machine_idle_time
+     + w4 * number_of_setups
+fitness = 1 / (1 + cost)</code></pre>
+
+<p>Operators must preserve the structural property that makes the encoding feasible. For operation-based chromosomes, <strong>precedence-preserving order crossover (POX)</strong> selects a random subset of jobs, copies all genes belonging to those jobs from parent A into the child in their original positions, and fills the remaining positions with the remaining genes in the order they appear in parent B. Because the multiset of job identifiers is unchanged, the child is still a legal genotype. <strong>Swap mutation</strong> exchanges two positions; <strong>insertion mutation</strong> removes one gene and reinserts it elsewhere, which tends to make smaller changes to the decoded schedule than a swap of distant genes. For random-key encodings, blend crossover and Gaussian perturbation work directly.</p>
+
+<p>Benchmark evidence is well documented. On the Fisher–Thompson instances (FT06, FT10, FT20) and the forty Lawrence instances (LA01–LA40), plain generational GAs with operation-based encoding and an active-schedule decoder typically land within 0–5% of the best known makespan, and hybrid GAs with local search (shifting bottleneck moves or critical-path neighbourhood search) routinely match the optimum on the small and medium instances. FT06 (optimum 55) is solved in a handful of generations; FT10 (optimum 930) is reached reliably by memetic variants and approached by pure GAs. The point is not that a GA is the world's best JSSP solver — tabu search and constraint programming are very strong here — but that it reaches near-optimal makespans with modest implementation effort on instances where exhaustive branch-and-bound is intractable, and that it absorbs extra objectives such as tardiness or setup costs without redesign.</p>
+
+<table>
+<thead>
+<tr><th>Design choice</th><th>Option</th><th>Consequence</th></tr>
+</thead>
+<tbody>
+<tr><td>Encoding</td><td>Raw start times</td><td>Offspring almost always infeasible; heavy repair; avoid</td></tr>
+<tr><td>Encoding</td><td>Operation-based permutation with repetition</td><td>Always precedence-feasible; needs POX-style crossover</td></tr>
+<tr><td>Encoding</td><td>Priority-rule genes</td><td>Evolves a policy; strong for dynamic/rolling-horizon shops</td></tr>
+<tr><td>Decoder</td><td>Semi-active</td><td>Largest search space; weakest schedules</td></tr>
+<tr><td>Decoder</td><td>Active (Giffler–Thompson)</td><td>Contains an optimum; standard choice</td></tr>
+<tr><td>Decoder</td><td>Non-delay</td><td>Smallest space, fast convergence, optimum not guaranteed</td></tr>
+<tr><td>Fitness</td><td>1/(1+C_max)</td><td>Simple, graded, monotone in makespan</td></tr>
+<tr><td>Fitness</td><td>Weighted makespan + tardiness + idle</td><td>Matches shop-floor priorities; needs weight calibration</td></tr>
+</tbody>
+</table>
+
+<p><strong>Timetabling and resource allocation.</strong> University examination and course timetabling is the other classic scheduling application, and it differs from job-shop work in an important way: the constraint set is heterogeneous and partly subjective. Hard constraints must never be violated (no student sits two exams simultaneously; no room is double-booked; a room must have enough seats; a lab session needs a lab). Soft constraints express preference (students should not have three exams in one day; lecturers prefer mornings; consecutive sessions should be in nearby buildings; spread exams as evenly as possible).</p>
+
+<p>A <strong>direct encoding</strong> maps each event to a pair. If the institution runs <code>E</code> events, the chromosome has length <code>E</code> and gene <code>i</code> holds <code>(time_slot_i, room_i)</code>. For 400 exams, 30 slots, and 25 rooms the raw space is <code>750^400</code> — astronomically large, and overwhelmingly infeasible, which is precisely why naive random initialisation fails. Variants include splitting the chromosome into two parallel arrays (one for slots, one for rooms) so that slot and room assignment can be mutated independently, or encoding only the slot and letting a matching algorithm (bipartite matching between events and rooms within each slot) assign rooms optimally — a decoder that removes an entire class of hard constraint violations.</p>
+
+<p>Fitness is almost always <strong>penalty-based</strong>, converting a multi-constraint problem into a single comparable number:</p>
+
+<pre><code>hard = clashes + room_overflows + room_type_mismatches + unavailability_violations
+soft = 3*three_in_a_day + 1*two_in_a_row + 2*lecturer_preference_misses
+       + 1*building_moves + spread_penalty
+
+cost    = 1000 * hard + soft          # hard weight dominates any soft trade-off
+fitness = 1 / (1 + cost)</code></pre>
+
+<p>The weight ratio matters. If the hard-constraint multiplier is too small, the GA will happily buy a clash to fix a dozen soft preferences — unacceptable. If it is too large, the fitness landscape becomes a plateau of "infeasible, equally terrible" individuals and selection loses its gradient. Two safer alternatives are <em>feasibility-first ranking</em> (any feasible individual beats any infeasible one; ties broken by soft cost, infeasible individuals ranked by total violation) and <em>stratified/graduated penalties</em> that grow with the generation count, allowing early exploration through infeasible regions and tightening later.</p>
+
+<p><strong>Repair and constraint-aware initialisation</strong> dramatically change early-generation statistics. Instead of sampling uniformly, seed each individual with a graph-colouring heuristic: order events by saturation degree (the number of distinct slots already used by conflicting events), place the most constrained event first, and choose a slot that creates no clash. A population seeded this way can start at zero hard violations, after which the GA spends all of its effort on soft quality. Repair operators perform the same job after variation — for example, scan the child for clashes and move the offending event to the least-penalised feasible slot. Note the Lamarckian choice: write the repaired solution back into the chromosome (faster convergence, some loss of diversity) or evaluate the repair but keep the original genotype (Baldwinian, slower but more exploratory).</p>
+
+<p><strong>Hybridisation with local search</strong> — a memetic algorithm — is close to mandatory for competitive timetabling results. The usual pattern: run ordinary selection, crossover, and mutation; then apply a short hill-climb (random single-event moves and Kempe-chain swaps) to the best <code>k</code> individuals, or to every individual with small probability. Published results from the International Timetabling Competition series consistently show memetic and hyper-heuristic approaches outperforming pure GAs by a wide margin on soft-constraint cost, because crossover is good at mixing large structural blocks while local search is good at the last few percent of polish that crossover tends to destroy.</p>
+
+<pre><code>for generation in 1..G:
+    parents   = tournament_select(population, k=3)
+    offspring = crossover(parents, p_c=0.9)        # event-block / uniform on slot array
+    offspring = mutate(offspring, p_m=2/E)         # reassign a random event
+    offspring = repair(offspring)                  # clear residual hard violations
+    for ind in top_10_percent(offspring):
+        ind = hill_climb(ind, moves=500)           # soft-cost polishing
+    population = elitist_replace(population, offspring, elites=2)</code></pre>
+
+<p>Finally, deployments need a <strong>human review step</strong>. Stakeholder preferences are partly tacit ("the head of department always lectures Tuesday afternoons"), partly political, and partly discovered only when a draft is circulated. The pragmatic architecture is therefore: GA produces a shortlist of three to five structurally different, low-cost timetables; a scheduling officer inspects them, locks certain assignments, adjusts weights, and re-runs. Locked assignments become fixed genes excluded from mutation — cheap to implement and enormously valuable for acceptance.</p>
+
+<p><strong>Engineering design optimisation.</strong> Here the variables are mostly continuous — plate thickness, beam length, fillet radius, blade twist angle, antenna wire segment coordinates — and the fitness comes from a physics model or a full simulation (finite element analysis, computational fluid dynamics, electromagnetic solvers). Binary encoding of continuous values is possible but introduces Hamming cliffs and resolution limits; a <strong>real-valued encoding</strong> with purpose-built operators is the standard modern choice.</p>
+
+<p><em>Simulated binary crossover (SBX)</em> generates children whose spread around the parents mimics the behaviour of single-point binary crossover, controlled by a distribution index <code>&eta;_c</code>: large <code>&eta;_c</code> produces children close to the parents (exploitation), small <code>&eta;_c</code> produces widely spread children (exploration).</p>
+
+<pre><code>u = random_uniform(0,1)
+if u <= 0.5: beta = (2u)^(1/(eta_c+1))
+else:        beta = (1/(2(1-u)))^(1/(eta_c+1))
+c1 = 0.5*((1+beta)*p1 + (1-beta)*p2)
+c2 = 0.5*((1-beta)*p1 + (1+beta)*p2)
+clip c1, c2 to [x_min, x_max]</code></pre>
+
+<p><em>Gaussian mutation</em> perturbs a gene by <code>x' = x + N(0, &sigma;)</code> with <code>&sigma;</code> often set as a fraction (1–10%) of the variable's range and annealed over the run; polynomial mutation is a bounded alternative that respects variable limits by construction. For a ten-bar truss, a chromosome might be ten cross-sectional areas; for a pressure vessel, four variables (shell thickness, head thickness, inner radius, length), two of which are restricted to multiples of 0.0625 inch — which immediately introduces the need for <strong>mixed encodings</strong>.</p>
+
+<p>Mixed or heterogeneous chromosomes combine segments of different types and simply apply the appropriate operator to each segment:</p>
+
+<table>
+<thead>
+<tr><th>Segment</th><th>Type</th><th>Example variable</th><th>Crossover</th><th>Mutation</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Real</td><td>Wall thickness 2.0–12.0 mm</td><td>SBX</td><td>Gaussian / polynomial</td></tr>
+<tr><td>2</td><td>Integer</td><td>Number of stiffeners 0–12</td><td>SBX + rounding</td><td>Random step &plusmn;1</td></tr>
+<tr><td>3</td><td>Categorical</td><td>Material {Al, Ti, steel, CFRP}</td><td>Uniform</td><td>Random re-draw</td></tr>
+<tr><td>4</td><td>Binary</td><td>Feature present / absent</td><td>Uniform</td><td>Bit flip</td></tr>
+</tbody>
+</table>
+
+<p>Constraints — maximum von Mises stress, maximum tip deflection, buckling margin, manufacturing cost ceiling, minimum natural frequency — are handled in three ways. <em>Penalty terms</em> add a normalised violation measure to the objective, e.g. <code>cost = mass + R * &Sigma; max(0, g_i(x))^2</code> with the violations scaled so that no single constraint dominates. <em>Feasibility-first (constraint-dominance) ranking</em>, as used in NSGA-II, compares two individuals by: both feasible → better objective wins; one feasible → it wins; both infeasible → smaller total violation wins. This avoids choosing a penalty coefficient at all and is robust. <em>Repair</em> projects an infeasible design back into the feasible region, for instance by scaling all member areas up until the stress constraint is satisfied — effective when a cheap analytical projection exists.</p>
+
+<p>The dominant practical obstacle is <strong>evaluation cost</strong>. A single CFD run may take twenty minutes; a population of 100 over 200 generations is 20,000 evaluations, or roughly 280 CPU-days. Standard mitigations:</p>
+<ul>
+<li><strong>Caching / memoisation.</strong> Hash the (rounded) design vector and store its fitness; duplicate genotypes are common late in a run, and in some reports 20–40% of evaluations are avoided this way.</li>
+<li><strong>Surrogate models.</strong> Fit a Kriging/Gaussian-process, radial-basis-function, or neural surrogate to the designs evaluated so far; use the surrogate to pre-screen offspring and send only the most promising few to the true simulator. Re-fit periodically to prevent the GA from exploiting surrogate error.</li>
+<li><strong>Multi-fidelity evaluation.</strong> Coarse mesh for early generations, fine mesh for the final ones and for all elite individuals.</li>
+<li><strong>Parallel evaluation.</strong> Individuals are independent, so a population maps trivially onto a cluster (see the deployment lessons below).</li>
+</ul>
+
+<p>The canonical success story is <strong>NASA's evolved X-band antenna</strong> for the ST5 mission (2006). Engineers specified the electromagnetic performance envelope — gain pattern, bandwidth, VSWR, size limit — and an evolutionary algorithm searched over wire geometries, with fitness computed by a numerical electromagnetics solver. The resulting ST5-33-142-7 antenna is a small, asymmetric, bent-wire form that no human designer would have drawn; it met the requirements with better efficiency and a wider usable pattern than the conventionally designed quadrifilar helix alternative, and it was produced far faster. Two lessons travel beyond antennas: evolutionary search is willing to exploit regions of design space that human intuition prunes away, and it did so here only because the fitness function was a trustworthy physics simulation rather than a hand-written proxy.</p>
+
+<p><strong>Combinatorial optimisation problems.</strong> This family covers permutation problems (travelling salesman, vehicle routing, flowshop sequencing), subset-selection problems (knapsack, feature selection, set covering), and grouping problems (bin packing, graph colouring, clustering). Each has a representation that works and several that do not.</p>
+
+<p><em>Permutation encodings.</em> A TSP tour is a permutation of city indices. One-point crossover on permutations produces duplicates and omissions, so specialised operators are required:</p>
+<ul>
+<li><strong>Order crossover (OX).</strong> Copy a segment from parent A; fill the remaining positions with the cities of parent B in their relative order, skipping those already present. Preserves relative order and some adjacency.</li>
+<li><strong>Partially mapped crossover (PMX).</strong> Copy a segment from A, then use the position-wise mapping between the two segments to resolve conflicts when filling from B. Preserves absolute positions more than OX, which suits problems where position matters (some scheduling variants) more than adjacency.</li>
+<li><strong>Edge recombination (ERX).</strong> Builds an adjacency list from both parents and constructs a child by always moving to the neighbouring city with the fewest remaining edges. Since TSP cost depends entirely on edges, ERX is usually the strongest of the three for symmetric TSP, at a higher computational cost.</li>
+<li><strong>Cycle crossover (CX).</strong> Preserves absolute positions by transferring cycles of positions wholesale.</li>
+</ul>
+<p>Mutation on permutations is typically swap, insertion, or <strong>2-opt / inversion</strong> (reverse a sub-tour), the last being particularly apt for Euclidean TSP because reversing a segment changes only two edges.</p>
+
+<pre><code>OX example (9 cities)
+parent A : 1 2 3 | 4 5 6 7 | 8 9
+parent B : 4 1 9 | 3 8 2 5 | 7 6
+child    : _ _ _ | 4 5 6 7 | _ _        # segment copied from A
+B order after cut, skipping {4,5,6,7} : 7? no -> 6? no -> 4? no -> 1,9,3,8,2
+child    : 1 9 3 | 4 5 6 7 | 8 2</code></pre>
+
+<p><em>Binary encodings</em> fit knapsack and subset selection naturally: gene <code>i</code> is 1 if item <code>i</code> is taken. Uniform or one-point crossover and bit-flip mutation apply directly, but capacity violations must be handled. A penalty formulation is <code>fitness = &Sigma; v_i x_i - &rho; * max(0, &Sigma; w_i x_i - W)</code> with <code>&rho;</code> at least the maximum value-to-weight ratio, which guarantees that no infeasible solution outranks the best feasible one. A greedy repair is usually better still: while over capacity, remove the item with the worst value-to-weight ratio; then greedily add any item that still fits. Repair converts the whole space into feasible solutions and typically beats penalty formulations on hard knapsack instances.</p>
+
+<p><em>Grouping representations</em> matter enormously for bin packing. An item-based chromosome (gene <code>i</code> = index of the bin holding item <code>i</code>) is highly redundant — the same partition has an exponential number of equivalent labellings — and crossover is destructive, because exchanging bin labels between parents shreds the carefully packed groups that made the parents good. Falkenauer's <strong>grouping genetic algorithm (GGA)</strong> instead makes the <em>bin</em> the gene: the chromosome is a list of groups, crossover injects a selection of whole bins from one parent into the other, items that appear twice are removed from the inherited bins, and the orphaned items are reinserted by a first-fit-decreasing heuristic. Fitness rewards full bins rather than merely counting them, for example <code>f = (1/B) &Sigma;_b (fill_b / C)^k</code> with <code>k &asymp; 2</code>, so that a configuration with several nearly full bins is preferred to one with evenly half-filled bins even when the bin count is equal. The same reasoning applies to graph colouring (colour classes as genes) and to clustering (clusters as genes).</p>
+
+<p><em>Seeding</em> the initial population is one of the highest-return tricks on large instances. Rather than sampling uniformly, generate part of the population with a constructive heuristic — nearest neighbour or greedy edge insertion for TSP, Clarke–Wright savings for vehicle routing, first-fit-decreasing for bin packing, greedy ratio ordering for knapsack — and fill the remainder randomly to retain diversity. A typical recipe is 10–30% seeded, 70–90% random. On a 1,000-city instance a random population starts perhaps 300% above optimal, whereas nearest-neighbour tours start around 25% above; the GA then spends its budget improving rather than discovering basic structure. The caveat is diversity collapse: if every individual is seeded from the same deterministic heuristic the population is near-identical at generation zero, so randomise the heuristic (random start city, randomised tie-breaking) and keep a random fraction.</p>
+
+<p>An honest appraisal: on <em>pure</em> symmetric TSP a GA is not the method of choice. Concorde solves instances with thousands of cities to proven optimality, and Lin–Kernighan–Helsgaun returns tours within a fraction of a percent of optimal in seconds. A plain GA with OX and swap mutation will typically stall several percent above optimal on a 500-city instance. What a GA offers is <em>modelling freedom</em>. Add time windows, heterogeneous vehicles, driver break regulations, multiple depots, customer priorities, a carbon budget, and a soft preference for keeping the same driver on the same route each week, and the specialised exact machinery needs substantial re-engineering while the GA needs only a modified decoder and fitness function. That trade — somewhat worse on the clean problem, far more adaptable on the real one — is the recurring justification for evolutionary methods in industry.</p>
+
+<table>
+<thead>
+<tr><th>Problem</th><th>Recommended encoding</th><th>Operators</th><th>Infeasibility handling</th></tr>
+</thead>
+<tbody>
+<tr><td>TSP / routing</td><td>Permutation (or random keys)</td><td>OX, PMX, ERX; 2-opt / inversion mutation</td><td>Encoding is closed — none needed</td></tr>
+<tr><td>Knapsack / subset selection</td><td>Binary vector</td><td>Uniform crossover, bit flip</td><td>Greedy repair, or ratio-scaled penalty</td></tr>
+<tr><td>Bin packing / colouring</td><td>Grouping (bins as genes)</td><td>GGA crossover + FFD reinsertion</td><td>Reinsertion heuristic restores validity</td></tr>
+<tr><td>Job-shop</td><td>Operation-based permutation</td><td>POX, swap/insertion</td><td>Active-schedule decoder</td></tr>
+<tr><td>Timetabling</td><td>Event &rarr; (slot, room)</td><td>Uniform/block crossover, reassignment</td><td>Penalties + repair + seeded initialisation</td></tr>
+<tr><td>Continuous design</td><td>Real-valued vector</td><td>SBX, Gaussian/polynomial mutation</td><td>Feasibility-first ranking or penalties</td></tr>
+</tbody>
+</table>
+
+<p><strong>Comparing genetic algorithms with alternative methods.</strong> A GA is one point in a landscape of search techniques, and choosing it should be an evidence-based decision rather than a habit.</p>
+
+<p><em>Exact methods</em> — mixed-integer programming with branch-and-bound/branch-and-cut, constraint programming, dynamic programming — return a provably optimal solution and, equally valuable, a bound that tells you how good a solution is. They dominate when the model is linear or well-structured and the instance is small or medium. Their weakness is scaling: the search tree can grow exponentially, and adding a non-linear objective or a simulation-based constraint may make the model inexpressible. The practical decision rule is to identify the size and structure at which the exact solver's runtime or memory becomes unacceptable; just below that threshold, use the exact method and take the guarantee, and above it a metaheuristic becomes attractive. A valuable hybrid pattern is to use the exact solver on a relaxation to obtain a lower bound, then report the GA's gap against that bound.</p>
+
+<p><em>Single-solution metaheuristics</em> — simulated annealing, tabu search, iterated local search, variable neighbourhood search — maintain one incumbent and move through a neighbourhood. They are cheap per iteration, easy to implement, and extremely effective when the landscape has a dominant basin or when a strong neighbourhood operator exists (2-opt/Or-opt for routing, critical-path moves for job-shop). Tabu search remains among the best known approaches for JSSP. Their weakness is that they commit to one trajectory: on rugged, multi-modal landscapes they may need many restarts to find alternative basins. A GA, by contrast, holds a population that can occupy several basins at once, and crossover can combine building blocks discovered independently — the recombination advantage that single-solution methods structurally lack. A reasonable heuristic: if a good local-search neighbourhood exists and the landscape is "big valley", prefer tabu/SA; if the landscape is deceptive, multi-modal, or you want a diverse shortlist of solutions, prefer a population method; if both apply, hybridise.</p>
+
+<p><em>Fair comparison</em> is where most published and in-house benchmarking goes wrong. Three rules:</p>
+<ul>
+<li><strong>Equalise the evaluation budget, not the generations or the wall-clock time.</strong> A GA with population 200 running 500 generations performs 100,000 fitness evaluations; comparing it with a simulated annealing run of 10,000 evaluations is meaningless, and comparing "500 generations" with "500 SA iterations" is worse. When evaluation dominates runtime (simulation-based design), evaluation count is the right currency. Wall-clock time is unfair across languages, hardware, and degrees of code optimisation unless every method is implemented and tuned with comparable care.</li>
+<li><strong>Tune competitors as carefully as your own method.</strong> Comparing a tuned GA against a default-parameter tabu search inflates the GA's apparent advantage. Use the same tuning protocol (grid search, racing, or irace) and the same number of tuning evaluations for every algorithm, and tune on instances distinct from those used for the final comparison.</li>
+<li><strong>Report distributions, not a champion run.</strong> Because GAs are stochastic, a single run proves nothing. Standard practice is 30 independent runs per algorithm per instance, with different seeds, reporting best, mean, median, standard deviation, and success rate (fraction of runs reaching a target quality). Pair this with a non-parametric significance test — Wilcoxon signed-rank for two algorithms, Friedman plus a post-hoc test for several — because fitness distributions are rarely normal. Convergence plots should show mean best-so-far with an interquartile band, not one lucky trajectory.</li>
+</ul>
+
+<table>
+<thead>
+<tr><th>Method</th><th>Strengths</th><th>Weaknesses</th><th>Typical fit</th></tr>
+</thead>
+<tbody>
+<tr><td>Exact (MIP / CP / B&amp;B)</td><td>Optimality guarantee, bounds, certified infeasibility</td><td>Exponential scaling; restrictive modelling</td><td>Small–medium, well-structured instances</td></tr>
+<tr><td>Simulated annealing</td><td>Very simple, strong anytime behaviour, good theory</td><td>Single trajectory; cooling schedule sensitive</td><td>Smooth or big-valley landscapes</td></tr>
+<tr><td>Tabu search</td><td>Excellent on scheduling; memory escapes cycles</td><td>Neighbourhood and tenure must be hand-designed</td><td>JSSP, routing, assignment</td></tr>
+<tr><td>Genetic algorithm</td><td>Parallel basin exploration, recombination, flexible objectives, shortlist of diverse solutions</td><td>Many parameters; slow final convergence; premature convergence risk</td><td>Rugged, multi-objective, constraint-rich problems</td></tr>
+<tr><td>Memetic (GA + local search)</td><td>Global exploration plus local polish; usually the best of the metaheuristics on benchmarks</td><td>More complex; local search cost must be budgeted</td><td>Scheduling and timetabling in practice</td></tr>
+</tbody>
+</table>
+
+<p>The empirical pattern across scheduling literature is consistent: pure GAs are respectable but rarely state of the art; pure local search is fast but basin-bound; <strong>memetic algorithms</strong> — a GA whose offspring are improved by a bounded local search before evaluation — frequently top the benchmark tables on job-shop, flowshop, timetabling, and vehicle routing. The intuition is a clean division of labour: recombination performs the long jumps between basins, local search performs the final descent that mutation would take thousands of generations to achieve.</p>
+
+<p><strong>Practical lessons for real deployments.</strong> The case studies converge on a short list of engineering principles that matter far more than the details usually argued about in tutorials.</p>
+
+<ul>
+<li><strong>Representation and decoder beat parameter tuning.</strong> Moving from raw start times to an operation-based encoding with an active-schedule decoder can improve results by tens of percent; moving the mutation rate from 0.01 to 0.02 typically changes results by a fraction of a percent. Spend design effort on the genotype–phenotype map: make the encoding closed under the operators (every offspring decodes to a legal solution), make it non-redundant where possible (avoid many genotypes mapping to the same phenotype, as in item-based bin packing), and make small genotype changes produce small phenotype changes (locality), since a representation without locality turns crossover into random search.</li>
+<li><strong>Optimise the real objective, not a convenient proxy.</strong> A GA is a relentless literalist: it will exploit any gap between the fitness function and the business goal. Minimise makespan alone and it may deliver a schedule that finishes early but blows through customer due dates; minimise exam clashes alone and it may cram every exam into three days; minimise mass alone and it may hand back a design that is impossible to manufacture. Involve the people who will live with the output when defining the objective, include the costs they actually care about (overtime, setups, tardiness penalties, travel between buildings, manufacturability), and sanity-check the top solutions for the "technically optimal, obviously unusable" failure mode. Where objectives genuinely conflict, consider a multi-objective GA (NSGA-II) that returns a Pareto front and lets the stakeholder choose the trade-off, rather than guessing weights.</li>
+<li><strong>Protect diversity on long runs.</strong> Elitism preserves the best solution but accelerates convergence; without safeguards a population can become genetically uniform within a few dozen generations, after which crossover produces clones and only mutation explores. Practical safeguards include: tournament selection with small <code>k</code> (2 or 3) rather than fitness-proportionate selection, which loses pressure control as fitness variance changes; duplicate elimination; fitness sharing or crowding (niching) to spread individuals across basins; adaptive mutation that rises when a diversity metric falls; island models with periodic migration; and restart strategies that reinitialise most of the population around the elite when the best fitness has stagnated for a set number of generations. Measure diversity explicitly — mean pairwise Hamming or edge distance, entropy per gene position, or the spread of fitness values — and plot it alongside best and mean fitness.</li>
+<li><strong>Parallelise evaluation.</strong> Individuals are evaluated independently, so the evaluation phase is embarrassingly parallel: distribute the population across cores, nodes, or cloud workers and gather the fitness values before selection. With simulation-based fitness this is almost linear speed-up, and it is far easier than parallelising a single long trajectory of simulated annealing. Pair it with a shared evaluation cache and, where fitness varies in cost, an asynchronous steady-state GA that does not idle waiting for the slowest evaluation. Island models give a second, coarser level of parallelism and improve diversity at the same time.</li>
+<li><strong>Define stopping criteria in advance and return a shortlist.</strong> Sensible criteria are a generation cap, a wall-clock or evaluation budget, a stagnation window (no improvement in the best fitness for <code>S</code> generations), a target quality or gap to a known lower bound, or a disjunction of these. Equally important is the output format: deliver three to five good, <em>structurally different</em> solutions (enforced by a diversity filter on the archive) with their objective breakdowns, rather than a single number-one answer. Planners almost always have context the model lacks, and a shortlist turns the system from an oracle into a decision-support tool.</li>
+<li><strong>Make the system explainable and adjustable.</strong> Acceptance depends less on optimality than on trust. Show the cost breakdown per constraint category ("this timetable has 0 hard violations, 14 students with two exams in a row, 3 lecturer preference misses"), show the trade-off against the alternatives on the shortlist, allow users to lock assignments and re-run, and expose the constraint weights in the interface so that stakeholders can express priorities directly instead of arguing about the algorithm. Logging the seed, parameters, and version for every run makes results reproducible and auditable — essential when a schedule is challenged.</li>
+</ul>
+
+<pre><code>Deployment checklist
+1. Define the true objective with stakeholders; list hard vs soft constraints.
+2. Choose a representation closed under the operators; write the decoder first.
+3. Seed with a constructive heuristic; keep a random fraction for diversity.
+4. Pick tournament selection (k=2..3) + elitism (1-2); add a restart rule.
+5. Hybridise: bounded local search on elites each generation.
+6. Parallelise evaluation; cache by hashed genotype.
+7. Fix the budget: evaluations, not generations; define a stagnation window.
+8. Run 30 seeds; report best/mean/sd and diversity curves; test significance.
+9. Return a diverse shortlist with cost breakdowns and adjustable weights.
+10. Log seeds and parameters; keep a human sign-off step.</code></pre>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+<li><strong>MO1</strong> — The case studies show the full generational cycle in applied settings: tournament selection and elitist replacement in the timetabling loop, order-preserving and SBX crossover, swap/Gaussian mutation, and decoder-based evaluation, so the stages are seen operating together on real problems.</li>
+<li><strong>MO2</strong> — Representation choice is the organising theme: operation-based permutations for job-shop, event-to-(slot, room) vectors for timetabling, real-valued and mixed vectors for engineering design, binary vectors for knapsack, permutations for TSP, and grouping encodings for bin packing, with the comparison table summarising which fits which problem.</li>
+<li><strong>MO3</strong> — Fitness design is treated in depth: inverse-makespan and weighted composite objectives, hard/soft penalty weighting in timetabling, feasibility-first ranking and penalty scaling in design optimisation, and greedy repair for knapsack and bin packing, together with the warning that a convenient proxy objective yields unusable solutions.</li>
+<li><strong>MO4</strong> — Selection strategies are touched on rather than analysed formally: the deployment lessons recommend tournament selection with small <code>k</code> over fitness-proportionate selection for stable selective pressure, but the detailed comparison of roulette wheel, rank-based, and tournament pressure belongs to an earlier topic.</li>
+<li><strong>MO5</strong> — The comparison section specifies the evaluation protocol for convergence assessment on scheduling and combinatorial problems: equal evaluation budgets, 30 independent runs, best/mean/standard deviation reporting, significance testing, and diversity diagnostics with restart and niching remedies for premature convergence.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Benchmark figures cited (FT06 optimum 55, FT10 optimum 930, LA01–LA40, NASA ST5 antenna 2006) are standard literature values and can be checked against the OR-Library job-shop set and the NASA ST5 mission reports. The 30-run convention and Wilcoxon/Friedman testing follow common practice in metaheuristics experimentation (e.g. Derrac et al.). Pseudocode blocks are illustrative rather than executable and could be replaced with language-specific implementations if the module uses a particular toolkit (DEAP, jMetal, Jenetics).</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

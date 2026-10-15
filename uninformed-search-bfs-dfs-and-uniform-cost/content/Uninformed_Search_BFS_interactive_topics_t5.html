@@ -1,0 +1,517 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Structures and Implementation</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Uninformed Search: BFS, DFS, and Uniform Cost</a></div>
+  <header>
+    <h1>Data Structures and Implementation</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Data Structures and Implementation</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Every uninformed search algorithm — breadth-first, depth-first, depth-limited, iterative deepening, and uniform-cost — is built from the same three moving parts: a <strong>node representation</strong>, a <strong>frontier</strong> (the collection of generated-but-not-yet-expanded nodes), and an <strong>explored set</strong> (the record of states already expanded). What distinguishes one algorithm from another is almost entirely the data structure chosen for the frontier. This is one of the most useful simplifications in all of classical AI: once you have written a single generic graph-search loop, you obtain BFS by plugging in a FIFO queue, DFS by plugging in a LIFO stack, and uniform-cost search by plugging in a min-priority queue keyed on path cost. The correctness, the running time, and the memory profile of your solver all hinge on choosing those structures carefully and on a handful of implementation details that are easy to get subtly wrong.</p>
+
+<p>The sections below work through those details: what a search node must store and why, how each frontier structure behaves, how hash-based explored sets make duplicate detection cheap, how uniform-cost search handles the awkward case of rediscovering a state along a cheaper path, how to rebuild the solution path from parent pointers, and finally two complete coding exercises — the 8-puzzle and weighted route finding — that exercise all of it.</p>
+
+<p><strong>The Search Node: More Than Just a State</strong></p>
+
+<p>A beginner's instinct is to put raw states on the frontier. That works just long enough to find a goal and then fails, because at that moment you know <em>that</em> the goal is reachable but not <em>how</em> you reached it. The fix is to wrap each state in a <em>search node</em>, a small bookkeeping record that remembers where the state came from.</p>
+
+<p>A node carries four essential fields and one optional one:</p>
+
+<ul>
+  <li><strong>state</strong> — the configuration of the world this node refers to (a board layout, a city name, a coordinate pair).</li>
+  <li><strong>parent</strong> — a pointer to the node that generated this one; <code>None</code> for the root.</li>
+  <li><strong>action</strong> — the action applied to the parent's state to produce this state (e.g. <code>'Up'</code>, <code>'Sibiu'</code>). <code>None</code> for the root.</li>
+  <li><strong>path_cost</strong>, conventionally written <em>g(n)</em> — the total cost of the path from the initial state to this node, computed as <code>parent.path_cost + step_cost(parent.state, action)</code>.</li>
+  <li><strong>depth</strong> (optional) — the number of actions from the root. It is simply <code>parent.depth + 1</code>, and it is worth storing explicitly whenever you implement depth-limited or iterative-deepening search, because those algorithms test it on every expansion. If you do not store it, you can always derive it by walking parent links, but that turns an O(1) test into an O(d) test inside the inner loop.</li>
+</ul>
+
+<pre><code>class Node:
+    __slots__ = ('state', 'parent', 'action', 'path_cost', 'depth')
+
+    def __init__(self, state, parent=None, action=None, step_cost=0):
+        self.state = state
+        self.parent = parent
+        self.action = action
+        self.path_cost = (parent.path_cost + step_cost) if parent else 0
+        self.depth = (parent.depth + 1) if parent else 0
+
+    def child(self, action, next_state, step_cost=1):
+        return Node(next_state, self, action, step_cost)
+
+    def __repr__(self):
+        return f"&lt;Node {self.state} g={self.path_cost} d={self.depth}&gt;"
+</code></pre>
+
+<p><strong>State versus node</strong> is the distinction that trips people up most often, and it matters for correctness, not just vocabulary. A <em>state</em> is a configuration of the world. A <em>node</em> is a point in the search tree — a particular path that arrives at that state. Many distinct nodes can share the same state. In the Romania road map, the state <code>Bucharest</code> can be reached via Arad→Sibiu→Fagaras→Bucharest (450 km) and via Arad→Sibiu→Rimnicu→Pitesti→Bucharest (418 km). Those are two different nodes with the same state and different <code>path_cost</code> values. The explored set stores <em>states</em>; the frontier stores <em>nodes</em>. Mixing these up produces solvers that either refuse to find obvious solutions or report costs that do not match their own action sequences.</p>
+
+<p>Because of this distinction, equality and hashing on <code>Node</code> objects are dangerous. Two nodes with the same state are not interchangeable — one may be far cheaper than the other — so it is safest to leave <code>Node</code> with default identity-based equality and to always hash the <code>state</code> attribute rather than the node itself.</p>
+
+<p>The parent pointer is the piece of engineering that makes all of this affordable. The naive alternative is to store the whole path in every frontier entry. If the frontier holds <em>b<sup>d</sup></em> entries and each path is length <em>d</em>, that is <em>O(d·b<sup>d</sup>)</em> memory and a full list copy on every expansion. Parent pointers reduce each node to O(1) extra storage while still permitting exact path reconstruction, because sibling nodes <em>share</em> their ancestor chain instead of duplicating it. The memory saved is typically an order of magnitude on non-trivial problems.</p>
+
+<p>Finally, treat nodes as <strong>immutable</strong> once created. It is tempting, when uniform-cost search discovers a cheaper route to an already-known state, to simply reach into the existing node and overwrite <code>path_cost</code>, <code>parent</code>, and <code>action</code>. The trouble is that other nodes may already point at that node as <em>their</em> parent, and that a heap's internal ordering depends on keys that you have just silently changed. The result is a heap that violates its invariant and reconstructed paths that are inconsistent with reported costs — bugs that appear only on particular graphs and are miserable to track down. Create a fresh node instead; the old one becomes garbage and the heap stays sound. The <code>__slots__</code> declaration above is a cheap way to keep millions of such short-lived nodes compact.</p>
+
+<p><strong>Frontier Structures: Queue, Stack, and Priority Queue</strong></p>
+
+<p>The frontier is the algorithm's agenda. Its discipline — which node is removed next — <em>is</em> the search strategy.</p>
+
+<ul>
+  <li><strong>BFS uses a FIFO queue.</strong> Nodes leave the frontier in exactly the order they were discovered, so all nodes at depth <em>d</em> are expanded before any node at depth <em>d+1</em>. This shallowest-first ordering is what makes BFS complete and, when every step has the same cost, optimal in number of steps.</li>
+  <li><strong>DFS uses a LIFO stack.</strong> The most recently generated node is expanded next, so the search plunges down one branch to its maximum depth before backtracking. The frontier then holds only the siblings along the current path — <em>O(bm)</em> nodes instead of <em>O(b<sup>d</sup>)</em> — which is DFS's single great virtue.</li>
+  <li><strong>UCS uses a min-priority queue keyed on <em>g(n)</em>.</strong> The cheapest frontier node is popped each iteration, so the search expands states in non-decreasing order of true path cost. This generalises BFS: when all step costs are equal, cost order and depth order coincide.</li>
+</ul>
+
+<p>The practical implementations in Python:</p>
+
+<pre><code>from collections import deque
+import heapq
+
+# FIFO queue for BFS
+frontier = deque([root])
+frontier.append(child)       # enqueue, O(1)
+node = frontier.popleft()    # dequeue, O(1)
+
+# LIFO stack for DFS
+frontier = [root]
+frontier.append(child)       # push, O(1)
+node = frontier.pop()        # pop,  O(1)
+
+# Min-priority queue for UCS
+frontier = []
+heapq.heappush(frontier, (node.path_cost, counter, node))   # O(log n)
+cost, _, node = heapq.heappop(frontier)                     # O(log n)
+</code></pre>
+
+<p>A classic performance trap deserves its own warning. A Python <code>list</code> looks like it can serve as a queue: <code>append()</code> to enqueue, <code>pop(0)</code> to dequeue. But <code>pop(0)</code> removes from the front of a contiguous array and must shift every remaining element left, costing <em>O(n)</em> where <em>n</em> is the current frontier size. In BFS the frontier routinely holds tens or hundreds of thousands of nodes, so an algorithm that should be linear in nodes generated becomes <strong>quadratic</strong>. Nothing crashes and no error is raised — the solver simply appears to hang on inputs it should handle in seconds. <code>collections.deque</code> is a doubly-linked block structure with genuine O(1) operations at both ends; use it. (A list is perfectly fine as a DFS stack, because <code>append</code>/<code>pop</code> at the <em>end</em> are amortised O(1).)</p>
+
+<table>
+  <thead>
+    <tr><th>Strategy</th><th>Structure</th><th>Python type</th><th>Insert</th><th>Remove</th><th>Typical frontier size</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>BFS</td><td>FIFO queue</td><td><code>collections.deque</code></td><td>O(1)</td><td>O(1)</td><td>O(b<sup>d</sup>)</td></tr>
+    <tr><td>DFS (iterative)</td><td>LIFO stack</td><td><code>list</code></td><td>O(1)</td><td>O(1)</td><td>O(bm)</td></tr>
+    <tr><td>DFS (recursive)</td><td>call stack</td><td>implicit</td><td>—</td><td>—</td><td>O(m) frames</td></tr>
+    <tr><td>Depth-limited / IDS</td><td>LIFO stack</td><td><code>list</code> or recursion</td><td>O(1)</td><td>O(1)</td><td>O(bl)</td></tr>
+    <tr><td>UCS</td><td>min-heap</td><td><code>heapq</code> on list</td><td>O(log n)</td><td>O(log n)</td><td>O(b<sup>1+⌊C*/ε⌋</sup>)</td></tr>
+  </tbody>
+</table>
+
+<p>Recursive DFS deserves a note. Instead of an explicit stack you let the language's call stack hold the frontier implicitly:</p>
+
+<pre><code>def dfs_limited(node, goal_test, successors, limit, explored):
+    if goal_test(node.state):
+        return node
+    if node.depth == limit:
+        return 'cutoff'
+    explored.add(node.state)
+    cutoff_occurred = False
+    for action, next_state, cost in successors(node.state):
+        if next_state in explored:
+            continue
+        result = dfs_limited(node.child(action, next_state, cost),
+                             goal_test, successors, limit, explored)
+        if result == 'cutoff':
+            cutoff_occurred = True
+        elif result is not None:
+            return result
+    return 'cutoff' if cutoff_occurred else None
+</code></pre>
+
+<p>The code is shorter and the backtracking is free, which is why depth-limited and iterative-deepening search are usually written recursively. The cost is loss of control and a hard ceiling: CPython's default recursion limit is around 1000 frames, so a search that needs to go 5000 moves deep raises <code>RecursionError</code> rather than returning a result. Raising the limit with <code>sys.setrecursionlimit</code> risks a genuine C-level stack overflow and a segfault. For deep or unbounded state spaces, prefer the explicit-stack version.</p>
+
+<p>One more ordering subtlety: an explicit-stack DFS pops successors in the <em>reverse</em> order you pushed them. If you want the search to try successors in the order <code>successors()</code> yields them, push them reversed (<code>for action, s, c in reversed(list(successors(state)))</code>). This does not affect correctness, but it makes hand-traces in a tutorial match what the code actually does.</p>
+
+<p><strong>Explored Sets and Frontier Membership Tests</strong></p>
+
+<p>Graph search differs from tree search in exactly one respect: it remembers which states it has already expanded and refuses to expand them again. That memory is the <strong>explored set</strong> (also called the closed list).</p>
+
+<p>It must be a <strong>hash set</strong> — Python's <code>set</code>, Java's <code>HashSet</code>, C++'s <code>unordered_set</code> — so that <code>state in explored</code> costs average O(1). Using a list instead makes each membership test O(n) in the number of explored states, and since you perform that test for <em>every generated child</em>, the whole search again degrades to quadratic. On the 8-puzzle, where a depth-14 BFS can expand tens of thousands of states, the difference between a set and a list is the difference between a fraction of a second and several minutes.</p>
+
+<p>The standard child-filtering test checks both the explored set and the frontier:</p>
+
+<pre><code>for action, next_state, step_cost in successors(node.state):
+    if next_state not in explored and next_state not in frontier_states:
+        child = node.child(action, next_state, step_cost)
+        frontier.append(child)
+        frontier_states.add(next_state)
+</code></pre>
+
+<p>Note the second structure, <code>frontier_states</code>. The frontier itself (a deque or a heap) cannot be membership-tested in O(1), so you maintain a parallel hash set — or, for UCS, a <strong>dictionary mapping state → best known frontier cost</strong> — that mirrors the frontier's contents. Every push adds to the mirror; every pop removes from it. Keeping the mirror synchronised with the real frontier is a common source of bugs, so it is worth encapsulating both inside a small <code>Frontier</code> class rather than scattering the updates through the main loop.</p>
+
+<pre><code>class PriorityFrontier:
+    def __init__(self):
+        self.heap = []
+        self.best = {}        # state -&gt; best known g on the frontier
+        self.counter = 0
+
+    def push(self, node):
+        if node.state in self.best and self.best[node.state] &lt;= node.path_cost:
+            return False      # we already have an equal-or-cheaper route
+        self.best[node.state] = node.path_cost
+        heapq.heappush(self.heap, (node.path_cost, self.counter, node))
+        self.counter += 1
+        return True
+
+    def pop(self):
+        while self.heap:
+            cost, _, node = heapq.heappop(self.heap)
+            if self.best.get(node.state) == cost:   # not a stale duplicate
+                del self.best[node.state]
+                return node
+        return None
+
+    def __len__(self):
+        return len(self.best)
+</code></pre>
+
+<p><strong>Hashability</strong> is a practical constraint on how you represent states. Python can only hash immutable objects. A board represented as a list <code>[1,2,3,4,5,6,7,8,0]</code> or a 2-D list of lists raises <code>TypeError: unhashable type: 'list'</code> the instant you try to put it in a set. The fixes are straightforward:</p>
+
+<ul>
+  <li>Use a <strong>tuple</strong>: <code>(1,2,3,4,5,6,7,8,0)</code> — immutable, hashable, and comparison/copying are fast.</li>
+  <li>Use a <strong>frozenset</strong> when the state is an unordered collection.</li>
+  <li>Use a <strong>canonical string</strong>: <code>"123456780"</code> — compact and hashable, though you pay to parse it back.</li>
+  <li>If you must work with mutable structures internally, convert to a canonical hashable key only at the moment of set insertion or lookup: <code>tuple(map(tuple, grid))</code>.</li>
+</ul>
+
+<p>The word <em>canonical</em> matters. Two representations that mean the same state must hash to the same key. If you store a set of visited coordinates as a tuple, <code>((0,0),(1,1))</code> and <code>((1,1),(0,0))</code> describe the same state but are different keys, and the explored set will fail to catch the duplicate. Sort before converting, or use a <code>frozenset</code>.</p>
+
+<p><strong>Omitting the explored set converts graph search into tree search.</strong> On a tree-shaped state space that is harmless. On any graph containing cycles it is fatal: in the Romania map, BFS without an explored set will generate Arad→Sibiu→Arad→Sibiu→… forever, the frontier growing without bound until memory is exhausted. Even on acyclic but non-tree graphs (a grid, where many paths lead to the same cell) the absence of duplicate detection causes exponential blow-up in redundant work. The explored set is not an optimisation; for cyclic graphs it is the difference between termination and non-termination.</p>
+
+<p>The one algorithm where a full explored set is <em>not</em> standard is iterative deepening, whose whole point is to use O(d) memory. There you typically check only the current path for cycles (walk the parent links, or keep a set of states on the path and remove them as you backtrack), accepting redundant work across branches in exchange for linear memory.</p>
+
+<p><strong>Decrease-Key and Duplicate Handling in UCS</strong></p>
+
+<p>Uniform-cost search faces a situation BFS never does: a state already sitting on the frontier can be rediscovered along a <em>cheaper</em> path. BFS can simply discard any rediscovery, because the first path to a state is always a shortest-in-steps path. UCS cannot, because the first path discovered to a state is not necessarily the cheapest.</p>
+
+<p>Consider a tiny graph: S→A costs 10, S→B costs 1, B→A costs 2. UCS pushes A with g=10 and B with g=1. It pops B (cheapest), expands it, and discovers A again with g=3. The frontier entry for A claiming g=10 is now obsolete and must not be allowed to determine A's recorded parent or cost.</p>
+
+<p>There are two standard remedies.</p>
+
+<ul>
+  <li><strong>Decrease-key (the textbook version).</strong> On discovering a cheaper route to a state already on the frontier, <em>replace</em> that frontier entry: update its key to the new, lower <em>g</em> and repair the heap's ordering. This keeps the frontier free of duplicates and bounds its size by the number of distinct states. Its drawback is that a plain binary heap offers no efficient way to find an arbitrary element, so you need an <strong>index map</strong> from state to heap position, maintained through every sift-up and sift-down. Python's <code>heapq</code> provides no such facility, so true decrease-key requires writing your own heap or using a library.</li>
+  <li><strong>Lazy deletion (the practical version).</strong> Never modify existing entries. Simply <code>heappush</code> a second entry for the state with the lower cost, so the heap temporarily holds both. Because the heap pops in cost order, the cheaper entry is guaranteed to come out first. When you pop an entry whose state is already in the explored set — or whose recorded cost no longer matches the best known cost — you discard it and pop again. The heap may grow larger than the number of distinct states, but every operation stays a clean O(log n) and the code is a dozen lines.</li>
+</ul>
+
+<p>Lazy deletion is what the <code>PriorityFrontier.pop</code> method above implements, and it is the right default for coursework and most production code. The two approaches produce identical solutions; they differ only in memory and constant factors.</p>
+
+<table>
+  <thead>
+    <tr><th>Aspect</th><th>Decrease-key</th><th>Lazy deletion</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Heap size</td><td>≤ number of distinct frontier states</td><td>≤ number of edges relaxed</td></tr>
+    <tr><td>Extra structures</td><td>state → heap-index map</td><td>state → best-cost map (or just explored set)</td></tr>
+    <tr><td>Library support in Python</td><td>none in <code>heapq</code>; hand-rolled heap needed</td><td>works directly with <code>heapq</code></td></tr>
+    <tr><td>Code complexity</td><td>high</td><td>low</td></tr>
+    <tr><td>Result returned</td><td>optimal</td><td>optimal</td></tr>
+  </tbody>
+</table>
+
+<p>Two implementation details make or break a <code>heapq</code>-based UCS.</p>
+
+<p>First, <strong>push tuples, not bare nodes</strong>, and include a tiebreak counter: <code>(cost, counter, node)</code>. Python compares tuples lexicographically. When two entries have equal <code>cost</code>, it moves on to the second element. If the second element were the <code>Node</code> object, Python would try to evaluate <code>node_a &lt; node_b</code> and raise <code>TypeError: '&lt;' not supported between instances of 'Node' and 'Node'</code>. Inserting a <strong>monotonically increasing integer counter</strong> as the second element guarantees that comparison never reaches the node, because no two counters are ever equal. (Using the state itself as a tiebreaker works only if states are mutually comparable — tuples of ints are, but mixed types are not — so the counter is the robust choice.)</p>
+
+<p>Second, that counter does more than prevent crashes: it makes the algorithm <strong>deterministic</strong>. With a counter, ties in cost are broken by insertion order (FIFO among equal-cost nodes), so the same input always produces the same expansion order and the same solution path across runs and machines. Without it — or with a random tiebreak — your solver may return a different, equally optimal path each time, which makes unit tests flaky and hand-traces impossible to verify. If you prefer LIFO tie-breaking (which tends to dive toward goals faster), push <code>-counter</code> instead.</p>
+
+<p>Third and most important: in UCS the <strong>goal test is applied when a node is popped, not when it is generated</strong>. This is the single most common correctness bug in student implementations. Suppose the goal G is reachable from the start directly at cost 100, and also via a node X at cost 5 with X→G costing 10. If you test children as you generate them, you will see G at cost 100 while expanding the start node and return immediately, reporting a cost of 100 when a 15-cost path exists. Testing at pop time guarantees that when G finally comes off the heap, no cheaper frontier node remains, so <em>g(G)</em> is the true optimal cost. (BFS with unit costs is the exception: there you <em>may</em> safely goal-test on generation, which saves a whole final layer of expansion, because depth order and cost order agree. Make the difference explicit in your code comments so nobody "optimises" UCS into incorrectness.)</p>
+
+<pre><code>def uniform_cost_search(problem):
+    root = Node(problem.initial)
+    if problem.goal_test(root.state):          # handle trivial case
+        return solution(root)
+    frontier = PriorityFrontier()
+    frontier.push(root)
+    explored = set()
+    generated = expanded = 0
+
+    while True:
+        node = frontier.pop()
+        if node is None:
+            return None                        # frontier exhausted: failure
+        if problem.goal_test(node.state):      # GOAL TEST ON POP
+            return solution(node, generated, expanded)
+        explored.add(node.state)
+        expanded += 1
+        for action, next_state, step_cost in problem.successors(node.state):
+            if next_state in explored:
+                continue
+            generated += 1
+            frontier.push(node.child(action, next_state, step_cost))
+</code></pre>
+
+<p><strong>Reconstructing and Returning the Solution Path</strong></p>
+
+<p>When the goal node is found, the answer is not the node itself but the sequence of actions that produced it. Parent pointers make this a short walk back up the tree.</p>
+
+<pre><code>def solution(node, generated=0, expanded=0):
+    actions, states = [], []
+    current = node
+    while current.parent is not None:
+        actions.append(current.action)
+        states.append(current.state)
+        current = current.parent
+    states.append(current.state)               # the initial state
+    actions.reverse()
+    states.reverse()
+    return {
+        'actions': actions,
+        'states': states,
+        'cost': node.path_cost,                # read off, never recomputed
+        'depth': node.depth,
+        'nodes_generated': generated,
+        'nodes_expanded': expanded,
+    }
+</code></pre>
+
+<p>Four points about that function are worth dwelling on.</p>
+
+<ul>
+  <li><strong>Stop at <code>parent is None</code>, not at the start state.</strong> The loop condition tests the parent pointer because the root is precisely the node without one. Testing <code>current.state != problem.initial</code> instead looks equivalent but breaks the moment the search legitimately revisits the initial state along some path, and it fails outright if several nodes share that state.</li>
+  <li><strong>Reverse the list.</strong> Walking parent links yields actions in goal-to-start order. One <code>list.reverse()</code> (or building with <code>appendleft</code> on a deque) puts them in executable start-to-goal order. Forgetting this produces a sequence that is exactly backwards — a bug that passes a "length is correct" test and fails a "replay it" test, which is why the replay test matters.</li>
+  <li><strong>Read the cost from <code>node.path_cost</code>.</strong> The goal node's <em>g</em> value already is the total path cost, accumulated incrementally and correctly as the path was built. Re-summing step costs over the reconstructed path duplicates logic, invites off-by-one errors at the endpoints, and silently diverges from the value the priority queue actually used to order expansions. If the two ever disagree, you have a bug — which is why re-summing is a useful <em>assertion</em> in tests but a bad idea in the returned result.</li>
+  <li><strong>Return a clear failure sentinel.</strong> When the frontier empties without a goal, the problem has no solution and the function must say so unambiguously: <code>None</code>, the string <code>'failure'</code>, or a dedicated <code>Failure</code> object. Do not return an empty action list, because an empty list is also the correct answer when the initial state <em>is</em> the goal. Depth-limited search needs a third outcome as well — <code>'cutoff'</code>, meaning "no solution within this limit, but one may exist deeper" — which is exactly the signal iterative deepening uses to decide whether to try the next limit.</li>
+</ul>
+
+<p>Returning <strong>instrumentation</strong> alongside the solution turns the solver into an experimental instrument. Two counters suffice:</p>
+
+<ul>
+  <li><em>nodes generated</em> — incremented once per child created, i.e. the total search effort including nodes that sat on the frontier and were never expanded;</li>
+  <li><em>nodes expanded</em> — incremented once per node removed from the frontier and whose successors were produced.</li>
+</ul>
+
+<p>With these you can measure, rather than merely assert, that BFS generates roughly <em>b</em> times as many nodes as it expands, that iterative deepening expands only a modest constant factor more nodes than BFS while using a fraction of the memory, and that UCS expands more nodes than BFS on a unit-cost graph because it must exhaust an entire cost contour before stopping. Add a peak-frontier-size counter (<code>max_frontier = max(max_frontier, len(frontier))</code>) and you can plot memory growth as well. A tidy comparison table from one 8-puzzle instance might look like this:</p>
+
+<table>
+  <thead>
+    <tr><th>Strategy</th><th>Solution depth</th><th>Path cost</th><th>Nodes generated</th><th>Nodes expanded</th><th>Peak frontier</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>BFS</td><td>10</td><td>10</td><td>6 453</td><td>2 824</td><td>3 630</td></tr>
+    <tr><td>DFS (limit 20)</td><td>18</td><td>18</td><td>4 109</td><td>2 031</td><td>42</td></tr>
+    <tr><td>IDS (limit 10)</td><td>10</td><td>10</td><td>9 718</td><td>4 271</td><td>21</td></tr>
+    <tr><td>UCS</td><td>10</td><td>10</td><td>8 190</td><td>3 505</td><td>4 102</td></tr>
+  </tbody>
+</table>
+
+<p>The exact numbers depend on the instance and on tie-breaking, but the <em>shape</em> of the table — DFS cheap in memory and poor in cost, BFS and UCS agreeing on cost and paying for it in frontier size, IDS matching BFS's answer with a tiny frontier — is the empirical lesson the counters are there to deliver.</p>
+
+<p><strong>Coding Exercise: 8-Puzzle Solver</strong></p>
+
+<p>The 8-puzzle is a 3×3 grid holding tiles 1–8 and one blank. A move slides a tile adjacent to the blank into it; equivalently, the blank moves up, down, left, or right. There are 9! = 362 880 arrangements, split into two unreachable halves, so 181 440 states are reachable from any given start. That is small enough to search exhaustively and large enough to make bad data structures hurt.</p>
+
+<p><strong>Representation.</strong> Store the board as a flat 9-tuple in row-major order, with <code>0</code> for the blank. The goal is <code>(1,2,3,4,5,6,7,8,0)</code>. A tuple is immutable and therefore hashable, which is exactly what the explored set needs; it is also compact and compares quickly. The blank's index <em>i</em> gives its row <code>i // 3</code> and column <code>i % 3</code>.</p>
+
+<p><strong>Successors with edge constraints.</strong> The whole correctness of the model rests on refusing moves that would push the blank off the grid. Because the board is flat, the naive "add ±1 or ±3 to the index" rule wraps around rows: from index 2 (row 0, column 2), adding 1 gives index 3, which is row 1 column 0 — a move that teleports the blank across the board. Guard with the row/column test, not with a bare bounds check on the index.</p>
+
+<pre><code>GOAL = (1, 2, 3, 4, 5, 6, 7, 8, 0)
+MOVES = {'Up': -3, 'Down': 3, 'Left': -1, 'Right': 1}
+
+def successors(state):
+    """Yield (action, next_state, step_cost) triples."""
+    i = state.index(0)
+    row, col = divmod(i, 3)
+    for action, delta in MOVES.items():
+        if action == 'Up'    and row == 0: continue
+        if action == 'Down'  and row == 2: continue
+        if action == 'Left'  and col == 0: continue
+        if action == 'Right' and col == 2: continue
+        j = i + delta
+        board = list(state)
+        board[i], board[j] = board[j], board[i]
+        yield action, tuple(board), 1
+</code></pre>
+
+<p>Written as a generator, <code>successors</code> produces children lazily, which matters for DFS: if the first child leads straight to a goal, the remaining boards are never even constructed. Note also that each call builds a fresh list and converts it back to a tuple, so no caller can mutate a state another node is relying on.</p>
+
+<p><strong>Running BFS and watching the explosion.</strong> With a branching factor of about 2.67 (the blank has 2 moves from a corner, 3 from an edge, 4 from the centre), BFS at depth <em>d</em> touches roughly 2.67<sup><em>d</em></sup> nodes before duplicate elimination, and the number of distinct states at depth <em>d</em> grows nearly as fast until the 181 440-state space starts to saturate. Solve one depth-10 instance and one depth-14 instance and record the counters:</p>
+
+<table>
+  <thead>
+    <tr><th>Instance</th><th>Optimal depth</th><th>Nodes expanded (BFS)</th><th>Nodes generated (BFS)</th><th>Peak frontier</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>(1,2,3,4,5,6,0,7,8)</td><td>2</td><td>5</td><td>10</td><td>6</td></tr>
+    <tr><td>depth-10 instance</td><td>10</td><td>≈ 2 800</td><td>≈ 6 400</td><td>≈ 3 600</td></tr>
+    <tr><td>depth-14 instance</td><td>14</td><td>≈ 16 000</td><td>≈ 36 000</td><td>≈ 20 000</td></tr>
+  </tbody>
+</table>
+
+<p>Four extra moves multiply the work by roughly six — a direct, measurable demonstration of <em>O(b<sup>d</sup>)</em> growth and of why memory, not time, is what eventually stops BFS. Extrapolate: a depth-22 instance would need on the order of 10<sup>6</sup> expansions, which is still feasible here only because the state space is finite and duplicate detection prunes aggressively.</p>
+
+<p><strong>Why DFS needs a depth limit.</strong> Plain DFS on the 8-puzzle is a disaster. The state space is a graph, not a tree, and its diameter is 31 moves — yet a DFS that keeps an explored set of every state it has ever touched will happily wander through tens of thousands of states and return a "solution" 40 000 moves long, while a DFS that only checks the current path for cycles may never terminate in practice. Imposing a limit converts it into depth-limited search:</p>
+
+<pre><code>for limit in range(0, 31):                 # iterative deepening
+    result = dfs_limited(Node(start), lambda s: s == GOAL,
+                         successors, limit, set())
+    if result != 'cutoff':
+        break
+</code></pre>
+
+<p>Run depth-limited DFS at limit 10 on your depth-14 instance and it returns <code>'cutoff'</code> — correctly reporting that no solution exists within 10 moves. Raise the limit to 14 and it finds one. Wrapping that loop is iterative deepening, which recovers BFS's optimality (under unit costs) at DFS's memory cost: a frontier of at most <em>bl</em> nodes, perhaps 40 entries, versus BFS's 20 000.</p>
+
+<p><strong>Verification by replay.</strong> The indispensable test is not that the solver returned <em>something</em> of plausible length, but that its action sequence actually works. Replay it from the start state and assert the result:</p>
+
+<pre><code>def replay(start, actions):
+    state = start
+    for action in actions:
+        moves = {a: s for a, s, _ in successors(state)}
+        assert action in moves, f"illegal action {action} in state {state}"
+        state = moves[action]
+    return state
+
+sol = breadth_first_search(start)
+assert replay(start, sol['actions']) == GOAL
+assert len(sol['actions']) == sol['cost'] == sol['depth']   # unit costs
+</code></pre>
+
+<p>This single test catches the majority of implementation bugs at once: reversed action lists, actions stored on the wrong node, parent pointers overwritten during re-expansion, off-by-one depth accounting, and costs that disagree with the path. Make it the first test you write.</p>
+
+<p><strong>Coding Exercise: Route Finding on a Weighted Graph</strong></p>
+
+<p>The Romania road map is the canonical weighted-graph example, and it is perfect here because its fewest-hops route and its shortest-distance route are <em>different</em> — which is precisely what separates BFS from UCS.</p>
+
+<p><strong>Representation.</strong> An adjacency dictionary: city name → dictionary of neighbour → distance in kilometres. Lookup of a city's successors is a single hash lookup, O(1), and the inner dictionary gives each edge's cost directly.</p>
+
+<pre><code>romania = {
+    'Arad':      {'Zerind': 75,  'Sibiu': 140, 'Timisoara': 118},
+    'Zerind':    {'Arad': 75,    'Oradea': 71},
+    'Oradea':    {'Zerind': 71,  'Sibiu': 151},
+    'Sibiu':     {'Arad': 140,   'Oradea': 151, 'Fagaras': 99, 'Rimnicu': 80},
+    'Timisoara': {'Arad': 118,   'Lugoj': 111},
+    'Lugoj':     {'Timisoara': 111, 'Mehadia': 70},
+    'Mehadia':   {'Lugoj': 70,   'Drobeta': 75},
+    'Drobeta':   {'Mehadia': 75, 'Craiova': 120},
+    'Craiova':   {'Drobeta': 120, 'Rimnicu': 146, 'Pitesti': 138},
+    'Rimnicu':   {'Sibiu': 80,   'Craiova': 146, 'Pitesti': 97},
+    'Fagaras':   {'Sibiu': 99,   'Bucharest': 211},
+    'Pitesti':   {'Rimnicu': 97, 'Craiova': 138, 'Bucharest': 101},
+    'Bucharest': {'Fagaras': 211, 'Pitesti': 101, 'Giurgiu': 90},
+    'Giurgiu':   {'Bucharest': 90},
+}
+
+def successors(city):
+    for neighbour, km in romania[city].items():
+        yield neighbour, neighbour, km      # action = the city you move to
+</code></pre>
+
+<p>Naming the action after the destination city is a small convenience: the reconstructed action list <em>is</em> the itinerary.</p>
+
+<p><strong>BFS versus UCS from Arad to Bucharest.</strong> BFS counts hops and ignores the <code>km</code> values entirely. Arad's neighbours are at depth 1; at depth 2 it reaches Oradea, Sibiu's other neighbours, Lugoj, and Fagaras and Rimnicu; at depth 3 it reaches Bucharest via Fagaras. So BFS returns <strong>Arad → Sibiu → Fagaras → Bucharest</strong>: three hops, 140 + 99 + 211 = <strong>450 km</strong>. UCS orders by accumulated kilometres and returns <strong>Arad → Sibiu → Rimnicu → Pitesti → Bucharest</strong>: four hops, 140 + 80 + 97 + 101 = <strong>418 km</strong>.</p>
+
+<table>
+  <thead>
+    <tr><th>Strategy</th><th>Route returned</th><th>Hops</th><th>Total km</th><th>Optimal in…</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>BFS</td><td>Arad → Sibiu → Fagaras → Bucharest</td><td>3</td><td>450</td><td>number of steps</td></tr>
+    <tr><td>UCS</td><td>Arad → Sibiu → Rimnicu → Pitesti → Bucharest</td><td>4</td><td>418</td><td>path cost</td></tr>
+    <tr><td>DFS (alphabetical)</td><td>Arad → Sibiu → Oradea → Zerind → … (backtracks)</td><td>varies</td><td>varies</td><td>nothing</td></tr>
+  </tbody>
+</table>
+
+<p>The pedagogical point is sharp: BFS is optimal only when every edge costs the same. The moment edge costs vary, "fewest actions" and "cheapest" come apart, and only a cost-ordered frontier finds the genuinely shortest route.</p>
+
+<p><strong>Tracing the priority queue.</strong> Print the frontier after every pop and the reordering becomes visible. Starting from Arad (abbreviating cities to their first letters where unambiguous):</p>
+
+<pre><code>pop Arad       g=0    frontier: [(75, Zerind), (118, Timisoara), (140, Sibiu)]
+pop Zerind     g=75   frontier: [(118, Timisoara), (140, Sibiu), (146, Oradea)]
+pop Timisoara  g=118  frontier: [(140, Sibiu), (146, Oradea), (229, Lugoj)]
+pop Sibiu      g=140  frontier: [(146, Oradea), (220, Rimnicu), (239, Fagaras), (229, Lugoj), (291, Oradea*)]
+pop Oradea     g=146  frontier: [(220, Rimnicu), (229, Lugoj), (239, Fagaras), (291, Oradea* stale)]
+pop Rimnicu    g=220  frontier: [(229, Lugoj), (239, Fagaras), (317, Pitesti), (366, Craiova)]
+pop Lugoj      g=229  frontier: [(239, Fagaras), (299, Mehadia), (317, Pitesti), (366, Craiova)]
+pop Fagaras    g=239  frontier: [(299, Mehadia), (317, Pitesti), (366, Craiova), (450, Bucharest)]
+pop Mehadia    g=299  frontier: [(317, Pitesti), (366, Craiova), (374, Drobeta), (450, Bucharest)]
+pop Pitesti    g=317  frontier: [(366, Craiova), (374, Drobeta), (418, Bucharest), (450, Bucharest stale)]
+pop Craiova    g=366  ...
+pop Drobeta    g=374  ...
+pop Bucharest  g=418  GOAL  ->  Arad, Sibiu, Rimnicu, Pitesti, Bucharest
+</code></pre>
+
+<p>Two lessons jump off that trace. First, Bucharest is <em>generated</em> at cost 450 (via Fagaras) long before it is <em>generated</em> at 418 (via Pitesti) — so a solver that goal-tested on generation would have returned the 450 km route. Testing on pop lets the 418 entry overtake it. Second, the entry <code>(450, Bucharest)</code> is still physically in the heap when the search succeeds; lazy deletion simply never gets around to popping it. Both the stale Oradea entry and the stale Bucharest entry are harmless because they are strictly more expensive than the live ones.</p>
+
+<p><strong>Stress-testing termination with cycles and zero-cost edges.</strong> The Romania graph is already full of cycles (Arad–Sibiu–Oradea–Zerind–Arad), so an explored-set-free version loops forever; verify that by disabling the set and watching the frontier grow without bound. Then add two deliberate hazards:</p>
+
+<ul>
+  <li>A <strong>zero-cost edge</strong>, say <code>'Sibiu': {'Fagaras': 0}</code> in both directions. With cost 0 the pair Sibiu/Fagaras can be traversed back and forth without <em>g</em> ever increasing, so a cost-ordered frontier has no incentive to move on. The explored set is what breaks the loop: once Sibiu is expanded, the Fagaras→Sibiu child is filtered out and the search proceeds. This is also the concrete reason UCS's completeness guarantee requires every step cost to be ≥ ε > 0 in <em>infinite</em> state spaces — with zero-cost edges and infinitely many states, the search can expand forever without ever increasing the cost bound.</li>
+  <li>A <strong>self-loop or a short cheap cycle</strong>, e.g. <code>'Pitesti': {'Pitesti': 0}</code>. Confirm the solver still terminates and still returns 418 km. If it hangs, your explored set is being consulted after the push rather than before it, or your frontier mirror is out of sync.</li>
+</ul>
+
+<p>Finally, run the same two solvers on an unreachable target — add an isolated city <code>'Atlantis': {}</code> and search for it — and confirm both return the failure sentinel rather than crashing or looping. A solver that handles success, failure, cutoff, cycles, and zero-cost edges correctly is one you can trust to generate the empirical comparisons the rest of the module depends on.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Supported indirectly: the node structure (state, action, parent, <em>g</em>) and the <code>successors</code>/<code>goal_test</code> interfaces used in both coding exercises are the executable form of the five-part specification, showing how initial state, actions, transition model, goal test, and path cost are encoded in working code.</li>
+  <li><strong>MO2</strong> — Supported directly: the frontier-discipline explanations and the printed Arad-to-Bucharest priority-queue trace demonstrate exactly how expansion order and frontier contents evolve under FIFO, LIFO, and cost-ordered removal.</li>
+  <li><strong>MO3</strong> — Supported most directly: this topic supplies the <code>deque</code>, list-stack, and <code>heapq</code> frontiers, the hash-based explored set with its frontier mirror, and the parent-pointer <code>solution()</code> routine that are precisely the components needed to implement BFS, DFS, and UCS solvers.</li>
+  <li><strong>MO4</strong> — Supported partly: the complexity table of frontier structures, the instrumentation counters (nodes generated, nodes expanded, peak frontier), and the depth-limited/iterative-deepening discussion give the measured evidence on which completeness, optimality, time, and space comparisons rest, although the formal complexity results themselves are developed elsewhere in the module.</li>
+  <li><strong>MO5</strong> — Supported partly: the Romania exercise shows concretely how varying edge costs make BFS's fewest-hops answer differ from UCS's cheapest answer, and the memory contrast between BFS's large frontier and DFS/IDS's <em>O(bl)</em> frontier supplies the practical grounds on which a strategy is chosen for a given cost structure and memory budget.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Suggested lab sequencing: (1) hand out the &lt;code&gt;Node&lt;/code&gt; class and a generic &lt;code&gt;graph_search(problem, frontier)&lt;/code&gt; skeleton so students only write the frontier wrappers; (2) have them pass the 8-puzzle replay test before attempting UCS; (3) introduce the heap tiebreak counter only after they have hit the &lt;code&gt;TypeError: &#39;&amp;lt;&#39; not supported between instances of &#39;Node&#39; and &#39;Node&#39;&lt;/code&gt; themselves, as the error is far more memorable than the warning. Depth-10 and depth-14 8-puzzle instances should be pre-generated by applying a fixed random walk of known length from the goal and checking with BFS that the optimal depth really is 10/14 (a random walk can return to shallower states). Exact node counts in the tables are indicative; they vary with successor ordering and tie-breaking, so ask students to report their own numbers and compare growth ratios rather than absolute values. Solvability check for arbitrary 8-puzzle inputs: count inversions ignoring the blank — a state is reachable from the standard goal only if the inversion count is even.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

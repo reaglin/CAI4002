@@ -1,0 +1,237 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foundations of Evolutionary Computation</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Genetic Algorithms and Evolutionary Search</a></div>
+  <header>
+    <h1>Foundations of Evolutionary Computation</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Foundations of Evolutionary Computation</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Evolutionary computation is a family of stochastic search and optimisation methods that borrow their organising metaphor from biological evolution. Rather than following a single trajectory through a search space guided by derivatives or by an explicit model of the objective function, an evolutionary algorithm maintains a <em>population</em> of candidate solutions and repeatedly applies three forces to it: variation, which creates new candidates; selection, which biases survival and reproduction toward better candidates; and inheritance, which ensures that the useful parts of good solutions are passed on. Over many iterations the population drifts toward regions of the search space that score well against a problem-specific quality measure. The approach is deliberately undemanding about the problem it is applied to — if you can generate candidate solutions and score them, you can evolve them — and that generality is both its greatest strength and the source of its characteristic inefficiency.</p>
+
+<p>The purpose of this topic is to establish the conceptual and vocabulary foundations on which everything else in evolutionary computation rests. We examine where the biological inspiration genuinely informs algorithm design (and where the metaphor is only loose), define the standard terminology precisely, contrast population-based search with single-point methods such as hill climbing, walk through the generational cycle step by step, discuss the exploration–exploitation tension that governs algorithm behaviour, and finally consider the practical question of when an evolutionary method is the right tool and when it is the wrong one.</p>
+
+<p><strong>Biological inspiration for search.</strong> Darwinian evolution works through a small number of interacting mechanisms, and evolutionary algorithms are an engineering abstraction of exactly those mechanisms. It is worth being precise about each, because each maps onto a specific algorithmic operator.</p>
+
+<ul>
+  <li><strong>Variation through recombination and mutation.</strong> New candidate solutions are not invented from nothing; they are produced by modifying or combining existing ones. <em>Recombination</em> (crossover) takes two or more parents and mixes their encoded material, producing offspring that inherit some features from each. <em>Mutation</em> makes small random changes to a single individual — flipping a bit, perturbing a real number by a small Gaussian increment, swapping two items in a sequence. Recombination is a large, structured jump that reuses material already proven to be viable; mutation is a small, undirected nudge that can introduce genuinely novel material. Both are needed: recombination alone can only shuffle the variation already present in the population, and once that variation is exhausted the search stalls.</li>
+  <li><strong>Selection pressure.</strong> In nature, organisms better adapted to their environment leave more descendants. In an algorithm, the "environment" is the <em>fitness function</em>, a problem-specific measure of solution quality, and the analogue of leaving more descendants is being chosen more often as a parent, or surviving into the next population. The strength of this bias is called <em>selective pressure</em>, and it is one of the main tuning levers available to the designer.</li>
+  <li><strong>Inheritance and building blocks.</strong> Because offspring are built from parental material, a partial pattern that contributes to high fitness — a good sub-route in a travelling-salesman tour, a sensible assignment of the three most constrained jobs in a schedule — tends to recur in the offspring of the individuals that carry it. These recurring partial patterns are often called <em>building blocks</em>, and the informal claim that genetic algorithms work by discovering and assembling them is known as the building-block hypothesis. It is a useful intuition even though it does not hold universally; it explains, for instance, why the choice of encoding matters so much, since an encoding that scatters a meaningful feature across distant parts of the chromosome makes that feature easy for crossover to destroy.</li>
+  <li><strong>Probabilistic "survival of the fittest".</strong> A crucial design decision is that selection is a <em>bias</em>, not a rule. A below-average individual still has a non-zero chance of reproducing, and the very best individual is not guaranteed to dominate the next generation. This stochastic softness preserves genetic diversity. If selection were strictly deterministic — only the top individual reproduces — the population would collapse onto a single point within a few generations, and the algorithm would degenerate into a mutation-driven random walk from that point. Diversity is the raw material of future search, and probabilistic selection is how it is protected.</li>
+  <li><strong>No gradient or model required.</strong> The algorithm never differentiates the objective, never builds a surrogate of the landscape, and makes no assumption of continuity, convexity, or even that the search space is numeric. It needs only a way to generate individuals, a way to vary them, and a way to compare their fitness. This makes evolutionary methods applicable to simulation outputs, physical experiments, discrete structures, and any other setting where the objective is effectively a black box.</li>
+</ul>
+
+<p>Two caveats keep the metaphor honest. First, biological fitness is an emergent outcome of survival and reproduction in a changing environment, whereas algorithmic fitness is a number we compute and therefore fully control. Second, real genetics involves diploidy, dominance, regulatory networks, and developmental processes that most evolutionary algorithms ignore entirely. The biology supplies inspiration and vocabulary; the algorithm is justified by its empirical performance, not by fidelity to nature.</p>
+
+<p><strong>Core terminology.</strong> The field's vocabulary is drawn directly from genetics, and using it precisely avoids a great deal of later confusion, particularly the recurring confusion between a solution and its encoding.</p>
+
+<table>
+  <thead>
+    <tr><th>Term</th><th>Definition</th><th>Concrete example (0/1 knapsack with 8 items)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Individual</strong></td><td>A single candidate solution to the problem, stored in encoded form.</td><td>The bit string <code>10110010</code>, meaning "take items 1, 3, 4 and 7".</td></tr>
+    <tr><td><strong>Chromosome (genotype)</strong></td><td>The encoded data structure that represents the individual inside the algorithm.</td><td>The 8-element binary array itself.</td></tr>
+    <tr><td><strong>Phenotype</strong></td><td>The decoded solution the chromosome stands for, as the problem domain understands it.</td><td>The actual set of packed items, with its total weight and value.</td></tr>
+    <tr><td><strong>Gene</strong></td><td>One position or element of the chromosome.</td><td>Position 3, which decides whether item 3 is packed.</td></tr>
+    <tr><td><strong>Allele</strong></td><td>The particular value a gene currently holds.</td><td>The value <code>1</code> at position 3.</td></tr>
+    <tr><td><strong>Locus</strong></td><td>The index of a gene within the chromosome.</td><td>Index 3 (whether written 0-based or 1-based, be consistent).</td></tr>
+    <tr><td><strong>Population</strong></td><td>The set of individuals held and evolved at the same time.</td><td>100 distinct bit strings maintained in parallel.</td></tr>
+    <tr><td><strong>Generation</strong></td><td>One complete cycle of evaluation, selection, variation and replacement.</td><td>Iteration 47 of a 500-generation run.</td></tr>
+    <tr><td><strong>Fitness</strong></td><td>The numeric score measuring how well the individual solves the problem.</td><td>Total value of packed items, with a penalty subtracted if the weight limit is exceeded.</td></tr>
+    <tr><td><strong>Fitness landscape</strong></td><td>The conceptual surface formed by all possible chromosomes and their fitness values.</td><td>The 2<sup>8</sup> = 256 possible bit strings and their associated scores.</td></tr>
+  </tbody>
+</table>
+
+<p>The genotype–phenotype distinction deserves emphasis. The algorithm manipulates genotypes; the fitness function evaluates phenotypes. The mapping between them is a design choice with real consequences. A permutation chromosome for a scheduling problem, for example, might be decoded by a greedy schedule-builder that reads the permutation as a job priority order — so a single small swap of two genes can produce a dramatically different schedule, or sometimes no change at all. Understanding your decoder is as important as understanding your operators.</p>
+
+<p><strong>Population-based versus single-point search.</strong> Classical local search methods — hill climbing, steepest descent, simulated annealing, tabu search — maintain exactly one current solution and move it step by step. Evolutionary algorithms maintain many. The differences that follow from this are substantial.</p>
+
+<ul>
+  <li><strong>Parallel sampling of the space.</strong> A population of 100 individuals initialised at random occupies 100 different regions of the landscape at once. If one region turns out to be a shallow local optimum, the search as a whole is not trapped, because other individuals are elsewhere. A single-point method that begins in a poor basin of attraction must either escape it by an explicit mechanism (random restarts, annealed uphill moves) or fail.</li>
+  <li><strong>Information can be combined.</strong> This is the capability single-point methods fundamentally lack. Crossover can take a parent that has solved the left half of a problem well and a parent that has solved the right half well and produce a child that does both. No sequence of local moves from a single incumbent can perform this operation, because there is no second solution from which to draw. Recombination is the defining structural advantage of population-based search.</li>
+  <li><strong>Diversity resists premature convergence.</strong> <em>Premature convergence</em> is the failure mode in which the population loses variety early and settles around a mediocre solution, after which crossover produces only clones and progress depends on mutation alone. A diverse population is the defence. Diversity can be measured — for binary encodings, average pairwise Hamming distance or the per-locus allele frequencies; for real-valued encodings, the mean distance to the population centroid; for any encoding, the number of distinct fitness values present. Monitoring such a statistic alongside best and mean fitness is standard diagnostic practice.</li>
+  <li><strong>Cost per iteration.</strong> A hill-climbing step may require one or a handful of fitness evaluations. A generation of an evolutionary algorithm with population size 100 requires up to 100. Single-point methods are therefore far cheaper per iteration and often converge faster on easy, smooth, or unimodal problems — but they are highly sensitive to where they start, and their final answer can vary wildly across restarts.</li>
+  <li><strong>The trade.</strong> Evolutionary search spends extra computation to buy breadth of coverage and robustness of outcome. On a rugged landscape with many local optima, that is usually a good trade. On a smooth landscape with a single optimum, it is usually a bad one.</li>
+</ul>
+
+<table>
+  <thead>
+    <tr><th>Property</th><th>Single-point search (e.g. hill climbing)</th><th>Population-based search (e.g. genetic algorithm)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>State maintained</td><td>One current solution</td><td>N solutions simultaneously</td></tr>
+    <tr><td>Evaluations per iteration</td><td>1 to a few</td><td>Typically N (or N offspring)</td></tr>
+    <tr><td>Can recombine solutions</td><td>No</td><td>Yes, via crossover</td></tr>
+    <tr><td>Sensitivity to initialisation</td><td>High</td><td>Lower; many starting points at once</td></tr>
+    <tr><td>Escape from local optima</td><td>Needs restarts or uphill acceptance</td><td>Inherent, through diversity and variation</td></tr>
+    <tr><td>Parallelisability of evaluation</td><td>Limited</td><td>Excellent — individuals score independently</td></tr>
+    <tr><td>Best suited to</td><td>Smooth, cheap, unimodal objectives</td><td>Rugged, discontinuous, multimodal objectives</td></tr>
+  </tbody>
+</table>
+
+<p><strong>The generational cycle.</strong> Almost every evolutionary algorithm, whatever its representation, follows the same high-level loop. The steps below are the canonical generational genetic algorithm.</p>
+
+<pre><code>initialise population P of size N at random
+evaluate fitness of every individual in P
+best_ever &lt;- fittest individual in P
+
+repeat until termination condition met:
+    parents   &lt;- select N individuals from P, biased toward high fitness
+    offspring &lt;- apply crossover to pairs of parents with probability p_c
+    offspring &lt;- apply mutation to each offspring with probability p_m
+    evaluate fitness of every offspring
+    P         &lt;- replace (P, offspring)          # e.g. generational, with elitism
+    update best_ever if a fitter individual has appeared
+
+return best_ever</code></pre>
+
+<ul>
+  <li><strong>Initialisation.</strong> Usually uniform random sampling over the encoding: each bit set to 0 or 1 with equal probability, each real gene drawn uniformly from its permitted interval, each permutation produced by a Fisher–Yates shuffle. Random initialisation maximises initial diversity, which is what the algorithm will consume over the run. <em>Seeding</em> the population with a few solutions from a heuristic can accelerate early progress but risks the whole population being pulled into the seed's basin, so seeds are normally a small minority of the population.</li>
+  <li><strong>Evaluation.</strong> Every individual is decoded and scored. This is almost always the most expensive step, and it is embarrassingly parallel — the evaluations are independent, so they map naturally onto multiple cores or machines.</li>
+  <li><strong>Selection.</strong> Parents are drawn with a bias toward higher fitness. Note that selection does not create new material; it merely decides which existing material gets copied forward. Repeated selection of the same strong individual is normal and is exactly how good genes spread.</li>
+  <li><strong>Variation.</strong> Crossover is applied to parent pairs with probability <code>p_c</code> (commonly 0.6–0.95); otherwise the parents are copied unchanged. Mutation is then applied, typically per gene with a small probability <code>p_m</code> (a common default is 1/L for a chromosome of length L, giving about one mutated gene per individual).</li>
+  <li><strong>Replacement.</strong> In a <em>generational</em> scheme the offspring wholly replace the parents. In a <em>steady-state</em> scheme only one or two offspring are produced per iteration and they displace the worst or oldest members. <em>Elitism</em> — copying the best one or two individuals into the next population unchanged — is a very common refinement because it guarantees that the best fitness never decreases from one generation to the next.</li>
+</ul>
+
+<p>A worked miniature makes the cycle concrete. Suppose we maximise <code>f(x) = x²</code> for integers <code>0 ≤ x ≤ 31</code>, encoded as 5-bit strings, with a population of four.</p>
+
+<table>
+  <thead>
+    <tr><th>Individual</th><th>Chromosome</th><th>Decoded x</th><th>Fitness x²</th><th>Share of total fitness</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>A</td><td><code>01101</code></td><td>13</td><td>169</td><td>14.4%</td></tr>
+    <tr><td>B</td><td><code>11000</code></td><td>24</td><td>576</td><td>49.2%</td></tr>
+    <tr><td>C</td><td><code>01000</code></td><td>8</td><td>64</td><td>5.5%</td></tr>
+    <tr><td>D</td><td><code>10011</code></td><td>19</td><td>361</td><td>30.9%</td></tr>
+  </tbody>
+</table>
+
+<p>Fitness-proportionate selection gives B roughly half the reproductive opportunities and C almost none, so a plausible mating pool is {B, D, B, A}. Applying one-point crossover between B <code>11000</code> and D <code>10011</code> after locus 2 yields children <code>11011</code> (x = 27, fitness 729) and <code>10000</code> (x = 16, fitness 256). A single mutation flipping the final bit of <code>11011</code> would give <code>11010</code> (x = 26). Already after one generation the best fitness has risen from 576 to 729, and the leading <code>1</code> bit — the most valuable building block in this encoding — has spread through the population. This example also illustrates the encoding's weakness: because the most significant bit dominates fitness, mutations at low-order loci have little effect, and the algorithm converges on the high-order bits first.</p>
+
+<p><strong>Exploration, exploitation, and termination.</strong> The behaviour of an evolutionary algorithm is largely determined by the balance between two opposing tendencies.</p>
+
+<ul>
+  <li><strong>Exploration</strong> is the sampling of unvisited regions of the search space. It is driven by mutation, by a large and diverse population, by low selective pressure, and by mechanisms such as random immigrants or fitness sharing. Too much exploration and the algorithm becomes an expensive random search that never refines anything.</li>
+  <li><strong>Exploitation</strong> is the intensification of search around solutions already known to be good. It is driven by strong selection, by crossover among similar parents, by elitism, and by local-search refinement of offspring. Too much exploitation and the population converges prematurely onto the first decent basin it encounters.</li>
+</ul>
+
+<p>The balance typically needs to shift over the course of a run: broad exploration early, when little is known, giving way to focused exploitation late, when the promising regions have been identified. Practitioners implement this with adaptive schemes — mutation rates that decay over generations, tournament sizes that grow, or self-adaptive step sizes encoded in the chromosome itself as in evolution strategies. A practical diagnostic is to plot best fitness and mean fitness together: if the two curves converge rapidly and then flatten, the population has lost diversity and the run has stagnated; if the mean stays far below the best for the whole run, selective pressure is too weak to consolidate progress.</p>
+
+<p>Because an evolutionary algorithm has no built-in notion of optimality, it does not stop by itself. A termination condition must be imposed, and the usual options are:</p>
+
+<ul>
+  <li><strong>Budget exhaustion.</strong> A maximum number of generations, or more meaningfully a maximum number of fitness evaluations, or a wall-clock time limit. Counting evaluations is the fairest basis for comparing algorithms, since it is representation- and implementation-independent.</li>
+  <li><strong>Fitness threshold.</strong> Stop when a solution reaching a known target is found. This is only available when an acceptable quality level or a known optimum exists — for instance, a schedule with zero constraint violations.</li>
+  <li><strong>Stagnation detection.</strong> Stop when the best fitness has not improved by more than some small ε for a specified number of consecutive generations (say 50). This avoids wasting a budget on a converged population, but the patience parameter must be generous enough to allow for the long plateaus followed by sudden jumps that are typical of evolutionary runs.</li>
+  <li><strong>Diversity collapse.</strong> Stop (or trigger a restart, or inject random immigrants) when a diversity statistic falls below a threshold, since at that point crossover produces near-duplicates and the search has effectively degenerated.</li>
+</ul>
+
+<p>In practice these are combined: run for at most G generations, stopping early if the target fitness is met or if no improvement occurs for P generations. Whatever the rule, the algorithm should maintain and return the <strong>best individual ever seen</strong>, not merely the best in the final population. Without elitism the final population can easily be worse than an earlier one, and an archived best-ever record costs almost nothing. Finally, because the algorithm is stochastic, a single run tells you very little: results should be reported over multiple independent runs with different random seeds, summarised by mean, standard deviation, best and worst outcomes.</p>
+
+<p><strong>When evolutionary methods are appropriate.</strong> Evolutionary algorithms are general-purpose, and generality carries a cost. The "no free lunch" theorems formalise the point: averaged over all possible objective functions, no search algorithm beats any other, so any advantage on a real problem comes from matching the algorithm's assumptions to the problem's structure. The following guidance is about making that match.</p>
+
+<p><em>Good fits:</em></p>
+<ul>
+  <li><strong>Large, rugged, multimodal landscapes.</strong> When the objective has many local optima, gradient and local-search methods get trapped and must be restarted repeatedly; a population explores several basins concurrently and can recombine discoveries across them.</li>
+  <li><strong>Black-box objectives.</strong> If the quality of a solution is produced by a simulator, a physical experiment, a legacy executable or a human rating — anything that returns a number without exposing structure — evolutionary methods apply directly, because they require nothing but the number.</li>
+  <li><strong>Combinatorial problems.</strong> Scheduling, timetabling, vehicle routing, bin packing, facility layout, circuit placement and network design all have discrete, constrained, combinatorially explosive search spaces where no useful derivative exists. Specialised representations (permutations, trees) and operators make evolutionary methods a natural fit, and they often serve as the global component of a <em>memetic</em> algorithm that pairs evolution with a problem-specific local improvement heuristic.</li>
+  <li><strong>Discontinuous, noisy or mixed-type objectives.</strong> Problems combining integer, categorical and continuous decision variables, or whose objective contains discontinuities and plateaus, defeat classical numerical optimisers but pose no structural difficulty here.</li>
+  <li><strong>Multi-objective problems.</strong> Because a whole population is maintained, evolutionary methods can approximate an entire Pareto front of trade-off solutions in one run, something single-point methods cannot do without repeated scalarised runs.</li>
+</ul>
+
+<p><em>Poor fits:</em></p>
+<ul>
+  <li><strong>A fast exact or specialised algorithm already exists.</strong> If the problem is linear, convex, or solvable by a polynomial-time algorithm — shortest path, maximum flow, linear programming, sorting — use that algorithm. It will be faster and will come with an optimality guarantee that an evolutionary algorithm can never provide.</li>
+  <li><strong>Smooth differentiable objectives with reliable gradients.</strong> Gradient descent or quasi-Newton methods will converge in orders of magnitude fewer evaluations.</li>
+  <li><strong>Very expensive fitness evaluation with a tight budget.</strong> If one evaluation takes hours of simulation and you can afford only a few dozen, a population-based method that wants thousands of evaluations is inappropriate; surrogate-assisted or Bayesian optimisation methods are designed for that regime.</li>
+  <li><strong>Problems requiring proven optimality or feasibility guarantees.</strong>An evolutionary algorithm returns a good solution, not a certified one; where a certificate is needed, exact methods such as branch and bound or constraint programming are required.</li>
+</ul>
+
+<p><strong>The cost structure of a run.</strong> It is worth being explicit about where the computation goes, because this shapes every practical decision. A run with population size N over G generations performs on the order of N × G fitness evaluations — a modest configuration of N = 100 and G = 500 already means 50,000 evaluations. The genetic operators themselves are trivial by comparison: a one-point crossover is a pair of array slices, and a mutation is a handful of random draws. Evaluation therefore dominates almost every real application, and the practical consequences follow directly:</p>
+
+<ul>
+  <li><strong>Optimise the evaluator first.</strong> A tenfold speed-up in the fitness function buys more than any amount of operator tuning. Incremental or <em>delta</em> evaluation — recomputing only the part of the score affected by a mutation rather than the whole solution — is frequently the single most valuable engineering step.</li>
+  <li><strong>Cache repeated genotypes.</strong> As a population converges, duplicates become common; a hash table keyed on the chromosome can eliminate a surprising fraction of redundant evaluations.</li>
+  <li><strong>Exploit parallelism.</strong> Fitness evaluations are independent, so they distribute almost perfectly across cores, machines or GPUs. This is why evolutionary methods scale well on modern hardware despite their high evaluation counts.</li>
+  <li><strong>Budget in evaluations, not generations.</strong> A population of 50 run for 1,000 generations and a population of 500 run for 100 generations cost the same; which performs better is an empirical question about the problem's ruggedness, and only an evaluation-based budget makes the comparison fair.</li>
+</ul>
+
+<p>Taken together, these foundations explain the characteristic shape of evolutionary search: a stochastic, population-based, representation-agnostic process that makes few demands on the problem, converts computational effort into broad coverage of a difficult landscape, and depends for its success on three design choices made before a single generation is run — how solutions are encoded, how they are scored, and how strongly selection favours the good ones.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1</strong> — Directly supported. The topic sets out the generational cycle in full, from random initialisation through evaluation, selection, crossover and mutation to replacement and termination, with pseudocode and a worked four-individual trace showing one complete generation.</li>
+  <li><strong>MO2</strong> — Partially supported. The topic establishes the genotype–phenotype distinction and illustrates binary, real-valued and permutation chromosomes in passing, providing the vocabulary needed to reason about representation choice, but it does not compare representations in enough detail to make a selection for a given problem.</li>
+  <li><strong>MO3</strong> — Partially supported. Fitness is defined as the graded numeric quality signal that drives selection, and penalty-based handling of a knapsack weight limit is mentioned as an example, but the systematic construction of fitness functions and constraint-handling strategies is left to later topics.</li>
+  <li><strong>MO4</strong> — Partially supported. The topic introduces selective pressure as a central tuning lever, demonstrates fitness-proportionate selection numerically and notes the effect of tournament size, which prepares the ground for a formal comparison of roulette wheel, rank-based and tournament selection elsewhere.</li>
+  <li><strong>MO5</strong> — Partially supported. Convergence behaviour, premature convergence, diversity metrics such as Hamming distance and allele frequency, best-versus-mean fitness plots, stagnation detection and the need for repeated runs with different seeds are all introduced here, though their application to a specific scheduling or combinatorial case study is developed later.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The worked x&#178; example follows Goldberg&#39;s classic illustration and can be extended in class by running a second generation by hand. The cost-structure subsection goes slightly beyond the listed bullet on evaluation cost in order to make the point actionable; delta evaluation and genotype caching are standard practice and reinforce the stated point that evaluation dominates. &quot;No free lunch&quot; is referenced only as justification for the appropriateness discussion and is not developed formally.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

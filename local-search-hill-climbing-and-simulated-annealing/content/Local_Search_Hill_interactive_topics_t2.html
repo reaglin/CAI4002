@@ -1,0 +1,303 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>State Spaces, Objective Functions, and Landscapes</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Local Search: Hill Climbing and Simulated Annealing</a></div>
+  <header>
+    <h1>State Spaces, Objective Functions, and Landscapes</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>State Spaces, Objective Functions, and Landscapes</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Classical search algorithms such as breadth-first search, uniform-cost search, and A* treat problem solving as the construction of a <em>path</em>. They begin from an initial state, expand partial solutions, and keep a frontier of unexplored options in memory. That approach is powerful when the sequence of actions is itself the answer — route finding, puzzle solving, planning. But an enormous class of practical problems is not about the path at all. When a factory wants a production schedule, an airline wants crew rosters, a chip designer wants a component layout, or a telecom operator wants frequency assignments, nobody cares <em>how</em> the solution was found. Only the final configuration matters. For these problems a different family of methods — <strong>local search</strong> — reframes the problem entirely: instead of building solutions piece by piece, it starts with a complete (probably bad) solution and repeatedly nudges it into a better one.</p>
+
+<p>To make local search precise, we need four ingredients: a <strong>state representation</strong> in which every state is a complete candidate solution, a <strong>move operator</strong> that defines which states count as "nearby", an <strong>objective (or cost) function</strong> that scores every state, and a mental model — the <strong>state-space landscape</strong> — that lets us reason about why such a search succeeds or stalls. This topic develops each of these and then shows how to assemble them into a working formulation for a new problem.</p>
+
+<p><strong>Complete-State Formulation</strong></p>
+
+<p>In a complete-state formulation, every state is a full assignment of values to all of the problem's variables or decisions. Nothing is left undecided. Contrast this with the incremental (partial-state) formulation used by backtracking search:</p>
+
+<table>
+  <thead>
+    <tr><th>Aspect</th><th>Incremental / partial-state formulation</th><th>Complete-state formulation</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Initial state</td><td>Empty assignment (e.g., empty board)</td><td>Full assignment (e.g., all 8 queens placed somewhere)</td></tr>
+    <tr><td>Action</td><td>Extend the assignment by one variable</td><td>Modify an existing assignment</td></tr>
+    <tr><td>Intermediate states</td><td>Incomplete, not yet candidate solutions</td><td>Always complete candidate solutions</td></tr>
+    <tr><td>What is returned</td><td>Typically the path or the final leaf</td><td>The state itself</td></tr>
+    <tr><td>Memory</td><td>Frontier + explored set: grows with search</td><td>Current state (+ best-so-far): constant</td></tr>
+    <tr><td>Can be interrupted?</td><td>No useful answer until complete</td><td>Yes — any-time: current state is always an answer</td></tr>
+  </tbody>
+</table>
+
+<p>Take the 8-queens problem. The incremental formulation places queens column by column, so a typical intermediate state has five queens on the board and three columns empty — that is not a candidate solution, it is a fragment. The complete-state formulation instead starts with all eight queens already on the board, one per column, at arbitrary rows. That configuration is almost certainly illegal in the sense that queens attack one another, but it <em>is</em> a complete configuration. Search then consists of moving queens around until no pair attacks.</p>
+
+<p>Three consequences follow, and they are the reason local search exists:</p>
+
+<ul>
+  <li><strong>The path is irrelevant.</strong> If two different sequences of queen-moves end at the same board, those outcomes are indistinguishable. There is no notion of "path cost" to accumulate, no need for a parent pointer, no solution path to reconstruct. The algorithm simply returns the state it is holding.</li>
+  <li><strong>Memory is (typically) constant.</strong> A local search algorithm stores the current state and, optionally, the best state seen so far. It does not store a frontier, and it usually does not store an explored set. For 8-queens that is on the order of eight integers, regardless of how many millions of moves are made. This is <em>O(1)</em> space in the size of the search, which is the sharpest possible contrast with A*, whose memory requirement typically grows exponentially.</li>
+  <li><strong>Vast or infinite spaces become tractable.</strong> The complete-state space for <em>n</em>-queens with one queen per column has <code>n^n</code> states — for <em>n</em> = 8 that is roughly 17 million, and for <em>n</em> = 1,000,000 it is an unthinkable number. Systematic search cannot enumerate it; local search does not need to, because it never enumerates, it only samples a neighborhood. Local search also extends naturally to continuous spaces, where the number of states is literally infinite (e.g., choosing real-valued coordinates for three airports in a country to minimize total travel distance from every city).</li>
+</ul>
+
+<p>Because the current state is always a legal candidate, local search is an <strong>any-time algorithm</strong>: you can stop it after one second or one hour and read off the best configuration found so far. This property is enormously valuable in industry, where a good schedule produced in ten minutes beats a provably optimal schedule produced in ten days.</p>
+
+<p>One design caution: "complete" and "legal" are not automatically the same thing, and you have a choice about which constraints to build into the representation and which to penalize in the objective. In 8-queens we usually build the one-queen-per-column constraint into the representation (the state is an array <code>rows[0..7]</code> where <code>rows[c]</code> is the row of the queen in column <em>c</em>), which instantly shrinks the space from <code>C(64,8) ≈ 4.4 × 10^9</code> to <code>8^8 ≈ 1.7 × 10^7</code> and guarantees no two queens share a column. The remaining constraints (rows and diagonals) are handled by the cost function.</p>
+
+<p><strong>Neighbors and Move Operators</strong></p>
+
+<p>A complete-state space is useless without a notion of adjacency. The <strong>move operator</strong> (also called the neighborhood operator, or the set of local moves) defines, for any state <em>s</em>, the set <code>N(s)</code> of states reachable by a single modification. That set is the <strong>neighborhood</strong> of <em>s</em>. All of local search consists of inspecting <code>N(s)</code> and choosing where to go next, so the operator is arguably the single most consequential design decision in the whole formulation.</p>
+
+<p>Common operator families:</p>
+
+<ul>
+  <li><strong>Flip</strong> — change one Boolean variable from true to false or vice versa. For a SAT instance with <em>n</em> variables, <code>|N(s)| = n</code>. This is the operator used by WalkSAT and GSAT.</li>
+  <li><strong>Re-assign / shift</strong> — change one variable to a different value from its domain. For <em>n</em>-queens with one queen per column, moving a queen to any other row in its column gives <code>|N(s)| = n(n−1)</code>: 56 neighbors for 8-queens.</li>
+  <li><strong>Swap / exchange</strong> — exchange the positions of two elements. This is the natural operator when the state is a permutation (job sequencing, the travelling salesperson problem, assigning <em>n</em> workers to <em>n</em> tasks) because a swap of two entries in a permutation yields another permutation, keeping the state legal by construction. Here <code>|N(s)| = C(n,2) = n(n−1)/2</code>.</li>
+  <li><strong>2-opt / segment reversal</strong> — in TSP, remove two edges and reconnect the tour the other way, which reverses a contiguous segment. This classic operator preserves tour validity and repairs crossings.</li>
+  <li><strong>Insert / relocate</strong> — remove one element and reinsert it elsewhere (e.g., move a job from machine A's queue into machine B's queue at a given position).</li>
+  <li><strong>Continuous step</strong> — add a small vector <code>δ</code> to a real-valued state, or take a step along the gradient. Neighborhoods here are infinite, so the "step size" plays the role of neighborhood size.</li>
+</ul>
+
+<p>Three properties determine whether an operator is a good one.</p>
+
+<p><em>1. Size, and the cost–coverage trade-off.</em> A small neighborhood is cheap to scan but offers few escape routes, so the search gets stuck more often. A large neighborhood explores better but costs more per step. Consider TSP on 100 cities:</p>
+
+<table>
+  <thead>
+    <tr><th>Operator</th><th>Neighborhood size (n = 100)</th><th>Cost per full scan</th><th>Typical effect on quality</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Swap two adjacent cities</td><td>99</td><td>Very cheap</td><td>Weak; many poor local optima</td></tr>
+    <tr><td>Swap any two cities</td><td>4,950</td><td>Cheap</td><td>Moderate</td></tr>
+    <tr><td>2-opt (segment reversal)</td><td>≈ 4,950</td><td>Cheap (incremental Δ in O(1))</td><td>Good; typically within ~5% of optimum</td></tr>
+    <tr><td>3-opt</td><td>≈ O(n³) ≈ 10⁶</td><td>Expensive</td><td>Better; ~3% of optimum</td></tr>
+    <tr><td>Lin–Kernighan (variable depth)</td><td>Effectively huge</td><td>Very expensive per step</td><td>Excellent; ~2% or better</td></tr>
+  </tbody>
+</table>
+
+<p>There is no universally right answer; the question is always whether the extra quality per step repays the extra time per step within your compute budget. A useful heuristic: if the search stalls quickly at poor solutions, enlarge the neighborhood; if it crawls, shrink it or sample it rather than scanning it exhaustively.</p>
+
+<p><em>2. Locality, enabling incremental evaluation.</em> A well-designed operator changes only a small part of the state, so the change in objective value — the <strong>delta</strong> — can be computed without re-evaluating the whole solution. This single trick often buys an order-of-magnitude speedup, and it is why operators that scramble the state wholesale are bad operators even though they "explore more".</p>
+
+<pre><code>// 8-queens: full evaluation is O(n^2) -- compare every pair
+h(s):
+    conflicts = 0
+    for i in 0..n-1:
+        for j in i+1..n-1:
+            if rows[i] == rows[j] or |rows[i]-rows[j]| == |i-j|:
+                conflicts += 1
+    return conflicts
+
+// Incremental evaluation of "move queen in column c from r_old to r_new"
+// is O(n): only pairs involving column c can change.
+delta(s, c, r_new):
+    d = 0
+    for j != c:
+        if attacks(rows[c], c, rows[j], j): d -= 1      // conflict removed
+        if attacks(r_new,   c, rows[j], j): d += 1      // conflict added
+    return d
+</code></pre>
+
+<p>In TSP with 2-opt the saving is even more dramatic: reversing a segment changes only two edges, so <code>Δ = d(a,c) + d(b,d) − d(a,b) − d(c,d)</code> is computed in constant time rather than re-summing all <em>n</em> edge lengths.</p>
+
+<p><em>3. Connectivity.</em> The operator must make the state space <strong>connected</strong> — from any start state, some sequence of moves must reach an optimal state. If it does not, entire regions of the space are permanently unreachable and the search may be doomed before it begins. Example: in a permutation problem, the operator "swap positions <em>i</em> and <em>i</em>+2 only" preserves the parity of the permutation, so half of all permutations — possibly including every optimal one — can never be reached. Adjacent-transposition swaps, by contrast, generate the whole symmetric group and are fully connected. Beyond bare connectivity, we also care about the <em>diameter</em> of the space under the operator: if reaching an optimum requires 10<sup>6</sup> moves because each move is so timid, connectivity is a hollow guarantee.</p>
+
+<p><strong>Objective and Heuristic Cost Functions</strong></p>
+
+<p>The objective function <code>f(s)</code> (for maximization) or heuristic cost function <code>h(s)</code> (for minimization) assigns a number to every state. It is the only signal the search receives — the algorithm has no other way to tell good from bad — so its design determines success or failure far more than the choice of algorithm.</p>
+
+<p><em>Maximization and minimization are the same problem.</em> Minimizing <code>h</code> is identical to maximizing <code>−h</code> (or <code>1/(1+h)</code>, or <code>C − h</code> for any constant <em>C</em>). Textbook presentations of hill climbing speak of climbing toward peaks; most practical formulations are stated as cost minimization, so the "peak" is the bottom of a valley. Do not let the vocabulary confuse you: convert whichever way you prefer and stay consistent. In this topic we use "uphill" to mean "in the improving direction", whatever the sign convention.</p>
+
+<p><em>It must be total.</em> The function has to be defined for every complete state, not only for goal states. A goal test that merely answers "yes/no" is useless to local search because it gives no sense of <em>how close</em> a non-goal is. For 8-queens, the standard choice is <code>h(s) =</code> the number of pairs of queens attacking one another, directly or indirectly. This is defined everywhere, equals 0 exactly at a solution, and tells us that a board with 3 conflicts is better than one with 17. Globally, <code>h</code> ranges from 0 to 28 (<code>C(8,2)</code>), and a random board averages around 15 or 16.</p>
+
+<p><em>It should provide gradient.</em> A good evaluation function changes in small, informative increments as the state changes, so that moves in a promising direction are rewarded immediately. Compare two candidate functions for scheduling:</p>
+
+<table>
+  <thead>
+    <tr><th>Candidate function</th><th>Granularity</th><th>Usefulness to local search</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>"1 if all deadlines met, else 0"</td><td>Binary</td><td>Useless — the landscape is a flat plain with one invisible pinhole</td></tr>
+    <tr><td>"number of jobs that miss their deadline"</td><td>Coarse integer</td><td>Some gradient, but large plateaus: shifting a job from 10 hours late to 1 hour late changes nothing</td></tr>
+    <tr><td>"total lateness in minutes, summed over jobs"</td><td>Fine-grained</td><td>Strong gradient — every improvement, however small, is visible</td></tr>
+    <tr><td>"weighted sum: 100 × (deadline misses) + total lateness + 0.1 × (machine switches)"</td><td>Fine + prioritized</td><td>Best — encodes priorities and still discriminates within each priority band</td></tr>
+  </tbody>
+</table>
+
+<p>The same principle appears in SAT solving: "number of unsatisfied clauses" gives a usable gradient; "is the formula satisfied?" does not. Coarse or flat functions create plateaus, and plateaus are where local search goes to die (see below). When hard constraints must be respected, a common pattern is the <strong>weighted penalty</strong> function <code>f(s) = quality(s) + Σ w_i · violation_i(s)</code> with large weights <code>w_i</code>; this allows the search to pass through slightly infeasible states while still being driven strongly back toward feasibility.</p>
+
+<p><em>It must be cheap.</em> A local search run may evaluate tens of millions of states. If each evaluation costs 10 ms, you get 100 evaluations per second and the algorithm is worthless; if it costs 1 µs, you get a million per second. Hence the emphasis above on incremental evaluation, caching of partial sums, and precomputed lookup tables (e.g., an <code>n × n</code> distance matrix for TSP rather than recomputing Euclidean distances). A rough rule of thumb: the inner loop of a local search should touch only the data the move actually changed.</p>
+
+<p><em>Beware of the function you did not mean to write.</em> Because local search optimizes exactly what you specify, an objective that ignores something you care about will produce solutions that abuse the omission. If a roster objective penalizes only uncovered shifts, you will get a roster that covers every shift by assigning one exhausted person to fourteen consecutive nights. The objective is the specification.</p>
+
+<p><strong>The State-Space Landscape Metaphor</strong></p>
+
+<p>Combine the three ingredients and a geography emerges. Imagine the set of all states spread out on a horizontal plane, with neighboring states placed next to one another, and the objective value plotted as elevation. The result is a <strong>state-space landscape</strong>: a surface of hills and hollows. Local search is then a walker on this surface who can see only the elevation of the ground immediately around their feet. Hill climbing is the policy "always step to higher ground; stop when no neighboring ground is higher."</p>
+
+<p>Two definitions follow naturally:</p>
+<ul>
+  <li>A local search algorithm is <strong>complete</strong> if it is guaranteed to find a goal state whenever one exists.</li>
+  <li>It is <strong>optimal</strong> if it is guaranteed to find a <em>global</em> maximum (or minimum). Plain hill climbing is neither; random-restart hill climbing is complete "with probability approaching 1" in the limit, because given infinitely many restarts it will eventually start in the basin of a solution.</li>
+</ul>
+
+<p>The metaphor has to be handled with care, because the picture we can draw is a lie of dimensionality. A two-dimensional cross-section with a few bumps is drawn on one axis of state and one of value; a real landscape has one dimension per decision variable. The 8-queens landscape is 8-dimensional (each queen's row), a 10,000-variable SAT instance lives on a 10,000-dimensional Boolean hypercube, and a scheduling problem may have millions of dimensions. High-dimensional spaces behave counter-intuitively: a point that is a maximum along each individual axis need not be a maximum overall; the number of neighbors grows with dimension, so there are many more escape directions than a 2-D picture suggests; and "distance" in such spaces is dominated by the large number of coordinates. Use the picture as an aid to intuition about peaks and plateaus, never as a basis for quantitative claims.</p>
+
+<p>The most useful single descriptor of a landscape is its <strong>ruggedness</strong>: how many local optima there are, how deep they are relative to the global optimum, and how far apart they lie. A <em>smooth</em> landscape with one broad peak is trivial for hill climbing. A <em>rugged</em> landscape with many isolated peaks of similar height is hard — every run stalls somewhere different. Many real problems have a "big valley" or <strong>funnel</strong> structure: locally rugged, but with the good local optima clustered near the global optimum, which is precisely why restart- and perturbation-based methods work well in practice. The pathological case is the "golf course" or "needle in a haystack" landscape: a flat plain with a single deep hole, where no gradient exists anywhere and local search degenerates to random sampling. Notice that ruggedness is not a property of the problem alone — it is a property of the <em>problem together with your operator and objective</em>. Changing the move operator literally re-sculpts the terrain, which is why operator design is where practitioners spend their effort.</p>
+
+<p><strong>Landscape Features: Peaks, Valleys, Ridges, Shoulders, and Plateaus</strong></p>
+
+<p>Specific terrain features correspond to specific failure modes, and being able to name them is the first step to fixing them.</p>
+
+<ul>
+  <li><strong>Global maximum</strong> — the highest point in the entire landscape; the optimal solution. There may be several states tied at this value.</li>
+  <li><strong>Local maximum</strong> — a state whose value is strictly greater than that of every neighbor, but lower than the global maximum. Simple hill climbing reaching such a state <em>halts</em>, because every available move looks worse. It has no way of knowing that a far better peak lies beyond a dip. This is the canonical failure of hill climbing. In 8-queens with the "move a queen within its column" operator, steepest-ascent hill climbing gets stuck on a local maximum about 86% of the time, solving only about 14% of random instances — but the stuck runs take only ~3 moves on average, while successes take ~4, so restarting is cheap. Roughly <code>1/0.14 ≈ 7</code> restarts suffice on average, for about 22 total moves.</li>
+  <li><strong>Plateau</strong> — a flat region where all neighbors have <em>equal</em> value. The gradient is zero, so the objective offers no advice at all. The search either halts (if it refuses non-improving moves) or wanders aimlessly (if it allows sideways moves without limit). Plateaus arise most often from coarse-grained objective functions — the fewer distinct values the function can take, the more states must tie.</li>
+  <li><strong>Shoulder</strong> — a plateau that is <em>not</em> a local maximum: it has an edge from which uphill progress resumes. A shoulder is a trap only if the algorithm gives up as soon as it sees no strictly improving move. The remedy is to permit <strong>sideways moves</strong> (moves to an equal-valued neighbor), which allow the walker to cross the flat ground and find the far edge. The cost of this permission is the risk of looping forever on a genuinely flat plateau, so implementations cap the number of consecutive sideways moves. In 8-queens, allowing up to 100 consecutive sideways moves raises the success rate of steepest-ascent hill climbing from about 14% to about 94%, at the price of a higher average move count (~21 per success, ~64 per failure). This single change illustrates how much algorithmic behaviour hinges on recognising a terrain feature.</li>
+  <li><strong>Ridge</strong> — a long, narrow sequence of elevated points with steep drop-offs on both sides, oriented <em>diagonally</em> with respect to the available moves. Ridges are the subtlest trap. Imagine a ridge running north-east while your operator permits only single steps north, south, east, or west. From a point on the crest, a step north takes you off the ridge and down; so does a step east. Every single move is downhill, so hill climbing stops — even though a <em>combined</em> north-then-east move would take you higher. A search that is allowed to accept equal or slightly worse moves can still traverse a ridge, but it does so as an awkward zigzag, taking many moves to gain a little height. The real diagnosis is operator mismatch: the moves are axis-aligned and the improving direction is not. Fixes include adding compound moves (change two variables at once), rotating the representation, or using a method that can follow the true gradient direction.</li>
+  <li><strong>Valleys and basins</strong> — the minimization-view mirror images of peaks and plateaus. Under a cost function <code>h</code> that we are minimizing, the global optimum is the deepest point of the deepest valley; a local minimum is the bottom of a shallower hollow; a plateau is a flat floor; and a ridge becomes a narrow <em>canyon</em> or trough that the search must follow downhill. The <strong>basin of attraction</strong> of a local optimum is the set of start states from which hill climbing ends at that optimum. Basins are the quantity that really governs random-restart behaviour: if the global optimum's basin occupies 2% of the space, you expect to need about 50 random restarts to land in it.</li>
+</ul>
+
+<p>The table below links each feature to its symptom and its standard remedy.</p>
+
+<table>
+  <thead>
+    <tr><th>Feature</th><th>What the search observes</th><th>Symptom</th><th>Typical remedy</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Local maximum / minimum</td><td>All neighbors strictly worse</td><td>Premature halt at a mediocre value</td><td>Random restarts, random walk, simulated annealing, larger neighborhood</td></tr>
+    <tr><td>Plateau (flat local max)</td><td>All neighbors equal</td><td>Halt, or endless aimless wandering</td><td>Cap sideways moves; add tie-breaking terms to the objective; tabu list to avoid revisiting</td></tr>
+    <tr><td>Shoulder</td><td>All neighbors equal, but an uphill edge exists somewhere on the flat</td><td>Halt even though progress was available</td><td>Allow a bounded number of sideways moves</td></tr>
+    <tr><td>Ridge / canyon</td><td>Every single-variable move is worse, yet a diagonal direction improves</td><td>Halt, or slow zigzag progress</td><td>Compound/multi-variable moves; change of representation; gradient or momentum methods</td></tr>
+    <tr><td>Needle-in-haystack plain</td><td>Almost every state has the same value</td><td>No gradient anywhere; search ≈ random sampling</td><td>Redesign the objective to be finer-grained; exploit problem structure</td></tr>
+  </tbody>
+</table>
+
+<p>A concrete miniature landscape makes the vocabulary tangible. Suppose states are the integers 0–11, neighbors are <code>s ± 1</code>, and the objective values are:</p>
+
+<pre><code>state :  0   1   2   3   4   5   6   7   8   9  10  11
+value :  3   5   7   6   6   6   8   9   4   4   4   4
+                 ^peak      ^shoulder   ^global   ^plateau (flat local max)
+</code></pre>
+
+<p>Starting at state 0, steepest-ascent hill climbing goes 0 → 1 → 2 and stops: state 2 (value 7) beats both neighbors, yet the global maximum is state 7 (value 9). State 2 is a <strong>local maximum</strong>. States 3–5 form a flat stretch of value 6; because the right-hand edge at state 6 rises to 8, that stretch is a <strong>shoulder</strong> — a search permitted to move sideways will cross it and reach the global maximum. States 8–11 are also flat, but nothing adjacent rises, so that region is a true <strong>plateau</strong> and a flat local maximum; sideways moves there merely wander. Reading the same numbers as costs to be minimized inverts the picture: state 7 becomes the worst point and state 0 sits at the bottom of a valley.</p>
+
+<p><strong>Framing a Problem for Local Search</strong></p>
+
+<p>Putting it together, converting a new optimization problem into a local search instance is a five-part design task. Work through the parts in order, and expect to iterate — the parts interact.</p>
+
+<ul>
+  <li><strong>1. State representation.</strong> Choose a data structure in which every value is a complete, and preferably legal, candidate. Build the easy constraints into the representation so they can never be violated, and leave the hard ones to the objective. Examples: an array of <em>n</em> row indices for <em>n</em>-queens (enforces one queen per column); a permutation of city indices for TSP (enforces "visit each city exactly once"); a bit vector for SAT or knapsack; a vector of (job → machine, start time) pairs for scheduling. Ask yourself: "If I generate a random value of this type, is it a usable answer?" If the answer is no, the representation will force you to spend search effort just reaching feasibility.</li>
+  <li><strong>2. Move operator.</strong> Pick an operator that yields a neighborhood small enough to scan (or sample) quickly, local enough that <code>Δ</code> can be computed incrementally, and rich enough to connect the space. Check connectivity explicitly: can a chain of moves transform any state into any other? For permutations, swaps and 2-opt both qualify; for bit vectors, single-bit flips connect the whole hypercube in at most <em>n</em> moves. Record the neighborhood size as a formula in <em>n</em> so you can predict the cost of one step.</li>
+  <li><strong>3. Evaluation function.</strong> Make it total, fine-grained, and cheap. Prefer summed magnitudes ("total minutes late", "total tour length", "number of attacking pairs") over Boolean or coarse counts. Where several objectives compete, combine them with weights that reflect genuine priorities, giving hard-constraint violations weights large enough that no amount of quality gain can pay for a violation. Sanity-check the function by hand on two or three states you already know to be good and bad.</li>
+  <li><strong>4. Starting policy.</strong> Options are (a) <em>random initialization</em> — cheap, unbiased, and the right default when you intend to restart many times; (b) <em>greedy construction</em> — e.g., nearest-neighbor tour for TSP, or earliest-deadline-first for scheduling, which starts the walker partway up a hill and usually converges faster, though it can bias every run into the same basin; (c) <em>warm start</em> from yesterday's solution, which is ideal for repeated planning problems and often what operations staff actually want (small changes from the previous plan); (d) <em>multiple restarts</em>, keeping the best final state. A practical compromise is greedy construction perturbed randomly, so each restart lands in a different basin while still beginning from a decent value.</li>
+  <li><strong>5. Termination condition.</strong> Stop when any of the following holds: a state of known-optimal value is found (e.g., <code>h = 0</code> for <em>n</em>-queens, or zero unsatisfied clauses for SAT); a budget of iterations, evaluations, or wall-clock seconds is exhausted; no improvement has been seen for <em>k</em> consecutive steps (stagnation); or the solution is "good enough" against a bound (e.g., within 2% of a known lower bound such as the TSP 1-tree bound). Always retain the best-so-far state separately from the current state, since searches that accept worsening moves may end at a state worse than one they passed through.</li>
+</ul>
+
+<p>Worked example — <strong>8-queens</strong>:</p>
+
+<table>
+  <thead>
+    <tr><th>Design element</th><th>Choice</th><th>Rationale</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>State</td><td><code>rows[0..7]</code>, one row index per column</td><td>Complete; column constraint enforced structurally; space = 8⁸ ≈ 1.7 × 10⁷</td></tr>
+    <tr><td>Operator</td><td>Move one queen to another square in its own column</td><td>56 neighbors; connected (any board reachable in ≤ 8 moves); Δ computable in O(n)</td></tr>
+    <tr><td>Objective</td><td><code>h</code> = number of attacking pairs (minimize)</td><td>Total, integer-valued 0–28, zero exactly at goal, gives gradient</td></tr>
+    <tr><td>Start</td><td>Random rows</td><td>Unbiased; supports random-restart</td></tr>
+    <tr><td>Stop</td><td><code>h = 0</code>, or no improving/sideways move within 100 steps</td><td>Known optimum exists; sideways cap prevents plateau loops</td></tr>
+  </tbody>
+</table>
+
+<p>Worked example — <strong>job-shop-style scheduling</strong> (assign <em>m</em> jobs to <em>k</em> machines to minimize makespan):</p>
+
+<table>
+  <thead>
+    <tr><th>Design element</th><th>Choice</th><th>Rationale</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>State</td><td>An assignment <code>machine[j] ∈ {1..k}</code> for every job <em>j</em>, plus an ordering within each machine</td><td>Every assignment is a runnable schedule, so all states are legal</td></tr>
+    <tr><td>Operator</td><td>Relocate one job to another machine, or swap two jobs between machines</td><td>Two complementary neighborhoods: relocation rebalances load, swap fine-tunes</td></tr>
+    <tr><td>Objective</td><td><code>f = makespan + 0.01 × Σ(machine idle time)</code>, minimized</td><td>Makespan alone has huge plateaus (moving a job off a non-bottleneck machine changes nothing); the tie-break term restores gradient</td></tr>
+    <tr><td>Start</td><td>Longest-processing-time-first greedy, then perturb</td><td>Greedy gives a solution already within ~4/3 of optimal; perturbation diversifies restarts</td></tr>
+    <tr><td>Stop</td><td>Makespan equals the lower bound <code>max(max job, total/k)</code>, or 30 s elapsed, or 10,000 non-improving steps</td><td>Any-time behaviour; provable stop when the bound is met</td></tr>
+  </tbody>
+</table>
+
+<p>Notice how, in the scheduling example, a plateau problem was diagnosed <em>at design time</em> and fixed by changing the objective rather than the algorithm. That is the central practical lesson of this topic: representation, operator, and objective jointly sculpt the landscape, and a landscape that hill climbing can actually climb is usually built, not found.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Directly supported: the topic defines complete-state formulations, neighbor/move operators, and objective functions, and ties them together through the state-space landscape, which is exactly the setting in which local search operates.</li>
+  <li><strong>MO2</strong> — Directly supported: the five-part framing procedure plus the worked 8-queens and scheduling tables show how to specify states, move operators, and objective functions for a given optimization problem.</li>
+  <li><strong>MO3</strong> — Only indirectly supported: this topic supplies the landscape and move-operator vocabulary that traces of steepest-ascent, first-choice, stochastic, and random-restart hill climbing rely on, but the algorithms themselves and their execution traces are developed elsewhere in the module.</li>
+  <li><strong>MO4</strong> — Directly supported: local maxima, plateaus, shoulders, ridges, basins, and needle-in-haystack plains are each defined, illustrated on a miniature landscape, and matched to their observable symptoms and remedies.</li>
+  <li><strong>MO5</strong> — Partially supported: the discussion of neighborhood size versus cost per step, incremental evaluation, ruggedness, and any-time termination supplies the quality-versus-cost reasoning used in such a justification, but hill climbing versus simulated annealing and cooling schedules are treated in a later topic.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Key quantitative figures used (standard Russell &amp; Norvig results) that may be worth verifying against the course text: steepest-ascent hill climbing solves ~14% of random 8-queens instances (≈3 moves when stuck, ≈4 when successful); allowing up to 100 consecutive sideways moves raises this to ~94% (≈21 moves on success, ≈64 on failure). TSP tour-quality percentages for 2-opt/3-opt/Lin–Kernighan are typical published approximations, not guarantees. The 12-state toy landscape can be reused in the hill-climbing topic for hand traces of steepest-ascent versus first-choice versus random-restart.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

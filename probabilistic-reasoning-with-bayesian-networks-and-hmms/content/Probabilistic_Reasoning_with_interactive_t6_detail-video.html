@@ -1,0 +1,352 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HMM Inference Tasks and Algorithms</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Probabilistic Reasoning with Bayesian Networks and HMMs</a></div>
+  <header>
+    <h1>HMM Inference Tasks and Algorithms</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>HMM Inference Tasks and Algorithms</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>A Hidden Markov Model (HMM) is the simplest useful model of a world that <em>changes over time</em> and that we can only observe <em>indirectly</em>. The world is summarised at each moment by a single discrete random variable — the <strong>state</strong> — whose value we never see. What we do see is a stream of noisy <strong>evidence</strong> variables, one per time step, each generated by the hidden state at that moment. Almost every practical question we can ask about such a system (Where am I now? Where will I be in ten minutes? Where was I three minutes ago, now that I know what happened since? What is the single most plausible history that explains everything I saw?) turns out to be answerable by a small family of closely related dynamic-programming recursions: the <em>forward</em> recursion, the <em>backward</em> recursion, and the <em>Viterbi</em> recursion. This topic develops those recursions from first principles, works them numerically on a canonical example, and explains how to choose among them.</p>
+
+<p><strong>The HMM framework and inference setup</strong></p>
+
+<p>Let <code>X<sub>t</sub></code> denote the state variable at time step <code>t</code> and <code>E<sub>t</sub></code> the evidence variable observed at that step. A discrete HMM over a state space of size <code>S</code> is completely specified by three ingredients:</p>
+
+<ul>
+  <li><strong>A prior</strong> <code>P(X<sub>0</sub>)</code> — a distribution over the <code>S</code> possible initial states, before any observation has arrived. It encodes everything we believe at time zero.</li>
+  <li><strong>A transition model</strong> <code>P(X<sub>t</sub> | X<sub>t-1</sub>)</code> — an <code>S × S</code> matrix <code>T</code> whose entry <code>T<sub>ij</sub> = P(X<sub>t</sub> = j | X<sub>t-1</sub> = i)</code> gives the probability of moving from state <code>i</code> to state <code>j</code>. Each row sums to 1.</li>
+  <li><strong>A sensor (emission/observation) model</strong> <code>P(E<sub>t</sub> | X<sub>t</sub>)</code> — the probability of each possible observation given each possible state.</li>
+</ul>
+
+<p>Both the transition and sensor models are assumed <strong>stationary</strong>: the same matrix and the same emission probabilities are reused at every time step. This is what makes it possible to describe an infinitely long process with a finite number of parameters, and it is why we can write a single recursion and apply it over and over.</p>
+
+<p>Two independence assumptions give the model its tractability.</p>
+
+<ul>
+  <li>The <strong>(first-order) Markov assumption</strong>: <code>P(X<sub>t</sub> | X<sub>0:t-1</sub>, E<sub>1:t-1</sub>) = P(X<sub>t</sub> | X<sub>t-1</sub>)</code>. The next state depends on the whole past <em>only</em> through the immediately preceding state. The state variable is required to be a <em>sufficient statistic</em> for the future: if it is not, the fix is to enlarge the state (e.g. include velocity as well as position, or use a second-order model whose state is the pair <code>(X<sub>t-1</sub>, X<sub>t</sub>)</code>).</li>
+  <li>The <strong>sensor Markov assumption</strong>: <code>P(E<sub>t</sub> | X<sub>0:t</sub>, E<sub>1:t-1</sub>) = P(E<sub>t</sub> | X<sub>t</sub>)</code>. The reading at time <code>t</code> is produced by the state at time <code>t</code> and nothing else; past readings add no further information once the current state is known.</li>
+</ul>
+
+<p>Together these give the full joint distribution over any finite horizon as a product of local factors:</p>
+
+<pre><code>P(X0:t, E1:t) = P(X0) · ∏ from i=1 to t of [ P(Xi | Xi-1) · P(Ei | Xi) ]</code></pre>
+
+<p>Graphically this is a Bayesian network shaped like a chain: <code>X0 → X1 → X2 → ...</code>, with a dangling child <code>E<sub>i</sub></code> hanging off each <code>X<sub>i</sub></code>. The prior plus the two models are <em>sufficient</em> to answer every query, because every query is just a marginal or conditional of this joint, and the joint is fully determined by them.</p>
+
+<p>Notation: <code>e<sub>1:t</sub></code> abbreviates the observed sequence <code>e<sub>1</sub>, e<sub>2</sub>, …, e<sub>t</sub></code>. The four standard inference tasks are then</p>
+
+<ul>
+  <li><strong>Filtering</strong>: compute <code>P(X<sub>t</sub> | e<sub>1:t</sub>)</code> — the belief about the present.</li>
+  <li><strong>Prediction</strong>: compute <code>P(X<sub>t+k</sub> | e<sub>1:t</sub>)</code> for <code>k &gt; 0</code> — belief about the future.</li>
+  <li><strong>Smoothing</strong>: compute <code>P(X<sub>k</sub> | e<sub>1:t</sub>)</code> for <code>0 ≤ k &lt; t</code> — a revised belief about the past.</li>
+  <li><strong>Most likely explanation (MLE / decoding)</strong>: compute <code>argmax<sub>x<sub>1:t</sub></sub> P(x<sub>1:t</sub> | e<sub>1:t</sub>)</code> — the single best whole trajectory.</li>
+</ul>
+
+<p><strong>The running example: the umbrella world</strong></p>
+
+<p>A guard works in an underground facility and cannot see the weather. Each day the guard observes only whether the director arrives carrying an umbrella. The hidden state is <code>R<sub>t</sub></code> ("it rains on day <code>t</code>"), the evidence is <code>U<sub>t</sub></code> ("the director carries an umbrella on day <code>t</code>"). The model is:</p>
+
+<table>
+  <thead>
+    <tr><th>Component</th><th>Condition</th><th>Probability of <code>true</code></th><th>Probability of <code>false</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Prior <code>P(R<sub>0</sub>)</code></td><td>—</td><td>0.5</td><td>0.5</td></tr>
+    <tr><td>Transition <code>P(R<sub>t</sub> | R<sub>t-1</sub>)</code></td><td><code>R<sub>t-1</sub> = true</code></td><td>0.7</td><td>0.3</td></tr>
+    <tr><td>Transition <code>P(R<sub>t</sub> | R<sub>t-1</sub>)</code></td><td><code>R<sub>t-1</sub> = false</code></td><td>0.3</td><td>0.7</td></tr>
+    <tr><td>Sensor <code>P(U<sub>t</sub> | R<sub>t</sub>)</code></td><td><code>R<sub>t</sub> = true</code></td><td>0.9</td><td>0.1</td></tr>
+    <tr><td>Sensor <code>P(U<sub>t</sub> | R<sub>t</sub>)</code></td><td><code>R<sub>t</sub> = false</code></td><td>0.2</td><td>0.8</td></tr>
+  </tbody>
+</table>
+
+<p>Read the sensor model carefully: the umbrella is <em>evidence about</em> the rain, not a cause of it. The arrow runs <code>R<sub>t</sub> → U<sub>t</sub></code>, and inference runs against the arrow, which is exactly what Bayes' rule is for.</p>
+
+<p><strong>Filtering: maintaining the current belief state</strong></p>
+
+<p>The key insight is that filtering can be done <strong>recursively</strong>: there exists a function <code>f</code> such that</p>
+
+<pre><code>P(X(t+1) | e(1:t+1)) = f( e(t+1), P(Xt | e(1:t)) )</code></pre>
+
+<p>i.e. the new belief depends on the old belief and the newest observation only. The old evidence need never be stored or revisited. The derivation uses nothing but the three operations of probabilistic inference — conditioning, marginalisation, and Bayes' rule — plus the two Markov assumptions:</p>
+
+<pre><code>P(X(t+1) | e(1:t+1))
+  = P(X(t+1) | e(1:t), e(t+1))
+  = α · P(e(t+1) | X(t+1), e(1:t)) · P(X(t+1) | e(1:t))      [Bayes' rule, conditioned on e(1:t)]
+  = α · P(e(t+1) | X(t+1)) · P(X(t+1) | e(1:t))               [sensor Markov assumption]
+  = α · P(e(t+1) | X(t+1)) · Σ over xt of
+            P(X(t+1) | xt) · P(xt | e(1:t))                   [marginalise over Xt; Markov assumption]</code></pre>
+
+<p>Here <code>α</code> is a normalising constant. The formula has two clearly separated phases:</p>
+
+<ul>
+  <li><strong>Predict (time update)</strong>: push the current belief one step forward through the transition model, <code>P(X<sub>t+1</sub> | e<sub>1:t</sub>) = Σ<sub>x<sub>t</sub></sub> P(X<sub>t+1</sub> | x<sub>t</sub>) P(x<sub>t</sub> | e<sub>1:t</sub>)</code>. This phase always <em>increases</em> (or at best preserves) uncertainty, because it mixes the belief through a stochastic matrix.</li>
+  <li><strong>Update (measurement update)</strong>: multiply the predicted distribution pointwise by the likelihood of the new observation, <code>P(e<sub>t+1</sub> | X<sub>t+1</sub>)</code>. This phase generally <em>decreases</em> uncertainty, because it down-weights states that would have been unlikely to produce what we saw.</li>
+  <li><strong>Normalise</strong>: the pointwise product is not a distribution; divide by its sum so the entries total 1. The sum that you divide by is itself meaningful — it equals <code>P(e<sub>t+1</sub> | e<sub>1:t</sub>)</code>, the one-step predictive likelihood of the observation, and the product of these constants over the whole sequence is the data likelihood <code>P(e<sub>1:t</sub>)</code>.</li>
+</ul>
+
+<p>Writing the belief as a column vector <code>f<sub>1:t</sub></code> and letting <code>O<sub>t</sub></code> be the diagonal matrix whose <code>i</code>-th diagonal entry is <code>P(e<sub>t</sub> | X<sub>t</sub> = i)</code>, the whole step compresses to the matrix form</p>
+
+<pre><code>f(1:t+1) = α · O(t+1) · Tᵀ · f(1:t)      with f(1:0) = P(X0)</code></pre>
+
+<p>Let us run it on the umbrella world, observing an umbrella on day 1 (<code>u<sub>1</sub></code>) and again on day 2 (<code>u<sub>2</sub></code>).</p>
+
+<p><em>Day 1.</em> Predict: <code>P(R<sub>1</sub>) = 0.7×0.5 + 0.3×0.5 = 0.5</code> for rain, and likewise 0.5 for no rain — the symmetric prior is a fixed point of this transition matrix, so prediction changes nothing. Update with <code>u<sub>1</sub></code>: multiply by the likelihoods <code>⟨0.9, 0.2⟩</code> to get <code>⟨0.9×0.5, 0.2×0.5⟩ = ⟨0.45, 0.10⟩</code>. Normalise by <code>0.55</code>: <code>P(R<sub>1</sub> | u<sub>1</sub>) = ⟨0.818, 0.182⟩</code>. One umbrella sighting has lifted belief in rain from 0.5 to roughly <strong>0.82</strong>.</p>
+
+<p><em>Day 2.</em> Predict: <code>0.7×0.818 + 0.3×0.182 = 0.627</code>; the predicted vector is <code>⟨0.627, 0.373⟩</code> — note that it has drifted back toward 0.5, the inevitable cost of a time step. Update with <code>u<sub>2</sub></code>: <code>⟨0.9×0.627, 0.2×0.373⟩ = ⟨0.565, 0.075⟩</code>, normalise by 0.639 to obtain <code>P(R<sub>2</sub> | u<sub>1</sub>, u<sub>2</sub>) = ⟨0.883, 0.117⟩</code>.</p>
+
+<table>
+  <thead>
+    <tr><th>Step</th><th>Quantity</th><th>P(rain)</th><th>P(no rain)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>t = 0</td><td>prior</td><td>0.500</td><td>0.500</td></tr>
+    <tr><td>t = 1</td><td>after predict</td><td>0.500</td><td>0.500</td></tr>
+    <tr><td>t = 1</td><td>after update with u₁ (normalised)</td><td>0.818</td><td>0.182</td></tr>
+    <tr><td>t = 2</td><td>after predict</td><td>0.627</td><td>0.373</td></tr>
+    <tr><td>t = 2</td><td>after update with u₂ (normalised)</td><td>0.883</td><td>0.117</td></tr>
+  </tbody>
+</table>
+
+<p>Notice the characteristic saw-tooth: each prediction pulls belief toward the middle, each observation pushes it back out. With repeated consistent evidence the belief climbs toward an equilibrium just above 0.88 rather than to 1.0, because the transition model keeps injecting the possibility that the weather simply changed.</p>
+
+<pre><code>FORWARD-STEP(f, e):              # f is a length-S vector, e the new observation
+    for each state j:
+        pred[j] = Σ over i of  T[i][j] * f[i]        # predict
+        new[j]  = P(e | X = j) * pred[j]             # update
+    return NORMALISE(new)</code></pre>
+
+<p><strong>Cost.</strong> Each step is one matrix–vector product plus a pointwise multiplication: <code>O(S²)</code> arithmetic operations, or <code>O(S)</code> if the transition structure is sparse. Crucially, the cost and the memory are <strong>constant per step and independent of <code>t</code></strong>: we keep one vector of <code>S</code> numbers and overwrite it. This is what makes filtering suitable for an agent that must run forever — a robot localising itself, a speech recogniser consuming audio frames, a credit-card system scoring transactions as they arrive. A practical caveat: after many steps the unnormalised numbers underflow, so implementations either renormalise every step (as above, which is standard) or work with log-probabilities.</p>
+
+<p><strong>Prediction: projecting belief into the future</strong></p>
+
+<p>Prediction is filtering with the update phase deleted. Having filtered up to time <code>t</code>, we simply apply the transition model repeatedly:</p>
+
+<pre><code>P(X(t+k+1) | e(1:t)) = Σ over x(t+k) of P(X(t+k+1) | x(t+k)) · P(x(t+k) | e(1:t))</code></pre>
+
+<p>In matrix form, <code>P(X<sub>t+k</sub> | e<sub>1:t</sub>) = (Tᵀ)<sup>k</sup> f<sub>1:t</sub></code>. No normalisation is needed, because a stochastic matrix maps distributions to distributions exactly.</p>
+
+<p>Because no evidence is injected, each extra step forward can only add uncertainty. Continuing the umbrella example from <code>⟨0.883, 0.117⟩</code> at day 2 and predicting forward with no further umbrella sightings:</p>
+
+<table>
+  <thead>
+    <tr><th>Day</th><th>P(rain | u₁, u₂)</th><th>Entropy (bits)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>2 (filtered)</td><td>0.883</td><td>0.52</td></tr>
+    <tr><td>3</td><td>0.653</td><td>0.93</td></tr>
+    <tr><td>4</td><td>0.561</td><td>0.99</td></tr>
+    <tr><td>5</td><td>0.525</td><td>1.00</td></tr>
+    <tr><td>6</td><td>0.510</td><td>1.00</td></tr>
+    <tr><td>10</td><td>0.5002</td><td>1.00</td></tr>
+  </tbody>
+</table>
+
+<p>The sequence converges to <code>⟨0.5, 0.5⟩</code>. That limit is the <strong>stationary distribution</strong> of the Markov chain: the unique vector <code>π</code> satisfying <code>π = Tᵀπ</code> (here, by symmetry, the uniform distribution). For any ergodic chain — one that is irreducible and aperiodic, which holds whenever every transition probability is strictly positive — the powers <code>(Tᵀ)<sup>k</sup></code> converge to a matrix all of whose columns equal <code>π</code>, so the prediction forgets its starting point entirely. Once that has happened, prediction is <strong>uninformative</strong>: the answer is the same whether we saw ten umbrellas or none, and the evidence has no lasting influence on the far future.</p>
+
+<p>How fast this happens is governed by the <strong>mixing time</strong> of the chain, which is controlled by the magnitude of the second-largest eigenvalue modulus <code>|λ₂|</code> of <code>T</code>; the deviation from stationarity shrinks roughly like <code>|λ₂|<sup>k</sup></code>. For the umbrella transition matrix the eigenvalues are 1 and 0.4, so each day's prediction moves 60 % of the remaining distance to 0.5 — which is exactly the pattern of the table (0.383 → 0.153 → 0.061 → 0.025 excess above 0.5). A "sticky" world with transition probabilities of 0.99 would have <code>λ₂ = 0.98</code> and a mixing time of hundreds of steps, so useful forecasts would extend much further. The practical rule: <em>the predictive horizon of an HMM is a property of the transition model, not of how much evidence you have gathered.</em> Gathering more data sharpens <code>f<sub>1:t</sub></code> but does not extend the horizon.</p>
+
+<p><strong>Smoothing and the forward–backward algorithm</strong></p>
+
+<p>Smoothing asks for <code>P(X<sub>k</sub> | e<sub>1:t</sub>)</code> with <code>k &lt; t</code>: what should we now believe about a past time slice, in the light of everything that happened afterwards? Hindsight genuinely helps — if it rained for the next five days, that raises our belief that it was already raining on day 1, because the transition model makes rain persistent.</p>
+
+<p>Split the evidence at <code>k</code> and apply Bayes' rule plus conditional independence (given <code>X<sub>k</sub></code>, the past evidence and the future evidence are independent — this is exactly d-separation in the chain):</p>
+
+<pre><code>P(Xk | e(1:t)) = α · P(Xk | e(1:k)) · P(e(k+1:t) | Xk)
+               = α · f(1:k) × b(k+1:t)</code></pre>
+
+<p>where <code>×</code> denotes pointwise (component-by-component) multiplication. The first factor <code>f<sub>1:k</sub></code> is <strong>exactly the filtered belief</strong> already computed by the forward recursion — nothing new is needed. The second factor <code>b<sub>k+1:t</sub></code> is a <em>likelihood</em>, not a distribution (its entries need not sum to 1), and it obeys its own recursion running backwards:</p>
+
+<pre><code>P(e(k+1:t) | Xk) = Σ over x(k+1) of
+       P(e(k+1) | x(k+1)) · P(e(k+2:t) | x(k+1)) · P(x(k+1) | Xk)</code></pre>
+
+<p>or in matrix form <code>b<sub>k+1:t</sub> = T · O<sub>k+1</sub> · b<sub>k+2:t</sub></code>, with the base case <code>b<sub>t+1:t</sub> = ⟨1, 1, …, 1⟩</code> (there is no evidence after the end, so the likelihood of "nothing" is 1 for every state).</p>
+
+<p><em>Worked smoothing in the umbrella world.</em> We saw umbrellas on days 1 and 2 and want <code>P(R<sub>1</sub> | u<sub>1</sub>, u<sub>2</sub>)</code>. The forward message is <code>f<sub>1:1</sub> = ⟨0.818, 0.182⟩</code> from before. The backward message for day 2 onward is</p>
+
+<pre><code>b(2:2)[rain]    = Σ_{r2} P(u2 | r2) P(∅ | r2) P(r2 | R1 = rain)
+                = 0.9·1·0.7 + 0.2·1·0.3 = 0.63 + 0.06 = 0.69
+b(2:2)[no rain] = 0.9·1·0.3 + 0.2·1·0.7 = 0.27 + 0.14 = 0.41</code></pre>
+
+<p>Multiply pointwise and normalise: <code>α⟨0.818 × 0.69, 0.182 × 0.41⟩ = α⟨0.5646, 0.0746⟩ = ⟨0.883, 0.117⟩</code>. Belief that day 1 was rainy rises from the filtered 0.818 to the smoothed <strong>0.883</strong>, because the day-2 umbrella is retrospective evidence for day-1 rain. (The numerical coincidence with <code>P(R<sub>2</sub>|u<sub>1</sub>,u<sub>2</sub>)</code> is an artefact of this symmetric model, not a general rule.)</p>
+
+<table>
+  <thead>
+    <tr><th>Query about day 1</th><th>Evidence used</th><th>P(rain on day 1)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Prior</td><td>none</td><td>0.500</td></tr>
+    <tr><td>Filtered</td><td>u₁</td><td>0.818</td></tr>
+    <tr><td>Smoothed</td><td>u₁, u₂</td><td>0.883</td></tr>
+  </tbody>
+</table>
+
+<p>The naïve way to smooth a whole sequence would be to redo this separately for each <code>k</code>, costing <code>O(t²)</code>. The <strong>forward–backward algorithm</strong> avoids that: run the forward recursion once from 1 to <code>t</code>, <em>caching</em> every message <code>f<sub>1:1</sub>, …, f<sub>1:t</sub></code>; then run the backward recursion once from <code>t</code> down to 1, and at each <code>k</code> combine the stored forward message with the current backward message. Total cost <code>O(t·S²)</code> time — linear in sequence length — with <code>O(t·S)</code> space for the cache.</p>
+
+<pre><code>FORWARD-BACKWARD(e(1:t), prior):
+    f[0] ← prior
+    for i = 1 to t:  f[i] ← NORMALISE( O[i] · Tᵀ · f[i-1] )    # store every f
+    b ← ⟨1,...,1⟩
+    for i = t down to 1:
+        sv[i] ← NORMALISE( f[i] × b )                           # smoothed estimate
+        b ← T · O[i] · b                                        # roll b back one step
+    return sv[1..t]</code></pre>
+
+<p>The <code>O(t·S)</code> space requirement is the real limitation: it rules out running the algorithm forever on a streaming signal. Two remedies are common. First, <strong>fixed-lag smoothing</strong> computes <code>P(X<sub>t-d</sub> | e<sub>1:t</sub>)</code> for a fixed lag <code>d</code> — the system reports a slightly delayed but better-informed estimate, keeping only the last <code>d</code> messages in a sliding window, which gives constant time and space per step (for HMMs, by incrementally multiplying the new observation matrix in at the front of the window and dividing the old one out at the back). A speech recogniser that lags half a second behind the speaker, or a GPS track-cleaner that reports your position as of two seconds ago, is doing exactly this. Second, for the whole-sequence case one can use a divide-and-conquer or checkpointing scheme that trades a logarithmic factor of time for a square-root or logarithmic reduction in space.</p>
+
+<p>Smoothing is also the <em>E</em> step of the Baum–Welch (EM) algorithm that <em>learns</em> HMM parameters from unlabelled sequences: the smoothed single-slice posteriors and the smoothed pairwise posteriors <code>P(X<sub>k</sub>, X<sub>k+1</sub> | e<sub>1:t</sub>) ∝ f<sub>1:k</sub>[i] · T[i][j] · P(e<sub>k+1</sub>|j) · b<sub>k+2:t</sub>[j]</code> become the expected counts from which the new transition and sensor tables are re-estimated.</p>
+
+<p><strong>Most likely explanation and the Viterbi algorithm</strong></p>
+
+<p>Suppose the umbrella appears on days 1, 2, 4 and 5 but not on day 3, and we want the single most probable weather sequence <code>argmax<sub>r<sub>1:5</sub></sub> P(r<sub>1:5</sub> | u<sub>1:5</sub>)</code>. Enumerating all <code>S<sup>t</sup></code> sequences (here 2⁵ = 32, but 2¹⁰⁰ for a longer run) is hopeless. The saving observation is a dynamic-programming one: <em>the most likely path to a given state at time <code>t+1</code> must consist of the most likely path to some state at time <code>t</code>, extended by one step.</em> So we only need to keep, for each state, the best path ending there.</p>
+
+<p>Define <code>m<sub>1:t</sub>[i] = max<sub>x<sub>1:t-1</sub></sub> P(x<sub>1:t-1</sub>, X<sub>t</sub> = i, e<sub>1:t</sub>)</code>. The recursion is the forward recursion with the summation replaced by a maximisation — <strong>max-product instead of sum-product</strong>:</p>
+
+<pre><code>m(1:t+1)[j] = P(e(t+1) | X(t+1)=j) · max over i of ( T[i][j] · m(1:t)[i] )
+ptr(t+1)[j] = argmax over i of ( T[i][j] · m(1:t)[i] )</code></pre>
+
+<p>The second line is the <strong>back-pointer</strong>: for each state at the new time step we record which predecessor achieved the maximum. When the final step is reached, we take the largest entry of <code>m<sub>1:t</sub></code>, and then <em>trace the back-pointers backwards</em> from it to recover the entire optimal path. This back-tracking phase is what distinguishes Viterbi from a mere score computation.</p>
+
+<p>Running it on <code>u<sub>1:5</sub> = ⟨true, true, false, true, true⟩</code> with the umbrella model (values are joint probabilities of best-path-and-evidence, not normalised posteriors):</p>
+
+<table>
+  <thead>
+    <tr><th>Day</th><th>Observation</th><th>m[rain]</th><th>m[no rain]</th><th>back-ptr for rain</th><th>back-ptr for no rain</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>umbrella</td><td>0.8182</td><td>0.1818</td><td>—</td><td>—</td></tr>
+    <tr><td>2</td><td>umbrella</td><td>0.5155</td><td>0.0491</td><td>rain</td><td>rain</td></tr>
+    <tr><td>3</td><td>no umbrella</td><td>0.0361</td><td>0.1237</td><td>rain</td><td>rain</td></tr>
+    <tr><td>4</td><td>umbrella</td><td>0.0334</td><td>0.0173</td><td>no rain</td><td>no rain</td></tr>
+    <tr><td>5</td><td>umbrella</td><td>0.0210</td><td>0.0024</td><td>rain</td><td>rain</td></tr>
+  </tbody>
+</table>
+
+<p>(Day 1 is initialised as <code>P(e<sub>1</sub>|R<sub>1</sub>) · Σ<sub>r<sub>0</sub></sub>P(R<sub>1</sub>|r<sub>0</sub>)P(r<sub>0</sub>)</code>, normalised here for readability.) The largest day-5 entry is <code>rain</code> at 0.0210. Tracing back: day 5 rain ← day 4 rain ← day 3 <strong>no rain</strong> ← day 2 rain ← day 1 rain. The most likely explanation is therefore <code>⟨rain, rain, no rain, rain, rain⟩</code>. Note how the single missing umbrella on day 3 is enough to flip that slice even though rain is "sticky": the sensor model says a rainy day produces no umbrella only 10 % of the time.</p>
+
+<p><strong>Why Viterbi is not the same as per-slice argmax.</strong> A tempting shortcut is to smooth every time step and then take the most probable state at each step independently. This gives the sequence of <em>marginally</em> most likely states, which is a different object from the <em>jointly</em> most likely sequence, and it can be catastrophically wrong: the resulting sequence may have probability <strong>zero</strong> under the model. Imagine a three-state system in which the transition <code>A → B</code> is forbidden (<code>T[A][B] = 0</code>); if slice 7 is 51 % <code>A</code> and slice 8 is 51 % <code>B</code>, per-slice argmax outputs "…A, B…", an impossible trajectory that no amount of post-processing can rescue. Viterbi, because it maximises the joint probability of the whole path, can never return a path of probability zero if any positive-probability path exists. The flip side: Viterbi's single best path may itself have tiny absolute probability and may not maximise the number of individually correct slices. Choose per-slice smoothing when you are scored per time step; choose Viterbi when you need a globally coherent, legal sequence (a word transcription, a gene annotation, a decoded bit stream).</p>
+
+<p><strong>Cost and implementation notes.</strong> Viterbi performs the same number of arithmetic operations as the forward pass: <code>O(t·S²)</code> time, i.e. <strong>linear in sequence length and quadratic in the number of states</strong>. Unlike filtering, it needs <code>O(t·S)</code> space to store the back-pointer lattice, since the path cannot be recovered without it. Because the <code>m</code> values are products of many small numbers, real implementations work in logarithms, where max-product becomes a max-plus recursion, <code>log m<sub>t+1</sub>[j] = log P(e<sub>t+1</sub>|j) + max<sub>i</sub>(log T[i][j] + log m<sub>t</sub>[i])</code>, which is numerically stable and uses only additions and comparisons. Viterbi may also be read as a shortest-path computation in a layered graph (the "trellis") whose edge weights are negative log probabilities.</p>
+
+<p><strong>Comparing the tasks and choosing an algorithm</strong></p>
+
+<p>All four tasks are questions about the same joint distribution, differing only in <em>which</em> time slice (or slices) they ask about and in whether they sum or maximise:</p>
+
+<table>
+  <thead>
+    <tr><th>Task</th><th>Query</th><th>Time asked about</th><th>Algorithm</th><th>Passes</th><th>Time</th><th>Space</th><th>Online?</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Filtering</td><td><code>P(X<sub>t</sub> | e<sub>1:t</sub>)</code></td><td>the present</td><td>Forward recursion</td><td>forward only</td><td><code>O(S²)</code> per step</td><td><code>O(S)</code></td><td>Yes</td></tr>
+    <tr><td>Prediction</td><td><code>P(X<sub>t+k</sub> | e<sub>1:t</sub>)</code></td><td>the future</td><td>Forward, no sensor update</td><td>forward only</td><td><code>O(k·S²)</code></td><td><code>O(S)</code></td><td>Yes</td></tr>
+    <tr><td>Smoothing</td><td><code>P(X<sub>k</sub> | e<sub>1:t</sub>)</code>, <code>k &lt; t</code></td><td>the past</td><td>Forward–backward</td><td>both</td><td><code>O(t·S²)</code></td><td><code>O(t·S)</code></td><td>Offline, or with fixed lag <code>d</code></td></tr>
+    <tr><td>Most likely explanation</td><td><code>argmax P(x<sub>1:t</sub> | e<sub>1:t</sub>)</code></td><td>the whole sequence</td><td>Viterbi</td><td>forward max + back-trace</td><td><code>O(t·S²)</code></td><td><code>O(t·S)</code></td><td>Score online, path offline</td></tr>
+  </tbody>
+</table>
+
+<p>Several structural points tie the family together:</p>
+
+<ul>
+  <li><strong>Filtering and prediction are the online pair.</strong> They need only the current message, so an agent can run them in a perception–action loop forever. Prediction is just filtering with the eyes closed, and its value decays on the timescale of the chain's mixing time.</li>
+  <li><strong>Smoothing is the offline (or lagged) task.</strong> It needs information from the future, so either the sequence must be complete or the answer must be delayed by <code>d</code> steps. In exchange it is strictly more accurate than filtering for any slice before the present, because it conditions on strictly more evidence.</li>
+  <li><strong>Viterbi shares filtering's recursive skeleton</strong> — same lattice, same <code>O(t·S²)</code> work, same message-passing shape — and differs only in using <code>max</code> where filtering uses <code>Σ</code>, plus the book-keeping of back-pointers. Sum-product answers "how much total probability flows into this state?"; max-product answers "what is the single heaviest path into this state?".</li>
+  <li><strong>Everything here is a specialisation of general Bayesian-network inference.</strong> The forward recursion is precisely variable elimination run left-to-right on the chain-structured network, eliminating <code>X<sub>0</sub></code>, then <code>X<sub>1</sub></code>, and so on; the forward and backward messages are the intermediate factors. The reason exact inference is cheap here — linear rather than exponential — is that the chain has treewidth 1, so every intermediate factor involves a single variable and never grows. The conditional independences that justify the recursions (future ⊥ past given present; evidence ⊥ everything else given its own state) are exactly what d-separation reports on the chain graph. Smoothing's factorisation <code>f × b</code> is the two-way message passing of the junction-tree/belief-propagation algorithm applied to a chain, and the same algorithms generalise: to continuous Gaussian states they become the Kalman filter and the Rauch–Tung–Striebel smoother; to richer state factorisations they become dynamic Bayesian networks, where exact inference may again become intractable and particle filtering or other approximations take over.</li>
+</ul>
+
+<p><strong>A checklist for choosing.</strong> Ask three questions. (1) <em>Which slice do I need?</em> Present → filtering; future → prediction; past → smoothing; the whole path → Viterbi. (2) <em>Can I wait?</em> If decisions must be made now, you are limited to the forward pass; if you can tolerate a delay <code>d</code>, fixed-lag smoothing buys accuracy cheaply; if the data are archival, use full forward–backward. (3) <em>Do I need a coherent sequence or per-slice estimates?</em> If a downstream consumer requires a legal trajectory, use Viterbi even though per-slice posteriors would score better on per-slice accuracy; if you need calibrated uncertainty at each step, use smoothing, because Viterbi returns a path with no probabilities attached to individual slices.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> Strongly supported. Every recursion in this topic is derived by marginalisation, conditioning and Bayes' rule applied to the HMM joint distribution, and the filtering, smoothing and Viterbi examples are worked numerically, including the renormalisation step that turns a product of factors into a posterior.</li>
+  <li><strong>MO2:</strong> Partially supported. The HMM is presented as a chain-structured Bayesian network with an explicit DAG (<code>X<sub>0</sub> → X<sub>1</sub> → …</code> with evidence children) and explicit conditional probability tables for the prior, transition and sensor models, so it illustrates network construction for a temporal domain without covering general network design.</li>
+  <li><strong>MO3:</strong> Partially supported. The derivations of the filtering and smoothing recursions rest on the Markov and sensor Markov assumptions, and the split <code>P(X<sub>k</sub>|e<sub>1:t</sub>) ∝ f<sub>1:k</sub> × b<sub>k+1:t</sub></code> is justified by the d-separation fact that past and future evidence are independent given the state at time <code>k</code>.</li>
+  <li><strong>MO4:</strong> Partially supported. The topic compares exact algorithms on accuracy and cost (forward vs. forward–backward vs. Viterbi, <code>O(S²)</code> per step vs. <code>O(t·S²)</code>, constant vs. <code>O(t·S)</code> memory) and notes where exact chain inference is a special, cheap case of variable elimination, but it does not treat rejection sampling, likelihood weighting or Gibbs sampling, which are mentioned only in passing as the fallback for intractable dynamic models.</li>
+  <li><strong>MO5:</strong> Directly and fully supported. The forward, forward–backward and Viterbi algorithms are stated in pseudocode and executed step by step on the umbrella world to answer filtering, smoothing and most-likely-explanation queries.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Numerical values follow the standard umbrella-world example (Russell &amp; Norvig): filtered P(R₁|u₁)=0.818, P(R₂|u₁,u₂)=0.883, smoothed P(R₁|u₁,u₂)=0.883, and the Viterbi path for ⟨u,u,¬u,u,u⟩ is ⟨rain, rain, no rain, rain, rain⟩. Prediction entries in the convergence table were generated by repeated application of Tᵀ to ⟨0.883, 0.117⟩ and are rounded to three decimals; the 60 %-per-step contraction matches λ₂ = 0.4. The Viterbi table's day-1 row is normalised for readability, which does not affect the argmax or the back-pointers. Possible extensions for instructors: deriving P(e₁:t) as the product of the filtering normalisation constants, the pairwise smoothed posterior used in Baum–Welch, and the trellis/shortest-path reading of Viterbi in log space.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>A Hidden Markov Model (HMM) describes a system that changes over time through a sequence of hidden states that we cannot observe directly. Instead, at each time step we receive an observation (evidence) that depends probabilistically on the current hidden state. The model is specified by three pieces: an initial state distribution, a transition model giving the probability of moving from one state to the next, and an emission (sensor) model giving the probability of each observation given a state. Because the state at time t depends only on the state at time t-1, and the observation depends only on the current state, we can reason about long sequences efficiently with dynamic programming instead of enumerating every possible state path.</p>
+<p>This topic organizes HMM reasoning into four standard inference tasks. Filtering asks for the belief about the current state given all evidence so far, and is computed recursively by the forward algorithm. Prediction projects that belief forward past the last observation using only the transition model. Smoothing asks about a past state given all the evidence, including evidence that arrived later, and is handled by combining forward messages with backward messages (the forward-backward algorithm). Most likely explanation asks for the single best state sequence as a whole, which is the job of the Viterbi algorithm. These tasks matter in this course because they turn the general Bayesian-network machinery of the module into a practical, tractable procedure for sequential data such as speech, part-of-speech tagging, robot localization, and gene sequence analysis.</p>
+<p>As you watch, keep three questions in mind. First, which evidence is being conditioned on in each task, and how does that change the recursion? Second, what is stored in each cell of the dynamic programming table, and how is it computed from the previous column? Third, where does Viterbi differ from the forward algorithm: Viterbi replaces the sum over predecessor states with a maximum and keeps backpointers so the best path can be recovered. Tracking those differences will make the four tasks feel like variations on one pattern rather than four separate formulas.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Viterbi Algorithm</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Xh3mf9O5SL0?cc_load_policy=1&amp;rel=0" title="Video: Viterbi Algorithm (Natalie Parde)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Natalie Parde</strong> · 10:47 · 10,089 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=Xh3mf9O5SL0" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This video walks through the Viterbi algorithm for finding the most likely hidden state sequence in an HMM, following the treatment in Jurafsky and Martin's Speech and Language Processing. Expect the dynamic programming trellis to be set up explicitly, with transition and emission probabilities multiplied into each cell, a max taken over predecessor states, and backpointers used to recover the best path at the end. Since the source text is a natural language processing textbook, the example is likely framed in terms of a tagging or decoding problem.</p>
+<h3>Why this video</h3>
+<p>It gives focused, worked coverage of the Most Likely Explanation subtopic from a widely used and reliable textbook source, and the step-by-step trellis presentation makes the max-versus-sum distinction concrete.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: 26. The forward and backward algorithms</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/LiyqBDGAMf0?cc_load_policy=1&amp;rel=0" title="Video: 26. The forward and backward algorithms (Kevin Bioinformatics)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Kevin Bioinformatics</strong> · 15:37 · 761 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=LiyqBDGAMf0" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This lecture covers both the forward and the backward algorithms for HMMs, including the definition of the dynamic programming table and a worked example that fills the table in step by step. The forward pass computes the probability of the evidence seen so far together with each possible current state, which is exactly what filtering requires; the backward pass computes the probability of future evidence given each state, which is the piece needed for smoothing.</p>
+<h3>Why this video</h3>
+<p>It is the most direct coverage of the filtering and forward-backward subtopics, and seeing the forward and backward recursions developed side by side with a shared example clarifies how smoothing combines the two messages.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: Week 9 Lecture 61 Hidden Markov Models</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/qGtth60V6nM?cc_load_policy=1&amp;rel=0" title="Video: Week 9 Lecture 61 Hidden Markov Models (Machine Learning- Balaraman Ravindran)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Machine Learning- Balaraman Ravindran</strong> · 10:32 · 6,443 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=qGtth60V6nM" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A university lecture segment introducing Hidden Markov Models and situating the inference questions within a broader machine learning course. The description indicates it covers the Viterbi algorithm along with maximum a posteriori and MAP inference, so expect the HMM framework and notation to be set up first and the most-probable-sequence query to be framed as a MAP problem over state sequences.</p>
+<h3>Why this video</h3>
+<p>It supplies the framework-and-setup subtopic and connects HMM decoding back to the general probabilistic inference vocabulary used elsewhere in the module, which helps when comparing tasks and choosing an algorithm.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos target MO5 most directly: the forward and backward algorithm lecture supplies the recursions for filtering and smoothing, the Viterbi video supplies the most-likely-explanation procedure with backpointer recovery, and the course lecture provides the HMM framework and notation that ties the queries together. Because every one of these algorithms is a structured application of marginalization, conditioning, and Bayes' rule over a temporal Bayesian network, the videos also reinforce MO1 and show how the independence structure assumed in MO2 and MO3 is what makes these efficient recursions possible. Prediction and the comparison of tasks are best consolidated from the course notes and practice problems, using the videos as the computational backbone.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

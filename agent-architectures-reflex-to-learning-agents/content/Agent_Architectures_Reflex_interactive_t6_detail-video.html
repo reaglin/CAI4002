@@ -1,0 +1,314 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning Agents</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Agent Architectures: Reflex to Learning Agents</a></div>
+  <header>
+    <h1>Learning Agents</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Learning Agents</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Every agent architecture examined so far — the simple reflex agent with its condition–action rules, the model-based reflex agent with its internal state and transition model, the goal-based agent with its explicit description of desirable world states, and the utility-based agent with its numerical preference function — shares a single structural dependency: <strong>somebody had to supply the knowledge in advance</strong>. A designer wrote the rules, encoded the model of how the world evolves, enumerated the goals, or calibrated the utility function. The agent is then only as good as the designer's foresight. A learning agent removes that ceiling. It is not a sixth, rival architecture so much as a <em>wrapper</em> that can be placed around any of the others, adding machinery that modifies the agent's own decision-making components in the light of experience.</p>
+
+<p>The classic statement of the idea is Turing's: rather than attempting to hand-program an intelligent machine, build a simpler machine and then teach it. The learning agent framework makes that proposal concrete by splitting an agent into four interacting parts — a <strong>performance element</strong>, a <strong>critic</strong>, a <strong>learning element</strong>, and a <strong>problem generator</strong> — and specifying precisely what information flows between them.</p>
+
+<p><strong>Why learning agents are needed.</strong> Three distinct pressures push a designer toward learning, and it is worth separating them because they imply different designs.</p>
+
+<ul>
+  <li><strong>Unanticipated situations.</strong> Real environments are combinatorially vast. A delivery robot's designer cannot enumerate every floor surface, every lighting condition, every arrangement of furniture, every unusual way a human might block a corridor. A rule set written in advance will inevitably encounter states it does not cover, and will then either fail silently or fall back on a default that may be badly wrong. Learning allows coverage to be grown from the environment itself rather than imagined ahead of time.</li>
+  <li><strong>Initially unknown environments.</strong> Sometimes the designer genuinely has no information to give. A Mars rover's designers do not know the traction properties of a particular regolith patch; an agent dropped into a new e-commerce marketplace does not know the demand curve. Here learning is not an optimisation — it is the only way the agent can acquire a usable policy at all. The agent must become <em>more competent than its initial program</em>, which is a stronger claim than merely becoming faster.</li>
+  <li><strong>Repairing faulty assumptions.</strong> Even where the designer supplied knowledge, that knowledge may be wrong or may go stale. A transition model that says "braking reduces speed by 5 m/s²" is wrong on wet tarmac. A utility function that weights fuel cost against delivery speed with a fixed exchange rate becomes miscalibrated when fuel prices triple. Experience provides the corrective signal: the agent observes the discrepancy between predicted and actual outcomes and adjusts. Environments also <em>change</em> — a non-stationary environment guarantees that a fixed program degrades over time.</li>
+</ul>
+
+<p>A useful way to see the generality of the idea: the thing being improved is always some component of a conventional agent. In a reflex agent, learning edits condition–action rules. In a model-based agent, learning refines the transition and sensor models. In a goal-based agent, learning improves knowledge about which action sequences achieve goals. In a utility-based agent, learning adjusts the utility estimates themselves. The learning wrapper is architecture-agnostic.</p>
+
+<p><strong>The four components.</strong> The following table summarises what each part does, what it consumes, and what it produces.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Component</th>
+      <th>Role</th>
+      <th>Input</th>
+      <th>Output</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Performance element</td>
+      <td>Selects actions — this is the "whole agent" of the previous architectures</td>
+      <td>Percepts (and internal state, goals, utilities)</td>
+      <td>Actions</td>
+    </tr>
+    <tr>
+      <td>Critic</td>
+      <td>Judges how well the agent is doing against a fixed external performance standard</td>
+      <td>Percepts / percept history, plus the performance standard</td>
+      <td>Feedback: an evaluation of recent behaviour</td>
+    </tr>
+    <tr>
+      <td>Learning element</td>
+      <td>Makes improvements to the performance element</td>
+      <td>Critic's feedback, plus knowledge of how the performance element is built</td>
+      <td>Changes to rules, models, goals, or utility estimates</td>
+    </tr>
+    <tr>
+      <td>Problem generator</td>
+      <td>Proposes exploratory actions that yield new, informative experience</td>
+      <td>Current knowledge and its gaps, learning goals</td>
+      <td>Suggested actions (possibly suboptimal in the short term)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The loop is continuous and can be stated in four words: <em>act, evaluate, modify, explore</em>. The performance element acts; the critic evaluates; the learning element modifies the performance element; the problem generator occasionally overrides the performance element's preferred action to generate experience the agent would otherwise never obtain. Note the direction of the arrows: the learning element writes <em>into</em> the performance element. The performance element does not know it is being taught; from its own perspective it is simply an agent whose rules happen to change.</p>
+
+<p>A concrete illustration. Consider an automated taxi.</p>
+
+<ul>
+  <li>The <strong>performance element</strong> contains everything needed to drive: perception, route planning, steering and braking rules.</li>
+  <li>The taxi makes a quick left turn across three lanes of traffic. The <strong>critic</strong> observes the ensuing percepts — horns sounding, a passenger's shocked expression, a near-miss registered by the proximity sensors — and, against a performance standard that includes "avoid alarming passengers and other drivers", reports this as poor performance.</li>
+  <li>The <strong>learning element</strong> formulates a new or modified rule: a condition–action rule that forbids three-lane turns, or a downward revision of the utility estimate for that manoeuvre.</li>
+  <li>The <strong>problem generator</strong> might later propose trying braking on a wet road surface in a safe, low-speed setting, because the agent's model of stopping distance under those conditions is poorly determined. This action is not what the current policy would choose, but it produces information.</li>
+</ul>
+
+<p><strong>The critic and the performance standard.</strong> The critic exists because the agent's own percepts do not come labelled with "good" or "bad". A sequence of percepts is just data; converting it into an evaluation requires an interpretive layer, and that layer requires a yardstick.</p>
+
+<p>The crucial design principle is that <strong>the performance standard is external to the agent and must not be modifiable by the agent</strong>. The reason is a degenerate-solution problem. If the agent could rewrite its own standard, the easiest route to "high performance" would be to lower the bar — the agent would learn to declare itself successful rather than to behave well. This is sometimes called reward hacking or specification gaming, and the external, fixed standard is the structural defence against the most blatant form of it. Humans face an analogue of this problem: it is far easier to redefine success than to achieve it.</p>
+
+<p>It is worth being precise about a distinction that students frequently blur:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Aspect</th>
+      <th>Performance measure (performance standard)</th>
+      <th>Utility function</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Whose it is</td>
+      <td>The designer's / the outside world's</td>
+      <td>The agent's own internal representation</td>
+    </tr>
+    <tr>
+      <td>Purpose</td>
+      <td>To judge the agent's behaviour from outside</td>
+      <td>To guide the agent's choice among available actions</td>
+    </tr>
+    <tr>
+      <td>Where it lives</td>
+      <td>In the critic, fixed</td>
+      <td>In the performance element, learnable</td>
+    </tr>
+    <tr>
+      <td>Scope</td>
+      <td>Evaluates environment state sequences over time</td>
+      <td>Evaluates states or state–action pairs for decision-making</td>
+    </tr>
+    <tr>
+      <td>Can the agent change it?</td>
+      <td>No</td>
+      <td>Yes — this is precisely what learning adjusts</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The ideal case is that the agent's utility function converges on something that maximises the external performance measure. The two are related — the utility function is, in effect, the agent's internal <em>hypothesis</em> about what the performance standard rewards — but they are never identical, and learning is the process of narrowing the gap. In a vacuum-world example, the performance standard might be "one point per square cleaned per time step, minus one point per unit of electricity consumed." The agent's utility function may begin as a crude proxy ("prefer moving toward visible dirt") and be refined until it approximates the true standard, including the energy penalty it initially ignored.</p>
+
+<p><strong>The learning element: what can actually be learned.</strong> Because the learning element modifies the performance element, the <em>design of the learning element depends entirely on the design of the performance element</em>. There is no generic learner; the learner must know what kind of thing it is editing.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Performance element architecture</th>
+      <th>Learnable component</th>
+      <th>Example of an improvement</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Simple reflex</td>
+      <td>Condition–action rules: add, strengthen, weaken, delete</td>
+      <td>A spam filter adds the rule "if subject contains 'wire transfer urgent' then quarantine" after repeated user corrections</td>
+    </tr>
+    <tr>
+      <td>Model-based reflex</td>
+      <td>Transition model ("how the world evolves") and sensor model ("how percepts relate to state")</td>
+      <td>A robot learns that its wheel odometry over-reports distance by 4% on carpet, and recalibrates</td>
+    </tr>
+    <tr>
+      <td>Goal-based</td>
+      <td>Action outcome knowledge, operator preconditions and effects, heuristics for goal achievement</td>
+      <td>A planner learns that "order part X" has a 10-day latency, so plans that assume 2 days fail</td>
+    </tr>
+    <tr>
+      <td>Utility-based</td>
+      <td>Utility estimates for states or state–action pairs; weights on competing objectives</td>
+      <td>A trading agent lowers the estimated utility of holding a position overnight after repeated gap-down losses</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Cutting across this is a second classification — the <em>kind of feedback</em> available, which determines what family of learning algorithm is applicable:</p>
+
+<ul>
+  <li><strong>Supervised learning.</strong> The agent is given input–output pairs: for each situation, the correct answer. A medical diagnosis agent shown thousands of labelled images learns a mapping from image to diagnosis. In the agent framework, this arises naturally when the agent can observe the <em>actual</em> outcome of a situation and compare it with its own prediction — the environment effectively labels the agent's percepts after the fact. A taxi that predicts "the car ahead will brake" and then perceives it braking has generated its own supervised training example.</li>
+  <li><strong>Unsupervised learning.</strong> No correct outputs are supplied; the agent discovers structure. A taxi driving agent, without being told, clusters driving conditions into categories resembling "good traffic day" and "bad traffic day", which can then be used as internal state features. Unsupervised learning alone cannot tell the agent what to <em>do</em>, because no preference information is present — but the representations it discovers make other learning easier.</li>
+  <li><strong>Reinforcement learning.</strong> The agent receives a scalar reward or penalty rather than a correct answer. The taxi receives no tips from passengers; it must work out for itself which aspects of its behaviour caused that. Reinforcement learning is the most general and the most difficult, because the feedback says "that was bad" without saying "here is what you should have done instead." It is also the natural fit for the learning agent architecture, because rewards are simply another percept that the critic interprets.</li>
+</ul>
+
+<p><strong>The problem generator, and exploration versus exploitation.</strong> If the performance element always chose the action it currently believed best, the agent would be trapped by its own ignorance. Actions it has never tried have no evidence in their favour, so they are never tried, so they never acquire evidence. The problem generator breaks this cycle by deliberately proposing actions whose <em>informational</em> value exceeds their immediate expected payoff.</p>
+
+<ul>
+  <li><strong>Exploitation</strong> is choosing the action with the highest expected value under current knowledge. It maximises reward <em>now</em>, assuming current beliefs are correct.</li>
+  <li><strong>Exploration</strong> is choosing an action with uncertain outcome in order to reduce that uncertainty and improve future decisions. It sacrifices expected reward now for better decisions later.</li>
+</ul>
+
+<p>The canonical illustration is the <em>multi-armed bandit</em>. Imagine a row of slot machines with unknown and different payout rates. After a few pulls, one machine has paid out twice out of three. Pure exploitation says: pull that lever forever. But three samples is nearly no evidence; the apparently best machine may in fact be the worst, and the agent will never find out. Pure exploration — pulling levers uniformly at random forever — gathers excellent statistics but never cashes in on them, so average reward stays mediocre permanently.</p>
+
+<p>The failure modes are symmetric and both serious:</p>
+
+<ul>
+  <li><strong>Pure exploitation</strong> locks the agent into a <em>local</em> optimum. A delivery robot that finds one workable route will keep using it even if a corridor twice as fast exists one floor down. The agent is not aware it is missing anything, because evidence of the alternative never arrives.</li>
+  <li><strong>Pure exploration</strong> never consolidates. Performance remains at the level of random behaviour, and the knowledge gained is never converted into value. In some domains it is also dangerous.</li>
+</ul>
+
+<p>Practical schemes therefore blend the two, typically with a bias toward exploration early and exploitation later, since early knowledge is poor and the remaining time over which to profit from new knowledge is long. Common mechanisms include:</p>
+
+<ul>
+  <li><strong>ε-greedy:</strong> with probability ε choose a random action, otherwise choose the best known. Often ε is <em>annealed</em> — decayed from, say, 0.3 toward 0.01 — so exploration fades as knowledge matures.</li>
+  <li><strong>Optimism in the face of uncertainty:</strong> initialise unexplored options with high estimated value, so the agent is naturally drawn to try them, and the estimates fall to reality as evidence accumulates.</li>
+  <li><strong>Confidence-bound methods:</strong> choose the action with the highest <em>upper</em> plausible value, which automatically favours options that are either genuinely good or genuinely under-sampled.</li>
+  <li><strong>Offline or simulated exploration:</strong> perform the risky experiments in a simulator or sandbox, then deploy what was learned. This decouples the cost of exploration from the real environment.</li>
+</ul>
+
+<pre><code>loop forever:
+    percept  := SENSE()
+    feedback := CRITIC(percept, PERFORMANCE_STANDARD)   # standard is read-only
+    LEARNING_ELEMENT.update(performance_element, feedback)
+
+    if PROBLEM_GENERATOR.wants_to_explore(knowledge_gaps) and SAFE(candidate):
+        action := PROBLEM_GENERATOR.suggest()           # informative, maybe suboptimal
+    else:
+        action := performance_element.decide(percept)   # best known action
+
+    ACT(action)
+</code></pre>
+
+<p><strong>Feedback signals and learning in unknown environments.</strong> The quality and timing of feedback shape what is learnable.</p>
+
+<ul>
+  <li><strong>Immediate reward and penalty.</strong> The simplest case: an action is followed directly by a scalar signal. Credit assignment is trivial — the action just taken is clearly responsible. Pain and hunger in biological agents work like this; so do a chess engine's immediate material gains.</li>
+  <li><strong>Delayed reward and the credit-assignment problem.</strong> Far harder. A chess agent receives a single signal — win, lose, draw — after perhaps sixty moves. Which move caused the loss? The blunder may have been move 14, with the final collapse merely its consequence. The agent must propagate credit backward through time. Techniques such as temporal-difference learning address this by using the agent's own later estimates to update earlier ones, in effect passing the evaluation signal back along the chain of states. A business analogue: a customer churns after eight months; was it the pricing change in month two, or the support interaction in month seven?</li>
+  <li><strong>Noisy and partial feedback.</strong> If the environment is stochastic, a good action can produce a bad outcome by chance. An agent that updates strongly on single episodes will <em>over-fit</em> — it will conclude the action is bad on one unlucky sample. The remedies are statistical: average over many episodes, use small learning rates so no single observation dominates, and hold out data to check that an apparent pattern generalises. Partial feedback compounds this: a recommender system learns only about items users actually clicked, never about the counterfactual performance of items it chose not to show, producing a self-reinforcing bias in the data it collects.</li>
+  <li><strong>Simultaneous model and policy learning.</strong> In a genuinely unknown environment, the agent does not have the luxury of learning the world first and then optimising within it. It must build the transition model and the policy concurrently, each informing the other — a chicken-and-egg problem, because a poor model produces poor exploration, which produces a poor model. This is why the problem generator is not an optional extra in unknown environments: it is the mechanism that keeps the model-building process fed with data from regions the current (poor) policy would avoid.</li>
+  <li><strong>Safety and irreversibility.</strong> The decisive practical constraint. Exploration is defensible when mistakes are recoverable; it is indefensible when they are not. A self-driving car must not "explore" whether a pedestrian crossing can be taken at 60 km/h. A surgical robot must not experiment on a patient. A trading agent must not explore position sizes that could bankrupt the fund. The standard response is to encode <strong>hard constraints outside the learning loop</strong>: a set of actions that the problem generator may never propose and the performance element may never select, regardless of estimated value. These constraints are a form of designer-supplied knowledge that learning is explicitly forbidden to override — the same logic that makes the performance standard immutable. Where possible, irreversible decisions are also wrapped in human approval, or rehearsed in simulation first.</li>
+</ul>
+
+<p><strong>Designing and justifying a learning agent.</strong> Adding learning is a design decision with costs, and should be argued for rather than assumed. A workable design procedure runs as follows.</p>
+
+<ul>
+  <li><strong>Identify the component that most needs improvement.</strong> Learning should be targeted, not diffuse. Ask: where does this agent's knowledge come from, and which part of it is most likely to be wrong or incomplete? If the physics of the domain are well understood but user preferences are not, learn the utility function and leave the transition model fixed. If the actuators are uncertain but the objective is crisp, learn the transition model. Learning everything at once multiplies data requirements and makes failures impossible to diagnose.</li>
+  <li><strong>Specify the external performance standard.</strong> Write down explicitly what the critic will measure, in terms of environment states and sequences, not in terms of the agent's internal variables. Scrutinise it for gaming opportunities: a cleaning agent rewarded for "dirt collected" may learn to dump dirt on the floor and re-collect it. If the standard omits something you care about — energy, safety, user annoyance — the agent will treat that thing as free and will exploit it.</li>
+  <li><strong>Choose a feedback mechanism suited to the environment.</strong> If ground-truth labels are obtainable cheaply (historical outcomes, human annotation), supervised learning is the efficient choice. If only a quality signal is available and the agent must discover its own actions, reinforcement learning is required. If the environment is partially observable, the agent must learn under uncertainty about its own state, which rules out the simplest methods. Match the technique to observability and to the reward structure, including its delay.</li>
+  <li><strong>Decide how much exploration is affordable.</strong> This is a function of the cost of mistakes. In a simulator or a recommender system, mistakes cost almost nothing and aggressive exploration is correct. In aviation, medicine, or finance, the exploration budget is close to zero in the live environment and must be spent in simulation, in shadow mode (the learner proposes but a trusted system acts), or on a small controlled fraction of traffic.</li>
+  <li><strong>Compare against a non-learning baseline.</strong> Learning adds real costs: data pipelines, training infrastructure, non-deterministic behaviour that complicates testing, drift that requires monitoring, and the risk that the agent gets <em>worse</em> on a bad batch of data. A fixed rule-based agent is auditable, reproducible, and cheap to maintain. Learning is justified when (a) the environment is genuinely unknown at design time, (b) the environment changes faster than you can push updates, or (c) the required behaviour is too complex or too individualised to specify by hand. If none of these holds, the rule-based design is the better engineering choice.</li>
+</ul>
+
+<p>A worked comparison makes the trade-off concrete. Consider a warehouse pick-path agent. A non-learning version uses a fixed shortest-path algorithm over a static map: it is predictable, easy to verify, and requires no data infrastructure — but it cannot exploit the fact that aisle 7 is congested every weekday at 10:00, or that the map is stale after a re-racking. A learning version wraps the same planner in a loop where the critic measures actual pick times against a standard of "items per hour, with zero collisions", the learning element updates per-aisle traversal-cost estimates, and the problem generator occasionally routes through under-sampled aisles to keep the cost estimates fresh. Exploration is cheap here (a slightly longer route costs seconds), feedback is immediate and quantitative, and the environment changes weekly. Learning is clearly justified. Change the domain to a drug-dosing agent and every one of those judgements reverses: exploration is dangerous, feedback is delayed and noisy, and a non-learning protocol with human oversight becomes the defensible design.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> The topic reinforces the core vocabulary of rational agents by showing how percepts and percept sequences feed both the performance element and the critic, and by treating the agent program as something that can itself be rewritten at run time; the learning agent is presented as an architecture built from named, interacting components.</li>
+  <li><strong>MO2:</strong> This is the topic's central concern. The performance element, critic, learning element, and problem generator are each defined by their inputs and outputs, and the act–evaluate–modify–explore loop is traced end to end through worked examples such as the automated taxi.</li>
+  <li><strong>MO3:</strong> PEAS specification is not developed here, but the topic supports it indirectly by insisting that the performance standard be stated explicitly and externally, which is exactly the "P" of a PEAS description, and by discussing how environment properties such as observability and stochasticity constrain the design.</li>
+  <li><strong>MO4:</strong> The topic differentiates the architectures by showing what each one exposes to learning — rules in reflex agents, transition and sensor models in model-based agents, goal and outcome knowledge in goal-based agents, utility estimates in utility-based agents — and relates these to the environment properties (unknown, changing, partially observable) that make learning necessary.</li>
+  <li><strong>MO5:</strong> The final part of the topic is a justification framework: it weighs learning against a non-learning baseline on performance, complexity, feedback availability, exploration cost, and maintainability, and contrasts a warehouse pick-path agent with a drug-dosing agent to show how the same criteria can favour opposite choices.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Suggested in-class activities: (1) give students a faulty performance standard — e.g. a cleaning robot rewarded for "dirt collected" — and ask them to predict the gaming behaviour and repair the standard; (2) have students take a previously specified reflex or utility-based agent and identify, component by component, what a learning wrapper would modify; (3) run a short multi-armed bandit simulation with ε fixed at 0, 1, and 0.1 to make the exploration/exploitation trade-off tangible. Common misconceptions to pre-empt: that the learning agent is a fifth alternative architecture rather than a wrapper; that the critic and the utility function are the same thing; and that more exploration is always better. Key terms introduced beyond the listed subtopics: credit assignment, temporal-difference learning, ε-greedy, optimism in the face of uncertainty, reward hacking/specification gaming, non-stationary environments, shadow mode deployment.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>A learning agent is any agent architecture — simple reflex, model-based, goal-based, or utility-based — wrapped inside a loop that lets it improve with experience. Russell and Norvig describe this loop in four parts: the performance element (the agent you already know, which chooses actions), the critic (which judges incoming percepts against a fixed performance standard), the learning element (which uses the critic's feedback to modify the performance element), and the problem generator (which deliberately suggests exploratory actions that may be suboptimal now but informative later). The key insight is that the performance standard must sit outside the performance element; otherwise the agent could simply learn to lower its own bar.</p>
+<p>This topic matters in CAI4002 because the earlier architectures all assume a designer who already knows enough about the environment to hand-code the right rules, model, goals, or utility function. In unknown, partially observable, or changing environments, that assumption fails. Learning agents are the engineering answer: start with an incomplete agent, give it feedback signals, and let experience fill the gaps. This is also where the exploration versus exploitation tension appears — an agent that only exploits its current best guess never discovers anything better.</p>
+<p>The videos below come from IBM Technology and are framed around modern LLM-based AI agents rather than the classical textbook diagram. Watch them as case studies: when a speaker discusses agent types, memory, or retrieval, ask yourself which classical component is being described. Where does the feedback come from? What plays the role of the critic? What is being learned, and what is merely being stored or retrieved? Mapping industry vocabulary back onto the four-component framework is the real exercise here, and it is also the skill you will need for the design-and-justify subtopic.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/fXizBc03D7E?cc_load_policy=1&amp;rel=0" title="Video: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 10:22 · 430,733 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=fXizBc03D7E" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This video surveys five categories of AI agent — the lineup typically runs from simple reflex agents through model-based, goal-based, and utility-based agents to learning agents — using a package-delivery drone as the running example. Expect each type to be introduced by what it can and cannot handle, with the learning agent presented as the most capable because it improves from experience rather than relying solely on its initial programming.</p>
+<h3>Why this video</h3>
+<p>It directly covers the taxonomy this module is built around and places learning agents at the end of that progression, which is exactly the framing needed for "why learning agents are needed" and for comparing architectures against environment properties.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: The Four Types of Memory Every AI Agent Needs</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/BacJ6sEhqMo?cc_load_policy=1&amp;rel=0" title="Video: The Four Types of Memory Every AI Agent Needs (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 10:41 · 149,524 views · 4mo ago · captions — <a href="https://www.youtube.com/watch?v=BacJ6sEhqMo" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>Martin Keen breaks down several distinct kinds of memory an agent can maintain — commonly short-term or working memory, long-term memory, and episodic and semantic varieties — and explains what each is used for during a task. The discussion should make clear how storing past percepts and outcomes differs from simply reacting to the current input.</p>
+<h3>Why this video</h3>
+<p>Retaining experience is the raw material the learning element works with, so this video gives concrete grounding for how feedback and past episodes persist inside an agent, supporting the subtopics on what can be learned and on operating in unknown environments.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: Skills vs MCP vs RAG vs Memory: What AI Agents Need to Know</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/X4FVEEegCbk?cc_load_policy=1&amp;rel=0" title="Video: Skills vs MCP vs RAG vs Memory: What AI Agents Need to Know (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 9:11 · 217,453 views · 1mo ago · captions — <a href="https://www.youtube.com/watch?v=X4FVEEegCbk" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This video contrasts four mechanisms modern agents use to extend their capability beyond their training: skills, the Model Context Protocol, retrieval-augmented generation, and memory. The emphasis is on when each mechanism is the right choice and how they differ in where knowledge lives and how it gets updated.</p>
+<h3>Why this video</h3>
+<p>It sharpens an important distinction for this topic — genuinely modifying an agent's behavior through learning versus supplying it with external knowledge at run time — which is central to justifying a learning agent design rather than a simpler alternative.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos reinforce the module outcomes from the applied end. The five-types survey supports MO4 by distinguishing reflex, model-based, goal-based, utility-based, and learning architectures according to what each environment demands, and it supports MO1 by exercising core agent vocabulary in a worked delivery-drone example. The memory video and the skills/MCP/RAG/memory comparison feed MO2 and MO5: they show concretely where experience is stored, how feedback re-enters the agent, and what trade-offs in complexity and maintainability you accept when you choose a learning loop over a hand-coded one. Note that these are industry-oriented treatments, so you should pair them with the course reading on the four-component diagram and on PEAS (MO3), and practice translating each video's terminology back into performance element, critic, learning element, and problem generator.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

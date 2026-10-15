@@ -1,0 +1,230 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Depth-First Search</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Uninformed Search: BFS, DFS, and Uniform Cost</a></div>
+  <header>
+    <h1>Depth-First Search</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Depth-First Search</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Depth-first search (DFS) is the natural counterpart to breadth-first search. Both are <em>uninformed</em> strategies: they have no knowledge of how close a state is to the goal and differ only in which node they choose to expand next from the frontier. BFS always expands the shallowest unexpanded node; DFS always expands the <strong>deepest</strong> unexpanded node. That single change in expansion policy produces a radically different algorithm — one that uses dramatically less memory, dives to the bottom of the search tree before considering alternatives, can run forever in an infinite or cyclic space, and gives no guarantee whatsoever about the quality of the solution it returns. Understanding exactly where DFS wins, where it fails, and how the depth-limited and iterative-deepening variants repair its weaknesses is the core of this topic.</p>
+
+<p><strong>DFS strategy and the LIFO frontier.</strong> Every graph- or tree-search algorithm in the general framework shares the same skeleton: initialise the frontier with the root node, repeatedly remove a node from the frontier, test it for the goal, and add its successors. The only free choice is the <em>data structure</em> used for the frontier. BFS uses a FIFO queue. DFS uses a <strong>LIFO stack</strong>: the most recently generated successor is the next node to be popped and expanded. Because a node's children are generated at the moment the node is expanded, they sit on top of everything else, so the search immediately descends into the first child, then into that child's first child, and so on.</p>
+
+<pre><code>function DEPTH-FIRST-SEARCH(problem) returns a solution node or failure
+    node  &lt;- NODE(STATE = problem.INITIAL_STATE, PARENT = null, ACTION = null)
+    frontier &lt;- a LIFO stack containing node
+    explored &lt;- an empty set
+    loop do
+        if frontier is empty then return failure
+        node &lt;- POP(frontier)                     // deepest node, most recently added
+        if problem.GOAL_TEST(node.STATE) then return SOLUTION(node)
+        add node.STATE to explored
+        for each action in REVERSE(problem.ACTIONS(node.STATE)) do
+            child &lt;- CHILD-NODE(problem, node, action)
+            if child.STATE not in explored and child not in frontier then
+                PUSH(child, frontier)</code></pre>
+
+<p>Two implementation details in that skeleton deserve attention. First, the successors are pushed in <strong>reverse order</strong>. A stack reverses whatever you put into it, so if the successor list is <code>[Timisoara, Sibiu, Zerind]</code> and you push left to right, <code>Zerind</code> ends up on top and is explored first. Pushing in reverse restores the intuitive behaviour in which the first-listed child is the first one explored, which matters a great deal when you are asked to trace an algorithm by hand and your trace must match the expected expansion order.</p>
+
+<p>Second, the goal test is applied <strong>on expansion</strong> (when the node is popped), not on generation. For DFS this choice is largely cosmetic, because DFS offers no optimality guarantee either way; testing on generation simply lets the algorithm stop one expansion earlier. (In BFS, by contrast, testing on generation is a genuine efficiency win that preserves optimality for unit costs.) The tree-search variant of DFS, which has no explored set, typically tests on generation to avoid pushing a goal node and then losing it beneath a pile of deeper nodes.</p>
+
+<p>The behavioural consequence of the LIFO rule is that DFS <strong>follows one path to its maximum depth before any sibling is considered</strong>. If the root has children A, B and C, the entire subtree beneath A — possibly millions of nodes — is exhausted before B is even looked at. Compare this with BFS, which sweeps across each level in turn and therefore necessarily finds a shallowest goal first. DFS has no such property: the first solution it returns may lie at depth 400 when a goal sits at depth 3 down a sibling branch that was never visited.</p>
+
+<p><strong>Recursive formulation and backtracking.</strong> Because the frontier is a stack, DFS maps perfectly onto the call stack of a recursive procedure. Each recursive call handles exactly one node and loops over that node's successors, calling itself on each in turn:</p>
+
+<pre><code>function RECURSIVE-DFS(problem, node, explored) returns a solution node or failure
+    if problem.GOAL_TEST(node.STATE) then return node
+    add node.STATE to explored
+    for each action in problem.ACTIONS(node.STATE) do
+        child &lt;- CHILD-NODE(problem, node, action)
+        if child.STATE not in explored then
+            result &lt;- RECURSIVE-DFS(problem, child, explored)
+            if result != failure then return result
+    return failure                                // dead end: backtrack to caller</code></pre>
+
+<p>Here the explicit stack has disappeared; the chain of pending <code>for</code> loops on the call stack <em>is</em> the frontier. When a call returns <code>failure</code>, the runtime pops that stack frame and execution resumes in the parent's successor loop at the next action — this is exactly the <strong>backtracking</strong> step. Backtracking is triggered in three circumstances: (1) the node is a genuine dead end with no successors, (2) every successor leads to an already-visited state, or (3) a depth limit has been reached (see the depth-limited variant below).</p>
+
+<p>A further refinement is the <strong>backtracking search</strong> variant used in constraint satisfaction and puzzle solvers. Instead of generating all of a node's successors at once, it generates them <em>one at a time</em>, storing only a pointer to the next untried action at each node on the current path. Even better, many problems allow the successor state to be produced by modifying the current state in place and undoing the modification on backtracking (apply a move to the 8-puzzle board, then slide the tile back). This reduces the memory needed per node from a full state description to a single action index, so the whole search occupies only <code>O(m)</code> memory rather than <code>O(bm)</code>.</p>
+
+<p>The price of the recursive formulation is that <strong>recursion depth is bounded by path length</strong>. A search that descends 100,000 nodes deep will attempt 100,000 nested calls; typical default stack sizes overflow somewhere in the tens of thousands of frames. For deep searches, the explicit-stack iterative version is safer, because a heap-allocated stack can grow to whatever the heap allows.</p>
+
+<p><strong>Tracing DFS on the route-finding map.</strong> Take the familiar Romania map and ask DFS to find a route from <em>Arad</em> to <em>Bucharest</em>. Suppose the adjacency lists are stored in the order the cities were read from the input file, so that <code>ACTIONS(Arad) = [Timisoara, Sibiu, Zerind]</code> and <code>ACTIONS(Craiova) = [Dobreta, Pitesti, Rimnicu Vilcea]</code>. Successors are pushed in reverse so that the first-listed city is expanded first. Using graph search (with an explored set) and goal testing on expansion, the trace is:</p>
+
+<table>
+  <thead>
+    <tr><th>Step</th><th>Node expanded</th><th>Children pushed</th><th>Stack after step (bottom &rarr; top)</th><th>Explored set (cumulative)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>0</td><td>&mdash; (initialise)</td><td>&mdash;</td><td>Arad</td><td>{}</td></tr>
+    <tr><td>1</td><td>Arad</td><td>Zerind, Sibiu, Timisoara</td><td>Zerind, Sibiu, Timisoara</td><td>{Arad}</td></tr>
+    <tr><td>2</td><td>Timisoara</td><td>Lugoj</td><td>Zerind, Sibiu, Lugoj</td><td>+Timisoara</td></tr>
+    <tr><td>3</td><td>Lugoj</td><td>Mehadia</td><td>Zerind, Sibiu, Mehadia</td><td>+Lugoj</td></tr>
+    <tr><td>4</td><td>Mehadia</td><td>Dobreta</td><td>Zerind, Sibiu, Dobreta</td><td>+Mehadia</td></tr>
+    <tr><td>5</td><td>Dobreta</td><td>Craiova</td><td>Zerind, Sibiu, Craiova</td><td>+Dobreta</td></tr>
+    <tr><td>6</td><td>Craiova</td><td>Rimnicu Vilcea, Pitesti</td><td>Zerind, Sibiu, R. Vilcea, Pitesti</td><td>+Craiova</td></tr>
+    <tr><td>7</td><td>Pitesti</td><td>Bucharest</td><td>Zerind, Sibiu, R. Vilcea, Bucharest</td><td>+Pitesti</td></tr>
+    <tr><td>8</td><td>Bucharest</td><td>&mdash; goal test succeeds</td><td>&mdash;</td><td>+Bucharest</td></tr>
+  </tbody>
+</table>
+
+<p>DFS returns <code>Arad &rarr; Timisoara &rarr; Lugoj &rarr; Mehadia &rarr; Dobreta &rarr; Craiova &rarr; Pitesti &rarr; Bucharest</code>: seven hops and 733 km. BFS on the same map returns <code>Arad &rarr; Sibiu &rarr; Fagaras &rarr; Bucharest</code>: three hops and 450 km, and uniform-cost search returns the 418 km route through Rimnicu Vilcea and Pitesti. DFS plunged down the south-western detour simply because Timisoara happened to be first in Arad's adjacency list, and it never reconsidered. Notice also that Zerind and Sibiu — pushed at step 1 — sat untouched at the bottom of the stack for the entire search. That is the signature of DFS: a small frontier consisting of the current path plus the untried siblings hanging off it.</p>
+
+<p>The <strong>solution path is recovered by parent pointers</strong>, exactly as in BFS. Each node stores a reference to the node that generated it, so from the goal node you walk backwards — Bucharest &rarr; Pitesti &rarr; Craiova &rarr; Dobreta &rarr; Mehadia &rarr; Lugoj &rarr; Timisoara &rarr; Arad — and reverse the list. In the recursive formulation the path is already implicit in the chain of active stack frames, so it can instead be read off as the recursion unwinds.</p>
+
+<p><strong>Tracing DFS on the 8-puzzle.</strong> The contrast is even starker on the 8-puzzle, whose branching factor averages about 2.67 (2 moves when the blank is in a corner, 3 on an edge, 4 in the centre). A typical scrambled start state is solvable in at most 31 moves, and BFS will find a 20-move optimal solution after expanding on the order of 10<sup>5</sup>–10<sup>6</sup> nodes. DFS applied to the same instance behaves quite differently. Each expansion slides one tile, and the LIFO rule means the search keeps applying the first legal move in its action ordering, producing something like "blank up, blank up (blocked, so left), left, down, down, right, ..." — a random-looking walk through configuration space. With <em>tree search</em> (no explored set) this walk never terminates: the blank can oscillate <code>Up, Down, Up, Down, ...</code> forever, revisiting two states indefinitely, so DFS descends hundreds of thousands of levels without ever approaching a solved board. With <em>graph search</em>, the explored set blocks the oscillation, and because the reachable state space for a given parity contains only 181,440 states, DFS must eventually terminate. But it may return a solution path tens of thousands of moves long for a puzzle solvable in twenty — a legal plan, and a useless one.</p>
+
+<p>The practical lesson from both traces is that <strong>DFS should be traced by writing down the stack at every step</strong>. The stack simultaneously shows the current path (the chain from the root down to the node just popped) and the pending alternatives (the siblings waiting beneath it). Students who track only the expansion order usually lose track of where backtracking will resume.</p>
+
+<p><strong>Space and time complexity.</strong> The memory advantage of DFS is its entire reason for existing. In the tree-search formulation, once a node has been expanded it can be removed from memory as soon as all of its descendants have been fully explored. At any instant the algorithm therefore stores only the nodes on the current root-to-leaf path, plus the unexpanded siblings of each node on that path. With branching factor <code>b</code> and maximum depth <code>m</code>, that is at most <code>bm + 1</code> nodes, i.e. <strong><code>O(bm)</code> space</strong>, which is <em>linear</em> in the depth. BFS, by contrast, needs <code>O(b^d)</code> space — exponential. The numbers are brutal: for <code>b = 10</code> at depth 16 with 1 kB per node, BFS requires roughly 10 exabytes while DFS requires about 156 kB. The backtracking variant described above, which generates one successor at a time and mutates the state in place, cuts even this to <strong><code>O(m)</code></strong>.</p>
+
+<p>Time complexity, however, is <strong><code>O(b^m)</code></strong> — governed by the maximum depth <code>m</code> of the state space, not the depth <code>d</code> of the shallowest goal. When <code>m</code> is much larger than <code>d</code>, DFS can be catastrophically worse than BFS, because it may exhaust gigantic subtrees that lie entirely below the level at which a goal was available. Conversely, when solutions are <em>dense</em> at depth — many goal states lie at or near the bottom of the tree, as in the n-queens problem or many constraint-satisfaction problems — DFS often finds one almost immediately and beats BFS by orders of magnitude.</p>
+
+<p>A critical caveat: <strong>graph-search DFS forfeits the space advantage</strong>. The explored set must retain every state ever expanded, so memory grows to <code>O(min(|S|, b^m))</code> where <code>|S|</code> is the size of the reachable state space — the same asymptotic burden as BFS. If you want DFS for its linear memory, you must use the tree-search or backtracking form and accept the risk of repeated states, or use a partial cycle check (for instance, checking only against the states on the current path, which costs <code>O(m)</code> and eliminates loops but not all redundant paths).</p>
+
+<p><strong>Completeness, optimality, and infinitebranches.</strong> DFS pays for its cheap memory with weak guarantees. Consider the tree-search form first. Because it has no explored set, it can follow a cycle indefinitely: in the Romania map, tree-search DFS can generate <code>Arad &rarr; Sibiu &rarr; Arad &rarr; Sibiu &rarr; ...</code> forever, expanding deeper and deeper nodes that merely repeat two states. It never returns failure and never reaches Bucharest, even though a three-hop solution exists. <strong>Tree-search DFS is therefore incomplete.</strong></p>
+
+<p>Cycles are not the only danger. In a state space that is acyclic but <em>infinitely deep</em> — for instance, a planning problem in which an unbounded number of "add one more block to the tower" actions is always legal — DFS can march down a single non-goal branch forever while a goal sits two levels below the root on a different branch. No finite amount of computation will bring it back. This is the deepest structural weakness of DFS: it commits totally to its first choice and has no mechanism for reconsidering.</p>
+
+<p>Adding an explored set repairs completeness in one important case. <strong>Graph-search DFS is complete in finite state spaces</strong>, because a state can be expanded at most once, so the search must eventually exhaust the reachable states and either find a goal or report failure. In infinite state spaces the explored set does not help: the search can still generate infinitely many distinct states down one branch.</p>
+
+<p>Optimality is lost in every variant. DFS returns the <em>first</em> goal node it happens to encounter, which is determined by the arbitrary ordering of the successor function rather than by any property of the solution. That first goal is rarely the shallowest, and <strong>step costs are ignored entirely</strong> — DFS never examines <code>g(n)</code>, never compares two paths to the same state, and would happily return a 733 km route when a 418 km route exists. Running DFS on a cost-weighted graph gives you exactly the same behaviour as running it on an unweighted one. If you need optimality under non-uniform costs you need uniform-cost search; if you need shallowest-goal optimality under uniform costs you need BFS or iterative deepening.</p>
+
+<p><strong>Depth-limited search.</strong> The cure for infinite branches is to refuse to look below a fixed depth <code>L</code>. Depth-limited search (DLS) is plain DFS with the added rule that a node at depth <code>L</code> is treated as having no successors. The algorithm must now distinguish two different kinds of non-success, so it returns one of <strong>three outcomes</strong>:</p>
+
+<ul>
+  <li><strong>solution</strong> — a goal node was found within the limit;</li>
+  <li><strong>failure</strong> — the whole space reachable within the limit was exhausted and contains no goal, so no solution exists at depth &le; <code>L</code>;</li>
+  <li><strong>cutoff</strong> — at least one branch was truncated at the limit, so a solution <em>might</em> exist deeper than <code>L</code>.</li>
+</ul>
+
+<pre><code>function DEPTH-LIMITED-SEARCH(problem, L) returns solution, failure, or cutoff
+    return RECURSIVE-DLS(NODE(problem.INITIAL_STATE), problem, L)
+
+function RECURSIVE-DLS(node, problem, limit) returns solution, failure, or cutoff
+    if problem.GOAL_TEST(node.STATE) then return SOLUTION(node)
+    else if limit = 0 then return cutoff
+    else
+        cutoff_occurred? &lt;- false
+        for each action in problem.ACTIONS(node.STATE) do
+            child  &lt;- CHILD-NODE(problem, node, action)
+            result &lt;- RECURSIVE-DLS(child, problem, limit - 1)
+            if result = cutoff then cutoff_occurred? &lt;- true
+            else if result != failure then return result
+        if cutoff_occurred? then return cutoff else return failure</code></pre>
+
+<p>The three-valued return is what makes DLS composable. A plain <code>failure</code> would be ambiguous and would mislead any caller that wanted to retry with a larger limit; the <code>cutoff</code> token says precisely "I ran out of permission, not out of states." Note how the flag propagates: an interior node returns <code>failure</code> only if <em>every</em> one of its subtrees returned <code>failure</code>.</p>
+
+<p>Choosing <code>L</code> is the hard part. If <code>L &lt; d</code> the search is <strong>incomplete</strong> — it reports cutoff and finds nothing even though a solution exists. If <code>L</code> is far larger than <code>d</code> the search wastes enormous effort exploring depths that could never contain the shallowest goal, and in the extreme it degenerates back towards plain DFS. Sometimes <em>problem knowledge</em> supplies a sound limit. In Romania there are 20 cities, so any city is reachable from any other by at most 19 steps; in fact the map's <strong>diameter</strong> is 9, so <code>L = 9</code> is both sound (no solution is missed) and tight. For the 8-puzzle the diameter is 31 (God's number for the 3&times;3 sliding tile puzzle), so <code>L = 31</code> guarantees completeness. For Rubik's Cube the corresponding figure is 20 quarter-... (half-turn metric) moves. When no such bound is known, any fixed <code>L</code> is a gamble.</p>
+
+<p>The complexity of DLS follows directly from substituting <code>L</code> for <code>m</code> in the DFS analysis: <strong><code>O(b^L)</code> time</strong> and <strong><code>O(bL)</code> space</strong>. It is complete only if <code>L &ge; d</code>, and it is not optimal (within the limit it still returns the first goal it meets, not the shallowest).</p>
+
+<p><strong>Iterative deepening search.</strong> Iterative deepening depth-first search (IDS, or IDDFS) sidesteps the problem of choosing <code>L</code> by trying every value in turn: run DLS with limit 0, then 1, then 2, and so on until a solution is found.</p>
+
+<pre><code>function ITERATIVE-DEEPENING-SEARCH(problem) returns a solution or failure
+    for limit = 0 to INFINITY do
+        result &lt;- DEPTH-LIMITED-SEARCH(problem, limit)
+        if result != cutoff then return result     // solution, or genuine failure</code></pre>
+
+<p>Each iteration starts from scratch with a fresh, empty frontier, so the memory in use at any moment is that of a single depth-limited search: <strong><code>O(bd)</code></strong>, the same linear order as plain DFS. Yet because the limits increase one at a time, the <em>first</em> goal found is necessarily at the shallowest goal depth <code>d</code> — which makes IDS <strong>complete</strong> whenever the branching factor is finite (and a solution exists), and <strong>optimal when all step costs are equal</strong>, exactly like BFS.</p>
+
+<p>The obvious objection is that IDS regenerates the top of the tree over and over. The objection sounds damning and turns out not to be. Nodes at the bottom level are generated once, those at level <code>d-1</code> twice, those at <code>d-2</code> three times, and the root <code>d+1</code> times. The total number of generated nodes is</p>
+
+<pre><code>N(IDS) = (d+1)b^0 + (d)b^1 + (d-1)b^2 + ... + 3b^(d-2) + 2b^(d-1) + 1b^d</code></pre>
+
+<p>Because the tree's node count grows geometrically, almost all nodes live in the deepest level, and that level is regenerated only once. For <code>b = 10, d = 5</code>, BFS generates 111,111 nodes while IDS generates 123,456 — about 11% more. For larger <code>b</code> the overhead shrinks further: the ratio tends to <code>b/(b-1)</code>, so at <code>b = 10</code> it is roughly 11% and at <code>b = 25</code> only about 4%. The repeated work is thus a small <strong>constant factor</strong>, and the asymptotic time complexity is <code>O(b^d)</code> — the same as BFS — while the space complexity is exponentially better. (Only when <code>b</code> is very small, as in <code>b = 2</code>, does the overhead become significant, roughly doubling the work.)</p>
+
+<p>Traced on the Romania map with the same adjacency ordering as before, IDS behaves like this: limit 0 expands only Arad and reports cutoff; limit 1 expands Arad, Timisoara, Sibiu, Zerind and reports cutoff; limit 2 expands those plus Lugoj, Oradea, Fagaras, Rimnicu Vilcea, Arad again (in the tree-search form) and reports cutoff; limit 3 finally reaches Bucharest via Sibiu &rarr; Fagaras and returns the three-hop, 450 km route — the same solution BFS found, obtained with a frontier that never held more than a handful of nodes. The cost was re-expanding Arad, Timisoara, Sibiu and Zerind four times, which is negligible.</p>
+
+<p>The table below summarises how the DFS family compares on the four standard criteria, with <code>b</code> the branching factor, <code>d</code> the depth of the shallowest goal, <code>m</code> the maximum depth of the state space, and <code>L</code> the imposed depth limit.</p>
+
+<table>
+  <thead>
+    <tr><th>Criterion</th><th>Breadth-first</th><th>Depth-first (tree search)</th><th>Depth-limited</th><th>Iterative deepening</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Complete?</td><td>Yes (finite <code>b</code>)</td><td>No (cycles / infinite depth); yes for graph search in a finite space</td><td>Only if <code>L &ge; d</code></td><td>Yes (finite <code>b</code>)</td></tr>
+    <tr><td>Optimal?</td><td>Yes, if step costs are equal</td><td>No</td><td>No</td><td>Yes, if step costs are equal</td></tr>
+    <tr><td>Time</td><td><code>O(b^d)</code></td><td><code>O(b^m)</code></td><td><code>O(b^L)</code></td><td><code>O(b^d)</code></td></tr>
+    <tr><td>Space</td><td><code>O(b^d)</code></td><td><code>O(bm)</code>, or <code>O(m)</code> backtracking</td><td><code>O(bL)</code></td><td><code>O(bd)</code></td></tr>
+    <tr><td>Cost-sensitive?</td><td>No (assumes unit costs)</td><td>No</td><td>No</td><td>No</td></tr>
+  </tbody>
+</table>
+
+<p>The decision rule that follows is straightforward. Use <strong>DFS</strong> when memory is the binding constraint, the state space is finite and shallow relative to <code>b</code>, and solutions are dense at depth — the classic cases being n-queens, graph colouring, Sudoku and other constraint-satisfaction problems where any complete assignment at the bottom level is a solution. Use <strong>depth-limited search</strong> when a trustworthy bound on solution depth is available from the problem structure. Use <strong>iterative deepening</strong> as the default uninformed strategy whenever the state space is large, the solution depth is unknown, step costs are uniform, and memory is limited: it combines DFS's linear space with BFS's completeness and shallowest-goal optimality at a cost of only a few per cent in generated nodes. If step costs vary, none of these strategies offers a cost guarantee, and uniform-cost search (or its iterative-deepening analogue, which increases a <em>cost</em> bound rather than a depth bound) is required instead.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1</strong>: Supported indirectly. The topic assumes the five-part problem specification and reuses it — the DFS pseudocode calls <code>INITIAL_STATE</code>, <code>ACTIONS</code>, <code>CHILD-NODE</code> (the transition model) and <code>GOAL_TEST</code>, and the discussion of why DFS ignores path cost reinforces the role of the cost component — but it does not itself teach how to formulate a new problem.</li>
+  <li><strong>MO2</strong>: Directly supported. The step-by-step Romania trace, with the stack contents and explored set recorded after every expansion, together with the IDS iteration-by-iteration trace and the 8-puzzle discussion, gives students exactly the material needed to trace DFS expansion order and frontier contents and to contrast it with BFS and uniform-cost search.</li>
+  <li><strong>MO3</strong>: Directly supported. The topic provides iterative LIFO-stack, recursive, depth-limited and iterative-deepening pseudocode, explains the reverse-push convention and the explored set, and describes parent-pointer path reconstruction, which is what an implementation of the stack-frontier solver requires.</li>
+  <li><strong>MO4</strong>: Directly supported. Completeness, optimality, and time and space complexity are derived for DFS (tree and graph search, plus the backtracking variant), depth-limited search and iterative deepening, and are collected in a comparison table alongside BFS for side-by-side contrast.</li>
+  <li><strong>MO5</strong>: Directly supported. The closing decision rule links strategy choice to memory budget, unknown versus known solution depth, density of solutions at depth, finiteness and cyclicity of the state space, and the presence of non-uniform edge costs.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Worked numbers used in the body: BFS vs IDS node generation for b=10, d=5 (111,111 vs 123,456); DFS memory example b=10, d=16, 1 kB/node (~10 EB for BFS vs ~156 kB for DFS). Romania distances quoted: DFS route via Timisoara/Lugoj/Mehadia/Dobreta/Craiova/Pitesti = 733 km; BFS route via Sibiu/Fagaras = 450 km; optimal UCS route via Sibiu/Rimnicu Vilcea/Pitesti = 418 km. 8-puzzle facts: average branching factor ~2.67, reachable state space 181,440 per parity class, diameter 31 moves. Traces assume adjacency lists in the stated order and reverse pushing; a different successor ordering gives a different (equally valid) DFS trace, which is worth stressing in class. The Rubik&#39;s Cube aside (&quot;20 moves, half-turn metric&quot;) can be cut if the tangent is unwanted.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

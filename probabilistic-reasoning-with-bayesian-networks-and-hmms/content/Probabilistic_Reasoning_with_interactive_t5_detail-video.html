@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Temporal Models and Hidden Markov Models</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Probabilistic Reasoning with Bayesian Networks and HMMs</a></div>
+  <header>
+    <h1>Temporal Models and Hidden Markov Models</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Temporal Models and Hidden Markov Models</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Most probabilistic models studied so far describe a <em>static</em> world: a fixed set of random variables, one body of evidence, and a single posterior to compute. Many real problems are not like this. A robot moves through a building, a patient's condition evolves in intensive care, a speech signal unfolds millisecond by millisecond, and a market price drifts from day to day. In all of these cases the quantity we care about <strong>changes</strong>, the evidence <strong>arrives continuously</strong>, and any sensible answer must be revised as new data appear. Temporal probabilistic models — of which the Hidden Markov Model (HMM) is the canonical discrete case — extend the machinery of joint distributions, conditional independence and Bayes' rule across time, so that belief about a hidden world state can be maintained, projected forward, revised in hindsight, and used to recover the single most plausible history of events.</p>
+
+<p><strong>Reasoning about processes that change over time.</strong> The standard device is to chop the continuous flow of time into a sequence of <em>time slices</em>. Each slice <code>t</code> contains two kinds of variables:</p>
+<ul>
+  <li><strong>State variables</strong> <code>X_t</code> — the aspects of the world we care about but cannot see directly: the true position of a robot, the phoneme currently being uttered, whether it is actually raining, the true blood-glucose level of a patient.</li>
+  <li><strong>Evidence variables</strong> <code>E_t</code> — the things we actually observe at that slice: laser range readings, an acoustic feature vector, whether the director arrives carrying an umbrella, a noisy sensor reading.</li>
+</ul>
+<p>Time is normally <em>discretised into fixed intervals</em> — every 10 ms for speech frames, every 100 ms for a control loop, every day for a weather model. The choice of interval is a modelling decision: too coarse and genuine dynamics are lost between slices; too fine and the computational cost of running the recursion rises with no gain in information. Crucially, because the slices are uniform, the resulting Bayesian network is not a one-off hand-built structure but a <strong>repeated template</strong> that is "unrolled" for as many steps as required. The same parent–child pattern (<code>X_{t-1} → X_t</code>, <code>X_t → E_t</code>) appears in every slice.</p>
+
+<p>This repetition has a direct practical payoff: the <strong>same conditional probability tables are reused at every time step</strong>. We do not need a separate table for day 1, day 2 and day 3 — we need one transition table and one sensor table, which are applied over and over. This is what makes it possible to reason about sequences of arbitrary, even unbounded, length with a finite and small set of parameters. It also changes the character of the inference question. Instead of "given this fixed evidence set, what is the posterior?", we ask "given the <em>stream</em> of observations seen so far, what is my current belief, and how do I update it in constant time when the next observation arrives?"</p>
+
+<p><strong>The Markov assumption.</strong> If we allowed <code>X_t</code> to depend on every earlier state, the conditional probability table for <code>X_t</code> would grow without bound as <code>t</code> increases — an unusable model. The <em>first-order Markov assumption</em> cuts this dependency to the minimum:</p>
+<pre><code>P(X_t | X_0:t-1) = P(X_t | X_{t-1})</code></pre>
+<p>In words: <strong>the present state screens off the past from the future</strong>. Once you know the state at time <code>t-1</code>, nothing about times <code>0 … t-2</code> adds any information about <code>X_t</code>. Graphically, the unrolled network is a simple chain, and the chain structure immediately gives conditional independences: <code>X_{t+5}</code> is independent of <code>X_{t-3}</code> given <code>X_t</code>, because every path between them passes through the observed-or-conditioned intervening state in a chain configuration. Distant time slices are decoupled by the slices between them.</p>
+<p>A <strong>second-order</strong> (or higher-order) Markov model relaxes this by conditioning on more history, e.g. <code>P(X_t | X_{t-1}, X_{t-2})</code>. This genuinely increases expressive power — a second-order model of position can encode momentum, which a first-order model of position alone cannot — but the transition table grows from <code>N × N</code> to <code>N × N × N</code> entries, and parameter estimation becomes correspondingly data-hungry.</p>
+<p>There is a better remedy when the first-order assumption appears too restrictive: <strong>enrich the state variable instead of increasing the order</strong>. The trick is to fold the needed history into the present state so that the process becomes Markov again. Examples:</p>
+<ul>
+  <li>Tracking an aircraft with position alone violates the first-order assumption, because tomorrow's position depends on where it was yesterday as well as today. Define the state as <code>(position, velocity)</code> and the process becomes first-order: the new position and velocity are determined (noisily) by the current pair.</li>
+  <li>In the rain-and-umbrella world, rain today depends not only on rain yesterday but on the season. Adding <code>Season_t</code> (and perhaps <code>Temperature_t</code>, <code>Pressure_t</code>) to the state restores the Markov property at a higher level of description.</li>
+  <li>In part-of-speech tagging, if a bigram tag model is too weak, one can define the state as the <em>pair</em> of the last two tags — which is mathematically identical to a second-order model but lets us keep using first-order algorithms unchanged.</li>
+</ul>
+<p>This is a general and important insight: <em>"higher order" and "bigger state" are two views of the same fix</em>, and the bigger-state view lets all the standard first-order algorithms be reused verbatim.</p>
+
+<p><strong>Transition and sensor models.</strong> A temporal model is fully specified by three ingredients:</p>
+<ul>
+  <li>A <strong>prior</strong> <code>P(X_0)</code> over the initial state.</li>
+  <li>A <strong>transition model</strong> <code>P(X_t | X_{t-1})</code>, describing how the hidden state evolves — the "physics" or dynamics of the domain. In robot localisation this is the motion/odometry model; in weather it is the day-to-day persistence of rain; in speech it is the probability of staying in a phoneme versus advancing to the next.</li>
+  <li>A <strong>sensor model</strong> (also called the observation or emission model) <code>P(E_t | X_t)</code>, which embodies the <em>sensor Markov assumption</em>: the evidence at time <code>t</code> depends only on the current state, not on earlier states or earlier evidence. If a sensor's reading really does depend on the previous reading (for example, a drifting or sticky sensor), the honest fix is again to enrich the state — e.g. add a <code>SensorBias_t</code> or <code>SensorBroken_t</code> variable — rather than to quietly violate the assumption.</li>
+</ul>
+<p><strong>Stationarity</strong> is the further assumption that these two models do not change with <code>t</code>: the probability of rain following rain is the same in slice 5 as in slice 500. Stationarity is what allows one fixed set of parameters to cover a sequence of arbitrary length, and it is distinct from "the process is static" — the <em>world</em> changes, but the <em>laws</em> governing the change do not.</p>
+<p>Putting these together, the joint distribution over all states and all evidence up to time <code>T</code> factorises as</p>
+<pre><code>P(X_0, X_1:T, E_1:T) = P(X_0) · ∏_{t=1..T} P(X_t | X_{t-1}) · P(E_t | X_t)</code></pre>
+<p>Every term on the right is one of the two reusable tables (or the prior). This factorisation is the whole content of the model, and every inference algorithm below is simply a clever way of summing or maximising over this product without enumerating it explicitly.</p>
+
+<p><strong>A concrete running example.</strong> The classic illustration is the "umbrella world": a security guard works underground and cannot see the weather. The hidden state <code>R_t</code> (Rain) is Boolean; the evidence <code>U_t</code> is whether the director arrives carrying an umbrella. The model is:</p>
+<table>
+  <thead>
+    <tr><th>Model component</th><th>Condition</th><th>Probability of True</th><th>Probability of False</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Prior P(R_0)</td><td>—</td><td>0.5</td><td>0.5</td></tr>
+    <tr><td>Transition P(R_t | R_{t-1})</td><td>R_{t-1} = true</td><td>0.7</td><td>0.3</td></tr>
+    <tr><td>Transition P(R_t | R_{t-1})</td><td>R_{t-1} = false</td><td>0.3</td><td>0.7</td></tr>
+    <tr><td>Sensor P(U_t | R_t)</td><td>R_t = true</td><td>0.9</td><td>0.1</td></tr>
+    <tr><td>Sensor P(U_t | R_t)</td><td>R_t = false</td><td>0.2</td><td>0.8</td></tr>
+  </tbody>
+</table>
+<p>Note the two tables encode qualitatively different things: the transition table says weather is <em>persistent</em> (rain tends to follow rain), while the sensor table says the umbrella is an <em>informative but imperfect</em> indicator (the director sometimes carries one on a dry day, and sometimes forgets it in the rain).</p>
+
+<p><strong>Structure of a Hidden Markov Model.</strong> An HMM is the special case in which the state is described by a <em>single discrete variable</em> with <code>N</code> possible values. This restriction buys a very convenient matrix formulation:</p>
+<ul>
+  <li>The transition model becomes an <code>N × N</code> matrix <code>T</code> with <code>T_ij = P(X_t = j | X_{t-1} = i)</code>. Each row sums to 1 (it is a conditional distribution over the next state). For the umbrella world, with state order (rain, no-rain), <code>T = [[0.7, 0.3], [0.3, 0.7]]</code>.</li>
+  <li>The sensor model, for a <em>particular observed value</em> <code>e_t</code>, becomes an <code>N × N</code> <strong>diagonal</strong> observation matrix <code>O_t</code> whose <code>i</code>-th diagonal entry is <code>P(e_t | X_t = i)</code>. For <code>U_1 = true</code>, <code>O_1 = [[0.9, 0], [0, 0.2]]</code>; for <code>U_3 = false</code>, <code>O_3 = [[0.1, 0], [0, 0.8]]</code>. The diagonal form is what turns "multiply each state's belief by its likelihood" into a single matrix product.</li>
+</ul>
+<p>The chain is called <strong>hidden</strong> precisely because the <code>X</code> variables are never observed: we see only the evidence they generate, and must invert the sensor model (via Bayes' rule) to reason backwards from effect to cause. A plain Markov chain, by contrast, has observable states.</p>
+<p>The single-variable restriction is less limiting than it looks, because <strong>multiple state variables can be merged into one "mega-variable" by taking their Cartesian product</strong>. A domain with variables <code>Position</code> (100 values), <code>Velocity</code> (20 values) and <code>Battery</code> (5 values) can be expressed as an HMM with <code>N = 100 × 20 × 5 = 10,000</code> states. The catch is that this growth is <em>exponential in the number of variables</em>: the transition matrix has <code>N²</code> = 10⁸ entries, which is already uncomfortable and quickly becomes impossible. Dynamic Bayesian networks (DBNs) avoid the blow-up by keeping the state factored and exploiting conditional independence <em>within</em> a slice; an HMM is the degenerate DBN with one state variable, and every DBN can in principle be flattened into an HMM.</p>
+
+<p><strong>Core inference tasks on temporal models.</strong> Four queries dominate, and each is a different way of slicing the same joint distribution.</p>
+
+<p><strong>1. Filtering (state estimation):</strong> compute <code>P(X_t | e_1:t)</code> — the belief about the <em>current</em> state given all evidence to date. This is the workhorse query for any agent acting in real time. It is computed by a two-phase recursion:</p>
+<pre><code>Predict:  P(X_t | e_1:t-1) = Σ_{x_{t-1}} P(X_t | x_{t-1}) · P(x_{t-1} | e_1:t-1)
+Update:   P(X_t | e_1:t)   = α · P(e_t | X_t) · P(X_t | e_1:t-1)
+
+Matrix form:  f_{1:t} = α · O_t · Tᵀ · f_{1:t-1}</code></pre>
+<p>The prediction step is marginalisation over the previous state (rolling the belief forward through the dynamics, which always <em>spreads out</em> the distribution); the update step is Bayes' rule applied with the sensor likelihood (which <em>sharpens</em> it), followed by normalisation with <code>α</code>. Working the umbrella example with <code>U_1 = true</code>, <code>U_2 = true</code>:</p>
+<table>
+  <thead>
+    <tr><th>Step</th><th>Computation</th><th>P(Rain = true)</th><th>P(Rain = false)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Prior, day 0</td><td>given</td><td>0.500</td><td>0.500</td></tr>
+    <tr><td>Predict day 1</td><td>0.7(0.5)+0.3(0.5) = 0.5</td><td>0.500</td><td>0.500</td></tr>
+    <tr><td>Update with U₁=true</td><td>α⟨0.9(0.5), 0.2(0.5)⟩ = α⟨0.45, 0.10⟩</td><td>0.818</td><td>0.182</td></tr>
+    <tr><td>Predict day 2</td><td>0.7(0.818)+0.3(0.182) = 0.627</td><td>0.627</td><td>0.373</td></tr>
+    <tr><td>Update with U₂=true</td><td>α⟨0.9(0.627), 0.2(0.373)⟩ = α⟨0.565, 0.075⟩</td><td>0.883</td><td>0.117</td></tr>
+  </tbody>
+</table>
+<p>Two umbrella sightings have driven belief in rain from 0.5 to 0.883. Notice that the belief vector <code>f_{1:t}</code> is a <em>sufficient statistic</em> for the entire observation history: once we have it, the earlier evidence can be discarded. This is why filtering runs <strong>online</strong> in constant time and constant memory per step — <code>O(N²)</code> time per step for a dense transition matrix, independent of how long the sequence has been running.</p>
+
+<p><strong>2. Prediction:</strong> compute <code>P(X_{t+k} | e_1:t)</code> for <code>k &gt; 0</code> — the state at some future time, with no evidence beyond <code>t</code>. Algorithmically this is just filtering with the update step omitted: repeatedly apply the transition model to the current belief. In the umbrella world, starting from <code>⟨0.883, 0.117⟩</code> after day 2 and predicting forward with no further sightings gives <code>⟨0.653, 0.347⟩</code>, then <code>⟨0.561, 0.439⟩</code>, then <code>⟨0.525, 0.475⟩</code> … converging to the <strong>stationary distribution</strong> <code>⟨0.5, 0.5⟩</code>. This decay is universal for ergodic chains: prediction without evidence loses information, and beyond some <em>mixing time</em> the forecast is worthless. The faster the chain mixes (the closer the transition probabilities are to uniform), the shorter the useful prediction horizon.</p>
+
+<p><strong>3. Smoothing:</strong> compute <code>P(X_k | e_1:t)</code> for <code>0 ≤ k &lt; t</code> — a belief about the <em>past</em> informed by evidence that arrived afterwards. Hindsight is genuinely more accurate than real-time estimation, which is why smoothing is used for offline analysis, trajectory reconstruction, and as the E-step when learning HMM parameters. The estimate factorises into a forward message and a backward message:</p>
+<pre><code>P(X_k | e_1:t) = α · f_{1:k} × b_{k+1:t}
+b_{k+1:t} = P(e_{k+1:t} | X_k) = Σ_{x_{k+1}} P(e_{k+1}|x_{k+1}) · P(e_{k+2:t}|x_{k+1}) · P(x_{k+1}|X_k)</code></pre>
+<p>where <code>×</code> is element-wise multiplication and the backward message is initialised to the all-ones vector. For the umbrella world, smoothing <code>P(R_1 | u_1, u_2)</code>: the backward message is <code>b_{2:2} = ⟨0.9(0.7)+0.2(0.3), 0.9(0.3)+0.2(0.7)⟩ = ⟨0.69, 0.41⟩</code>, so the smoothed estimate is <code>α⟨0.818 × 0.69, 0.182 × 0.41⟩ = α⟨0.564, 0.075⟩ = ⟨0.883, 0.117⟩</code> — higher than the filtered value of 0.818, because the second umbrella retrospectively confirms that day 1 was probably wet too. Running the forward pass once, caching all <code>f</code> vectors, then sweeping backwards gives the whole smoothed sequence in <code>O(N²t)</code> time and <code>O(Nt)</code> space: the <strong>forward–backward algorithm</strong>.</p>
+
+<p><strong>4. Most likely explanation (MLE / decoding):</strong> compute <code>argmax_{x_1:t} P(x_1:t | e_1:t)</code> — the single best <em>whole sequence</em> of states. This is <em>not</em> the same as stringing together the individually most likely states at each step, because the pointwise-best states may form a transition-improbable or even impossible path. The <strong>Viterbi algorithm</strong> solves it with a recursion identical in shape to filtering, except that the <em>summation is replaced by maximisation</em>:</p>
+<pre><code>m_{1:t+1} = P(e_{t+1} | X_{t+1}) · max_{x_t} ( P(X_{t+1} | x_t) · m_{1:t} )</code></pre>
+<p>Here <code>m_{1:t}</code> holds, for each state value, the probability of the best path that ends in that state having generated the evidence so far. Alongside each entry we store a <strong>back-pointer</strong> to the predecessor state that achieved the maximum; once the end of the sequence is reached we take the largest final entry and follow the pointers backwards to read off the optimal path. The cost is the same <code>O(N²t)</code> time as forward–backward, with <code>O(Nt)</code> space for the back-pointers. In the umbrella world with the evidence sequence <code>[true, true, false, true, true]</code>, Viterbi recovers the path <code>[rain, rain, no-rain, rain, rain]</code> — the single dry day is "explained away" by the absent umbrella even though the persistence of the transition model resists switching states twice in a row. In practice the products underflow quickly, so implementations work with log-probabilities, turning the products into sums:</p>
+<pre><code>log m_{1:t+1}(j) = log P(e_{t+1} | j) + max_i ( log T_ij + log m_{1:t}(i) )</code></pre>
+<p>It is worth laying the four tasks side by side, because they differ only in what is conditioned on and whether we sum or maximise:</p>
+<table>
+  <thead>
+    <tr><th>Task</th><th>Query</th><th>Direction of information flow</th><th>Online?</th><th>Cost (dense N-state HMM)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Filtering</td><td>P(X_t | e_1:t)</td><td>Forward only</td><td>Yes</td><td>O(N²) per step</td></tr>
+    <tr><td>Prediction</td><td>P(X_{t+k} | e_1:t)</td><td>Forward, no evidence</td><td>Yes</td><td>O(kN²)</td></tr>
+    <tr><td>Smoothing</td><td>P(X_k | e_1:t), k &lt; t</td><td>Forward and backward</td><td>No (needs future evidence)</td><td>O(N²t) total</td></tr>
+    <tr><td>Most likely explanation</td><td>argmax P(x_1:t | e_1:t)</td><td>Forward max + back-pointers</td><td>Forward pass online, path read at end</td><td>O(N²t)</td></tr>
+    <tr><td>Likelihood of evidence</td><td>P(e_1:t)</td><td>Forward, sum final message</td><td>Yes</td><td>O(N²) per step</td></tr>
+  </tbody>
+</table>
+<p>The unifying property is <strong>recursive computation</strong>. Every one of these algorithms maintains a fixed-size message (a vector of <code>N</code> numbers) and updates it by a constant amount of work per time slice. Nothing re-reads the whole history. This is exactly the behaviour an embedded agent needs: a robot localising at 20 Hz performs the same small matrix operation twenty times a second forever, with memory that never grows. By contrast, naively applying variable elimination to the unrolled network from scratch at each new observation would cost <code>O(t)</code> work per step and <code>O(t)</code> memory — fine for a short recording, hopeless for a continuously running system. One practical caveat: because the forward message is a product of many small likelihoods, it must be renormalised at each step (which filtering does anyway, via <code>α</code>) or held in log-space, otherwise it underflows to zero within a few hundred steps.</p>
+
+<p><strong>Applications to sequential data.</strong> The HMM's combination of a simple hidden chain, a noisy sensor channel and linear-time exact inference has made it one of the most widely deployed probabilistic models.</p>
+<ul>
+  <li><strong>Speech recognition.</strong> The acoustic waveform is cut into ~10 ms frames and converted into feature vectors (classically MFCCs). The hidden states are sub-phone units — typically three states per phoneme, modelling its beginning, middle and end — chained together according to a pronunciation dictionary and a language model. The transition model encodes how long a phone is held (self-loops) and which phone may follow; the sensor model gives <code>P(acoustic features | sub-phone state)</code>, historically as a Gaussian mixture and in modern hybrid systems as the output of a neural network. Decoding a spoken utterance into words is literally a Viterbi search over this enormous composite HMM, usually with beam pruning because the state space runs to millions.</li>
+  <li><strong>Robot localisation.</strong> The hidden state is the robot's pose, typically a discretised grid of <code>(x, y, θ)</code> cells over a known map. The transition model is the <em>motion/odometry model</em>: given the commanded or measured wheel movement, where might the robot now be, allowing for slip and drift. The sensor model scores a ring of laser or sonar range readings against the distances that <em>would</em> be expected from each candidate cell on the map. Running the filtering recursion is exactly "Markov localisation": the belief typically starts uniform (the kidnapped-robot problem), stays multi-modal while the robot is in a symmetric corridor, and collapses to a single sharp peak as soon as a distinctive feature such as a doorway or corner is sensed. Smoothing is then used offline to produce a cleaner reconstruction of the path actually travelled, and the same ideas scale up to particle filters when the state is continuous.</li>
+  <li><strong>Object tracking.</strong> A pedestrian, vehicle or radar contact is followed through time with state <code>(position, velocity)</code> — the enriched state that restores the Markov property — and evidence consisting of noisy, sometimes missing detections from a camera or radar. The transition model is a constant-velocity dynamics model plus process noise; the sensor model accounts for measurement error. Because the transition model carries belief forward even in the absence of evidence, the tracker can <em>coast</em> through occlusions: if the target disappears behind a pillar for a few frames, the predicted distribution spreads out but remains centred on where the target should be, and re-locks when a detection reappears. With Gaussian states and linear dynamics this is the Kalman filter — the continuous analogue of the same forward recursion.</li>
+  <li><strong>Bioinformatics.</strong> In gene finding, the observed sequence is the string of nucleotides and the hidden states label each position as exon, intron, splice site, promoter or intergenic region; the transition model encodes the grammar of gene structure and the sensor model the base-composition statistics of each region, with Viterbi producing the predicted gene annotation. Profile HMMs do the analogous job for sequence alignment, with match, insert and delete states capturing the ways a family member can diverge from a consensus protein or DNA motif.</li>
+  <li><strong>Natural language processing.</strong> In part-of-speech tagging the hidden states are tags (noun, verb, determiner, …) and the observations are words; the transition model is the tag-bigram probability <code>P(tag_t | tag_{t-1})</code> and the sensor model the emission probability <code>P(word | tag)</code>. Viterbi then resolves ambiguity contextually — in "<em>the plans book quickly</em>" versus "<em>the book plans quickly</em>", the identical word forms receive different tags because only one tag sequence is jointly probable. Named-entity recognition, chunking, and word segmentation for languages without spaces are all handled by the same template.</li>
+  <li><strong>Other domains.</strong> Gesture and activity recognition from accelerometer streams, handwriting recognition, fault and anomaly detection in machinery, financial regime-switching models, and sleep-stage classification from EEG all reuse the identical structure; only the meaning of the states and the form of the emission distribution change.</li>
+</ul>
+<p>Across all of these, the modelling discipline is the same: decide what the hidden state must contain for the first-order and sensor Markov assumptions to be defensible, specify a transition model for how that state evolves, specify a sensor model for how it reveals itself, assume stationarity so the parameters can be shared, and then choose the inference task — filtering for acting now, prediction for looking ahead, smoothing for analysing the past, Viterbi for explaining the whole sequence.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> Strongly supported. Every recursion in this topic is an application of marginalisation (the prediction step sums over the previous state), conditioning, and Bayes' rule (the update step multiplies the prior by the sensor likelihood and renormalises with α), all computed from the factorised joint distribution of the temporal model.</li>
+  <li><strong>MO2:</strong> Supported. The topic constructs a temporal Bayesian network as a repeated time-slice template with a specific DAG (<code>X_{t-1} → X_t</code>, <code>X_t → E_t</code>) and explicitly specifies its conditional probability tables — the prior, transition and sensor tables of the umbrella model — demonstrating structure-plus-CPT modelling for a described domain.</li>
+  <li><strong>MO3:</strong> Partially supported. The topic states and justifies the conditional independences that define the chain — that <code>X_t</code> screens the past from the future and that evidence is independent of everything else given the current state — which are exactly the d-separation relations of a chain structure, though it does not drill the d-separation criterion itself.</li>
+  <li><strong>MO4:</strong> Lightly addressed. The topic compares the cost of exact recursive inference (<code>O(N²)</code> per step, constant memory) against naively re-running variable elimination on the unrolled network, and notes beam pruning and particle filtering as approximations, but it does not treat rejection sampling, likelihood weighting or Gibbs sampling.</li>
+  <li><strong>MO5:</strong> Strongly supported. The topic presents the forward recursion for filtering, the forward–backward recursion for smoothing, and the Viterbi max-recursion with back-pointers for the most-likely-explanation query, each with worked numerical steps on the umbrella HMM.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Worked numbers use the standard Russell &amp;amp; Norvig umbrella model (prior 0.5/0.5, transition 0.7, sensor 0.9/0.2) so they can be checked directly against the textbook: filtered P(R₁|u₁)=0.818, P(R₂|u₁,u₂)=0.883, smoothed P(R₁|u₁,u₂)=0.883, backward message b_{2:2}=⟨0.69,0.41⟩. The Viterbi example with evidence [t,t,f,t,t] yields the path [rain, rain, no-rain, rain, rain]. Suggested exercises: (1) continue the filtering table for a third day with U₃=false; (2) show that predicting forward indefinitely converges to ⟨0.5,0.5⟩ and relate this to the eigenvector of Tᵀ; (3) construct an evidence sequence where the pointwise-most-likely states do not form the Viterbi path, to demonstrate that smoothing and MLE answer different questions. Numerical note worth reinforcing in class: forward messages must be renormalised or kept in log-space to avoid underflow.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>So far in this module, probabilistic models have described a single snapshot of the world: a fixed set of variables, a network structure, and queries about one moment in time. Temporal models extend this idea to processes that unfold over time, such as a robot moving through a building, a patient's condition evolving, or the stream of sounds in a spoken sentence. The key simplification is the Markov assumption: the future is conditionally independent of the past given the present state, which keeps the model compact no matter how long the sequence becomes.</p>
+<p>A Hidden Markov Model (HMM) adds a second idea. The true state is hidden and never observed directly; instead, at each time step we see an observation generated from the current state. The model is therefore specified by three pieces: an initial state distribution, a transition model giving the probability of moving from one state to the next, and a sensor (emission) model giving the probability of an observation given the state. From this structure come the standard inference tasks you will practice in this module — filtering (the state now), smoothing (a past state given later evidence), prediction, and finding the most likely state sequence with the Viterbi algorithm.</p>
+<p>As you watch the videos below, keep three questions in mind. First, which variables are hidden and which are observed? Second, where exactly does the Markov assumption get used, and what would break without it? Third, how do the transition and sensor probabilities combine, step by step, to produce a belief about the current state? Note that the videos vary in focus — one covers HMMs directly, one covers Markov chains without hidden state, and one covers a related but distinct undirected model — so read the descriptions to see what each one is and is not meant to teach you.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Hidden Markov Models</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Gx7qxa5b49U?cc_load_policy=1&amp;rel=0" title="Video: Hidden Markov Models (Natalie Parde)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Natalie Parde</strong> · 13:47 · 1,269 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=Gx7qxa5b49U" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A focused lecture on Hidden Markov Models built on the treatment in Jurafsky and Martin's Speech and Language Processing, which means it is likely to introduce hidden states, observations, transition probabilities, and emission probabilities, and to frame the standard HMM inference problems. Expect the classic sequence-labeling framing from natural language processing, where the hidden states are things like part-of-speech tags and the observations are words. Slides accompany the talk, so definitions and model diagrams should be easy to follow and review.</p>
+<h3>Why this video</h3>
+<p>This is the most directly on-topic video for the module: it addresses HMM structure, the transition and sensor models, and the inference tasks in one compact lecture, and it is anchored to a standard, widely used textbook treatment.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Markov Networks 1 - Overview | Stanford CS221: Artificial Intelligence (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/neeaJb3wCYw?cc_load_policy=1&amp;rel=0" title="Video: Markov Networks 1 - Overview | Stanford CS221: Artificial Intelligence (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 14:12 · 9,830 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=neeaJb3wCYw" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>An overview lecture from Stanford's CS221 artificial intelligence course introducing Markov networks, an undirected graphical model in which variables influence their neighbors through factors rather than through directed parent-child links. It is likely to cover the graph structure, factors or potentials, and how such models represent dependencies among many variables at once. Treat this as a complementary view of graphical models rather than a lecture on HMMs specifically.</p>
+<h3>Why this video</h3>
+<p>Coming from Stanford's own AI course, it gives an authoritative look at a second family of graphical models, which helps you see what is particular to the directed, time-indexed structure of an HMM and what is common to probabilistic graphical modeling generally.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: How Your Phone Predicts Your Next Word | Markov chains</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/zE9XollC-88?cc_load_policy=1&amp;rel=0" title="Video: How Your Phone Predicts Your Next Word | Markov chains (ThirdEye Labs)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>ThirdEye Labs</strong> · 11:50 · 269 views · 4mo ago · captions — <a href="https://www.youtube.com/watch?v=zE9XollC-88" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>An accessible explanation of Markov chains starting from the historical dispute that motivated them, then building up the idea that the next state depends only on the current one. The description points to applications including next-word prediction on a phone keyboard, PageRank, and Markov chain Monte Carlo, so expect concrete examples of transition probabilities at work on real sequential data.</p>
+<h3>Why this video</h3>
+<p>It targets the Markov assumption and the transition model, the two foundations an HMM is built on, and its everyday examples make the idea of reasoning about a process that changes over time concrete before you add hidden state.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos mainly support MO5. The HMM lecture supplies the vocabulary and model structure — hidden states, transition probabilities, emission probabilities — that the forward, forward-backward, and Viterbi algorithms operate on, and the Markov chain video grounds the transition model and the Markov assumption that make those recursive algorithms efficient in the first place. The Stanford lecture on Markov networks broadens the graphical-model context that underlies MO2 and MO3 by contrasting undirected factor-based representations with the directed networks you build and analyze elsewhere in the module. Note that the videos are an introduction, not a substitute for worked practice: the actual computation required by MO1 and MO5, and the comparison of exact and approximate inference in MO4, will come from the lecture notes, textbook sections, and problem sets, where you should hand-execute filtering and Viterbi on a small HMM.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

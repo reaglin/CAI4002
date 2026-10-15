@@ -1,0 +1,567 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Version Control and Project Workflow</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Python Programming Toolkit for AI Development</a></div>
+  <header>
+    <h1>Version Control and Project Workflow</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Version Control and Project Workflow</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Almost every piece of work you produce in an AI module is an experiment. You write a search algorithm, it solves the 8-puzzle in four seconds, you "improve" the heuristic, and suddenly it runs for ten minutes and returns a suboptimal path. Without a record of what changed, you are reduced to guessing. <strong>Version control</strong> is the discipline of recording the state of your project over time so that every change is reversible, attributable, and explainable. Git is the de facto standard tool for this, and GitHub is the hosting platform that turns a private local history into a shared, reviewable workspace. This topic treats Git not as an administrative chore bolted onto your coursework, but as a core part of the engineering workflow that makes AI experimentation tractable.</p>
+
+<p><strong>Why version control matters for AI coursework.</strong> A Git repository stores <em>snapshots</em> of your entire project tree, not just diffs of individual files. Each snapshot — a <em>commit</em> — is identified by a SHA-1 hash such as <code>3f9a1c2</code> and carries an author, timestamp, parent commit, and message. Because every commit is a complete, consistent picture of the project, you can return to any earlier working state with a single command. If your minimax agent passed all tests on Tuesday and fails on Thursday, you can check out Tuesday's commit, confirm the behaviour, and then bisect the intervening history to find the exact change that broke it.</p>
+
+<ul>
+  <li><strong>History as a debugging instrument.</strong> Machine learning and search code fails in subtle, non-crashing ways: a model stops converging, a loss curve flattens, a heuristic stops being admissible. The commit log tells you what you altered between the last good run and the bad one. <code>git bisect</code> automates a binary search over commits to isolate the offending change in logarithmic time.</li>
+  <li><strong>Branches as experiment sandboxes.</strong> You can try a Manhattan-distance heuristic on one branch and a pattern-database heuristic on another, benchmark both, and merge only the winner. Your <code>main</code> branch — the version you would submit if the deadline were today — never breaks.</li>
+  <li><strong>Collaboration without file chaos.</strong> Shared repositories replace emailed ZIP files and <code>report_final_v3_REALLY_FINAL.ipynb</code>. Git merges concurrent edits to different parts of a file automatically and flags the rest for human resolution, so two teammates can work on the same module simultaneously.</li>
+  <li><strong>Evidence of original, incremental work.</strong> A commit timeline showing forty small commits over three weeks is strong evidence of genuine authorship. A single commit named "upload" the night before the deadline is not. Markers may legitimately inspect the timeline, the diff sizes, and the commit messages as part of assessing academic integrity.</li>
+  <li><strong>Reproducibility.</strong> Results reported in a write-up should be traceable to a specific commit. Quoting "accuracy 0.91 at commit <code>a47bd3e</code>" means anyone can check out that exact code and re-run it.</li>
+</ul>
+
+<p><strong>Core Git operations: repositories, staging, and commits.</strong> A repository is simply a directory containing a hidden <code>.git</code> folder that holds the object database and references. You create one in two ways:</p>
+
+<pre><code>$ mkdir ai-assignment-1 &amp;&amp; cd ai-assignment-1
+$ git init
+Initialized empty Git repository in /home/student/ai-assignment-1/.git/
+
+# or, to copy an existing project (e.g. a provided starter repo)
+$ git clone https://github.com/course-org/assignment-1-starter.git
+$ cd assignment-1-starter</code></pre>
+
+<p>Git has a three-stage model that beginners often find confusing but which is genuinely useful. Files live in the <strong>working tree</strong> (what you edit), the <strong>index</strong> or <strong>staging area</strong> (what you have marked for the next commit), and the <strong>repository</strong> (the permanent commit history). Staging lets you craft a commit that contains exactly one logical change even if you have touched several unrelated things.</p>
+
+<table>
+  <thead>
+    <tr><th>Command</th><th>Moves changes from</th><th>To</th><th>Typical use</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>git add search.py</code></td><td>Working tree</td><td>Index</td><td>Stage one specific file</td></tr>
+    <tr><td><code>git add .</code></td><td>Working tree (recursive)</td><td>Index</td><td>Stage everything under the current directory</td></tr>
+    <tr><td><code>git add -p</code></td><td>Working tree (hunk by hunk)</td><td>Index</td><td>Stage part of a file interactively</td></tr>
+    <tr><td><code>git commit -m "..."</code></td><td>Index</td><td>Repository</td><td>Record a permanent snapshot</td></tr>
+    <tr><td><code>git restore search.py</code></td><td>Index/HEAD</td><td>Working tree</td><td>Discard uncommitted edits</td></tr>
+    <tr><td><code>git restore --staged search.py</code></td><td>Index</td><td>Working tree</td><td>Unstage without losing edits</td></tr>
+  </tbody>
+</table>
+
+<p>A typical cycle while implementing a search algorithm looks like this:</p>
+
+<pre><code>$ git status
+On branch main
+Changes not staged for commit:
+        modified:   src/search/astar.py
+        modified:   src/heuristics.py
+Untracked files:
+        notebooks/scratch.ipynb
+
+$ git add src/search/astar.py src/heuristics.py
+$ git commit -m "Add A* heuristic for 8-puzzle solver"
+[main 7c1d94e] Add A* heuristic for 8-puzzle solver
+ 2 files changed, 48 insertions(+), 3 deletions(-)</code></pre>
+
+<p><strong>Commit messages</strong> are documentation, so write them deliberately. The conventional form is a short imperative summary of at most ~50 characters, optionally followed by a blank line and a fuller explanation. Imperative mood ("Add", "Fix", "Refactor") reads as an instruction describing what applying the commit does, which matches how Git's own generated messages are phrased.</p>
+
+<table>
+  <thead>
+    <tr><th>Weak message</th><th>Better message</th><th>Why</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>stuff</code></td><td><code>Add successor generation for 8-puzzle states</code></td><td>Names the actual change</td></tr>
+    <tr><td><code>fixed bug</code></td><td><code>Fix off-by-one in BFS depth counter</code></td><td>Identifies which bug</td></tr>
+    <tr><td><code>updated files</code></td><td><code>Replace list frontier with heapq priority queue</code></td><td>Explains the design decision</td></tr>
+    <tr><td><code>final version</code></td><td><code>Pin scikit-learn 1.4.2 in requirements.txt</code></td><td>Specific and searchable</td></tr>
+  </tbody>
+</table>
+
+<p>A longer example with a body:</p>
+
+<pre><code>Replace list frontier with heapq priority queue
+
+The list-based frontier performed a linear scan for the minimum
+f-value on every expansion, giving O(n) pops. heapq gives O(log n)
+push and pop. Runtime on the 15-puzzle benchmark fell from 42s to 6s.</code></pre>
+
+<p><strong>Inspecting history.</strong> Three commands do most of the work:</p>
+
+<pre><code>$ git log --oneline --graph --decorate -5
+* 7c1d94e (HEAD -&gt; main) Add A* heuristic for 8-puzzle solver
+* a47bd3e Add breadth-first search baseline
+* 1b0f22c Add puzzle state representation and tests
+* 93ee517 Add .gitignore and requirements.txt
+* 0d4a118 Initial commit
+
+$ git diff                 # working tree vs index (unstaged changes)
+$ git diff --staged        # index vs last commit (what you are about to commit)
+$ git diff a47bd3e 7c1d94e -- src/heuristics.py   # changes between two commits
+$ git show a47bd3e         # full patch and metadata for one commit</code></pre>
+
+<p>A <code>git diff</code> hunk header such as <code>@@ -12,6 +12,9 @@</code> means "six lines starting at line 12 of the old file became nine lines starting at line 12 of the new file"; lines prefixed <code>-</code> were removed and <code>+</code> added.</p>
+
+<p><strong>Undoing things safely.</strong> There are two broad strategies, and the distinction matters enormously once work is shared.</p>
+
+<ul>
+  <li><code>git restore &lt;file&gt;</code> throws away uncommitted modifications in the working tree, returning the file to its committed state. <code>git restore --source=a47bd3e src/heuristics.py</code> pulls an older version of one file back into your working tree.</li>
+  <li><code>git revert &lt;commit&gt;</code> creates a <em>new</em> commit whose content is the inverse of the named commit. The original commit remains in the history. This is the safe way to undo something you have already pushed, because it adds to history rather than rewriting it.</li>
+  <li><code>git reset --hard</code> moves the branch pointer and discards commits. It <em>rewrites</em> history and will cause problems for collaborators who already pulled those commits. Reserve it for local, unpushed work, and never use it on a shared branch.</li>
+  <li><code>git stash</code> temporarily shelves uncommitted changes so you can switch branches; <code>git stash pop</code> reapplies them.</li>
+</ul>
+
+<pre><code>$ git revert a47bd3e
+[main 5e9ab02] Revert "Add breadth-first search baseline"
+ 1 file changed, 0 insertions(+), 37 deletions(-)</code></pre>
+
+<p><strong>Branching and merging workflows.</strong> A branch in Git is nothing more than a movable pointer to a commit, which is why creating one is instantaneous and essentially free. <code>HEAD</code> is a pointer to the branch you currently have checked out.</p>
+
+<pre><code>$ git branch feature/minimax          # create, stay where you are
+$ git switch feature/minimax          # switch to it (modern syntax)
+# or do both at once:
+$ git checkout -b feature/minimax     # classic syntax
+$ git switch -c feature/minimax       # modern equivalent
+
+$ git branch
+* feature/minimax
+  main</code></pre>
+
+<p>Adopt a descriptive naming convention so a teammate reading the branch list understands the intent without asking. A common scheme uses a type prefix followed by a short slug:</p>
+
+<table>
+  <thead>
+    <tr><th>Branch name</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>feature/minimax</code></td><td>New functionality: adversarial search agent</td></tr>
+    <tr><td><code>feature/alpha-beta-pruning</code></td><td>New functionality layered on minimax</td></tr>
+    <tr><td><code>fix/dataloader-bug</code></td><td>Correction to an existing defect</td></tr>
+    <tr><td><code>experiment/pattern-db-heuristic</code></td><td>Exploratory work that may be discarded</td></tr>
+    <tr><td><code>docs/readme-results-table</code></td><td>Documentation-only change</td></tr>
+  </tbody>
+</table>
+
+<p>When the branch is finished and tested, you integrate it with <code>git merge</code>. Note the direction: you check out the branch that should <em>receive</em> the changes, then merge the other branch into it.</p>
+
+<pre><code>$ git switch main
+$ git merge feature/minimax
+Updating 7c1d94e..b2f8017
+Fast-forward
+ src/agents/minimax.py  | 72 ++++++++++++++++++++
+ tests/test_minimax.py  | 31 +++++++++
+ 2 files changed, 103 insertions(+)</code></pre>
+
+<p>Git performs a <strong>fast-forward</strong> when <code>main</code> has not moved since the branch was created — it simply slides the <code>main</code> pointer forward. If both branches have new commits, Git creates a <strong>merge commit</strong> with two parents, combining the two lines of development.</p>
+
+<p><strong>Merge conflicts</strong> arise only when the same region of the same file was changed differently on both branches. Git cannot decide which version is correct, so it writes both into the file surrounded by conflict markers and stops:</p>
+
+<pre><code>$ git merge feature/weighted-astar
+Auto-merging src/search/astar.py
+CONFLICT (content): Merge conflict in src/search/astar.py
+Automatic merge failed; fix conflicts and then commit the result.</code></pre>
+
+<pre><code>def priority(node, goal):
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+    return node.cost + manhattan(node.state, goal)
+=======
+    return node.cost + 1.5 * manhattan(node.state, goal)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/weighted-astar</code></pre>
+
+<p>The section between <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> and <code>=======</code> is your current branch's version; the section between <code>=======</code> and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> is the incoming branch's version. Resolution is a human decision: keep one side, keep the other, or write a third version that reconciles both — for instance introducing a weight parameter so both behaviours are available. <strong>Delete all three marker lines</strong>, then finish the merge:</p>
+
+<pre><code>$ git status                      # lists "both modified" files
+$ # edit src/search/astar.py, remove markers, run the tests
+$ pytest -q
+$ git add src/search/astar.py
+$ git commit                      # Git pre-fills a merge commit message</code></pre>
+
+<p>Useful supporting commands: <code>git merge --abort</code> returns you to the pre-merge state if the conflict turns out to be larger than expected, and <code>git diff --name-only --diff-filter=U</code> lists exactly which files remain unresolved. To reduce conflicts in the first place, keep branches short-lived, pull from <code>main</code> often, and agree with teammates on who owns which module. Once merged, tidy up:</p>
+
+<pre><code>$ git branch -d feature/minimax        # safe: refuses if not merged
+$ git branch -D experiment/pattern-db  # force-delete an abandoned experiment
+$ git push origin --delete feature/minimax   # remove the remote copy too</code></pre>
+
+<p><strong>Remote collaboration on GitHub.</strong> A <em>remote</em> is a named URL pointing at another copy of the repository. By convention the primary remote is called <code>origin</code>. If you cloned, <code>origin</code> already exists; if you ran <code>git init</code> locally, you add it yourself after creating an empty repository on GitHub.</p>
+
+<pre><code>$ git remote add origin https://github.com/your-username/ai-assignment-1.git
+$ git remote -v
+origin  https://github.com/your-username/ai-assignment-1.git (fetch)
+origin  https://github.com/your-username/ai-assignment-1.git (push)
+
+$ git push -u origin main      # -u sets the upstream so later 'git push' suffices
+$ git push                     # subsequent pushes
+$ git pull                     # fetch remote commits and merge into current branch</code></pre>
+
+<p><code>git pull</code> is really <code>git fetch</code> (download remote commits) followed by <code>git merge</code> (integrate them). Some teams prefer <code>git pull --rebase</code>, which replays your local commits on top of the remote ones, producing a linear history without merge commits. Either is acceptable; be consistent within a team. The single most effective habit for avoiding painful conflicts is to <strong>pull before you start work and push when you finish a coherent chunk</strong>. Divergence is the enemy: a branch that has not seen <code>main</code> for two weeks will be far harder to merge than one synced daily.</p>
+
+<p>If someone else pushed while you were working, your push is rejected:</p>
+
+<pre><code>$ git push
+ ! [rejected]        main -&gt; main (fetch first)
+error: failed to push some refs to '...'
+
+$ git pull            # integrate their work (resolve conflicts if any)
+$ pytest -q           # confirm the combined code still works
+$ git push</code></pre>
+
+<p><strong>Pull requests (PRs)</strong> are a GitHub feature, not a Git command. You push a feature branch, open a PR proposing to merge it into <code>main</code>, and teammates review the diff line by line, leave comments, request changes, and approve. For coursework this gives you a documented code-review trail and lets automated checks (a GitHub Actions workflow running <code>pytest</code>, for example) run before anything reaches <code>main</code>. A good PR description states what changed, why, how it was tested, and any results — e.g. "Adds alpha–beta pruning; node expansions on the tic-tac-toe benchmark drop from 549,946 to 18,297; all 14 tests pass."</p>
+
+<p><strong>GitHub Issues</strong> are the lightweight task tracker. Open one per bug or work item ("Dataloader drops the final batch when len(data) % batch_size != 0"), assign it to a team member, label it, and reference it from commits. Writing <code>Fixes #12</code> in a commit message or PR body closes issue 12 automatically when the PR merges, creating a permanent link between problem and solution. For a three-person project, a simple board with columns for To do / In progress / Done plus one issue per deliverable is enough to prevent duplicated effort.</p>
+
+<p><strong>Submitting assignments.</strong> Push your final work to the designated repository (often created for you by GitHub Classroom) and submit whatever identifier the brief requires — typically the full 40-character commit hash, a short hash, a tag, or a PR link. Tagging is a clean way to mark a submission point:</p>
+
+<pre><code>$ git tag -a v1.0-submission -m "Assignment 1 final submission"
+$ git push origin v1.0-submission
+$ git rev-parse HEAD
+b2f8017c5a1d9e3f4a7c2b6d8e0f1a2c3d4e5f60</code></pre>
+
+<p>Check that the pushed state is what you think it is: <code>git status</code> should report a clean tree with nothing to commit, and the GitHub web view should show the files you expect. Work that exists only on your laptop has not been submitted.</p>
+
+<p><strong>Project organisation conventions.</strong> A predictable layout lets a marker or teammate find things without instruction and lets Python's import system work sanely. A reasonable structure for an AI assignment:</p>
+
+<pre><code>ai-assignment-1/
+├── README.md
+├── requirements.txt
+├── .gitignore
+├── src/
+│   ├── __init__.py
+│   ├── search/
+│   │   ├── __init__.py
+│   │   ├── bfs.py
+│   │   └── astar.py
+│   ├── heuristics.py
+│   └── data/
+│       └── loader.py
+├── tests/
+│   ├── test_astar.py
+│   └── test_loader.py
+├── notebooks/
+│   └── 01_exploratory_analysis.ipynb
+├── data/
+│   ├── raw/           # gitignored, documented in README
+│   └── processed/     # gitignored
+└── results/
+    └── benchmarks.csv</code></pre>
+
+<table>
+  <thead>
+    <tr><th>Directory</th><th>Contains</th><th>Committed?</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>src/</code></td><td>Importable modules: algorithms, models, utilities</td><td>Yes</td></tr>
+    <tr><td><code>tests/</code></td><td><code>pytest</code>/<code>unittest</code> test files</td><td>Yes</td></tr>
+    <tr><td><code>notebooks/</code></td><td>Exploration and figures; imports from <code>src/</code></td><td>Yes (cleared outputs preferred)</td></tr>
+    <tr><td><code>data/raw/</code></td><td>Downloaded datasets</td><td>No — provide a download script or URL</td></tr>
+    <tr><td><code>results/</code></td><td>Small CSV metric tables, plots</td><td>Yes if small</td></tr>
+    <tr><td><code>models/</code></td><td>Serialised weights, pickles</td><td>No if large</td></tr>
+  </tbody>
+</table>
+
+<p>Keeping logic in <code>src/</code> and only thin orchestration in notebooks has a practical benefit: notebook code cannot be unit-tested or diffed meaningfully, whereas a module can be both. Notebooks stored as JSON produce enormous, unreadable diffs when outputs are included, so clear outputs before committing (<code>jupyter nbconvert --clear-output --inplace notebooks/*.ipynb</code>) or use a tool such as <code>nbstripout</code>.</p>
+
+<p><strong>Reproducible environments.</strong> Commit a dependency manifest so that anyone can recreate your interpreter environment. For pip-based workflows this is <code>requirements.txt</code> with pinned versions; for conda it is <code>environment.yml</code>.</p>
+
+<pre><code># requirements.txt
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.4.2
+matplotlib==3.8.4
+pytest==8.1.1</code></pre>
+
+<pre><code># environment.yml
+name: ai-course
+channels: [conda-forge]
+dependencies:
+  - python=3.11
+  - numpy=1.26.4
+  - pandas=2.2.2
+  - scikit-learn=1.4.2
+  - pip
+  - pip:
+      - pytest==8.1.1</code></pre>
+
+<p>Exact pins (<code>==</code>) matter in AI work because library behaviour changes between versions — default solvers, random-number streams, and deprecation of parameters can all alter your numbers. Note that you commit the <em>manifest</em>, never the virtual environment directory itself, which is large, machine-specific, and regenerable.</p>
+
+<p><strong>The .gitignore file.</strong> This lists patterns Git should refuse to track. Place it at the repository root and commit it on your very first commit, before any junk has a chance to be added.</p>
+
+<pre><code># Python bytecode
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Data and model artefacts
+data/raw/
+data/processed/
+models/*.pkl
+*.h5
+*.ckpt
+
+# OS and editor noise
+.DS_Store
+.idea/
+.vscode/
+
+# Secrets
+.env
+secrets.yaml</code></pre>
+
+<p>A caveat worth knowing: <code>.gitignore</code> only prevents <em>untracked</em> files from being added. If you have already committed <code>__pycache__/</code>, ignoring it later has no effect until you untrack it with <code>git rm -r --cached __pycache__/</code> followed by a commit. Similarly, a large file committed once stays in the history forever, bloating every future clone, even if you delete it in a later commit — which is why getting <code>.gitignore</code> right at the start is worth thirty seconds of attention.</p>
+
+<p><strong>What must never be committed.</strong> Two categories are non-negotiable:</p>
+
+<ul>
+  <li><strong>Credentials.</strong> API keys, access tokens, database passwords, and SSH private keys must stay out of the repository. Public GitHub repositories are continuously scraped by bots that find and abuse leaked keys within minutes. Load secrets from environment variables instead — <code>api_key = os.environ["OPENAI_API_KEY"]</code> — and keep a committed <code>.env.example</code> listing the required variable <em>names</em> with blank values, while <code>.env</code> itself is ignored. If you do leak a key, rotating (revoking and reissuing) it is the only real fix; deleting the file does not remove it from history.</li>
+  <li><strong>Large binaries.</strong> Multi-gigabyte datasets and model checkpoints make clones slow and may exceed GitHub's file-size limits (a hard rejection above 100 MB). Instead, commit a small script or README instruction that downloads the data, or use Git LFS where the course permits it. A checksum in the README lets others verify they obtained the same file.</li>
+</ul>
+
+<p><strong>Relative paths.</strong> Code containing <code>pd.read_csv("C:/Users/Sam/Desktop/data/train.csv")</code> will fail on every machine except yours, including the marker's. Always resolve paths relative to the project, which you can do robustly with <code>pathlib</code>:</p>
+
+<pre><code>from pathlib import Path
+import pandas as pd
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]   # .../ai-assignment-1
+DATA_DIR = PROJECT_ROOT / "data" / "processed"
+
+def load_training_data() -&gt; pd.DataFrame:
+    """Load the processed training split as a DataFrame."""
+    return pd.read_csv(DATA_DIR / "train.csv")</code></pre>
+
+<p>This pattern works regardless of where the project is cloned and regardless of the current working directory from which the script is launched. It also keeps Windows/macOS/Linux separator differences out of your code.</p>
+
+<p><strong>Testing practices.</strong> Automated tests convert "I think the successor function is right" into a repeatable, machine-checked claim. They are especially valuable in AI code because the outputs — paths, probabilities, accuracy scores — are not obviously correct by inspection. Put tests in a <code>tests/</code> directory, name files <code>test_*.py</code>, and name functions <code>test_*</code> so <code>pytest</code> discovers them automatically.</p>
+
+<pre><code># tests/test_successors.py
+import pytest
+from src.search.puzzle import PuzzleState, successors
+
+def test_corner_state_has_two_moves():
+    """A blank in the top-left corner permits exactly two moves."""
+    state = PuzzleState((0, 1, 2,
+                         3, 4, 5,
+                         6, 7, 8))
+    assert len(successors(state)) == 2
+
+def test_successors_are_distinct_from_parent():
+    state = PuzzleState((1, 2, 3, 4, 0, 5, 6, 7, 8))
+    assert all(s.tiles != state.tiles for s in successors(state))
+
+@pytest.mark.parametrize("blank_index, expected", [(0, 2), (1, 3), (4, 4)])
+def test_branching_factor(blank_index, expected):
+    tiles = list(range(1, 9))
+    tiles.insert(blank_index, 0)
+    assert len(successors(PuzzleState(tuple(tiles[:9])))) == expected</code></pre>
+
+<p>For numerical code, compare with a tolerance rather than exact equality, because floating-point arithmetic is not associative:</p>
+
+<pre><code>import numpy as np
+from src.metrics import accuracy, f1_score
+
+def test_accuracy_matches_hand_calculation():
+    y_true = np.array([1, 0, 1, 1, 0])
+    y_pred = np.array([1, 0, 0, 1, 0])
+    assert accuracy(y_true, y_pred) == pytest.approx(0.8)
+
+def test_f1_is_zero_when_no_positives_predicted():
+    y_true = np.array([1, 1, 0])
+    y_pred = np.array([0, 0, 0])
+    assert f1_score(y_true, y_pred) == pytest.approx(0.0)</code></pre>
+
+<p>The equivalent in the standard library's <code>unittest</code> uses classes and assertion methods:</p>
+
+<pre><code>import unittest
+from src.search.bfs import breadth_first_search
+
+class TestBFS(unittest.TestCase):
+    def setUp(self):
+        self.graph = {"A": ["B", "C"], "B": ["D"], "C": ["D"], "D": []}
+
+    def test_finds_shortest_path(self):
+        self.assertEqual(breadth_first_search(self.graph, "A", "D"),
+                         ["A", "B", "D"])
+
+    def test_returns_none_when_unreachable(self):
+        self.assertIsNone(breadth_first_search(self.graph, "D", "A"))
+
+if __name__ == "__main__":
+    unittest.main()</code></pre>
+
+<p>Run the suite with <code>pytest -q</code> (or <code>python -m unittest discover</code>) before every commit, and certainly before every push. A useful discipline when fixing a bug is to write a failing test that reproduces it first, then fix the code until the test passes; the test then permanently protects against regression. Good targets for tests in AI coursework include successor/action generation, goal tests, heuristic admissibility on known instances, data-loading shapes and dtypes, evaluation metrics against hand-computed values, and edge cases such as empty inputs, single-element inputs, and already-solved start states.</p>
+
+<table>
+  <thead>
+    <tr><th>Component</th><th>Example assertion</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Successor generation</td><td>Branching factor matches the expected count for each blank position</td></tr>
+    <tr><td>Heuristic function</td><td><code>h(goal) == 0</code> and <code>h(s) &lt;= true_cost(s)</code> on small solved instances</td></tr>
+    <tr><td>Priority queue frontier</td><td>Popping returns nodes in non-decreasing f-value order</td></tr>
+    <tr><td>Data loader</td><td>Returned feature matrix has shape <code>(n_samples, n_features)</code> and no NaNs</td></tr>
+    <tr><td>Metric</td><td>Accuracy of a perfect prediction is 1.0; of an inverted binary prediction, 0.0</td></tr>
+    <tr><td>Train/test split</td><td>No index appears in both splits</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Documentation practices.</strong> Every public function, class, and module should carry a docstring stating its purpose, its parameters, and what it returns, including the types and any exceptions raised. Docstrings are not comments: they are accessible at runtime via <code>help(obj)</code> and <code>obj.__doc__</code>, and tools such as Sphinx and pydoc generate reference documentation from them.</p>
+
+<pre><code>def a_star(start, goal_test, successors, heuristic):
+    """Find a minimum-cost path using A* search.
+
+    Args:
+        start: The initial state object.
+        goal_test: Callable taking a state and returning True if it is a goal.
+        successors: Callable taking a state and returning an iterable of
+            (action, next_state, step_cost) tuples.
+        heuristic: Callable estimating the cost from a state to the goal.
+            Must be admissible (never overestimate) for optimality.
+
+    Returns:
+        A list of actions from start to a goal state, or None if no path
+        exists.
+
+    Raises:
+        ValueError: If heuristic returns a negative value for any state.
+    """</code></pre>
+
+<p>The <code>README.md</code> is the front door of the repository and the first thing a marker reads. It should let a stranger go from a bare clone to reproduced results without asking you a single question. A workable template covers:</p>
+
+<ul>
+  <li><strong>Title and one-paragraph problem statement</strong> — what task is being solved and with what approach.</li>
+  <li><strong>Installation</strong> — the exact commands: create a virtual environment, activate it, <code>pip install -r requirements.txt</code>.</li>
+  <li><strong>Data</strong> — where the dataset comes from, how to download it, and where to place it, since it is not in the repository.</li>
+  <li><strong>How to run</strong> — concrete invocations such as <code>python -m src.experiments.run_search --algorithm astar --puzzle 8</code>.</li>
+  <li><strong>How to test</strong> — <code>pytest -q</code>.</li>
+  <li><strong>Project structure</strong> — a short directory map.</li>
+  <li><strong>Results</strong> — a table of the numbers you report in your write-up.</li>
+  <li><strong>Known limitations and future work</strong> — honest statements about what does not work.</li>
+</ul>
+
+<pre><code># 8-Puzzle Search Agents
+
+Comparison of BFS, uniform-cost, and A* (misplaced-tile and Manhattan
+heuristics) on randomly generated solvable 8-puzzle instances.
+
+## Installation
+    python -m venv .venv
+    source .venv/bin/activate        # Windows: .venv\Scripts\activate
+    pip install -r requirements.txt
+
+## Running
+    python -m src.experiments.run_search --algorithm astar --heuristic manhattan --trials 100
+
+## Testing
+    pytest -q
+
+## Results (100 random instances, seed 42, commit b2f8017)
+| Algorithm | Mean nodes expanded | Mean runtime (s) | Optimal |
+|-----------|--------------------:|-----------------:|---------|
+| BFS       | 181,440             | 7.84             | Yes     |
+| A* (misplaced) | 3,210          | 0.21             | Yes     |
+| A* (Manhattan) | 682            | 0.05             | Yes     |
+
+## Known limitations
+- Pattern-database heuristic is not implemented; see issue #7.
+- Runtimes measured on a single machine and are indicative only.</code></pre>
+
+<p><strong>Recording results for reproducibility.</strong> State the random seeds you used, the hardware, the library versions (which the pinned <code>requirements.txt</code> already captures), and the commit hash at which each reported number was produced. Write experiment outputs to a versioned CSV in <code>results/</code> rather than retyping numbers from a terminal into a report — this removes transcription errors and lets a marker diff your table against a re-run. Being explicit about limitations is not a weakness in an assignment; an unqualified claim that turns out to be fragile costs more credit than a documented caveat.</p>
+
+<p><strong>Putting it together: a realistic week of work.</strong></p>
+
+<pre><code>$ git switch main &amp;&amp; git pull                 # start from the team's latest
+$ git switch -c feature/alpha-beta
+$ # ... implement, run pytest, iterate ...
+$ git add src/agents/minimax.py tests/test_minimax.py
+$ git commit -m "Add alpha-beta pruning to minimax agent"
+$ git add results/benchmarks.csv README.md
+$ git commit -m "Record alpha-beta node-expansion benchmarks"
+$ git switch main &amp;&amp; git pull                 # pick up teammates' work
+$ git switch feature/alpha-beta
+$ git merge main                               # resolve conflicts here, not in main
+$ pytest -q
+$ git push -u origin feature/alpha-beta        # open a PR on GitHub, request review
+$ # after approval and merge:
+$ git switch main &amp;&amp; git pull
+$ git branch -d feature/alpha-beta</code></pre>
+
+<p>Each command in that sequence is trivial; the value lies in the habit. A repository maintained this way is simultaneously a backup, a lab notebook, a collaboration channel, a debugging tool, and the submission artefact itself.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1</strong> — Supported indirectly: the topic requires committing a pinned <code>requirements.txt</code> (or <code>environment.yml</code>) and excluding the virtual environment directory via <code>.gitignore</code>, which is how a configured, pinned environment becomes reproducible for others, though it does not teach environment creation itself.</li>
+  <li><strong>MO2</strong> — Only peripherally addressed: the code examples use functions, classes, and docstrings, but implementing AI pseudocode in Python is not the subject of this topic; it is instead the version-control and documentation practice surrounding such implementations.</li>
+  <li><strong>MO3</strong> — Not directly addressed. Data-structure trade-offs appear only incidentally in illustrative commit messages and test examples (for instance, replacing a list frontier with a <code>heapq</code> priority queue); the topic does not analyse those performance characteristics.</li>
+  <li><strong>MO4</strong> — Not directly addressed. The topic references pandas/NumPy/scikit-learn only as pinned dependencies and as targets for data-loader and metric tests; it does not teach the fit/predict workflow.</li>
+  <li><strong>MO5</strong> — Fully addressed. The topic covers initialising and cloning repositories, staging and committing, inspecting and undoing history, creating and naming branches, merging and resolving conflicts, adding remotes, pushing and pulling, and using pull requests and issues on GitHub to manage and submit assignment code.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The README example deliberately shows a Markdown pipe-table inside a &lt;code&gt; block because it is literal file content being authored by the student, not tabular data presented by this document; all document-level tables use real HTML &lt;table&gt; elements. Command output (hashes, benchmark figures, library versions) is illustrative and should be re-verified against the versions in use at delivery time. Depending on institutional policy, you may wish to add a note on GitHub Classroom specifics, private-repository requirements for academic integrity, and whether Git LFS is permitted for model artefacts.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

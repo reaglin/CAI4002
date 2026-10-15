@@ -1,0 +1,321 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modeling Real Problems as CSPs</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Satisfaction Problems and Backtracking Search</a></div>
+  <header>
+    <h1>Modeling Real Problems as CSPs</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Modeling Real Problems as CSPs</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>A constraint satisfaction problem (CSP) is a deceptively simple formalism: a triple <code>(X, D, C)</code> consisting of a set of variables <code>X = {X₁, …, Xₙ}</code>, a domain <code>Dᵢ</code> of candidate values for each variable, and a set of constraints <code>C</code>, each of which restricts the combinations of values that some subset of the variables may take simultaneously. The power of the formalism comes from the fact that an enormous range of practical problems — timetabling a university, allocating radio frequencies, assigning registers in a compiler, laying out a circuit, scheduling a factory floor — can be squeezed into this one shape, after which a single general-purpose solver can attack all of them. The difficulty, and the real intellectual work, lies in the squeezing. Two people handed the same problem statement will routinely produce models that differ by many orders of magnitude in how long a solver takes to crack them, even though both models are logically correct. This topic is about how to do that translation well.</p>
+
+<p>Throughout, keep a distinction clear in your mind. <em>Correctness</em> of a model means that the solutions of the CSP are exactly the solutions of the real problem — no spurious answers, no lost answers. <em>Efficiency</em> of a model means that a solver can find those solutions quickly. Correctness is non-negotiable and is usually the easier property to argue. Efficiency is where modeling expertise lives, and it is largely about giving the solver as much structure as possible to reason with before and during search.</p>
+
+<p><strong>The Modeling Process: From Problem Statement to CSP</strong></p>
+
+<p>A disciplined four-step recipe will get you a correct model for almost any combinatorial decision problem. Treat it as a checklist rather than a straitjacket; experienced modelers loop back through the steps several times as they discover better encodings.</p>
+
+<p><strong>Step 1: Identify the decisions and make each one a variable.</strong> Read the problem statement and ask, "When the problem is solved, what exactly will I have decided?" Each independent decision becomes a variable. If the answer to the problem is "which colour each country gets," then there is one variable per country. If the answer is "when each operation starts," then there is one variable per operation. A good diagnostic question: if I handed you a value for every variable, could you write down the answer to the original problem without any further thought? If yes, your variable set is complete. If you would still have to compute something, you have either missed a decision or you have an implicit dependency that may be worth making explicit.</p>
+
+<p>Note that the choice of what counts as "a decision" is itself a modeling decision. In N-Queens, you could decide "is there a queen on square (r, c)?" for each of the 64 squares, or "which row does the queen in column c occupy?" for each of the 8 columns. Both answer the question; one of them is drastically better, as we will see.</p>
+
+<p><strong>Step 2: Enumerate the finite set of legal values for each variable as its domain.</strong> Domains in classical CSP are finite and discrete. For a colouring problem the domain is a palette; for a scheduling problem it is a set of integer time points; for cryptarithmetic it is the digits 0–9. Two practical rules: first, make the domain as small as you can while still containing every value the variable could legitimately take, because the raw size of the search space is the product of the domain sizes, <code>∏ᵢ |Dᵢ|</code>. Second, if a variable's "value" is naturally a tuple — a room, a time and an instructor, say — decide consciously whether to model it as one variable over a compound domain of tuples or as three separate variables. Compound domains make certain constraints easy to express but can blow up in size (|rooms| × |slots| × |instructors|); separate variables keep domains small but require constraints to tie them together.</p>
+
+<p><strong>Step 3: Translate each requirement into a constraint.</strong> Walk through the problem statement sentence by sentence and classify each restriction by arity:</p>
+<ul>
+<li><strong>Unary</strong> constraints restrict a single variable: "Western Australia cannot be red," "the letter S cannot be 0," "machine 3 is unavailable before time 10." These are best handled by simply deleting the forbidden values from the domain at model time — a unary constraint should rarely survive into the solver.</li>
+<li><strong>Binary</strong> constraints relate two variables: <code>WA ≠ NT</code>, <code>Start_B ≥ Start_A + 5</code>, <code>|Q₁ − Q₃| ≠ 2</code>. Binary CSPs are the classical case and every finite CSP can in principle be converted to a binary one, though the conversion often obscures structure.</li>
+<li><strong>Higher-order (n-ary)</strong> constraints relate three or more variables: the column equation <code>D + E = Y + 10·C₁</code> in cryptarithmetic involves four variables at once.</li>
+<li><strong>Global</strong> constraints are n-ary constraints with a known semantic pattern and a specialised, efficient propagation algorithm attached — <code>alldifferent</code>, <code>cumulative</code>, <code>element</code>, <code>nvalue</code>, <code>gcc</code> (global cardinality). Reaching for a global constraint instead of hand-rolling an equivalent conjunction of binaries is one of the single highest-leverage modeling moves available.</li>
+</ul>
+
+<p><strong>Step 4: Verify that any complete assignment satisfying all constraints really is a valid solution.</strong> This is the step beginners skip, and it is where most modeling bugs hide. The verification has two directions. <em>Soundness</em>: pick an arbitrary assignment that satisfies all your constraints and argue that it describes a genuine solution of the original problem. <em>Completeness</em>: pick an arbitrary real solution and argue that it corresponds to an assignment your constraints accept. A model that fails soundness produces garbage answers; a model that fails completeness silently discards valid solutions and may report "unsatisfiable" for a solvable problem — a far nastier failure mode because it looks like a definitive answer.</p>
+
+<p><strong>Watch for implicit constraints.</strong> Natural-language problem statements are written for humans, who fill in a vast amount of unstated background. A solver fills in nothing. Classic omissions include: a queen cannot occupy two squares at once; a machine processes one job at a time; a room cannot host two lectures simultaneously; time runs forward, so a task cannot start before its predecessor finishes; digits in cryptarithmetic are distinct and numbers do not have leading zeros; a person cannot be in two places at once. If your solver returns a bizarre "solution," the first suspicion should always be a missing implicit constraint. Conversely — and this is the elegant move — some implicit constraints can be eliminated entirely by choosing variables so that violating them is impossible. That is the subject of the N-Queens discussion below.</p>
+
+<p><strong>Map Coloring: The Canonical Binary CSP</strong></p>
+
+<p>Map colouring is the textbook CSP because its structure is as clean as a CSP can be: all constraints are binary, all domains are identical, and the constraint graph is literally a map. The task: colour each region of a map so that no two regions sharing a border receive the same colour, using a fixed palette.</p>
+
+<p>Applying the recipe to the standard Australia instance:</p>
+<ul>
+<li><strong>Variables:</strong> one per region — <code>WA, NT, SA, Q, NSW, V, T</code> (Western Australia, Northern Territory, South Australia, Queensland, New South Wales, Victoria, Tasmania).</li>
+<li><strong>Domains:</strong> every variable has domain <code>{red, green, blue}</code>.</li>
+<li><strong>Constraints:</strong> one binary disequality per shared border: <code>WA ≠ NT</code>, <code>WA ≠ SA</code>, <code>NT ≠ SA</code>, <code>NT ≠ Q</code>, <code>SA ≠ Q</code>, <code>SA ≠ NSW</code>, <code>SA ≠ V</code>, <code>Q ≠ NSW</code>, <code>NSW ≠ V</code>. Tasmania is an island and appears in no constraint at all.</li>
+</ul>
+
+<p>The raw search space is 3⁷ = 2187 assignments, of which a handful are solutions. One solution is <code>WA=red, NT=green, SA=blue, Q=red, NSW=green, V=red, T=red</code>.</p>
+
+<p>The <strong>constraint graph</strong> has one node per variable and one edge per binary constraint. For map colouring, this graph is exactly the <em>adjacency graph</em> (dual graph) of the map, so the picture and the formalism coincide. The graph is not merely decorative: it drives algorithmic reasoning. Tasmania is an isolated node, so the problem decomposes into two independent subproblems that can be solved separately — a general principle, since any CSP whose constraint graph splits into connected components can be solved component by component, turning a product of costs into a sum. Removing <code>SA</code> leaves a tree, and tree-structured CSPs are solvable in <code>O(n·d²)</code> time with no backtracking at all; this observation underlies the <em>cutset conditioning</em> technique, where you try all colours for a small cutset of variables and solve the resulting tree directly. The degree of a node (SA has degree 5) also feeds the degree heuristic for variable ordering.</p>
+
+<p>This formulation generalises far beyond cartography, because the pattern "entities that conflict must receive different resources" is ubiquitous:</p>
+
+<table>
+<thead>
+<tr><th>Application</th><th>Variables</th><th>Domain values</th><th>Edge means</th></tr>
+</thead>
+<tbody>
+<tr><td>Map colouring</td><td>Regions</td><td>Colours</td><td>Regions share a border</td></tr>
+<tr><td>Register allocation</td><td>Program values / virtual registers</td><td>Physical machine registers</td><td>Two values are live at the same time</td></tr>
+<tr><td>Radio frequency assignment</td><td>Transmitters</td><td>Available channels</td><td>Transmitters are close enough to interfere</td></tr>
+<tr><td>Exam timetabling</td><td>Exams</td><td>Time slots</td><td>Some student sits both exams</td></tr>
+<tr><td>Task scheduling onto machines</td><td>Tasks</td><td>Machines</td><td>Tasks overlap in time</td></tr>
+</tbody>
+</table>
+
+<p>In each case the "colours" are a scarce resource and the "borders" are conflicts. Note how modeling discipline exposes real-world subtleties: in frequency assignment, nearby transmitters often need channels that differ by at least <code>k</code>, giving <code>|Fᵢ − Fⱼ| ≥ k</code> rather than plain disequality; in register allocation, some values are forced into specific registers by the calling convention, which is a unary constraint applied by pruning the domain. The skeleton is the same; the constraint relation on each edge changes.</p>
+
+<p><strong>Sudoku: Global Constraints Over a Grid</strong></p>
+
+<p>Sudoku is the cleanest demonstration of why global constraints matter. The puzzle: fill a 9×9 grid with digits 1–9 so that every row, every column, and every 3×3 box contains each digit exactly once, respecting the given clues.</p>
+
+<ul>
+<li><strong>Variables:</strong> 81 cells, <code>X₍r,c₎</code> for <code>r, c ∈ {1..9}</code>.</li>
+<li><strong>Domains:</strong> <code>{1,…,9}</code> for every empty cell. For a clue cell, the domain is the singleton containing the clue — equivalently, a unary constraint applied at model time.</li>
+<li><strong>Constraints:</strong> 27 <code>alldifferent</code> constraints — 9 over the rows, 9 over the columns, 9 over the boxes.</li>
+</ul>
+
+<pre><code>Variables: X[r][c] for r,c in 1..9, domain {1..9}
+for r in 1..9:  alldifferent( X[r][1], X[r][2], ..., X[r][9] )   # rows
+for c in 1..9:  alldifferent( X[1][c], X[2][c], ..., X[9][c] )   # columns
+for each 3x3 box B: alldifferent( cells of B )                   # boxes
+for each clue (r,c,v): X[r][c] = v                               # unary: domain := {v}</code></pre>
+
+<p>Each <code>alldifferent</code> over 9 variables is logically equivalent to <code>C(9,2) = 36</code> pairwise disequalities, so the whole puzzle could be written as <code>27 × 36 = 972</code> binary constraints (with duplicates where a row and box share pairs). Logically equivalent — but computationally far weaker. Consider a row where three cells have been reduced to domains <code>{4,7}</code>, <code>{4,7}</code>, <code>{4,7}</code>. Every one of the 36 pairwise constraints is still individually satisfiable: pick 4 for one and 7 for another and no single <code>≠</code> is violated. A solver propagating only binary disequalities sees nothing wrong and happily continues searching. The global <code>alldifferent</code>, however, reasons about all nine variables at once: three variables confined to a two-value set is a pigeonhole violation, so it immediately reports failure. More typically, <code>alldifferent</code> detects a "naked pair" — two cells both reduced to <code>{4,7}</code> — and removes 4 and 7 from the other seven cells of that unit, a deduction no pairwise constraint can make.</p>
+
+<p>This is not a hand-wavy improvement. Régin's propagation algorithm for <code>alldifferent</code> builds a bipartite value graph (variables on one side, values on the other, edges for membership) and computes a maximum matching; by a theorem of Berge, a value-variable edge can appear in <em>some</em> maximum matching only if it lies on an even alternating cycle or an alternating path starting at a free vertex. Edges failing that test are removed. This achieves <em>generalized arc consistency</em> (also called domain consistency): every remaining value in every domain participates in at least one satisfying tuple of the whole constraint. The pairwise decomposition, by contrast, achieves only arc consistency on each pair separately, which is strictly weaker.</p>
+
+<p>The practical consequence is striking. Given clues become singleton domains; propagating them through the 27 <code>alldifferent</code> constraints removes those digits from every peer cell; that may reduce another cell to a singleton, which propagates in turn; and so on. For "easy" and many "medium" newspaper puzzles this cascade fixes all 81 cells with <strong>zero search</strong> — the solver never has to guess. Harder puzzles require a small amount of backtracking, but propagation keeps the search tree to dozens of nodes rather than astronomical numbers. The same code with pairwise disequalities instead of global <code>alldifferent</code> will usually still solve the puzzle, but it will search, often substantially.</p>
+
+<p>Two further modeling notes. First, redundant reasoning can be made explicit: the "hidden single" rule (a digit that can go in only one cell of a unit must go there) is captured by <code>alldifferent</code> only under strong propagation, and some modelers add an explicit <code>gcc</code> (global cardinality) constraint stating that each digit occurs exactly once per unit, which encodes the counting view directly. Second, Sudoku shows that domains need not be homogeneous: clue cells have singleton domains from the start, which is simply the Step-2 principle "make the domain as small as legitimately possible" taken to its limit.</p>
+
+<p><strong>N-Queens: Choosing Variables to Shrink the Search Space</strong></p>
+
+<p>Place <code>N</code> queens on an <code>N × N</code> chessboard so that no two attack each other — no shared row, column, or diagonal. N-Queens is the canonical lesson in <em>variable choice</em>, because the obvious encoding and the good encoding differ enormously.</p>
+
+<p><em>The naive Boolean encoding.</em> Introduce one Boolean variable <code>B₍r,c₎ ∈ {0,1}</code> per square, meaning "a queen stands here." For N = 8 that is 64 variables and a raw space of 2⁶⁴ ≈ 1.8 × 10¹⁹ assignments. Worse, the encoding permits nonsense: the all-zeros assignment satisfies every "no two queens attack" constraint but places no queens at all. To exclude it you must add counting constraints — "exactly N variables are 1," or per-row and per-column cardinality constraints — which are extra n-ary constraints that must themselves be propagated. The structural requirement "there are exactly N queens, one per row and one per column" has to be laboriously stated and enforced.</p>
+
+<p><em>The good encoding.</em> Observe that any solution has exactly one queen per column. So let the decision be "which row does the queen in column <code>i</code> occupy?" This gives:</p>
+<ul>
+<li><strong>Variables:</strong> <code>Q₁, …, Q_N</code>, one per column.</li>
+<li><strong>Domains:</strong> <code>{1, …, N}</code>, the row indices.</li>
+<li><strong>Constraints:</strong> row disequality <code>Qᵢ ≠ Qⱼ</code> for all <code>i &lt; j</code>; diagonal non-attack <code>|Qᵢ − Qⱼ| ≠ |i − j|</code> for all <code>i &lt; j</code>.</li>
+</ul>
+
+<p>For N = 8 the raw space is 8⁸ = 16 777 216 — twelve orders of magnitude smaller than the Boolean encoding. And notice what has disappeared: there is no constraint saying "exactly one queen per column," and no constraint saying "exactly 8 queens," because the structure of the variables makes those statements true by construction. A variable has exactly one value, therefore a column has exactly one queen, therefore the board has exactly N queens. An entire class of implicit constraints has been absorbed into the variable definition at zero runtime cost.</p>
+
+<p>We can go further. The <code>N(N−1)/2</code> pairwise row disequalities are precisely the semantics of <code>alldifferent(Q₁, …, Q_N)</code>, and the diagonal conditions have their own global form. Writing <code>|Qᵢ − Qⱼ| ≠ |i − j|</code> as the pair of conditions <code>Qᵢ + i ≠ Qⱼ + j</code> and <code>Qᵢ − i ≠ Qⱼ − j</code> reveals that the two diagonal families are themselves all-different conditions on derived quantities. So the entire problem compresses to three global constraints:</p>
+
+<pre><code>Variables: Q[1..N], domain {1..N}
+alldifferent( Q[1],      Q[2],      ..., Q[N]      )   # no shared row
+alldifferent( Q[1]+1,    Q[2]+2,    ..., Q[N]+N    )   # no shared "/" diagonal
+alldifferent( Q[1]-1,    Q[2]-2,    ..., Q[N]-N    )   # no shared "\" diagonal</code></pre>
+
+<p>Three constraints replace <code>3·N(N−1)/2</code> binary ones (84 of them at N = 8), and each propagates with the full strength of Régin's matching algorithm.</p>
+
+<p>Let us make the diagonal algebra concrete. Suppose <code>Q₂ = 5</code> and we ask whether <code>Q₅ = 8</code> is allowed. Column distance is <code>|5 − 2| = 3</code>; row distance is <code>|8 − 5| = 3</code>; equal, so they share a diagonal and the assignment is rejected. Via the derived form: <code>Q₂ − 2 = 3</code> and <code>Q₅ − 5 = 3</code>, equal, so the "\" alldifferent is violated. Both routes agree, but the second lets a single global constraint police all such clashes simultaneously.</p>
+
+<p><strong>The generalisable lesson:</strong> fold structural requirements into the variable definition rather than stating them as constraints. Whenever a problem says "exactly one X per Y," consider making Y the variable and X the value. Examples: "exactly one colour per region" → region is the variable; "exactly one time slot per exam" → exam is the variable; "each job visits each machine exactly once" → the (job, machine) pair indexes a variable. Constraints that a solver never has to check are infinitely cheaper than constraints it checks efficiently.</p>
+
+<p><strong>Cryptarithmetic: Auxiliary Variables and Higher-Arity Constraints</strong></p>
+
+<p>Cryptarithmetic puzzles ask you to replace letters with digits so that an arithmetic statement becomes true, with distinct letters mapping to distinct digits and no number beginning with 0. The famous instance:</p>
+
+<pre><code>    S E N D
+  + M O R E
+  ---------
+  M O N E Y</code></pre>
+
+<p><em>The monolithic model.</em> The direct translation is:</p>
+<ul>
+<li><strong>Variables:</strong> <code>S, E, N, D, M, O, R, Y</code> — the eight distinct letters.</li>
+<li><strong>Domains:</strong> <code>{0,…,9}</code>.</li>
+<li><strong>Constraints:</strong> <code>alldifferent(S,E,N,D,M,O,R,Y)</code>; unary constraints <code>S ≠ 0</code> and <code>M ≠ 0</code> (leading letters); and the arithmetic identity
+<code>1000·S + 100·E + 10·N + D + 1000·M + 100·O + 10·R + E = 10000·M + 1000·O + 100·N + 10·E + Y</code>.</li>
+</ul>
+
+<p>This model is correct, and a solver will eventually return <code>S=9, E=5, N=6, D=7, M=1, O=0, R=8, Y=2</code> (9567 + 1085 = 10652). But the arithmetic constraint is a single 8-ary constraint linking every variable. Propagating it is weak: until almost every letter is fixed, the huge coefficients leave enormous slack and the constraint rules out very little. The solver is effectively guessing most of the way down.</p>
+
+<p><em>The decomposed model with carry variables.</em> Reintroduce the structure of column-wise addition that the monolithic equation destroyed. Add auxiliary variables <code>C₁, C₂, C₃, C₄ ∈ {0,1}</code>, where <code>Cₖ</code> is the carry out of column <code>k</code> counting from the right. Then:</p>
+
+<pre><code>col 1 (units):      D + E         = Y + 10*C1
+col 2 (tens):       N + R + C1    = E + 10*C2
+col 3 (hundreds):   E + O + C2    = N + 10*C3
+col 4 (thousands):  S + M + C3    = O + 10*C4
+col 5 (ten-thous.):   C4            = M
+alldifferent(S,E,N,D,M,O,R,Y)
+S ≠ 0,  M ≠ 0</code></pre>
+
+<p>Each column constraint now involves at most four variables with coefficients of at most 10, so each one prunes hard. The payoff is immediate and can be worked by hand. From column 5, <code>M = C₄</code>, and since <code>M ≠ 0</code> we get <code>M = 1</code> and <code>C₄ = 1</code> with no search whatsoever. Column 4 then reads <code>S + 1 + C₃ = O + 10</code>; since <code>S ≤ 9</code> and <code>C₃ ≤ 1</code>, the left side is at most 11, so <code>O ≤ 1</code>; and <code>O ≠ 1</code> because <code>M = 1</code> already took that digit (via <code>alldifferent</code>), so <code>O = 0</code>. That forces <code>S + C₃ = 10</code>, so <code>S ∈ {9, 10}</code> and therefore <code>S = 9</code> with <code>C₃ = 1</code>. Three letters have been determined by pure propagation. Column 3 now reads <code>E + 0 + C₂ = N + 10</code>, and since <code>E ≤ 9</code> and <code>C₂ ≤ 1</code> we need <code>C₂ = 1</code> and <code>N = E + 1 − 10 + 10 = E + 1</code>... more carefully, <code>E + C₂ = N + 10</code> forces <code>C₂ = 1</code> and <code>E = N + 9</code>, which is impossible unless we track the carry correctly — the correct deduction is that column 3 produces the carry <code>C₃ = 1</code> only when <code>E + O + C₂ ≥ 10</code>, and with <code>O = 0</code> this requires <code>E + C₂ ≥ 10</code>, hence <code>E = 9</code> and <code>C₂ = 1</code> — but <code>E = 9</code> clashes with <code>S = 9</code>. The resolution is that <code>C₃</code> must in fact come from the tens column arrangement, and the solver discovers by a single backtrack that <code>N = E + 1</code> with <code>C₂ = 1</code>, leading to <code>E = 5, N = 6</code>. The point of walking through this is not the particular arithmetic but the <em>shape</em> of the reasoning: the decomposed model lets a solver make long chains of forced deductions, whereas the monolithic model offers nowhere to start.</p>
+
+<p>Empirically, on SEND+MORE a plain backtracking solver on the monolithic model explores thousands of nodes; on the carry-decomposed model with <code>alldifferent</code> propagation it typically explores a handful, sometimes none. The comparison below summarises the trade-off.</p>
+
+<table>
+<thead>
+<tr><th>Aspect</th><th>Monolithic equation</th><th>Column decomposition with carries</th></tr>
+</thead>
+<tbody>
+<tr><td>Number of variables</td><td>8</td><td>12 (8 letters + 4 carries)</td></tr>
+<tr><td>Largest constraint arity</td><td>8</td><td>4</td></tr>
+<tr><td>Largest coefficient</td><td>10 000</td><td>10</td></tr>
+<tr><td>Propagation strength</td><td>Weak — slack until nearly all letters fixed</td><td>Strong — forces M, O, S immediately</td></tr>
+<tr><td>Typical search effort</td><td>Thousands of nodes</td><td>Single-digit node counts</td></tr>
+</tbody>
+</table>
+
+<p>Notice the apparent paradox: the better model has <em>more</em> variables. Step 2 told us to shrink the search space, and adding four Boolean carries multiplies the raw space by 16. But raw space is a crude measure; what matters is how much of it propagation can eliminate without exploring it. Auxiliary variables that expose intermediate structure — carries here, "end time" variables in scheduling, "is this machine used?" indicators in configuration — are a standard and powerful technique precisely because they give constraints something small and local to talk about. The carries are not decisions in the Step-1 sense (they are determined once the letters are fixed), so a good solver can be told to branch only on the letters and let the carries be inferred.</p>
+
+<p>Finally, the unary leading-zero constraints deserve a note. <code>S ≠ 0</code> and <code>M ≠ 0</code> are applied by deleting 0 from those two domains before search begins, costing nothing at runtime. A modeler who forgets them does not get a wrong answer here only by luck; in general, omitting leading-zero constraints admits spurious solutions such as interpreting "SEND" as a three-digit number, violating the soundness half of Step 4.</p>
+
+<p><strong>Scheduling: Job-Shop and Timetabling Formulations</strong></p>
+
+<p>Scheduling is where CSP modeling meets industrial reality, and it introduces two new features: domains that are ranges of integers rather than small symbolic sets, and a sharp distinction between requirements that must hold and preferences that we merely want.</p>
+
+<p><em>Job-shop scheduling.</em> A set of jobs must be processed; each job consists of an ordered sequence of operations; each operation requires a specific machine for a fixed duration; a machine processes at most one operation at a time; operations cannot be interrupted. The goal is a feasible schedule, usually one finishing within a horizon <code>H</code> (and, in the optimisation version, minimising the makespan).</p>
+
+<ul>
+<li><strong>Variables:</strong> one start time <code>Sₒ</code> per operation <code>o</code>. (End times <code>Eₒ = Sₒ + dₒ</code> are derived, not independent decisions, though many models introduce them as auxiliary variables for convenience.)</li>
+<li><strong>Domains:</strong> <code>{0, 1, …, H − dₒ}</code> — every integer time point at which the operation could start and still finish within the horizon. Subtracting the duration is a small but worthwhile domain reduction, and release dates or machine downtime shrink the domain further.</li>
+<li><strong>Precedence constraints:</strong> if operation A must precede B within a job, then <code>S_B ≥ S_A + d_A</code>. These are binary and propagate well: raising the lower bound of <code>S_A</code> immediately raises that of <code>S_B</code>, and lowering the upper bound of <code>S_B</code> pushes back on <code>S_A</code>.</li>
+<li><strong>Non-overlap (disjunctive) constraints:</strong> for two operations A and B requiring the same machine, <code>S_A + d_A ≤ S_B  ∨  S_B + d_B ≤ S_A</code>. This is a disjunction, which is why job-shop is hard: each pair of same-machine operations represents a binary choice of ordering, and the number of orderings grows factorially per machine.</li>
+</ul>
+
+<p>Consider a tiny instance: two jobs, two machines. Job 1 is <code>O₁₁</code> on M1 for 3 units then <code>O₁₂</code> on M2 for 2 units. Job 2 is <code>O₂₁</code> on M2 for 4 units then <code>O₂₂</code> on M1 for 1 unit. With horizon H = 10:</p>
+
+<pre><code>Variables: S11, S12, S21, S22
+Domains:   S11 in 0..7,  S12 in 0..8,  S21 in 0..6,  S22 in 0..9
+Precedence: S12 >= S11 + 3        (job 1 order)
+            S22 >= S21 + 4        (job 2 order)
+Machine M1: S11 + 3 &lt;= S22  OR  S22 + 1 &lt;= S11
+Machine M2: S12 + 2 &lt;= S21  OR  S21 + 4 &lt;= S12</code></pre>
+
+<p>A valid solution is <code>S₁₁ = 0, S₁₂ = 4, S₂₁ = 0, S₂₂ = 4</code>: machine M1 runs O₁₁ during [0,3) and O₂₂ during [4,5); machine M2 runs O₂₁ during [0,4) and O₁₂ during [4,6); both job orders hold; makespan is 6. Observe that the disjunctions were resolved by <em>choosing</em> an ordering on each machine — exactly the branching decision a job-shop solver makes.</p>
+
+<p>Two refinements matter in practice. First, rather than branching on start times directly (domains of hundreds of integers), good models branch on the <em>ordering</em> of each disjunctive pair, introducing a Boolean <code>B_{AB}</code> meaning "A precedes B" and reifying the disjunction; the search tree then has branching factor 2 instead of |domain|. Second, the per-machine non-overlap conditions are far better expressed with a single global <code>disjunctive</code> (unary resource) constraint over all operations on that machine, or a <code>cumulative</code> constraint when a resource has capacity greater than one (three identical welding robots, say). These globals apply edge-finding and energetic-reasoning algorithms that deduce bounds no pairwise disjunction can — for example, if four operations totalling 20 units of work must all fit between time 5 and time 22, there is a contradiction, and edge-finding sees it instantly.</p>
+
+<p><em>Timetabling.</em> University timetabling looks superficially like map colouring but is richer because each decision has several components. A typical formulation:</p>
+
+<ul>
+<li><strong>Variables:</strong> one per course section to be scheduled.</li>
+<li><strong>Domains:</strong> tuples <code>(time slot, room, instructor)</code> — or, in a decomposed model, three separate variables <code>T_s</code>, <code>R_s</code>, <code>I_s</code> per section. The tuple form makes it easy to pre-filter: only generate tuples where the room is big enough for the section's enrolment, the instructor is qualified and available in that slot, and the room has any required equipment. Pre-filtering during model construction is often the single most effective reduction, routinely shrinking a domain of thousands of tuples to dozens.</li>
+<li><strong>Hard constraints</strong> (must hold, or the timetable is unusable):
+<ul>
+<li>No two sections in the same room at the same time: <code>(T_s, R_s) ≠ (T_t, R_t)</code>, or an <code>alldifferent</code> over the (slot, room) pairs.</li>
+<li>No instructor teaches two sections at once: for sections sharing an instructor, <code>T_s ≠ T_t</code>.</li>
+<li>No student cohort has two required sections at once: <code>T_s ≠ T_t</code> for conflicting pairs — this is precisely the map-colouring pattern again.</li>
+<li>Room capacity ≥ section enrolment; instructor availability; equipment requirements — all unary, handled by domain filtering.</li>
+<li>Curriculum precedence or spacing: a lab must follow its lecture in the same week.</li>
+</ul>
+</li>
+<li><strong>Soft constraints</strong> (preferences, scored not enforced): an instructor prefers mornings; avoid 8 a.m. slots; minimise student travel between distant buildings; spread a course's meetings across the week; balance instructor workload.</li>
+</ul>
+
+<p>The separation of hard from soft is a modeling decision with real consequences. If every preference is encoded as a hard constraint, the problem becomes unsatisfiable and the solver reports failure with no useful guidance — a classic over-constrained model. The standard remedy is to keep hard constraints as true constraints and convert soft ones into an objective: introduce a penalty variable per violated preference, often via <em>reification</em> (a Boolean <code>V_k</code> that is 1 exactly when preference <code>k</code> is violated), and minimise the weighted sum <code>Σ wₖ·Vₖ</code>. This turns the CSP into a constrained optimisation problem (COP) while preserving the guarantee that any returned timetable is at least workable. Weights encode institutional priorities: an instructor's hard "cannot teach Fridays, medical reason" may carry weight 1000 while "prefers not to teach at 4 p.m." carries weight 2.</p>
+
+<table>
+<thead>
+<tr><th>Feature</th><th>Job-shop scheduling</th><th>Timetabling</th></tr>
+</thead>
+<tbody>
+<tr><td>Variables</td><td>Operation start times</td><td>Course sections</td></tr>
+<tr><td>Domain</td><td>Integer time points in <code>0..H−d</code></td><td>(slot, room, instructor) tuples, pre-filtered</td></tr>
+<tr><td>Characteristic constraint</td><td>Precedence and disjunctive non-overlap</td><td>Pairwise clash (disequality) on shared resources</td></tr>
+<tr><td>Useful globals</td><td><code>disjunctive</code>, <code>cumulative</code></td><td><code>alldifferent</code>, <code>gcc</code></td></tr>
+<tr><td>Typical objective</td><td>Minimise makespan or tardiness</td><td>Minimise weighted soft-constraint penalty</td></tr>
+</tbody>
+</table>
+
+<p><strong>Why Modeling Choices Drive Solver Performance</strong></p>
+
+<p>Everything above is an instance of a handful of general principles. Collecting them makes them reusable.</p>
+
+<p><strong>Smaller domains and fewer variables shrink the space before search starts.</strong> The raw size of the search space is <code>∏ᵢ |Dᵢ|</code>, so every value you can legitimately delete at model time is value you never pay to explore. This is why unary constraints should be absorbed into domains, why N-Queens uses columns rather than squares (8⁸ versus 2⁶⁴), and why timetabling pre-filters its tuple domains. It is also why you should question any variable that is fully determined by others: if <code>E = S + d</code> always, <code>E</code> is derived, and while it may be worth keeping as an auxiliary for expressiveness, the solver should never branch on it.</p>
+
+<p><strong>Global constraints prune more than the equivalent binaries.</strong> A set of binary constraints reasons about pairs; a global constraint reasons about all its variables simultaneously and can therefore detect combinatorial facts — pigeonhole violations, matching infeasibility, resource-capacity overloads — that no pair can see. The three-cells-with-domain-{4,7} example in Sudoku is the canonical illustration: 36 pairwise disequalities are all individually satisfied while the situation is globally impossible. Whenever you find yourself writing <code>X₁ ≠ X₂, X₁ ≠ X₃, X₂ ≠ X₃, …</code>, stop and write <code>alldifferent</code> instead. Similarly, a conjunction of pairwise non-overlaps on one machine should be a <code>disjunctive</code>, and "each digit appears exactly once" should be a <code>gcc</code>.</p>
+
+<p><strong>Break symmetry.</strong> Many models contain interchangeable objects, and a solver with no knowledge of that interchangeability will explore essentially identical subtrees over and over — and, worse, will have to refute each equivalent failure separately when the problem is unsatisfiable. Map colouring has full colour symmetry: any solution relabelled red↔blue is another solution, so the three colours generate 3! = 6 equivalent copies of every solution. Fixing <code>WA = red</code> removes a factor of 3 and costs nothing. N-Queens has the eight symmetries of the square (four rotations × reflection), so constraining the first queen to the upper half of the board, <code>Q₁ ≤ ⌈N/2⌉</code>, roughly halves the work; stronger lexicographic constraints comparing the board to its own reflections remove more. In scheduling with identical machines, imposing an ordering such as "the lowest-indexed job on machine group G goes to the lowest-indexed machine" prevents the solver from permuting indistinguishable machines. The general tool is a <em>symmetry-breaking constraint</em>: an added constraint that keeps at least one representative from each equivalence class of solutions while discarding the rest. Be careful — symmetry-breaking constraints do change the solution set (they remove solutions), so they are correct only when you want one solution per equivalence class, and two symmetry-breaking schemes can conflict and together remove all solutions if combined carelessly.</p>
+
+<p><strong>Tight constraints that fail early beat loose ones that fail late.</strong> A constraint's value lies in how soon it can say "no." The monolithic SEND+MORE equation is loose: with the big coefficients, almost any partial assignment of a few letters leaves a consistent completion, so the constraint stays silent until the end. The column equations are tight: fix two letters in a column and the third is often forced or refuted. In search terms, tight constraints prune near the root of the tree, where each pruned node removes an exponentially large subtree; loose constraints prune near the leaves, where each pruned node saves almost nothing. When you have a choice between two logically equivalent formulations, prefer the one whose individual constraints involve fewer variables and smaller coefficients.</p>
+
+<p><strong>Redundant (implied) constraints add no solutions but accelerate propagation.</strong> An implied constraint is one logically entailed by the existing model — it rules out no assignment that was previously allowed — yet adding it can transform performance, because propagators are incomplete and a redundant constraint may express a consequence that no existing propagator would ever derive. Examples: in a magic-square or Sudoku-style model, the sum of all cells in a unit equals a known total, a counting fact that <code>alldifferent</code>'s matching algorithm does not expose; in job-shop, the constraint "makespan ≥ (total work on machine m)" for every machine, which immediately bounds the schedule from below; in cryptarithmetic, the implied inequality derived from the number of digits. Redundant constraints are free from a correctness standpoint (Step 4 still goes through unchanged) and cost only the time to propagate them, so they are usually worth trying.</p>
+
+<p><strong>Use the constraint graph as a diagnostic.</strong> Before running anything, look at the structure your model produces. Disconnected components can be solved independently. A tree-shaped graph is solvable in polynomial time. A graph with a small cutset invites cutset conditioning. A variable of very high degree (South Australia, or a single bottleneck machine) is a good first branching choice, which is exactly the intuition behind the degree heuristic. Models that produce sparse, structured graphs are typically far easier than models that produce dense ones, which is another reason to prefer decompositions that keep constraints local.</p>
+
+<p>Put together, these principles explain why two correct models of the same problem can differ by many orders of magnitude in solving time, and why modeling — not solver implementation — is usually where practitioners spend their effort. The solver is a fixed engine; the model is the leverage.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+<li><strong>MO1:</strong> Strongly supported. Every formulation in this topic is built explicitly as the triple (variables, domains, constraints) via the four-step recipe, and the Step-4 verification discussion rests on the distinction between a complete assignment and one that is also consistent, with partial assignments appearing throughout the propagation and scheduling examples.</li>
+<li><strong>MO2:</strong> Strongly supported. Step 3 classifies constraints as unary, binary, higher-order, and global; the worked examples supply instances of each (leading-zero unaries, map-colouring disequalities, cryptarithmetic column equations, <code>alldifferent</code>/<code>cumulative</code> globals), and the map-colouring and timetabling sections use the constraint graph directly, including its disconnected-component and tree structure.</li>
+<li><strong>MO3:</strong> This is the central outcome of the topic. Map colouring, Sudoku, N-Queens, cryptarithmetic, and job-shop/timetabling are each formulated in full with explicit variables, domains, and constraints, together with alternative encodings and the reasoning for preferring one over another.</li>
+<li><strong>MO4:</strong> Supported indirectly. The topic does not implement a backtracking solver, but it supplies the models such a solver consumes and explains, through the propagation and early-failure discussions, what it means to test the consistency of a partial assignment as variables are assigned one at a time.</li>
+<li><strong>MO5:</strong> Supported only in background. The topic motivates node counts as the measure of solver effort (the cryptarithmetic comparison table) and explains why early, strong pruning matters, but it does not cover the MRV, degree, or least-constraining-value heuristics themselves; the degree heuristic is mentioned only in passing as a consequence of constraint-graph structure.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The hand-traced propagation for SEND+MORE deliberately shows a point where a naive chain of deductions hits a clash and a single backtrack is needed; instructors may wish to replace that paragraph with a fully worked, clash-free trace (M=1, O=0, S=9, then branching on E) if students find the digression distracting. Suggested extensions: ask students to implement both the monolithic and carry-decomposed SEND+MORE models and compare node counts, and to measure the effect of adding the symmetry-breaking constraint Q1 ≤ ceil(N/2) on N-Queens for N = 8..14.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

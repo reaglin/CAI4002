@@ -1,0 +1,271 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Five Components of a Search Problem</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Problem Formulation and State Space Representation</a></div>
+  <header>
+    <h1>The Five Components of a Search Problem</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>The Five Components of a Search Problem</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Search is the engine that drives a large part of classical artificial intelligence, but an algorithm can only search something that has been described precisely. Before any algorithm — breadth-first, uniform-cost, A* — can be let loose on a task, the task itself must be rewritten as a <strong>search problem</strong>: a mathematical object with exactly five parts. Those five parts are the <strong>state space</strong> (together with a designated <strong>initial state</strong>), the <strong>actions</strong> available in each state, the <strong>transition model</strong> that says what each action does, the <strong>goal test</strong> that recognises success, and the <strong>path cost function</strong> that measures how good a solution is. This topic works through each component in turn, shows how they interlock, and demonstrates with worked formulations that the five components together pin down a problem completely and unambiguously.</p>
+
+<p>The payoff of this discipline is separation of concerns. Once a problem is expressed in the five-component form, the problem-solving agent no longer needs to know anything about tile puzzles, Romanian geography or dirty floors. It needs only to call <code>ACTIONS(s)</code>, call <code>RESULT(s, a)</code>, call <code>GOAL-TEST(s)</code> and add up step costs. The same search code therefore solves every problem that can be cast in this mould — which is the whole point of having a mould.</p>
+
+<p><strong>Why formal problem definition matters</strong></p>
+
+<p>An informal description such as "get the robot to the loading bay" or "tidy up the office" is useless to an algorithm because it leaves hundreds of questions open. Where can the robot start? Can it move diagonally? Does turning cost anything? Does "tidy" mean every surface clear, or merely the floor? A formal definition answers all such questions in advance. The practical test of a good formulation is a kind of inter-rater reliability: <em>any two people given the same five-component specification should agree on exactly which action sequences are valid solutions, and which of those solutions is cheapest.</em> If two competent readers disagree, the specification is incomplete, and the disagreement will show up later as a bug — an algorithm that returns an "illegal" plan, or one that reports failure on a solvable instance.</p>
+
+<p>The formal vocabulary also gives us the definitions on which all later analysis rests:</p>
+
+<ul>
+<li>A <strong>solution</strong> is a sequence of actions that leads from the initial state to a state satisfying the goal test, where every action in the sequence is applicable in the state in which it is taken.</li>
+<li>An <strong>optimal solution</strong> is a solution whose total path cost is minimal among all solutions. A problem may have many optimal solutions (ties) or, if no goal state is reachable, none at all.</li>
+<li><strong>Failure</strong> is the correct answer when no solution exists; an algorithm that cannot distinguish "no solution" from "I gave up" is answering a different question.</li>
+</ul>
+
+<p>Crucially, <strong>formulation is a modelling choice, not a fact of nature</strong>. The same real-world task can be formulated in many ways, and the choice has enormous practical consequences. Consider the 8-queens problem — place eight queens on a chessboard so that none attacks another. Two formulations:</p>
+
+<ul>
+<li><em>Incremental, naive:</em> states are any arrangement of 0–8 queens on the board; actions add a queen to any empty square. The state space contains roughly 1.8 × 10<sup>14</sup> sequences to examine.</li>
+<li><em>Incremental, constrained:</em> states are arrangements of <em>k</em> non-attacking queens, one per column in the leftmost <em>k</em> columns; actions add a non-attacking queen to the leftmost empty column. The state space shrinks to about 2,057 states.</li>
+</ul>
+
+<p>Both formulations are correct — both have exactly the same 92 solutions — yet one is searchable in milliseconds and the other is hopeless. Nothing changed about the world; only the model changed. This is why formulation is treated as a skill in its own right rather than as a clerical preliminary.</p>
+
+<p><strong>States and the state space</strong></p>
+
+<p>A <strong>state</strong> is a representation of a situation in the world, expressed at a chosen level of <strong>abstraction</strong>. The guiding principle is: <em>a good abstraction removes every detail that is irrelevant to the task, while retaining everything needed to decide which actions are applicable, to compute their effects, and to test the goal.</em></p>
+
+<p>Take the classic Romania route-finding problem. The real world contains the weather, the fuel level, the radio station, the colour of the car, fellow travellers and the scenery. For the purpose of getting from Arad to Bucharest, a state can be reduced to a single atomic fact: <code>In(Arad)</code>. The abstraction is <em>valid</em> because every abstract solution (a sequence of city-to-city moves) can be expanded into a real-world solution (an actual drive along those roads), and it is <em>useful</em> because each abstract action is easier to carry out than the original problem. Abstraction that goes too far breaks solvability. If we abstracted the 8-puzzle state down to "number of tiles out of place", we could no longer tell which moves are legal or what they do — the model would be unusable even though it is smaller.</p>
+
+<p>Contrast this with the 8-puzzle, where the state must record the exact position of all eight tiles and the blank. Discarding tile identities ("three tiles in the top row") destroys the ability to test the goal. The right abstraction is problem-specific; there is no universal rule beyond "keep what the other four components need".</p>
+
+<p>Formally, the <strong>state space</strong> is the set of all states reachable from the initial state by any sequence of applicable actions. It is naturally viewed as a <strong>directed graph</strong>: nodes are states, and a directed edge labelled <em>a</em> runs from <em>s</em> to <em>s'</em> whenever <em>a</em> is applicable in <em>s</em> and <code>RESULT(s, a) = s'</code>. Edges carry weights given by the step cost. A solution is then simply a path in this graph from the initial node to any goal node, and an optimal solution is a minimum-weight such path. (Note that the state-space graph is an object in the world of the problem; the <em>search tree</em> that an algorithm builds while exploring it is a different object, since a single state may correspond to many tree nodes reached by different paths.)</p>
+
+<p>State spaces grow explosively with problem size — the phenomenon known as combinatorial explosion:</p>
+
+<table>
+<thead>
+<tr><th>Problem</th><th>State representation</th><th>Number of reachable states</th></tr>
+</thead>
+<tbody>
+<tr><td>Vacuum world, 2 squares</td><td>Agent location + dirt flag per square</td><td>2 × 2<sup>2</sup> = 8</td></tr>
+<tr><td>Vacuum world, <em>n</em> squares</td><td>Agent location + dirt flag per square</td><td><em>n</em> · 2<sup><em>n</em></sup></td></tr>
+<tr><td>8-puzzle (3×3)</td><td>Permutation of 8 tiles + blank</td><td>9!/2 = 181,440</td></tr>
+<tr><td>15-puzzle (4×4)</td><td>Permutation of 15 tiles + blank</td><td>16!/2 ≈ 1.3 × 10<sup>13</sup></td></tr>
+<tr><td>24-puzzle (5×5)</td><td>Permutation of 24 tiles + blank</td><td>25!/2 ≈ 7.8 × 10<sup>24</sup></td></tr>
+<tr><td>8-queens (column-constrained)</td><td>One queen per leftmost <em>k</em> columns</td><td>≈ 2,057</td></tr>
+</tbody>
+</table>
+
+<p>The division by 2 in the sliding-tile figures is worth understanding: the legal moves generate only <em>even</em> permutations, so the 9! arrangements split into two mutually unreachable halves of 181,440 each. This is an important lesson — the state space is defined by <em>reachability</em>, not by everything one could write down. Half of all "states" in the naive sense are simply not in the state space of a given 8-puzzle instance, and an algorithm that searches for a goal in the wrong half will correctly report failure.</p>
+
+<p>State spaces may be <strong>finite</strong> (the 8-puzzle, Romania) or <strong>infinite</strong> (the set of all integers reachable by "add 1" and "double"; a robot on an unbounded grid; the set of all strings generated by a grammar). Finiteness matters for completeness guarantees, but it is not a precondition for formulating a problem. In almost every case the state space is defined <strong>implicitly</strong> — by giving the initial state plus the actions and transition model, and letting the reachable set follow — rather than by enumerating states explicitly. Nobody stores 1.3 × 10<sup>13</sup> fifteen-puzzle configurations; the search generates them on demand.</p>
+
+<p><strong>The initial state</strong></p>
+
+<p>The <strong>initial state</strong> is the state from which the agent begins. Three properties of it deserve emphasis.</p>
+
+<p>First, it <strong>must be written in exactly the same representation used for all other states</strong>. If states are tuples <code>(agentLocation, dirtA, dirtB)</code>, then the initial state must be a tuple of that shape, e.g. <code>(A, Dirty, Dirty)</code>. Mixing representations — describing the start in English and the successors as tuples — breaks the transition model and the goal test, both of which are functions over the state representation. This sounds obvious but it is one of the commonest errors in student formulations.</p>
+
+<p>Second, <strong>changing the initial state generally changes both the solution and the reachable portion of the state space</strong>. In Romania, starting <code>In(Arad)</code> and starting <code>In(Iasi)</code> yield entirely different optimal routes. In the 8-puzzle, an initial state in the "odd permutation" half makes the standard goal unreachable, so the reachable sub-graph contains no goal state and the correct answer is failure. The problem is therefore the pair (world dynamics, starting point): the dynamics alone do not determine the state space.</p>
+
+<p>Third, some problems do not supply a known initial state. If the agent's sensors are absent or imperfect, the best it can say is "I am in one of these states". The standard remedy is to search in the space of <strong>belief states</strong> — sets of physical states consistent with what is known. For the two-square vacuum world with no sensors at all, the initial belief state is the set of all eight physical states, <code>{s1, s2, ..., s8}</code>, and the transition model maps belief states to belief states. The remarkable consequence is that a conformant plan such as <code>[Right, Suck, Left, Suck]</code> cleans the world from <em>any</em> starting configuration, because each action shrinks the belief state until it contains only clean states. Belief-state search is still an ordinary five-component search problem — only the meaning of "state" has changed.</p>
+
+<p>Together with the actions and transition model, the initial state <em>implicitly defines the whole state space</em>: state space = closure of {initial state} under RESULT.</p>
+
+<p><strong>Actions and applicability</strong></p>
+
+<p>The function <code>ACTIONS(s)</code> returns the set of actions that are <strong>applicable</strong> (legal) in state <em>s</em>. Applicability is <strong>state-dependent</strong>: an action that is perfectly legal in one state may be illegal in another. In the 8-puzzle, <code>Up</code> is applicable only when the blank is not already in the top row; in Romania, the action "drive to Sibiu" exists only in states where the agent is in a city adjacent to Sibiu. Writing a single global action list without applicability conditions is a modelling error, because it allows the search to generate states that cannot exist.</p>
+
+<p>This is the core function of applicability: <strong>restricting the action set prevents the generation of invalid or impossible states</strong>. A sliding-tile formulation that permits <code>Up</code> from the top row would either crash or, worse, silently invent a tenth square. A 8-queens formulation that forbids placing a queen on an attacked square keeps the entire search inside the space of partial solutions. Constraints can be enforced either in <code>ACTIONS</code> (pruning at the source) or in the goal test (filtering at the end); pushing them into <code>ACTIONS</code> is almost always vastly more efficient.</p>
+
+<p>The <strong>granularity</strong> of actions is another modelling decision with real consequences:</p>
+
+<ul>
+<li><em>Too fine:</em> modelling a drive from Arad to Sibiu as thousands of one-metre movements makes solutions thousands of steps long, bloats the branching factor and renders search intractable — even though the model is "more accurate".</li>
+<li><em>Too coarse:</em> modelling the action as "travel to any city in Romania" hides the road network, assumes capabilities the agent lacks, and may admit abstract solutions that cannot be executed. Likewise, defining the 8-puzzle action as "swap any two tiles" produces a formulation whose solutions are not legal puzzle moves.</li>
+<li><em>Just right:</em> each action is a self-contained step that the agent can reliably execute without further planning — one road segment, one tile slide, one queen placement.</li>
+</ul>
+
+<p>In the Romania example the applicability sets are read directly off the map. From Arad there are exactly three roads, so:</p>
+
+<pre><code>ACTIONS(In(Arad))      = { Go(Sibiu), Go(Timisoara), Go(Zerind) }
+ACTIONS(In(Bucharest)) = { Go(Fagaras), Go(Pitesti), Go(Giurgiu), Go(Urziceni) }
+ACTIONS(In(Oradea))    = { Go(Zerind), Go(Sibiu) }</code></pre>
+
+<p>Note that <code>Go(Bucharest)</code> is <em>not</em> in <code>ACTIONS(In(Arad))</code>: there is no direct road, and allowing it would make the model describe a different (non-existent) Romania.</p>
+
+<p><strong>The transition model (successor function)</strong></p>
+
+<p>The <strong>transition model</strong> <code>RESULT(s, a)</code> specifies what each applicable action does: it returns the state that results from performing action <em>a</em> in state <em>s</em>. It is the component that turns a static vocabulary of states into a dynamic system.</p>
+
+<p>Taken together, <code>ACTIONS</code> and <code>RESULT</code> constitute the <strong>successor function</strong>, which maps a state to the set of all states directly reachable from it:</p>
+
+<pre><code>SUCCESSORS(s) = { (a, RESULT(s, a)) : a in ACTIONS(s) }</code></pre>
+
+<p>This is precisely the operation that a search algorithm calls "expanding a node". In a <strong>deterministic, fully observable</strong> environment each action leads to exactly one successor state, so <code>RESULT</code> is a single-valued function. Applied repeatedly from the initial state, it generates the entire reachable state space — which is why we can define vast state spaces in a few lines of code without ever enumerating them.</p>
+
+<p>For the two-square vacuum world, with state written as <code>(location, dirtA, dirtB)</code> and actions <code>{Left, Right, Suck}</code>, the model is small enough to tabulate:</p>
+
+<table>
+<thead>
+<tr><th>State <em>s</em></th><th>RESULT(<em>s</em>, Left)</th><th>RESULT(<em>s</em>, Right)</th><th>RESULT(<em>s</em>, Suck)</th></tr>
+</thead>
+<tbody>
+<tr><td>(A, Dirty, Dirty)</td><td>(A, Dirty, Dirty)</td><td>(B, Dirty, Dirty)</td><td>(A, Clean, Dirty)</td></tr>
+<tr><td>(A, Dirty, Clean)</td><td>(A, Dirty, Clean)</td><td>(B, Dirty, Clean)</td><td>(A, Clean, Clean)</td></tr>
+<tr><td>(A, Clean, Dirty)</td><td>(A, Clean, Dirty)</td><td>(B, Clean, Dirty)</td><td>(A, Clean, Dirty)</td></tr>
+<tr><td>(B, Dirty, Dirty)</td><td>(A, Dirty, Dirty)</td><td>(B, Dirty, Dirty)</td><td>(B, Dirty, Clean)</td></tr>
+<tr><td>(B, Clean, Dirty)</td><td>(A, Clean, Dirty)</td><td>(B, Clean, Dirty)</td><td>(B, Clean, Clean)</td></tr>
+</tbody>
+</table>
+
+<p>Two modelling decisions are visible in the table. Moving <code>Left</code> in square A is treated as a legal no-op rather than as an inapplicable action — an equally valid alternative is to remove it from <code>ACTIONS(A, ·, ·)</code>; and <code>Suck</code> on a clean square is a no-op. Both choices must be stated explicitly, because a reader who assumed otherwise would compute different solutions.</p>
+
+<p>For the 8-puzzle the model is defined by formula rather than table: if the blank is at row <em>r</em>, column <em>c</em>, then <code>RESULT(s, Up)</code> is the state obtained by exchanging the blank with the tile at (<em>r</em>−1, <em>c</em>). Note the convention — actions are named for the movement of the <em>blank</em>, which keeps the branching factor at 2–4 and the description compact.</p>
+
+<p><strong>Non-deterministic</strong> problems generalise the model so that <code>RESULTS(s, a)</code> returns a <em>set</em> of possible outcome states. The "erratic vacuum cleaner", whose <code>Suck</code> action sometimes cleans the adjacent square too and sometimes deposits dirt on a clean square, has <code>RESULTS((A, Clean, Dirty), Suck) = {(A, Clean, Dirty), (A, Dirty, Dirty)}</code>. In such worlds a solution is no longer a simple sequence but a contingency plan containing conditionals, e.g. <code>[Suck, if State = Dirty then Suck else []]</code>. The five components survive intact; only the type of <code>RESULT</code> and the type of "solution" change.</p>
+
+<p><strong>The goal test</strong></p>
+
+<p>The <strong>goal test</strong> <code>GOAL-TEST(s)</code> is a Boolean function that determines whether a given state is a goal state. It comes in two flavours.</p>
+
+<ul>
+<li><strong>Explicit:</strong> the goal is an enumerated set of states, and the test is set membership. Romania: <code>GOAL-TEST(s) ≡ (s = In(Bucharest))</code>. The 8-puzzle: <code>GOAL-TEST(s) ≡ (s = the designated goal configuration)</code>. The vacuum world with an explicit goal: <code>s ∈ {(A, Clean, Clean), (B, Clean, Clean)}</code>.</li>
+<li><strong>Implicit:</strong> the goal is a <em>property</em> that a state may satisfy, checked by evaluating a condition. The vacuum world is more naturally written <code>GOAL-TEST(s) ≡ (every square is Clean)</code> — which works for 2 squares or 200 without listing anything. The 8-queens goal test is "8 queens placed and no pair attacking". Chess uses "checkmate", a structural property that no one could usefully enumerate.</li>
+</ul>
+
+<p>Implicit tests are essential whenever goal states are numerous, unknown in advance, or expensive to enumerate. They also keep the formulation honest: writing the goal as a condition forces you to say exactly what "done" means. A vague goal test such as "the room is tidy" or "the route is good" is one of the classic formulation errors, because two readers will disagree about which action sequences count as solutions.</p>
+
+<p>The number of goal states varies: there may be <strong>many</strong> (92 solutions to 8-queens; any clean configuration in the vacuum world), <strong>exactly one</strong> (the standard 8-puzzle target), or <strong>none reachable at all</strong> (an 8-puzzle instance of the wrong parity; a route-finding instance where the destination lies on an isolated island). An algorithm must be prepared to search the entire reachable space and report failure.</p>
+
+<p>Finally, <em>when</em> the test is applied is an algorithmic detail with real consequences. The generic search algorithm applies <code>GOAL-TEST</code> to a node when it is <strong>selected for expansion</strong> (popped from the frontier); this is what allows uniform-cost search and A* to guarantee optimality, since a cheaper path to the same goal may still be sitting in the frontier. Other algorithms — breadth-first search, for example — apply the test when a node is <strong>generated</strong>, which saves a whole level of expansion and is safe there because with uniform step costs the first goal generated is already shallowest. Testing at generation time in uniform-cost search, by contrast, can return a sub-optimal solution. The goal test is the same function in both cases; the placement of the call is a design decision that must be justified.</p>
+
+<p><strong>Path cost and step cost</strong></p>
+
+<p>The <strong>path cost function</strong> assigns a numeric cost to a sequence of actions, and it is what makes "optimal" meaningful. It is almost always built additively from <strong>step costs</strong>: <code>c(s, a, s')</code> is the cost of taking action <em>a</em> in state <em>s</em> and arriving at <em>s'</em>. For a path that visits states <em>s</em><sub>0</sub>, <em>s</em><sub>1</sub>, …, <em>s</em><sub><em>n</em></sub> via actions <em>a</em><sub>1</sub>, …, <em>a</em><sub><em>n</em></sub>:</p>
+
+<pre><code>g(path) = c(s0, a1, s1) + c(s1, a2, s2) + ... + c(s(n-1), an, sn)</code></pre>
+
+<p>Three technical conditions matter. Step costs are assumed <strong>non-negative</strong>: negative edges would mean that looping could reduce cost indefinitely, so there would be no optimal solution and the standard algorithms' arguments would collapse. Many algorithms go further and require step costs to be <strong>strictly positive</strong> — bounded below by some small ε &gt; 0 — to guarantee termination: with zero-cost actions available, an agent could execute an infinite sequence of free moves without ever increasing <em>g</em>, and uniform-cost search could be trapped in that infinite zero-cost loop forever. Finally, the cost function must be <strong>consistent with itself</strong>: the same action in the same state must always cost the same, and costs must be expressed in a single unit. A formulation that charges kilometres for some roads and minutes for others is meaningless, because the sums being compared are not comparable.</p>
+
+<p>An <strong>optimal solution</strong> is a solution whose path cost is lowest among all solutions. Note that "optimal" is relative to the cost function you chose, not to any absolute notion of goodness — which is why the final principle below matters so much.</p>
+
+<p>A very common and important special case is the <strong>unit-cost</strong> model, where <code>c(s, a, s') = 1</code> for every action. Then <code>g(path)</code> is simply the number of actions, and minimising path cost is identical to finding the <strong>shallowest</strong> goal node. This is exactly the condition under which breadth-first search is optimal, and under which uniform-cost search degenerates into breadth-first search. The 8-puzzle is conventionally given unit step costs, so an optimal solution is one with the fewest tile slides.</p>
+
+<p>The following table shows how different step-cost choices change the meaning of "optimal" for the very same Romania road map:</p>
+
+<table>
+<thead>
+<tr><th>Step cost c(s, a, s')</th><th>Interpretation of g</th><th>What an optimal solution minimises</th></tr>
+</thead>
+<tbody>
+<tr><td>1 per road taken</td><td>Number of towns passed through</td><td>Fewest legs of the journey</td></tr>
+<tr><td>Road length in km</td><td>Total distance driven</td><td>Shortest route (Arad→Sibiu→Rimnicu Vilcea→Pitesti→Bucharest, 418 km)</td></tr>
+<tr><td>Estimated driving time</td><td>Hours on the road</td><td>Fastest route — may prefer a longer motorway detour</td></tr>
+<tr><td>Fuel used (litres)</td><td>Fuel consumed</td><td>Cheapest to run; penalises hills and stop-start town driving</td></tr>
+<tr><td>Tolls + fuel price</td><td>Money spent</td><td>Cheapest route in euros; may avoid toll roads entirely</td></tr>
+</tbody>
+</table>
+
+<p>Each row is a legitimate formulation and each can produce a <em>different</em> optimal route over an identical state-space graph. The decisive guideline is therefore that <strong>the cost measure should reflect the agent's real performance measure</strong>. If the agent is judged on arrival time, charging kilometres is a modelling error, and the "optimal" answer the search returns will be optimal for the wrong question. Where several quantities matter at once — say time and money — the usual device is a weighted sum (<code>c = time_hours + 0.1 × euros</code>), which forces the designer to state the trade-off explicitly rather than leaving it hidden.</p>
+
+<p><strong>Putting the five components together: three worked formulations</strong></p>
+
+<p>The table below shows complete specifications of three classic problems. Each row is self-contained: given only the row, two readers should agree on every valid solution.</p>
+
+<table>
+<thead>
+<tr><th>Component</th><th>Route finding in Romania</th><th>8-puzzle</th><th>Two-square vacuum world</th></tr>
+</thead>
+<tbody>
+<tr><td>States</td><td><code>In(c)</code> for each city <em>c</em> on the map (20 cities)</td><td>A placement of tiles 1–8 and the blank on 9 squares (181,440 reachable)</td><td><code>(location, dirtA, dirtB)</code> with location ∈ {A, B} (8 states)</td></tr>
+<tr><td>Initial state</td><td><code>In(Arad)</code></td><td>Any given legal configuration, e.g. <code>[7,2,4 / 5,_,6 / 8,3,1]</code></td><td><code>(A, Dirty, Dirty)</code> (or a belief state if sensorless)</td></tr>
+<tr><td>Actions</td><td><code>Go(c')</code> for each city <em>c'</em> joined to the current city by a road</td><td><code>{Up, Down, Left, Right}</code> moving the blank, restricted by board edges</td><td><code>{Left, Right, Suck}</code></td></tr>
+<tr><td>Transition model</td><td><code>RESULT(In(c), Go(c')) = In(c')</code></td><td>Swap the blank with the neighbouring tile in the named direction</td><td>Move changes location; <code>Suck</code> sets the current square to Clean</td></tr>
+<tr><td>Goal test</td><td><code>s = In(Bucharest)</code> (explicit)</td><td><code>s = [1,2,3 / 4,5,6 / 7,8,_]</code> (explicit, single goal)</td><td>All squares Clean (implicit; two goal states)</td></tr>
+<tr><td>Path cost</td><td>Sum of road distances in km</td><td>1 per move; <em>g</em> = number of moves</td><td>1 per action; <em>g</em> = number of actions</td></tr>
+<tr><td>Branching factor</td><td>1–4 (map-dependent)</td><td>2 (corner), 3 (edge), 4 (centre); ≈ 3 average</td><td>3</td></tr>
+<tr><td>Typical solution</td><td>Arad, Sibiu, Rimnicu Vilcea, Pitesti, Bucharest (418 km)</td><td>Optimal solutions average ≈ 22 moves, worst case 31</td><td><code>[Suck, Right, Suck]</code> (cost 3)</td></tr>
+</tbody>
+</table>
+
+<p>Reading across any row shows how tightly the components are coupled. Change the state representation and you must rewrite the transition model and the goal test. Change the action granularity and the branching factor, solution length and cost scale all change with it. Change the step cost and the optimal solution may change even though the graph does not. The five components are not five independent paragraphs to be written in isolation; they are five facets of one coherent model, and the test of that model is always the same — that it generates exactly the solutions the real task admits, no more and no fewer.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+<li><strong>MO1:</strong> Directly supported. The topic defines each of the standard components — state space with initial state, actions, transition model, goal test and path cost — and the worked table shows all of them instantiated for specific task descriptions.</li>
+<li><strong>MO2:</strong> Directly supported. The discussion of abstraction in the route-finding and 8-puzzle examples shows which details can be discarded and explains the criterion that what remains must still support applicability, the transition model and the goal test, so that solvability is preserved.</li>
+<li><strong>MO3:</strong> Directly supported. The 8-puzzle, two-square vacuum world, 8-queens and Romania route-finding problems are each formulated in five-component form, including alternative 8-queens formulations and the sensorless belief-state vacuum variant.</li>
+<li><strong>MO4:</strong> Partially supported. The topic defines the state space as a graph of states and edges and flags that the search tree built by an algorithm is a distinct object in which one state may appear as several nodes, but node attributes, the frontier and the explored set are treated elsewhere.</li>
+<li><strong>MO5:</strong> Partially supported. The topic supplies the criteria a formulation must satisfy — unambiguous solutions, applicability restrictions, well-defined explicit or implicit goal tests, non-negative and internally consistent step costs, sensible action granularity — and names common errors such as over-rich or over-coarse states, vague goal tests and mismatched cost units; the formal analysis of completeness, optimality and time and space complexity for particular algorithms is developed in later material.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Figures used: 9!/2 = 181,440 (8-puzzle), 16!/2 ≈ 1.3 &#215; 10^13 (15-puzzle), 25!/2 ≈ 7.8 &#215; 10^24 (24-puzzle), 92 solutions and ≈ 2,057-state constrained space for 8-queens, 418 km optimal Arad–Bucharest route, and average optimal 8-puzzle solution length ≈ 22 moves — all standard values from Russell &amp; Norvig, *Artificial Intelligence: A Modern Approach*, Ch. 3. Superscript/subscript markup was not available under the permitted tag list, so exponents are written inline; if &lt;sup&gt;/&lt;sub&gt; become permissible the exponent expressions can be tidied. The alignment note is deliberately explicit that MO4 and MO5 are only partially addressed here, since frontier/explored-set mechanics and formal complexity analysis belong to the search-algorithm topics that follow.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

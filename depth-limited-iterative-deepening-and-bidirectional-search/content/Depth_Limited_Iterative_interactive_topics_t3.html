@@ -1,0 +1,199 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bidirectional Search</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Depth-Limited, Iterative Deepening, and Bidirectional Search</a></div>
+  <header>
+    <h1>Bidirectional Search</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Bidirectional Search</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Every uninformed search strategy considered so far grows a single tree outward from the initial state until a goal is encountered. The cost of that growth is dominated by the exponential term <code>b^d</code>, where <code>b</code> is the branching factor and <code>d</code> is the depth of the shallowest solution. <strong>Bidirectional search</strong> attacks this exponent directly. Instead of one search that must travel the full distance <code>d</code>, it runs two searches simultaneously — one growing forward from the initial state and one growing backward from the goal state — and stops as soon as the two frontiers touch. Because each search only has to cover about half the distance, the dominant cost becomes <code>b^(d/2)</code> rather than <code>b^d</code>. This is not a constant-factor trick: it is a genuine reduction of the exponent, and it is the single largest speedup available to an uninformed strategy. The price is a set of structural requirements on the problem — the ability to generate predecessors, an explicitly known goal state, and an efficient way of testing whether the frontiers have intersected — that many problems simply cannot satisfy.</p>
+
+<p><strong>The core idea.</strong> Picture the state space as a graph. The forward search begins at the initial state <code>s</code> and repeatedly applies the problem's <em>successor function</em>: from a node <code>n</code> it generates every state reachable by one legal action. This is ordinary search in the normal direction of time. The backward search begins at the goal state <code>g</code> and repeatedly applies a <em>predecessor function</em>: from a node <code>n</code> it generates every state <code>m</code> such that some legal action transforms <code>m</code> into <code>n</code>. The backward search is therefore reasoning about "what could have come immediately before this?" rather than "what can happen next?". The two searches grow two balls of explored states, one centred on <code>s</code> and one centred on <code>g</code>. Since any solution path runs from <code>s</code> to <code>g</code>, the two balls must eventually overlap, and the first node that appears in both frontiers — the <em>meeting node</em> <code>m</code> — lies on a path connecting them.</p>
+
+<p>Recovering the actual solution is a matter of splicing. The forward search holds a path <code>s → … → m</code> built from parent pointers back to the start. The backward search holds a path <code>g → … → m</code>, also built from parent pointers, but its arcs point in the wrong direction: each "parent" link in the backward tree represents an action travelling <em>towards</em> the goal. Reversing that chain gives <code>m → … → g</code>. Concatenating the two, and taking care not to duplicate the meeting node itself, yields the complete solution:</p>
+
+<pre><code>forward path  : s → a → b → m
+backward path : g → z → y → m   (as stored, rooted at g)
+reversed      : m → y → z → g
+solution      : s → a → b → m → y → z → g</code></pre>
+
+<p>Note the implicit assumption: reversing the backward chain only produces a <em>valid</em> plan if each backward link corresponds to a real action in the forward direction. This is automatic when the predecessor function is defined correctly, because the predecessor relation is the inverse of the successor relation by definition. What is <em>not</em> automatic is that such a function is computable, which is the subject of a later point.</p>
+
+<p><strong>Why each half only travels d/2.</strong> If the shallowest solution has length <code>d</code>, then in the best case the two searches, growing at the same rate, will meet near the midpoint of that path. A forward breadth-first search that has completed layer <code>k</code> contains every state at distance <code>k</code> from <code>s</code>; a backward breadth-first search that has completed layer <code>k</code> contains every state at distance <code>k</code> from <code>g</code>. The node at distance <code>d/2</code> along an optimal path belongs to both sets once both searches have completed layer <code>⌈d/2⌉</code>. So neither search ever needs to go deeper than roughly half the solution depth. Visually, two balls of radius <code>d/2</code> touch exactly where one ball of radius <code>d</code> would have had to reach — but two small balls contain vastly fewer states than one large one.</p>
+
+<p><strong>The complexity advantage, quantified.</strong> A breadth-first search to depth <code>d</code> generates <code>O(b^d)</code> nodes. Each half of a bidirectional breadth-first search generates <code>O(b^(d/2))</code> nodes, so the total is <code>O(2·b^(d/2)) = O(b^(d/2))</code> in asymptotic terms. Space behaves the same way: breadth-first search must retain its frontier, which is the largest layer, so bidirectional search needs <code>O(b^(d/2))</code> memory — and in fact at least one of the two frontiers must be held in memory in its entirety, because that is what the intersection test is performed against. The table below makes the difference concrete for a branching factor of 10, counting nodes generated and assuming one million nodes per second.</p>
+
+<table>
+  <thead>
+    <tr><th>Depth d</th><th>Unidirectional b^d</th><th>Bidirectional 2·b^(d/2)</th><th>Ratio</th><th>Unidirectional time</th><th>Bidirectional time</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>2</td><td>100</td><td>20</td><td>5×</td><td>&lt; 1 ms</td><td>&lt; 1 ms</td></tr>
+    <tr><td>4</td><td>10,000</td><td>200</td><td>50×</td><td>10 ms</td><td>0.2 ms</td></tr>
+    <tr><td>6</td><td>1,000,000</td><td>2,000</td><td>500×</td><td>1 s</td><td>2 ms</td></tr>
+    <tr><td>8</td><td>10^8</td><td>20,000</td><td>5,000×</td><td>100 s</td><td>20 ms</td></tr>
+    <tr><td>12</td><td>10^12</td><td>2,000,000</td><td>500,000×</td><td>~11.6 days</td><td>2 s</td></tr>
+    <tr><td>16</td><td>10^16</td><td>2×10^8</td><td>5×10^7×</td><td>~317 years</td><td>200 s</td></tr>
+  </tbody>
+</table>
+
+<p>Two things are worth drawing out of this table. First, the saving is negligible at shallow depths and overwhelming at large ones — the ratio <code>b^d / 2b^(d/2)</code> is itself <code>b^(d/2)/2</code>, which grows exponentially in <code>d</code>. Second, the memory column (not shown, but proportional to the node counts) is what actually stops people: at <code>d = 16</code> the bidirectional search still needs to store on the order of 10^8 nodes, which at even 50 bytes per node is gigabytes. The exponent has been halved, but it has not been removed.</p>
+
+<p><strong>Requirement: generating predecessors.</strong> The backward search cannot start unless we can answer the question "which states have <code>n</code> as a successor?" Formally, <code>Pred(n) = { m | n ∈ Succ(m) }</code>. When every action is <em>reversible</em> and the action set is symmetric, this is trivial: the predecessors of <code>n</code> are exactly its successors, and the backward search is identical in form to the forward one. Examples:</p>
+<ul>
+  <li><strong>Route finding on a two-way road network.</strong> The predecessors of a city are the cities joined to it by a road; the successor and predecessor functions coincide. Bidirectional search is a classic and highly effective technique here, and is used in production route planners.</li>
+  <li><strong>The 8-puzzle / 15-puzzle.</strong> Sliding the blank left can always be undone by sliding it right. <code>Pred = Succ</code>, so the backward search is just an ordinary search rooted at the goal configuration.</li>
+  <li><strong>Rubik's Cube.</strong> Every quarter-turn has an inverse quarter-turn. The goal (solved cube) is a single explicit state, making this an almost ideal candidate; the famous "God's number = 20" computations rely heavily on meeting-in-the-middle ideas.</li>
+</ul>
+<p>Now consider the failures:</p>
+<ul>
+  <li><strong>Irreversible actions.</strong> In a chemical synthesis planner, mixing two reagents cannot be undone. In a robot that drops an object off a ledge, the action has no inverse. Backward reasoning must then ask "what situation could have produced this?", which may have no computable answer.</li>
+  <li><strong>Many-to-one actions.</strong> Suppose an action is "set variable <code>x</code> to 0". Every state that differs only in <code>x</code> is a predecessor of the result. The predecessor set is huge, or even infinite, and the effective backward branching factor explodes — possibly exceeding <code>b</code> by orders of magnitude, which destroys the <code>b^(d/2)</code> analysis. A similar problem arises with lossy or information-destroying operations such as integer division, truncation, or sorting.</li>
+  <li><strong>Simulation-defined transitions.</strong> If successors are produced by running a black-box physics engine or an external program, inverting it may be impossible even in principle.</li>
+</ul>
+<p>The rule is blunt: <em>if predecessors cannot be computed efficiently and with a modest branching factor, bidirectional search is simply not applicable.</em> Note also that the backward branching factor <code>b_back</code> need not equal the forward one. If they differ, the two searches should not be grown at equal depth; the balanced strategy is to expand whichever frontier is currently smaller, so that the total work is minimised rather than the two depths equalised.</p>
+
+<p><strong>Requirement: explicit and few goal states.</strong> The backward search needs somewhere to start, and that means we need the goal <em>state</em>, not merely a goal <em>test</em>. The ideal case is a single, concretely specified configuration: the solved Rubik's Cube, the ordered 15-puzzle tile arrangement, the destination city. Several situations degrade from there:</p>
+<ul>
+  <li><strong>A small, enumerable set of goals.</strong> If there are, say, five acceptable final states, the standard device is to introduce a <em>dummy goal node</em> <code>G*</code> whose predecessors are defined to be exactly those five real goal states (joined by zero-cost pseudo-actions). The backward search is then rooted at the single node <code>G*</code>, expands immediately into all five real goals, and proceeds normally. The solution found is simply the path up to whichever real goal was involved.</li>
+  <li><strong>Goals described by a property.</strong> Consider the 8-queens problem, where the goal test is "no two queens attack each other". We cannot root a backward search at "the" goal, and enumerating all solutions in advance defeats the purpose — finding one is the problem. Similarly, in a theorem prover the goal might be "any state in which the formula is proved", and in a planning problem it might be a partial description such as "the robot is holding a cup and the door is closed", which is satisfied by astronomically many complete world states.</li>
+  <li><strong>Abstract goal descriptions.</strong> A goal description that leaves <code>k</code> binary features unconstrained corresponds to <code>2^k</code> concrete states. A backward search that must begin by enumerating all of them has already lost the exponential battle before expanding a single node. In such cases the backward frontier is larger at depth 0 than the forward frontier will be at depth <code>d/2</code>.</li>
+</ul>
+<p>There is a partial remedy for the last case: search backwards over <em>sets</em> of states (regression planning) rather than individual states, where a backward "node" is a partial description that is weakened as actions are regressed through it. But this is no longer plain state-space search, and the clean <code>b^(d/2)</code> analysis no longer applies directly.</p>
+
+<p><strong>Testing for frontier intersection.</strong> The termination condition of bidirectional search is "a node appears in both frontiers", and this test is executed every time a node is generated. If it were implemented as a linear scan it would cost <code>O(b^(d/2))</code> per check and completely negate the savings. The standard implementation stores at least one frontier (and usually both, along with their explored sets) in a <strong>hash table</strong> keyed on the state, so that membership testing is expected constant time. Each newly generated node from one direction is looked up in the opposite direction's table before being added to its own.</p>
+
+<pre><code>function BIDIRECTIONAL-BFS(problem) returns a solution, or failure
+  if problem.INITIAL = problem.GOAL then return empty path
+  frontierF ← FIFO queue containing INITIAL
+  frontierB ← FIFO queue containing GOAL
+  reachedF  ← hash table { INITIAL : node }      // state → node, for path recovery
+  reachedB  ← hash table { GOAL    : node }
+
+  while frontierF and frontierB are both non-empty do
+    // expand whichever side is currently cheaper
+    if |frontierF| ≤ |frontierB| then
+       dir ← FORWARD; expand frontierF using SUCCESSORS, test against reachedB
+    else
+       dir ← BACKWARD; expand frontierB using PREDECESSORS, test against reachedF
+
+    for each child generated in this expansion do
+       if child.STATE is in the opposite table then
+            return JOIN(forward-part, reverse(backward-part))
+       if child.STATE not in own table then
+            add child to own table and own frontier
+  return failure</code></pre>
+
+<p>The subtle point is the word <em>first</em>. The first intersection discovered yields <em>a</em> solution, but not necessarily an optimal one, even when both halves run breadth-first. The reason is that the meeting is detected at <em>generation</em> time, and the two searches are at specific, possibly unequal, depths when it happens. A classic illustration: suppose the forward search has completed depth 2 and the backward search depth 2, and while generating depth-3 forward nodes we find a node already in the backward depth-2 set. That gives a path of length 5. But there might exist a different node, not yet generated, that joins the forward depth-2 layer to the backward depth-2 layer for a total of 4. Because node generation within a layer happens in an arbitrary order, we may stumble on the length-5 meeting first.</p>
+
+<p>The standard fixes are:</p>
+<ul>
+  <li><strong>Do not return immediately.</strong> Record the best solution found so far, keep expanding, and terminate only when the sum of the two frontiers' minimum depths (or minimum path costs <code>g</code>-values) is at least as large as the best solution cost recorded. At that point no undiscovered meeting can beat it.</li>
+  <li><strong>Finish the current layer.</strong> With uniform step costs, complete the layer in which the first meeting occurred and keep the cheapest join found during it.</li>
+  <li><strong>Use a cost-aware termination rule.</strong> Modern front-to-end algorithms such as MM ("meet in the middle") are designed so that the two searches provably meet near the midpoint and so that the termination test guarantees optimality for non-uniform step costs.</li>
+</ul>
+
+<p><strong>Choosing the search strategy for each half.</strong> The two halves do not have to use the same algorithm, but the choice has strong consequences.</p>
+
+<table>
+  <thead>
+    <tr><th>Combination</th><th>Complete?</th><th>Optimal (uniform costs)?</th><th>Time</th><th>Space</th><th>Comment</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>BFS forward + BFS backward</td><td>Yes (finite b)</td><td>Yes, with a correct termination rule</td><td>O(b^(d/2))</td><td>O(b^(d/2))</td><td>The standard choice; layered growth guarantees the frontiers meet</td></tr>
+    <tr><td>Uniform-cost + Uniform-cost</td><td>Yes</td><td>Yes, with cost-based termination</td><td>O(b^(C*/2ε))</td><td>O(b^(C*/2ε))</td><td>Needed for non-uniform step costs; termination test is delicate</td></tr>
+    <tr><td>DFS forward + DFS backward</td><td>No</td><td>No</td><td>Unbounded</td><td>O(bd) — very small</td><td>Two deep, thin tendrils are vanishingly unlikely to touch</td></tr>
+    <tr><td>IDS forward + BFS backward</td><td>Yes</td><td>Not guaranteed by construction</td><td>Depends</td><td>O(b^(d/2)) for the BFS half</td><td>One frontier must still be stored; reasoning about the meeting depth is harder</td></tr>
+  </tbody>
+</table>
+
+<p>The key insight behind this table is that bidirectional search needs at least one side to maintain a <em>broad, stored, systematically grown</em> frontier, because that frontier is the "net" that the other side must hit. Breadth-first growth guarantees the net is complete out to a known radius. Depth-first search in both directions is attractive on memory grounds — it would reduce space to <code>O(bd)</code> — but it is useless in practice: two depth-first searches explore long, narrow paths through an enormous space and will almost never intersect, so the method loses both completeness and its reason for existing. Mixed strategies are legal but make the analysis awkward: if one side is iterative-deepening and the other breadth-first, you can no longer say "the meeting occurs at depth <code>d/2</code> on each side", and establishing that the first meeting is the shallowest becomes considerably harder.</p>
+
+<p><strong>Practical limitations, and when to reach for it.</strong> Summarising the constraints:</p>
+<ul>
+  <li><strong>Memory remains exponential.</strong> <code>O(b^(d/2))</code> is far better than <code>O(b^d)</code>, but it is still exponential, and in real systems memory — not time — is usually the binding constraint. Bidirectional search raises the depth you can reach before running out of RAM to roughly double, which is a large but finite win. It does not convert an intractable problem into a linear-space one the way iterative deepening does for time-bounded depth-first search.</li>
+  <li><strong>Implementation complexity.</strong> You must maintain two frontiers, two explored sets, a predecessor function, a balanced expansion policy, a correct intersection test, a path-splicing routine, and a termination rule that does not sacrifice optimality. This is substantially more machinery than a plain breadth-first search, and more places for bugs to hide.</li>
+  <li><strong>Structural preconditions.</strong> Irreversible actions, many-to-one actions with huge predecessor sets, and implicit or abstract goal descriptions each individually rule the technique out.</li>
+  <li><strong>Poor payoff on shallow problems.</strong> At <code>d = 2</code> or <code>3</code> the constant factors and extra bookkeeping may make bidirectional search slower than the single-direction version.</li>
+</ul>
+
+<p>Conversely, the profile of an ideal candidate is: a large branching factor, a substantial solution depth, fully reversible (or at least easily invertible) actions, and one explicit goal state. Puzzle domains such as the 15-puzzle and Rubik's Cube fit perfectly; so does point-to-point route planning on a road network, where bidirectional Dijkstra is standard practice and typically halves or better the explored region. A worked sense of the payoff: for the 15-puzzle, <code>b ≈ 2.13</code> and typical optimal solutions run to <code>d ≈ 53</code>. Unidirectional breadth-first search is hopeless; a bidirectional search needs to reach only depth ~27 from each end, cutting the node count from roughly <code>2.13^53 ≈ 10^17</code> to roughly <code>2 × 2.13^26.5 ≈ 10^9</code> — the difference between impossible and merely expensive.</p>
+
+<p>When its preconditions hold, bidirectional search delivers the largest single improvement available within the uninformed family. It should be considered the default recommendation for problems with a known, unique goal state and reversible actions — and discarded immediately, without further analysis, for problems whose goals are defined only by a predicate or whose actions cannot be run backwards.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> Not addressed. This topic concerns two simultaneous searches meeting in the middle, not the cutoff mechanism or the cutoff/solution/failure outcomes of depth-limited search.</li>
+  <li><strong>MO2:</strong> Not addressed. No tracing of successive depth limits occurs here; the layered growth discussed is of two opposing frontiers rather than of repeated iterative-deepening passes.</li>
+  <li><strong>MO3:</strong> Not addressed directly, although the asymptotic reasoning used here — showing that <code>2·b^(d/2)</code> is dominated by its exponent and that constant factors do not alter the complexity class — exercises the same style of argument used to justify iterative deepening's regeneration overhead.</li>
+  <li><strong>MO4:</strong> Directly and substantially supported. The topic sets out each precondition in turn: computable, low-branching predecessor generation (with reversible, irreversible, and many-to-one examples); explicitly enumerable goal states (with the dummy-goal device and the failure case of abstract goal descriptions); and constant-time frontier intersection testing via hash tables. The practical-limitations discussion gives explicit criteria for ruling a problem in or out.</li>
+  <li><strong>MO5:</strong> Strongly supported. The completeness, optimality, time, and space characteristics of bidirectional search are given explicitly and compared across strategy combinations in tabular form, and the closing discussion states the problem conditions under which this strategy should be recommended over breadth-first, uniform-cost, depth-limited, or iterative-deepening search, and the conditions under which it must be rejected.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Teaching notes: the complexity table assumes one million nodes generated per second and b = 10, matching the conventions used in standard textbook comparisons of uninformed strategies; adjust the figures if your course uses a different generation rate. The 15-puzzle figures use the commonly cited effective branching factor of about 2.13 and the known maximum optimal solution length of 80 (typical random instances cluster near 53), so the 10^9 figure is an order-of-magnitude illustration rather than an exact node count. The pseudocode deliberately shows the &quot;expand the smaller frontier&quot; policy rather than strict alternation, because that is what keeps the analysis valid when forward and backward branching factors differ; if your syllabus presents simple alternation, flag the balanced version as a refinement. The non-optimality of the first intersection is a frequent exam point and a common student misconception — the worked length-5-versus-length-4 example is worth drawing on a board as two layered trees. MM (meet-in-the-middle) and bidirectional Dijkstra may be mentioned as pointers for further reading but are not required by the subtopic list.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

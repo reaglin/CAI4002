@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backtracking Search for CSPs</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Satisfaction Problems and Backtracking Search</a></div>
+<h1>Backtracking Search for CSPs</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: Constraint Satisfaction Problems (CSPs) 2 - Definitions | Stanford CS221: AI (Autumn 2021)</a>
+<a href="#sec3">Video 2: Constraint Satisfaction Problems (CSPs) 1 - Overview | Stanford CS221: AI (Autumn 2021)</a>
+<a href="#sec4">Video 3: Let&#39;s make a sudoku solver in 5 minutes (Backtracking) - Inside code</a>
+<a href="#sec5">How These Videos Support the Learning Outcomes</a>
+<a href="#sec6">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>A constraint satisfaction problem gives you variables, a domain of possible values for each variable, and constraints that say which combinations are allowed. The most obvious way to solve one is generate-and-test: enumerate every complete assignment and check it. That is hopelessly wasteful, because a single violated constraint can often be detected after assigning just two variables, yet generate-and-test keeps filling in the rest before noticing. Backtracking search fixes this by building assignments incrementally and testing consistency of the partial assignment at every step, abandoning a branch as soon as it is doomed.</p>
+<p>The algorithm itself is short: pick an unassigned variable, try each value in its domain, check consistency with the assignment so far, recurse, and undo the choice if the recursion fails. Two ideas make it efficient. First, consistency checking of partial assignments prunes whole subtrees early. Second, commutativity — the order in which you assign variables does not change the resulting assignment — means the search tree only needs one variable per level instead of branching over all remaining variables, cutting the tree from n!d^n leaves to d^n. Even so, d^n is exponential, and the worst case remains intractable; CSP solving is NP-hard in general.</p>
+<p>That exponential ceiling is exactly why the rest of the module matters: improvements come from choosing which variable to assign next, which value to try first, and how much inference to do after each assignment. While watching the videos below, keep three questions in mind: what exactly is being checked at each node, when does the algorithm back up, and which decisions in the pseudocode are left deliberately unspecified so that heuristics can fill them in later.</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: Constraint Satisfaction Problems (CSPs) 2 - Definitions | Stanford CS221: AI (Autumn 2021)</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/uj5wCcHsSlA?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problems (CSPs) 2 - Definitions | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 19:12 · 21,537 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=uj5wCcHsSlA" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>The follow-up lecture that pins down the formal definitions: variables, domains, factors or constraints, and what it means for an assignment to satisfy them. It should cover how partial assignments are scored or checked and how the structure of the constraints is represented, which is the machinery backtracking depends on.</p>
+<h3>Why this video</h3>
+<p>Precise definitions of assignment and consistency are the prerequisite for understanding why backtracking can reject a partial assignment at all, and this lecture supplies them at the level of rigor expected in this course.</p>
+</section>
+<section class="item" id="sec3">
+<h2>Video 2: Constraint Satisfaction Problems (CSPs) 1 - Overview | Stanford CS221: AI (Autumn 2021)</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/-IO4fPO0rxk?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problems (CSPs) 1 - Overview | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 13:50 · 56,216 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=-IO4fPO0rxk" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>The opening lecture of Stanford CS221&#39;s treatment of constraint satisfaction, motivating CSPs as a model where a problem is described by variables and the constraints among them rather than by a sequence of actions. Expect discussion of why this declarative view differs from the state-space search covered earlier in an AI course, and examples of problems that are naturally expressed as constraints.</p>
+<h3>Why this video</h3>
+<p>Starting here gives you the framing that backtracking search operates on, and Stanford Online&#39;s CS221 is a well-regarded, accurate source for introductory AI material.</p>
+</section>
+<section class="item" id="sec4">
+<h2>Video 3: Let&#39;s make a sudoku solver in 5 minutes (Backtracking) - Inside code</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/eAFcj_2quWI?cc_load_policy=1&amp;rel=0" title="Video: Let&#39;s make a sudoku solver in 5 minutes (Backtracking) - Inside code (Inside code)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Inside code</strong> · 5:39 · 91,659 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=eAFcj_2quWI" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A compact, code-first walkthrough that builds a Sudoku solver using backtracking in about five minutes, with source code linked in the description. It shows the concrete pattern of the algorithm: find the next empty cell, try each candidate value, check whether it conflicts with the current partial board, recurse, and reset the cell to empty when the recursion fails.</p>
+<h3>Why this video</h3>
+<p>It makes the recursive structure and the undo step of backtracking tangible on a problem every student knows, which is the fastest way to see how consistency checking of a partial assignment prunes the search tree in practice.</p>
+</section>
+<section class="item" id="sec5">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>The two Stanford lectures supply the vocabulary behind MO1 and MO2 — variables, domains, constraints, and the distinction between partial and complete assignments — and show how constraint structure is represented, which is what a constraint graph encodes. The Sudoku video directly supports MO3 and MO4: it formulates a familiar puzzle as a CSP and then implements the depth-first, one-variable-at-a-time solver with consistency testing that you are asked to write. None of the three videos covers the MRV, degree, or least-constraining-value heuristics of MO5 in depth, so treat them as establishing the baseline solver whose node counts the heuristics will later be measured against.</p>
+</section>
+<section class="item" id="sec6">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

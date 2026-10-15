@@ -1,0 +1,1164 @@
+{
+  "ModuleFolderName": "Depth_Limited_Iterative",
+  "CourseName": "CAI4002 - Intro to AI",
+  "GeneratedDate": "2026-10-14T19:55:19.5703404-04:00",
+  "ModifiedDate": "2026-10-14T19:57:09.6783793-04:00",
+  "Outcomes": [],
+  "Topics": [
+    {
+      "Id": "378ce69b-4e57-407e-9534-b7bccba48985",
+      "Title": "Depth-Limited Search",
+      "Summary": "Introduces depth-limited search as a modification of depth-first search that imposes a cutoff depth to avoid infinite paths. Examines how the choice of limit affects completeness and optimality, including the risk of missing shallower-than-limit or deeper goals.",
+      "SortOrder": 0,
+      "CreatedDate": "2026-10-14T19:55:19.5703404-04:00",
+      "ModifiedDate": "2026-10-14T19:55:19.5703404-04:00",
+      "Elements": [
+        {
+          "Id": "e954c799-4096-4a15-89f5-8b08ff8ce919",
+          "TopicId": "378ce69b-4e57-407e-9534-b7bccba48985",
+          "Title": "Motivation: Taming Depth-First Search",
+          "BodyText": "Depth-limited search (DLS) exists because plain depth-first search can descend forever down an infinite or very deep branch and never return. Imposing a maximum depth guarantees the search terminates.",
+          "Notes": "Classic example: route-finding on a map where cycles (A\u2192B\u2192A\u2192B...) create infinitely long paths in the search tree.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:55:40.969522-04:00",
+          "ModifiedDate": "2026-10-14T19:55:40.969522-04:00",
+          "Items": [
+            {
+              "Id": "ec6c0a4c-7f07-41f2-9d5b-1bd067ef3b63",
+              "Text": "Depth-first search is incomplete in infinite state spaces or spaces with cycles.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "1dfb797a-e1c8-430e-bbe6-8b470214eca2",
+              "Text": "DLS adds a single parameter, the cutoff depth l, beyond which nodes are not expanded.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "102ed802-e3ab-4321-ba90-d8cc8a38d06c",
+              "Text": "Any node at depth l is treated as if it had no successors.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "8da52b60-79a4-453c-97d2-796a64b5d80d",
+              "Text": "The modification is small: DFS plus a depth counter and a test against the limit.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ceed66aa-232e-46ae-b0b2-f4b6aa685da3",
+              "Text": "Termination is now guaranteed even in infinite spaces.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "2dee6c9e-ead8-4390-bc2d-cf1ecb4d2b93",
+          "TopicId": "378ce69b-4e57-407e-9534-b7bccba48985",
+          "Title": "How the Algorithm Works",
+          "BodyText": "DLS performs an ordinary recursive depth-first expansion but refuses to generate children once the current node\u0027s depth equals the limit. It reports one of three outcomes rather than the usual two.",
+          "Notes": "Pseudocode sketch: if goal, return solution; else if depth = limit, return cutoff; else recurse on each successor and combine results.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:55:40.969522-04:00",
+          "ModifiedDate": "2026-10-14T19:55:40.969522-04:00",
+          "Items": [
+            {
+              "Id": "bd7a2937-cb6d-40e0-9430-2bc54738e812",
+              "Text": "Expand nodes in last-in-first-out order exactly as in DFS.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d4f7c147-8996-4c4a-94bc-e444e16da318",
+              "Text": "At depth l, stop expanding and backtrack to the next unexplored sibling.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c80345a4-a31f-47e5-8d0f-822cce86014a",
+              "Text": "Return \u0027solution\u0027 if a goal is found within the limit.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "6228710c-a404-44c8-9cfc-9ee5ca1aa6cc",
+              "Text": "Return \u0027cutoff\u0027 if the limit truncated at least one branch and no goal was found.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "f1c272fb-899c-4d13-8ece-f3a2f55beea8",
+              "Text": "Return \u0027failure\u0027 only if the whole tree within the limit was exhausted with no truncation.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "769f78ff-0167-497a-bdd7-6c0b7de7afe8",
+              "Text": "The cutoff signal is what distinguishes \u0027no solution exists\u0027 from \u0027no solution found yet\u0027.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "918b6ef8-f9e7-4230-8fa1-9c8596157bd1",
+          "TopicId": "378ce69b-4e57-407e-9534-b7bccba48985",
+          "Title": "Completeness and the Choice of Limit",
+          "BodyText": "DLS is only complete when the chosen limit is at least as large as the depth of the shallowest goal. Choosing badly turns a solvable problem into an apparent failure.",
+          "Notes": "If d is the depth of the shallowest goal: l \u003C d means incomplete; l \u2265 d means the goal will be found.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:55:40.969522-04:00",
+          "ModifiedDate": "2026-10-14T19:55:40.969522-04:00",
+          "Items": [
+            {
+              "Id": "0a962c85-c6f3-441d-b668-4ea15f70321e",
+              "Text": "If the limit is smaller than the goal depth, the search returns cutoff and the goal is missed entirely.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "23dbb92e-bc06-4434-bf37-2265b86d4399",
+              "Text": "If the limit is larger than necessary, the search wastes effort exploring deep irrelevant branches.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c623c8c9-3918-4093-942f-25cb05ab2801",
+              "Text": "DLS is complete only under the condition l \u2265 d.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "72d54315-1108-41c4-889a-f73682d83651",
+              "Text": "The \u0027cutoff\u0027 return value warns the user that a deeper limit might succeed.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "7eb45bda-741a-4648-9207-69cec688431c",
+              "Text": "Completeness therefore depends on knowledge the searcher usually does not have in advance.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "471938e2-9cf5-4ed0-8c6e-c811a25c1ce4",
+          "TopicId": "378ce69b-4e57-407e-9534-b7bccba48985",
+          "Title": "Optimality Concerns",
+          "BodyText": "Even when DLS finds a goal, there is no guarantee it is the shallowest or cheapest one. The depth-first ordering means the first goal encountered is simply the leftmost one within the limit.",
+          "Notes": "",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:55:40.969522-04:00",
+          "ModifiedDate": "2026-10-14T19:55:40.969522-04:00",
+          "Items": [
+            {
+              "Id": "227198be-0e75-4cde-a3e9-b271d303c472",
+              "Text": "DLS is not optimal: it returns the first goal found, not the best.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6382b1d4-78a6-4141-8e27-331f83be9ce0",
+              "Text": "A deeper goal on an early branch can be returned before a shallower goal on a later branch.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9d244049-9d75-47f3-96d1-79bc5d1fdff2",
+              "Text": "With non-uniform step costs there is no cost guarantee at all.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "271bb7ec-68dc-4403-88b1-3e69957a2d78",
+              "Text": "Optimality would require exploring all branches up to the limit and comparing solutions.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "93588f05-f9b0-4f3a-b713-ec8db1f93f1e",
+          "TopicId": "378ce69b-4e57-407e-9534-b7bccba48985",
+          "Title": "Complexity and Memory Profile",
+          "BodyText": "DLS inherits the favourable space behaviour of depth-first search while bounding its time cost by the limit rather than by the depth of the state space.",
+          "Notes": "Compare with breadth-first search, whose space cost O(b^d) is usually the binding constraint.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:55:40.969522-04:00",
+          "ModifiedDate": "2026-10-14T19:55:40.969522-04:00",
+          "Items": [
+            {
+              "Id": "300e227c-0747-4d8b-85b8-ae550c590391",
+              "Text": "Time complexity is O(b^l), where b is the branching factor and l the depth limit.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d1b292f4-96cb-43b4-8384-b91cb87b37b6",
+              "Text": "Space complexity is O(b\u00B7l), storing only the current path and its siblings.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3757c6b1-044e-43ad-a249-782db811963c",
+              "Text": "Memory stays linear in the limit, which is DLS\u0027s main advantage over breadth-first search.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b5e6c15f-5a80-4b79-9432-ee9a79c0bb60",
+              "Text": "Setting l too high reintroduces large time costs without any memory penalty.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "7660d40c-2afc-49af-974d-b892c288042f",
+          "TopicId": "378ce69b-4e57-407e-9534-b7bccba48985",
+          "Title": "Choosing a Limit in Practice",
+          "BodyText": "Sometimes problem knowledge supplies a natural cutoff; more often it does not, which motivates a more adaptive strategy.",
+          "Notes": "The Romania route-finding problem has 20 cities, so a limit of 19 is sound; the diameter of 9 is a better but riskier choice.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:55:40.969522-04:00",
+          "ModifiedDate": "2026-10-14T19:55:40.969522-04:00",
+          "Items": [
+            {
+              "Id": "504640a1-489e-4b93-8045-5fb505603f2b",
+              "Text": "Use the diameter of the state space \u2014 the longest shortest-path between any two states \u2014 when it is known.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6ab1d424-eb1b-4f31-bbb2-7634d0c34f96",
+              "Text": "The number of states minus one is a safe but very loose upper bound.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "6319fbe1-8e9b-4fc6-834c-af1061b8d252",
+              "Text": "Domain constraints (e.g., a puzzle solvable in at most n moves) can supply tight limits.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "8d017d5d-6bb0-4203-b54f-4798ce9ead0d",
+              "Text": "When no sensible limit exists, repeatedly increasing the limit leads directly to iterative deepening search.",
+              "SortOrder": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "c5cb6323-aa58-49fc-a6c6-fd1a85eb5d15",
+      "Title": "Iterative Deepening Search",
+      "Summary": "Explains how iterative deepening repeatedly applies depth-limited search with increasing limits to combine the memory efficiency of DFS with the completeness and optimality of BFS. Covers the algorithm\u0027s mechanics and why repeated node regeneration costs little in practice.",
+      "SortOrder": 1,
+      "CreatedDate": "2026-10-14T19:55:19.5703404-04:00",
+      "ModifiedDate": "2026-10-14T19:55:19.5703404-04:00",
+      "Elements": [
+        {
+          "Id": "ccd6ac4b-3f5c-4f67-942d-0bd98f12befa",
+          "TopicId": "c5cb6323-aa58-49fc-a6c6-fd1a85eb5d15",
+          "Title": "What Iterative Deepening Search Is",
+          "BodyText": "Iterative deepening search (IDS) repeatedly runs depth-limited search with a depth limit that increases by one on each iteration until a goal is found. It is designed to capture the best properties of both breadth-first and depth-first search.",
+          "Notes": "IDS is sometimes called iterative deepening depth-first search (IDDFS) because each iteration is a depth-first traversal bounded by the current limit.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:56:02.368704-04:00",
+          "ModifiedDate": "2026-10-14T19:56:02.368704-04:00",
+          "Items": [
+            {
+              "Id": "f615dbd7-a4c2-4d00-b781-dd7a711f82dd",
+              "Text": "The search begins with limit 0, then tries limit 1, limit 2, and so on without bound.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "50c75d33-61c3-43e1-8ae3-7ce372715079",
+              "Text": "Each iteration is a complete, independent depth-limited search that discards its results if no goal is found.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2432f699-1a5c-4d82-ab5e-c592684a17f3",
+              "Text": "It removes the need to guess a good depth limit in advance, which is the main weakness of plain depth-limited search.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "8b6ce5f1-88ed-4f63-9ed8-4bdca04a1264",
+              "Text": "The process terminates as soon as an iteration reaches the shallowest goal depth.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "1955af6c-2908-4d12-9385-cebc840823d1",
+          "TopicId": "c5cb6323-aa58-49fc-a6c6-fd1a85eb5d15",
+          "Title": "How the Algorithm Works Step by Step",
+          "BodyText": "Each pass of iterative deepening is a fresh depth-first exploration that refuses to expand nodes beyond the current limit. The outer loop simply increments the limit and restarts.",
+          "Notes": "Pseudocode: for limit = 0 to infinity: result = DEPTH-LIMITED-SEARCH(problem, limit); if result != cutoff then return result.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:56:02.368704-04:00",
+          "ModifiedDate": "2026-10-14T19:56:02.368704-04:00",
+          "Items": [
+            {
+              "Id": "b355cdbb-f8a0-4c0c-8328-bcfc9b34dd90",
+              "Text": "Set the depth limit to zero and run depth-limited search from the initial state.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "5df316d5-d6b5-46fa-9b25-30aca55db3c8",
+              "Text": "If the search returns a solution, stop and return it.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ccecaa83-9f63-445c-9e86-57c78a0bf0b7",
+              "Text": "If it returns a cutoff signal, increment the limit by one and run the search again from scratch.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f139b54a-9afb-4810-acac-fb89405389d9",
+              "Text": "If it returns failure (no cutoff occurred), the state space has been exhausted and no solution exists.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "df2b4940-a1ce-4ffd-88e6-b52a4fda1981",
+              "Text": "Memory from the previous iteration is released, so only one path at a time is ever stored.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "9f3203b2-01a8-4e83-98d4-41ed4f120623",
+          "TopicId": "c5cb6323-aa58-49fc-a6c6-fd1a85eb5d15",
+          "Title": "Completeness and Optimality",
+          "BodyText": "Because iterative deepening explores depths in increasing order, it inherits the guarantees normally associated with breadth-first search. It is complete whenever the branching factor is finite.",
+          "Notes": "",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:56:02.368704-04:00",
+          "ModifiedDate": "2026-10-14T19:56:02.368704-04:00",
+          "Items": [
+            {
+              "Id": "337e3c83-9ce8-4e80-836c-da22b8315613",
+              "Text": "IDS is complete on finite-branching state spaces, even those that are infinitely deep.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "12891e6f-431d-4adf-86c2-8082300d8192",
+              "Text": "It is optimal when all step costs are identical, because the shallowest goal is found first.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7220fed2-55b7-442f-82cd-4b9e35e7cae5",
+              "Text": "It is not guaranteed optimal with varying step costs; uniform-cost or iterative lengthening search is needed instead.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "1742e2dd-b9f8-4734-91dc-85d6d3b1286e",
+              "Text": "Unlike depth-first search, it cannot get trapped forever on an infinite path.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "5de20079-b252-4c07-a336-5c9dd5aef0ec",
+          "TopicId": "c5cb6323-aa58-49fc-a6c6-fd1a85eb5d15",
+          "Title": "Memory and Time Complexity",
+          "BodyText": "Iterative deepening keeps only the current path in memory, giving it the linear space profile of depth-first search while still running in the same asymptotic time as breadth-first search.",
+          "Notes": "With b = 10 and d = 5, BFS expands about 1,111,100 nodes while IDS expands about 123,450 nodes when a goal check at generation is used.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:56:02.368704-04:00",
+          "ModifiedDate": "2026-10-14T19:56:02.368704-04:00",
+          "Items": [
+            {
+              "Id": "a943484f-e6c1-40ef-a1c2-a7f366c01c93",
+              "Text": "Space complexity is O(bd), where b is the branching factor and d is the solution depth.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0aed0818-daf5-4fe0-84be-9fb25b62fb12",
+              "Text": "Time complexity is O(b^d), the same order as breadth-first search.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8d891395-710e-4ef6-8e90-1a4f93fa87dd",
+              "Text": "Breadth-first search requires O(b^d) memory, which is usually the binding constraint on large problems.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "7ca3d668-a90e-4cd1-989d-b07174cffaf3",
+              "Text": "IDS is therefore the preferred uninformed strategy when the search space is large and the solution depth is unknown.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "e12c6eaa-60b6-4414-b17e-abbebb5755f7",
+          "TopicId": "c5cb6323-aa58-49fc-a6c6-fd1a85eb5d15",
+          "Title": "Why Repeated Node Regeneration Costs Little",
+          "BodyText": "Iterative deepening regenerates the upper levels of the tree many times, which seems wasteful, but the overhead is small because the bottom level dominates the node count.",
+          "Notes": "Total nodes generated: (d)b \u002B (d-1)b^2 \u002B ... \u002B 1(b^d). For b = 10, d = 5 this gives roughly 11 percent more nodes than a single breadth-first pass.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:56:02.368704-04:00",
+          "ModifiedDate": "2026-10-14T19:56:02.368704-04:00",
+          "Items": [
+            {
+              "Id": "e7584687-49f5-47e9-80a8-e37db405a00b",
+              "Text": "In a tree with branching factor b, the deepest level holds roughly as many nodes as all shallower levels combined.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "68b77a9a-3b35-4dfa-90a9-ec02d69e0e68",
+              "Text": "Nodes at depth d are generated once, those at depth d-1 twice, and the root d\u002B1 times.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "e3a5680d-a9b9-4b37-a498-5b57a1e0e2aa",
+              "Text": "The extra work converges to a constant factor of about b/(b-1) as the branching factor grows.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c6e87567-ea70-4eeb-8450-c1a97b39aa5b",
+              "Text": "With a branching factor of 10, the overhead is only around 11 percent; higher branching factors make it even smaller.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "74a13933-1995-415c-843b-5dc922582018",
+          "TopicId": "c5cb6323-aa58-49fc-a6c6-fd1a85eb5d15",
+          "Title": "Variants and Practical Use",
+          "BodyText": "The iterative deepening idea generalises beyond uniform-cost step counts and underpins several widely used search algorithms.",
+          "Notes": "",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:56:02.368704-04:00",
+          "ModifiedDate": "2026-10-14T19:56:02.368704-04:00",
+          "Items": [
+            {
+              "Id": "e3ce790c-20f0-4efb-b725-81e1bd4a6dbf",
+              "Text": "Iterative lengthening search increases a path-cost limit instead of a depth limit to handle varying step costs.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "767d5bf2-18c4-49d7-accc-9ae215a1ecbb",
+              "Text": "IDA* applies the same cutoff-and-restart idea to heuristic search using an f-cost limit.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "dab85085-d7e1-4fab-b453-fd660d349eb8",
+              "Text": "IDS is the standard choice for large uninformed searches where the goal depth is not known ahead of time.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "862e150f-607b-4dce-ac3c-aa34a782b57a",
+              "Text": "In practice, a duplicate-detection or cycle-check along the current path prevents looping within an iteration.",
+              "SortOrder": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "b30cf587-5a7e-48c8-9e64-e374a88d01ed",
+      "Title": "Bidirectional Search",
+      "Summary": "Describes searching simultaneously forward from the initial state and backward from the goal until the two frontiers meet, reducing effective search cost from b^d to roughly 2b^(d/2). Discusses requirements such as predecessor generation, frontier intersection testing, and explicit goal states.",
+      "SortOrder": 2,
+      "CreatedDate": "2026-10-14T19:55:19.5703404-04:00",
+      "ModifiedDate": "2026-10-14T19:55:19.5703404-04:00",
+      "Elements": [
+        {
+          "Id": "acbfa66a-1963-451e-9d93-7f8394b2fc36",
+          "TopicId": "b30cf587-5a7e-48c8-9e64-e374a88d01ed",
+          "Title": "Core Idea of Bidirectional Search",
+          "BodyText": "Bidirectional search runs two simultaneous searches: one forward from the initial state and one backward from the goal state. The search stops when the two frontiers intersect, meaning a complete path has been found.",
+          "Notes": "The motivation is purely combinatorial: two shallow trees contain far fewer nodes than one deep tree.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:56:23.9511714-04:00",
+          "ModifiedDate": "2026-10-14T19:56:23.9511714-04:00",
+          "Items": [
+            {
+              "Id": "640aec42-dbf4-4a63-a260-4c737a923e00",
+              "Text": "The forward search expands successors in the normal direction from the start state.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "93aecfe8-0ef8-433b-a806-a3e75cd63ab1",
+              "Text": "The backward search expands predecessors working back from the goal state.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "0733d416-89be-4ec7-9db0-0809ffeff527",
+              "Text": "A solution is formed by joining the forward path and the reversed backward path at the meeting node.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "dfb0dd1d-401f-413b-9344-21d0e253dbf4",
+              "Text": "Each search only needs to reach roughly half the solution depth, d/2.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "38751afa-82d6-459d-8bbb-068a5557102d",
+          "TopicId": "b30cf587-5a7e-48c8-9e64-e374a88d01ed",
+          "Title": "The Complexity Advantage",
+          "BodyText": "The appeal of bidirectional search lies in the exponential savings it achieves. Instead of generating b^d nodes, it generates roughly 2b^(d/2) nodes.",
+          "Notes": "Example: with b = 10 and d = 6, breadth-first search generates about 1,000,000 nodes while bidirectional search generates about 2,000 \u2014 a 500-fold reduction.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:56:23.9511714-04:00",
+          "ModifiedDate": "2026-10-14T19:56:23.9511714-04:00",
+          "Items": [
+            {
+              "Id": "07a7cb04-fb00-4266-9349-41501e3a1697",
+              "Text": "Time complexity drops from O(b^d) to O(b^(d/2)) for each half of the search.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "fd1a86e1-389b-44ec-8418-2a2ba844021a",
+              "Text": "Space complexity is also O(b^(d/2)) because at least one frontier must be stored in memory.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f543677d-44c0-443a-ac58-29200bded768",
+              "Text": "The saving grows dramatically as solution depth d increases.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "bc2af5cc-0979-48db-a9c9-4892b54ee9d8",
+              "Text": "Because b^(d/2) \u002B b^(d/2) is far less than b^d, the improvement is exponential rather than constant-factor.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "022c6322-0675-4360-9b08-1f6e4135b500",
+          "TopicId": "b30cf587-5a7e-48c8-9e64-e374a88d01ed",
+          "Title": "Requirement: Generating Predecessors",
+          "BodyText": "The backward half of the search requires the ability to compute the predecessors of any state. This is not always straightforward or even possible.",
+          "Notes": "When all actions are reversible, predecessors are simply the successors of the reverse actions.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:56:23.9511714-04:00",
+          "ModifiedDate": "2026-10-14T19:56:23.9511714-04:00",
+          "Items": [
+            {
+              "Id": "9cf26ae7-ad9e-4aa5-9a79-79a306ab5141",
+              "Text": "Predecessors of a node n are all states that have n as a successor.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e172e084-42cc-40cc-8fee-011e487aeec4",
+              "Text": "Reversible action sets make predecessor generation easy and symmetric.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1c9f68de-944f-4534-8063-6009611a61bb",
+              "Text": "Irreversible or many-to-one actions make backward reasoning difficult or ambiguous.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "19cdcb95-a6b1-4363-89a1-345da87cc2ce",
+              "Text": "If predecessors cannot be computed efficiently, bidirectional search is not applicable.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "4e562261-cc5e-4b27-85e8-f264f44a84fd",
+          "TopicId": "b30cf587-5a7e-48c8-9e64-e374a88d01ed",
+          "Title": "Requirement: Explicit and Few Goal States",
+          "BodyText": "Backward search must start from an actual goal state, so the goal must be described explicitly rather than by an abstract property. Problems with many or implicitly defined goals weaken the approach.",
+          "Notes": "For example, the 8-puzzle has one explicit goal configuration, making it well suited; \u0027checkmate\u0027 in chess describes a huge set of states, making backward search impractical.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:56:23.9511714-04:00",
+          "ModifiedDate": "2026-10-14T19:56:23.9511714-04:00",
+          "Items": [
+            {
+              "Id": "2b922ece-2a7d-4dc3-9919-c60f1b7ff3f1",
+              "Text": "A single, concretely specified goal state is the ideal case.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e44c11e1-4f74-4676-b272-20585302b776",
+              "Text": "With several goal states, a dummy goal node can be created whose predecessors are all real goals.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ab95561e-9b40-45d3-89fb-f47c321d5e34",
+              "Text": "When goals are defined only by a test function, enumerating them may be infeasible.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a501f438-f868-456a-88fc-3a13b9ecd93e",
+              "Text": "Abstract goal descriptions can correspond to astronomically many states, defeating the backward search.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "7e0bd419-fb5e-4f94-826f-1c60f424dbb7",
+          "TopicId": "b30cf587-5a7e-48c8-9e64-e374a88d01ed",
+          "Title": "Testing for Frontier Intersection",
+          "BodyText": "Bidirectional search must efficiently check whether a newly generated node already appears in the opposite frontier. This test is performed each time a node is generated.",
+          "Notes": "The check replaces the ordinary goal test used in unidirectional search.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:56:23.9511714-04:00",
+          "ModifiedDate": "2026-10-14T19:56:23.9511714-04:00",
+          "Items": [
+            {
+              "Id": "1bd17ed1-15ce-4a29-884b-b70c2e172e22",
+              "Text": "Store one frontier in a hash table so membership checks run in constant time.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0acbc933-ab09-40bb-9b89-33f0bee46425",
+              "Text": "Each new node from one direction is looked up in the other direction\u0027s frontier.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "90228884-d5a1-4266-93e8-c63fc80b8e39",
+              "Text": "The first intersection found yields a solution path, though not necessarily the optimal one.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b7c36a73-88e6-4f66-9631-fc86da33c8fb",
+              "Text": "Additional care is needed to guarantee optimality, such as continuing until the best possible meeting is confirmed.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "a371e4e5-40eb-4ffd-beed-ba9457fa631b",
+          "TopicId": "b30cf587-5a7e-48c8-9e64-e374a88d01ed",
+          "Title": "Choosing the Search Strategy for Each Half",
+          "BodyText": "Each half of a bidirectional search can use any search algorithm, and the choice affects completeness and optimality.",
+          "Notes": "",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:56:23.9511714-04:00",
+          "ModifiedDate": "2026-10-14T19:56:23.9511714-04:00",
+          "Items": [
+            {
+              "Id": "f53428b2-bdeb-4fbe-a720-58713479f5de",
+              "Text": "Using breadth-first search in both directions gives completeness and optimality for uniform step costs.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "17f74727-9495-4310-aa2b-67731be1d411",
+              "Text": "At least one frontier must be kept in memory, so the space requirement remains exponential in d/2.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "868335a4-f78f-4f0d-ac25-66092e241404",
+              "Text": "Depth-first search in both halves would save memory but loses the guarantee that the frontiers meet.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "215ef9b3-869b-4625-b570-bf12c5da471c",
+              "Text": "Mixed strategies are possible but make it harder to reason about the shallowest meeting point.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "0df04a72-5d75-4391-950e-99cc479ebaf3",
+          "TopicId": "b30cf587-5a7e-48c8-9e64-e374a88d01ed",
+          "Title": "Practical Limitations and When to Use It",
+          "BodyText": "Despite its theoretical advantage, bidirectional search is only usable under fairly restrictive conditions. Understanding these guides when to apply it.",
+          "Notes": "Classic suitable problems include the 8-puzzle, route-finding on reversible road networks, and word-ladder puzzles.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T19:56:23.9511714-04:00",
+          "ModifiedDate": "2026-10-14T19:56:23.9511714-04:00",
+          "Items": [
+            {
+              "Id": "18a6ff01-9e48-4ca7-923d-a84f053a12a2",
+              "Text": "Memory use remains exponential, which is often the binding constraint in practice.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "15e96275-0cc0-4f7c-bcf0-5770ce56b6e2",
+              "Text": "Problems with irreversible actions or implicit goal descriptions rule out the technique.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "14da9fca-22b6-45c4-9739-cf26d18adbcb",
+              "Text": "It is most valuable when b is large and the solution depth d is substantial.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "98c791be-5573-4d74-bf0a-07c867b6ac54",
+              "Text": "When applicable, it typically offers the greatest speedup of all uninformed strategies.",
+              "SortOrder": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "082aa263-7f77-4c49-abc7-0b72c117fab2",
+      "Title": "Comparing Uninformed Search Strategies",
+      "Summary": "Compares breadth-first, uniform-cost, depth-first, depth-limited, iterative deepening, and bidirectional search across completeness, optimality, time complexity, and space complexity. Highlights the key trade-offs between memory usage and solution guarantees.",
+      "SortOrder": 3,
+      "CreatedDate": "2026-10-14T19:55:19.5703404-04:00",
+      "ModifiedDate": "2026-10-14T19:55:19.5703404-04:00",
+      "Elements": [
+        {
+          "Id": "0d961ced-8f73-4bfe-9966-972478c27e2a",
+          "TopicId": "082aa263-7f77-4c49-abc7-0b72c117fab2",
+          "Title": "Four Criteria for Evaluating Search Strategies",
+          "BodyText": "Every uninformed search algorithm is judged on the same four dimensions, which make fair comparison possible.",
+          "Notes": "These criteria come from the standard analysis of problem-solving agents and apply equally to informed strategies later.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:56:49.0032208-04:00",
+          "ModifiedDate": "2026-10-14T19:56:49.0032208-04:00",
+          "Items": [
+            {
+              "Id": "59f32fab-c1c5-466d-be00-859c32ea2017",
+              "Text": "Completeness asks whether the algorithm is guaranteed to find a solution when one exists.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "cc3ef87d-b2d0-4f50-9bde-acdf66a95df4",
+              "Text": "Optimality asks whether the solution returned is guaranteed to be the lowest-cost (or shallowest) one.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4c5ec980-20ee-4f09-b133-1b721b0614ee",
+              "Text": "Time complexity measures the number of nodes generated or expanded before termination.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "0cbc1506-39e2-472d-b706-1173edf1456e",
+              "Text": "Space complexity measures the maximum number of nodes held in memory at any one time.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "83879cf5-7f94-44a0-97e4-3efb57c59a6b",
+              "Text": "In practice, space is usually the binding constraint long before time becomes prohibitive.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "eeb1c97c-303a-4e1c-a31c-499efc7ae985",
+          "TopicId": "082aa263-7f77-4c49-abc7-0b72c117fab2",
+          "Title": "Notation Used in the Comparison",
+          "BodyText": "The complexity formulas rely on a small set of problem parameters that must be defined before the table can be read.",
+          "Notes": "Example: in a puzzle with b = 10 and d = 12, breadth-first search would generate on the order of 10^12 nodes.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:56:49.0032208-04:00",
+          "ModifiedDate": "2026-10-14T19:56:49.0032208-04:00",
+          "Items": [
+            {
+              "Id": "2b8a0246-8bbb-4522-9ee5-2c3e471190d8",
+              "Text": "b is the branching factor, the maximum number of successors of any node.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "abc11d45-c751-45c0-b026-d5e6d5801960",
+              "Text": "d is the depth of the shallowest goal node.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a1fede69-4b3d-48e4-809b-c846636d5b5b",
+              "Text": "m is the maximum depth of the state space, which may be infinite.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "bd37211a-442a-46d9-b527-9531945450d6",
+              "Text": "l is the user-supplied depth limit used by depth-limited search.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "4e3fedd2-8358-473f-878a-01afa7deae39",
+              "Text": "C* is the cost of the optimal solution and \u03B5 is the minimum positive action cost, used in uniform-cost bounds.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "a801f7e2-c411-4143-be49-a7755e24985f",
+          "TopicId": "082aa263-7f77-4c49-abc7-0b72c117fab2",
+          "Title": "Breadth-First and Uniform-Cost Search",
+          "BodyText": "Both strategies expand the frontier in order of increasing cost or depth and therefore offer strong guarantees at a high memory price.",
+          "Notes": "Uniform-cost search is effectively breadth-first search generalised to non-uniform step costs.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:56:49.0032208-04:00",
+          "ModifiedDate": "2026-10-14T19:56:49.0032208-04:00",
+          "Items": [
+            {
+              "Id": "73f385eb-bcc8-45dc-927c-b20d2425ccf4",
+              "Text": "Breadth-first search is complete when b is finite and optimal only when all step costs are equal.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "01d64823-6a8a-4b49-ae59-14832b97aa8a",
+              "Text": "Its time and space complexity are both O(b^d), so the entire frontier must be stored.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "bc305357-a746-47f9-81ed-744cce72b3dc",
+              "Text": "Uniform-cost search is complete and optimal for any non-negative step costs provided \u03B5 \u003E 0.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e6b4c302-4878-4397-8767-79ebf99816fc",
+              "Text": "Its complexity is O(b^(1 \u002B floor(C*/\u03B5))), which can be substantially worse than O(b^d).",
+              "SortOrder": 3
+            },
+            {
+              "Id": "7935f8cc-efbf-43c4-86ac-d52039960f3d",
+              "Text": "Memory consumption is the practical reason these strategies fail on large problems.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "c8f76a9a-1877-49ba-ba1b-6f71c559264a",
+          "TopicId": "082aa263-7f77-4c49-abc7-0b72c117fab2",
+          "Title": "Depth-First and Depth-Limited Search",
+          "BodyText": "These strategies trade away guarantees in exchange for dramatically smaller memory footprints.",
+          "Notes": "A graph-search variant of depth-first search becomes complete in finite state spaces but loses its linear space advantage.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:56:49.0032208-04:00",
+          "ModifiedDate": "2026-10-14T19:56:49.0032208-04:00",
+          "Items": [
+            {
+              "Id": "6edcc16a-5cee-4952-a44f-eeff8997ab01",
+              "Text": "Depth-first tree search is neither complete (it can loop or descend infinitely) nor optimal.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "20471344-9cc5-4e6e-99a5-6f5691ea0ab5",
+              "Text": "Its time complexity is O(b^m) but its space complexity is only O(bm), linear in depth.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7c764130-3880-4de5-aab3-cdd6689444d9",
+              "Text": "Depth-limited search cuts off expansion at depth l, guaranteeing termination in O(b^l) time and O(bl) space.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b7d56d27-baa9-4427-86f6-03aab4b0f125",
+              "Text": "Depth-limited search is incomplete when l \u003C d and remains non-optimal even when a solution is found.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ab761788-7bbb-4788-939d-201730de857e",
+              "Text": "Choosing l requires problem knowledge, such as the diameter of the state space.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "023da797-bc3a-4607-81f2-e00724891b2c",
+          "TopicId": "082aa263-7f77-4c49-abc7-0b72c117fab2",
+          "Title": "Iterative Deepening and Bidirectional Search",
+          "BodyText": "These two strategies are engineered to recover guarantees or reduce effective depth without the memory cost of breadth-first search.",
+          "Notes": "The repeated work in iterative deepening is modest because the number of nodes at the deepest level dominates the total.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:56:49.0032208-04:00",
+          "ModifiedDate": "2026-10-14T19:56:49.0032208-04:00",
+          "Items": [
+            {
+              "Id": "da7480e4-28ff-411a-905e-5994b19d7099",
+              "Text": "Iterative deepening search is complete when b is finite and optimal when step costs are uniform.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0e5d7276-02b6-461a-8ec1-6528d9ee583e",
+              "Text": "It runs in O(b^d) time while using only O(bd) space, combining the best of breadth-first and depth-first search.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "75de2209-4f67-4da1-ab76-0263ea442910",
+              "Text": "Bidirectional search runs two simultaneous frontiers and is complete and optimal when both searches are breadth-first with uniform costs.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9fa35ff1-dd1f-42b2-a60c-0d8d542ba164",
+              "Text": "Its time and space complexity are O(b^(d/2)), an exponential saving over a single-direction search.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b3601db8-f779-4316-88f5-34ddd25c7370",
+              "Text": "Bidirectional search requires an explicitly defined goal state and efficiently computable predecessors.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "91bc4c23-5916-46d2-babc-7af7e905eca7",
+          "TopicId": "082aa263-7f77-4c49-abc7-0b72c117fab2",
+          "Title": "The Core Trade-Off: Memory Versus Guarantees",
+          "BodyText": "Reading the comparison table as a whole reveals one dominant tension that drives algorithm selection.",
+          "Notes": "Iterative deepening is generally regarded as the preferred uninformed method when the search depth is unknown.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:56:49.0032208-04:00",
+          "ModifiedDate": "2026-10-14T19:56:49.0032208-04:00",
+          "Items": [
+            {
+              "Id": "7b231a17-fabd-4606-94b9-db4b6f5b7204",
+              "Text": "Strategies that store the full frontier (breadth-first, uniform-cost) buy completeness and optimality with exponential memory.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "37bdca8f-8aeb-4b1d-8a73-e70d651820de",
+              "Text": "Strategies that store only one path (depth-first, depth-limited) buy linear memory by surrendering completeness and optimality.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "65c78618-7c7a-4752-a0a7-3821f36e93d7",
+              "Text": "Iterative deepening breaks the trade-off by re-searching, paying a small constant-factor time overhead instead of memory.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "bc515813-7da9-4458-a268-62cbf9b49297",
+              "Text": "Bidirectional search attacks the exponent itself rather than the memory constant, but has restrictive preconditions.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "e47b9e11-fd01-4d8d-88f1-52ec393c5695",
+              "Text": "Time complexity is similar in exponential order for most of these methods, so space is usually the deciding factor.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "33b767d0-95af-48de-a8ac-9ac67d5e387c",
+          "TopicId": "082aa263-7f77-4c49-abc7-0b72c117fab2",
+          "Title": "Guidance for Selecting a Strategy",
+          "BodyText": "Practical selection follows from a few questions about the problem structure and available resources.",
+          "Notes": "These heuristics assume no domain knowledge is available; otherwise an informed strategy would be preferable.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T19:56:49.0032208-04:00",
+          "ModifiedDate": "2026-10-14T19:56:49.0032208-04:00",
+          "Items": [
+            {
+              "Id": "5f9fbc70-c69b-4755-a2dc-94c0b460a6c0",
+              "Text": "Use breadth-first search when the solution is known to be shallow and memory is plentiful.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "30908a7d-5d4b-42c6-907f-143054cc02ba",
+              "Text": "Use uniform-cost search when step costs vary and an optimal-cost solution is required.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5de77430-923f-4a9c-aa68-98a12d75632e",
+              "Text": "Use iterative deepening when the search depth is unknown and memory is limited \u2014 it is the usual default.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "1f77455e-7f1f-4869-9afa-905b49cb337d",
+              "Text": "Use depth-limited search when a reliable bound on solution depth is known in advance.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ac83baa4-cd95-4fdc-b986-f8b8da0646d6",
+              "Text": "Use bidirectional search when the goal state is explicit, actions are reversible, and the branching factor is large.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "2339f8e3-72f6-422a-9b4a-427819e846b6",
+      "Title": "Selecting an Appropriate Strategy",
+      "Summary": "Provides practical guidance for choosing an uninformed search strategy based on problem characteristics such as branching factor, solution depth, step costs, memory constraints, and availability of goal and predecessor information.",
+      "SortOrder": 4,
+      "CreatedDate": "2026-10-14T19:55:19.5703404-04:00",
+      "ModifiedDate": "2026-10-14T19:55:19.5703404-04:00",
+      "Elements": [
+        {
+          "Id": "246a8a2b-00e9-45ad-b673-3f038b5f0346",
+          "TopicId": "2339f8e3-72f6-422a-9b4a-427819e846b6",
+          "Title": "Start by Characterising the Problem",
+          "BodyText": "Strategy selection begins with measuring a handful of structural properties of the search problem. These properties determine which uninformed algorithm will terminate in acceptable time and memory.",
+          "Notes": "Estimate values before coding: a rough branching factor and expected solution depth often decide the choice immediately.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:57:09.6782135-04:00",
+          "ModifiedDate": "2026-10-14T19:57:09.6782135-04:00",
+          "Items": [
+            {
+              "Id": "1ae3aef5-58ae-4fe0-bc06-abc21b093019",
+              "Text": "Estimate the branching factor b \u2014 the average number of successors per state.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "9d81f9ec-96b8-43aa-a0a8-b73d21a02a03",
+              "Text": "Estimate the solution depth d and the maximum depth m of the state space.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a536ca0f-e03e-44e9-9e85-4080b4912f1d",
+              "Text": "Determine whether step costs are uniform or vary between actions.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "527ffe65-e5fe-4e3f-8ebb-493d222b55b8",
+              "Text": "Identify the hard memory ceiling available to the search process.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "e905a67b-5836-48b2-9c6e-da28aa2c1249",
+              "Text": "Check whether the goal state is explicitly known and whether actions can be reversed.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "ded41441-9cd0-4119-8b94-53026a6aa91c",
+          "TopicId": "2339f8e3-72f6-422a-9b4a-427819e846b6",
+          "Title": "Choosing When Memory Is the Binding Constraint",
+          "BodyText": "Memory, not time, is usually the first resource to be exhausted in uninformed search. When space is tight, depth-first style strategies that store only the current path are preferred.",
+          "Notes": "Breadth-first search stores O(b^d) nodes, which becomes infeasible for even modest b and d; iterative deepening stores only O(bd).",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:57:09.6782135-04:00",
+          "ModifiedDate": "2026-10-14T19:57:09.6782135-04:00",
+          "Items": [
+            {
+              "Id": "b839dd9f-a4dc-4cdb-b8dc-efc39c2751c6",
+              "Text": "Breadth-first and uniform-cost search are ruled out when b^d nodes cannot be held in memory.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "23c002d8-8062-4dea-8415-730106b35366",
+              "Text": "Depth-first search needs only O(bm) space but sacrifices completeness and optimality.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4af28df0-da82-4949-b972-af4d9740fa1f",
+              "Text": "Depth-limited search bounds the depth to prevent infinite descent in unbounded spaces.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "3661a2b4-a609-4d00-b1f8-14a175d6ddbd",
+              "Text": "Iterative deepening gives breadth-first guarantees at depth-first memory cost and is the default for large spaces.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "63897d69-4559-40e6-be99-512131663e5d",
+              "Text": "Repeated work in iterative deepening is modest because the deepest level dominates the node count.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "08a84994-2a38-4127-b4d3-63bb8a4b81a9",
+          "TopicId": "2339f8e3-72f6-422a-9b4a-427819e846b6",
+          "Title": "Choosing Based on Step Costs and Optimality Needs",
+          "BodyText": "Whether an optimal solution is required, and how action costs are defined, strongly narrows the candidate strategies.",
+          "Notes": "Iterative deepening is optimal only under uniform step costs; with varying costs it finds the shallowest, not the cheapest, solution.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:57:09.6782135-04:00",
+          "ModifiedDate": "2026-10-14T19:57:09.6782135-04:00",
+          "Items": [
+            {
+              "Id": "63d23a1e-8675-4b81-ab59-3d45161c4a22",
+              "Text": "With uniform step costs, breadth-first and iterative deepening both return optimal (shallowest) solutions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6a85517f-08aa-40f2-8e53-2203102be43b",
+              "Text": "With varying step costs, uniform-cost search is the correct uninformed choice for optimality.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5e677962-98aa-4937-855a-5e989f910e3f",
+              "Text": "If any solution will do and depth is unbounded, depth-first or depth-limited search is often fastest.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "26891971-ee63-499e-ac48-dc17224e2f9c",
+              "Text": "Uniform-cost search requires a positive minimum step cost to guarantee completeness.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "26400e08-ca85-4a2e-94db-6b598c0df793",
+          "TopicId": "2339f8e3-72f6-422a-9b4a-427819e846b6",
+          "Title": "Deciding Whether Bidirectional Search Applies",
+          "BodyText": "Bidirectional search can cut the effective cost from O(b^d) to roughly O(b^(d/2)), but only when specific preconditions hold.",
+          "Notes": "Classic suitable cases include route finding between two named cities; unsuitable cases include puzzles with many abstract goal states.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:57:09.6782135-04:00",
+          "ModifiedDate": "2026-10-14T19:57:09.6782135-04:00",
+          "Items": [
+            {
+              "Id": "45ea28ce-b208-4957-8cf4-fcb9314fd956",
+              "Text": "The goal state must be explicitly and uniquely specified, not described by an abstract test.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "ca83f33e-a494-4fa9-8be9-af33f32a0d4b",
+              "Text": "Actions must be reversible so that predecessors can be generated from the goal side.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "6e3585bf-413d-4662-8813-2015f4c0c85c",
+              "Text": "The number of goal states must be small, otherwise the backward frontier explodes.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b3d68404-3b5f-4718-a86b-d5ac07a4cea1",
+              "Text": "An efficient intersection test between the two frontiers is required at each step.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "5cac3601-f2af-490f-b9d4-1cbb5c5b8382",
+              "Text": "Memory for at least one frontier (O(b^(d/2))) must still be available.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "a5a8fd3f-47c2-4430-b6be-ad77c28189b5",
+          "TopicId": "2339f8e3-72f6-422a-9b4a-427819e846b6",
+          "Title": "Setting a Depth Limit Sensibly",
+          "BodyText": "When depth-limited search is chosen, the quality of the limit determines whether the search succeeds at all.",
+          "Notes": "If no sound limit can be justified, prefer iterative deepening, which effectively searches every limit in increasing order.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:57:09.6782135-04:00",
+          "ModifiedDate": "2026-10-14T19:57:09.6782135-04:00",
+          "Items": [
+            {
+              "Id": "88807685-8c25-4299-a850-9dd7b0120f57",
+              "Text": "Use problem knowledge such as graph diameter to derive a safe upper bound on solution depth.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "a63ff3fa-a430-4643-96bb-17f13a83cb44",
+              "Text": "A limit set below the true solution depth makes the search incomplete and returns failure.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "271bcd19-1c96-4317-bb84-3da56dc1cb16",
+              "Text": "A limit set far above the solution depth wastes time exploring irrelevant deep branches.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f80ccb2f-4f97-4806-b794-8cac496d00a3",
+              "Text": "Distinguish \u0027cutoff\u0027 (limit reached) from \u0027failure\u0027 (no solution) when interpreting results.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "4e212e71-471a-49ea-8cbe-0ab57fc32aa0",
+          "TopicId": "2339f8e3-72f6-422a-9b4a-427819e846b6",
+          "Title": "A Practical Decision Heuristic",
+          "BodyText": "The selection rules can be condensed into a short sequence of checks applied in order.",
+          "Notes": "Iterative deepening search is generally the preferred uninformed method when the search space is large and solution depth is unknown.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:57:09.6782135-04:00",
+          "ModifiedDate": "2026-10-14T19:57:09.6782135-04:00",
+          "Items": [
+            {
+              "Id": "93a8523e-03b9-4827-9a6e-27821b1fe5b5",
+              "Text": "If step costs vary and optimality matters, choose uniform-cost search.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "ec20355f-3896-4ef6-b9e2-c96b82f422fb",
+              "Text": "If the goal is explicit and actions are reversible, consider bidirectional search for the biggest speed-up.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ae075d84-0c89-4728-8d93-c1abbaf1e0fe",
+              "Text": "If memory is limited and depth is unknown, choose iterative deepening search.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "73a8f337-a01a-47b5-88e8-62cc0645b9a0",
+              "Text": "If the solution depth is known and bounded, depth-limited search avoids wasted iterations.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "faa960c9-ebde-4d92-9cee-c005fb91a134",
+              "Text": "If any solution suffices, memory is scarce, and the space is finite, plain depth-first search is adequate.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "TotalElementCount": 32
+}

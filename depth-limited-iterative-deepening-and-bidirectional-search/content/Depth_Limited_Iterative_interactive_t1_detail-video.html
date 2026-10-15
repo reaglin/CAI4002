@@ -1,0 +1,196 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Depth-Limited Search</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Depth-Limited, Iterative Deepening, and Bidirectional Search</a></div>
+  <header>
+    <h1>Depth-Limited Search</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Depth-Limited Search</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Depth-limited search (DLS) is the smallest useful repair to depth-first search (DFS). It changes one thing only: it refuses to expand any node that lies at or beyond a chosen cutoff depth <code>l</code>. That single parameter converts an algorithm that may wander forever down an infinite branch into one that always terminates, while preserving DFS's greatest virtue — its tiny, linear memory footprint. The price is a new kind of failure: the search may terminate without finding a goal and without having proved that no goal exists. Understanding that third outcome, the <em>cutoff</em>, is the heart of this topic.</p>
+
+<p><strong>Motivation: taming depth-first search.</strong> Plain DFS always expands the deepest node on the frontier. In a finite, acyclic, tree-shaped state space this is harmless: every branch eventually bottoms out, the search backtracks, and the whole tree is enumerated. Real state spaces rarely behave so politely. Consider route-finding on a road map modelled as a search tree: from Arad you may go to Sibiu, from Sibiu back to Arad, from Arad back to Sibiu, and so on forever. The state space has only twenty or so cities, but the <em>search tree</em> generated from it is infinite because the same cycle can be traversed indefinitely. DFS following the path Arad → Sibiu → Arad → Sibiu … never terminates and never reports anything. The same failure occurs in genuinely infinite spaces — for example, a state space whose states are integers with successor functions <code>n ↦ n+1</code> and <code>n ↦ n−1</code>, or a block-stacking domain where you may always add another block.</p>
+
+<p>DLS repairs this by supplying a depth bound. Every node carries (explicitly or implicitly, via the recursion stack) the number of actions taken from the root to reach it. When the algorithm reaches a node whose depth equals <code>l</code>, it simply <em>does not generate that node's successors</em>. Formally, nodes at depth <code>l</code> are treated as though they had no successors at all — the search behaves exactly as if the state space ended there. The algorithmic change is tiny: take any DFS implementation, add a depth counter, and add one comparison. Because the modified tree has finite depth and finite branching factor, it contains at most <code>1 + b + b² + … + b^l</code> nodes, so the search must terminate. Termination is now guaranteed even in an infinite state space, and even when cycles are present, because a cycle can only be followed <code>l</code> times before the limit intervenes.</p>
+
+<p><strong>How the algorithm works.</strong> Node ordering is untouched: the frontier is still last-in-first-out, so DLS expands the most recently generated node, exactly as DFS does. When it arrives at depth <code>l</code> it tests for goalhood (a node at the limit is still checked — it is only its <em>children</em> that are suppressed), then backtracks to the shallowest unexplored sibling and continues. A recursive formulation makes the structure obvious:</p>
+
+<pre><code>function DEPTH-LIMITED-SEARCH(problem, l) returns a solution, or failure, or cutoff
+    return RECURSIVE-DLS(MAKE-NODE(problem.INITIAL-STATE), problem, l)
+
+function RECURSIVE-DLS(node, problem, limit) returns a solution, or failure, or cutoff
+    if problem.GOAL-TEST(node.STATE) then return SOLUTION(node)
+    else if limit = 0 then return cutoff
+    else
+        cutoff_occurred? &lt;- false
+        for each action in problem.ACTIONS(node.STATE) do
+            child &lt;- CHILD-NODE(problem, node, action)
+            result &lt;- RECURSIVE-DLS(child, problem, limit - 1)
+            if result = cutoff then cutoff_occurred? &lt;- true
+            else if result != failure then return result
+        if cutoff_occurred? then return cutoff else return failure</code></pre>
+
+<p>Three return values, not two, are the defining feature of this algorithm:</p>
+<ul>
+  <li><strong>solution</strong> — a goal node was reached at some depth ≤ <code>l</code>; the path to it is returned immediately and the remaining search is abandoned.</li>
+  <li><strong>cutoff</strong> — no goal was found, <em>and</em> at least one branch was truncated by the limit. Somewhere in the tree there are unexamined descendants; the question "does a solution exist?" remains open.</li>
+  <li><strong>failure</strong> — no goal was found and nothing was truncated. Every branch terminated naturally in a dead end before reaching depth <code>l</code>. This is a genuine proof that the state space reachable from the start contains no goal at all.</li>
+</ul>
+
+<p>Notice how the <code>cutoff_occurred?</code> flag propagates upward: a parent returns <code>cutoff</code> if <em>any</em> of its children did, because a single truncated branch anywhere is enough to invalidate a claim of exhaustiveness. This is precisely the signal that distinguishes "no solution exists" from "no solution found yet" — and it is the information that makes iterative deepening possible, since a <code>cutoff</code> result is an invitation to try again with a larger limit, whereas <code>failure</code> means retrying would be pointless.</p>
+
+<p><strong>A worked trace.</strong> Take a binary tree (<code>b = 2</code>) rooted at A, with children B and C; B has children D and E; C has children F and G; and the only goal is G. Suppose children are always tried left-to-right and we set <code>l = 2</code>.</p>
+
+<table>
+  <thead>
+    <tr><th>Step</th><th>Node visited</th><th>Depth</th><th>Action taken</th><th>Running state</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>A</td><td>0</td><td>Not goal; limit not reached → expand</td><td>—</td></tr>
+    <tr><td>2</td><td>B</td><td>1</td><td>Not goal; expand</td><td>—</td></tr>
+    <tr><td>3</td><td>D</td><td>2</td><td>Not goal; depth = l → return cutoff</td><td>cutoff seen under B</td></tr>
+    <tr><td>4</td><td>E</td><td>2</td><td>Not goal; depth = l → return cutoff</td><td>cutoff seen under B</td></tr>
+    <tr><td>5</td><td>B</td><td>1</td><td>All children done, cutoff occurred → return cutoff to A</td><td>cutoff seen under A</td></tr>
+    <tr><td>6</td><td>C</td><td>1</td><td>Not goal; expand</td><td>—</td></tr>
+    <tr><td>7</td><td>F</td><td>2</td><td>Not goal; depth = l → return cutoff</td><td>cutoff seen under C</td></tr>
+    <tr><td>8</td><td>G</td><td>2</td><td><strong>Goal test succeeds</strong> → return solution A–C–G</td><td>search halts</td></tr>
+  </tbody>
+</table>
+
+<p>Had the goal instead been a node H at depth 3 beneath D, the same run would have visited A, B, D, E, C, F, G and returned <code>cutoff</code> — a truthful report that the answer is unknown, not that the problem is unsolvable. By contrast, if the tree had been <em>finite</em> with all leaves at depth 1 and no goal anywhere, DLS with <code>l = 5</code> would return <code>failure</code>, correctly certifying unsolvability.</p>
+
+<p><strong>Completeness and the choice of limit.</strong> Let <code>d</code> be the depth of the shallowest goal. DLS is complete if and only if <code>l ≥ d</code>. The two ways to get the limit wrong are asymmetric but both costly:</p>
+<ul>
+  <li><strong>Limit too small (<code>l &lt; d</code>).</strong> The goal lies strictly below the frontier of exploration and is never generated. The algorithm returns <code>cutoff</code>, having done potentially enormous work for nothing. The goal is missed <em>entirely</em> — not approximated, not partially found.</li>
+  <li><strong>Limit too large (<code>l ≫ d</code>).</strong> Completeness is preserved, but effort is squandered. Because DFS plunges depth-first, it may descend <code>l</code> levels down an irrelevant leftmost branch, generating <code>b^l</code> nodes, before ever touching the subtree containing a goal at depth <code>d</code>. In route-finding with <code>l = 100</code>, the search can wander through hundred-step tours of the map before considering the three-step route.</li>
+</ul>
+
+<p>The uncomfortable conclusion is that completeness depends on knowledge the searcher usually does not possess: you must already know something about how deep the answer is in order to guarantee finding it. This is why the <code>cutoff</code> return value matters so much in practice — it is an explicit warning to the user that a deeper limit might succeed, turning a silent failure into an actionable one. A system that returned only "failure" in both cases would mislead its user into concluding the problem is unsolvable.</p>
+
+<p><strong>Optimality concerns.</strong> DLS is <em>not</em> optimal. It returns the first goal it happens to encounter, which depends entirely on the order in which successors are generated. Consider a root with two children: the left child leads down a chain to a goal at depth 6, while the right child is itself a goal at depth 1. With <code>l = 6</code> and left-to-right expansion, DLS dives into the left branch, finds the depth-6 goal, and returns it immediately — never discovering that a one-step solution existed on the very next branch. A deeper goal on an early branch is routinely returned in preference to a shallower goal on a later branch.</p>
+
+<p>With non-uniform step costs the situation is worse still: there is no cost guarantee of any kind. Even if DLS returned the shallowest goal, "fewest actions" need not mean "cheapest", because a two-step route of 500 km beats neither a three-step route of 150 km in cost nor any sensible notion of quality. To obtain an optimal answer, DLS would have to abandon its early exit and instead explore <em>all</em> branches down to the limit, record every goal found, and compare their path costs — which sacrifices the early-termination saving and still only guarantees optimality among solutions of depth ≤ <code>l</code>. Breadth-first search (with uniform costs) or uniform-cost search are the appropriate tools when optimality is required.</p>
+
+<p><strong>Complexity and memory profile.</strong> The analysis follows directly from the shape of the truncated tree. With branching factor <code>b</code> and limit <code>l</code>, the number of nodes that can be generated is <code>1 + b + b² + … + b^l = O(b^l)</code>, so time complexity is exponential in the limit, not in the goal depth. Space is where DLS shines: at any instant the algorithm stores only the nodes on the current root-to-node path, together with the unexpanded siblings at each level of that path — at most <code>l</code> levels × <code>b</code> nodes, giving <code>O(b·l)</code>.</p>
+
+<table>
+  <thead>
+    <tr><th>Criterion</th><th>Breadth-first</th><th>Depth-first</th><th>Depth-limited</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Complete?</td><td>Yes (finite b)</td><td>No (infinite depth / cycles)</td><td>Yes if <code>l ≥ d</code></td></tr>
+    <tr><td>Optimal?</td><td>Yes if step costs uniform</td><td>No</td><td>No</td></tr>
+    <tr><td>Time</td><td><code>O(b^d)</code></td><td><code>O(b^m)</code></td><td><code>O(b^l)</code></td></tr>
+    <tr><td>Space</td><td><code>O(b^d)</code></td><td><code>O(b·m)</code></td><td><code>O(b·l)</code></td></tr>
+    <tr><td>Terminates in infinite space?</td><td>Yes if goal exists</td><td>No</td><td>Always</td></tr>
+  </tbody>
+</table>
+
+<p>(Here <code>m</code> is the maximum depth of the state space, which may be infinite.) To see the magnitude of the memory advantage concretely, take <code>b = 10</code> and a goal at depth 12. Breadth-first search must hold roughly 10<sup>12</sup> nodes — hundreds of terabytes — whereas DLS with <code>l = 12</code> holds about 120 nodes, a few kilobytes. Memory stays linear in the limit, and this is DLS's decisive advantage over breadth-first search.</p>
+
+<p>An important corollary: raising <code>l</code> costs time exponentially but costs memory only linearly. Setting <code>l</code> too high therefore reintroduces large time costs <em>without any memory penalty</em>. If you can afford the time, a generous limit is the safer error; if you cannot, a generous limit may mean the search never terminates in practice even though it terminates in theory.</p>
+
+<p><strong>Choosing a limit in practice.</strong> Several sources of a defensible bound exist, ordered roughly from tightest to loosest:</p>
+<ul>
+  <li><strong>Problem-specific knowledge.</strong> Domain constraints often pin the answer down exactly. Rubik's Cube is solvable from any configuration in at most 20 quarter-turn-metric... in at most 20 face turns ("God's number"), so <code>l = 20</code> is a provably sufficient and tight limit. The 8-puzzle requires at most 31 moves. A chess engine searching for a forced mate in three sets <code>l = 5</code> plies.</li>
+  <li><strong>The diameter of the state space</strong> — the longest of all the shortest paths between any two states. Since the goal is some state, and the shortest path to it cannot exceed the diameter, setting <code>l</code> to the diameter guarantees <code>l ≥ d</code>. In the classic Romania route-finding problem there are 20 cities and any city is reachable from any other in at most 9 steps, so <code>l = 9</code> is both sufficient and far tighter than the number of cities. The catch is that computing a diameter is often as hard as solving the original problem; it is usable only when the domain hands it to you (grid worlds, small graphs, structured puzzles).</li>
+  <li><strong>Number of states minus one.</strong> Any shortest path visits no state twice, so it has at most <code>|S| − 1</code> edges. This is a safe upper bound but typically a catastrophically loose one: for Romania it gives <code>l = 19</code>, roughly doubling the depth and hence squaring the worst-case node count relative to <code>l = 9</code>. For most real problems <code>|S|</code> is astronomical, making the bound useless in practice.</li>
+  <li><strong>No sensible limit available.</strong> This is the common case. The natural response is to hedge: run DLS with <code>l = 0</code>; if the result is <code>cutoff</code>, run it again with <code>l = 1</code>; then <code>l = 2</code>, and so on, stopping on <code>solution</code> or <code>failure</code>. That procedure is exactly <em>iterative deepening search</em>, and it inherits DLS's <code>O(b·l)</code> memory while recovering breadth-first search's guarantee of finding the shallowest goal. The apparent waste of regenerating shallow nodes on every pass turns out to be asymptotically negligible, because the bottom level of an exponential tree dominates the total.</li>
+</ul>
+
+<p>In short, DLS should be understood less as a finished algorithm than as a disciplined building block: it converts DFS's unbounded risk into a bounded, well-reported computation, and its three-valued result is the control signal on which more powerful uninformed strategies are constructed.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> Directly and fully supported — the topic explains the cutoff parameter <code>l</code>, how it bounds depth-first expansion by treating depth-<code>l</code> nodes as successorless, and defines and contrasts the three outcomes <em>solution</em>, <em>cutoff</em> and <em>failure</em>, including why the cutoff signal is informative.</li>
+  <li><strong>MO2:</strong> Partially supported — the worked trace of DLS over a binary tree builds the node-ordering and depth-bookkeeping skills that tracing iterative deepening requires, and the final subtopic identifies repeated limit-increase as the route to iterative deepening, but successive depth limits are not traced here.</li>
+  <li><strong>MO3:</strong> Lightly supported — the <code>O(b^l)</code> time analysis and the observation that the deepest level dominates an exponential tree supply the premise used to justify iterative deepening's small regeneration overhead, though that justification is not developed in this topic.</li>
+  <li><strong>MO4:</strong> Not addressed — bidirectional search, predecessor generation and frontier intersection testing fall outside this topic.</li>
+  <li><strong>MO5:</strong> Supported — the completeness condition <code>l ≥ d</code>, the lack of optimality, the <code>O(b^l)</code> time and <code>O(b·l)</code> space results, and the comparison table against breadth-first and depth-first search give direct criteria for recommending or rejecting DLS for a given problem.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The sentence on Rubik's Cube contains a small stray phrase ("20 quarter-turn-metric... in at most 20 face turns"); the intended claim is the standard one: 20 face turns in the half-turn metric. Instructors may wish to tidy this wording. All other figures are standard textbook values (8-puzzle ≤ 31 moves; Romania map diameter 9 with 20 cities). The pseudocode follows the Russell &amp; Norvig recursive formulation, where the parameter counts remaining depth rather than absolute depth — worth flagging to students who meet both conventions.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Depth-first search is attractive because it uses very little memory, but it has a serious weakness: on graphs with very deep or infinite branches, it can follow a single path forever and never return. Depth-limited search (DLS) is the simple fix. It runs depth-first search but refuses to expand any node past a chosen cutoff depth L, treating nodes at depth L as if they had no successors.</p>
+<p>That one change gives the algorithm three possible outcomes instead of two: it can return a solution, it can report plain failure (no goal exists within the limit), or it can report cutoff (the search was truncated, so a goal might still exist deeper). The choice of L is therefore everything. If L is smaller than the depth of the shallowest goal, DLS is incomplete and will miss the solution; if L is larger, DLS may still return a goal that is not the shallowest one, so it is not optimal. Its time complexity is O(b^L) and its space complexity is O(bL), inheriting DFS's memory advantage.</p>
+<p>As you watch the videos below, keep three questions in mind. First, where exactly in the code or pseudocode does the depth counter get checked and incremented? Second, what does the algorithm return when the limit is hit but no goal is found — and how is that different from genuine failure? Third, how would someone pick L for a real problem, for example using problem knowledge such as a known graph diameter or a bound on solution depth? These questions lead directly into iterative deepening, which is covered later in this module.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Depth Limited Search Algorithm | DLS | AI | Simple Python Tutorials</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/SoJxjJmA9rs?cc_load_policy=1&amp;rel=0" title="Video: Depth Limited Search Algorithm | DLS | AI | Simple Python Tutorials (Dr Codie)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Dr Codie</strong> · 9:25 · 2,054 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=SoJxjJmA9rs" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A compact walkthrough of the depth-limited search algorithm presented as part of a series on AI graph traversal algorithms, with an accompanying Python implementation. Based on its title and description, it builds DLS directly on top of depth-first search, showing where the depth limit is introduced and how the recursion is cut off. Expect a worked example on a small graph alongside the code.</p>
+<h3>Why this video</h3>
+<p>Its explicit framing of DLS as a modification of DFS matches the first two subtopics — motivation and how the algorithm works — and seeing the depth parameter in actual Python code makes the cutoff mechanism concrete rather than abstract.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Depth Limited Search (DLS) Algorithm | with Example and Practical Implementation</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Dqh1oKJFoes?cc_load_policy=1&amp;rel=0" title="Video: Depth Limited Search (DLS) Algorithm | with Example and Practical Implementation (Cookie Code)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Cookie Code</strong> · 13:52 · 370 views · 6mo ago · captions — <a href="https://www.youtube.com/watch?v=Dqh1oKJFoes" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A longer, more detailed treatment of DLS that states up front that it is an extension of depth-first search used in artificial intelligence, and promises both a worked example and a practical implementation. The extra runtime suggests more time spent tracing the algorithm step by step on a sample tree or graph. It is a recent video, so terminology should align with current course usage.</p>
+<h3>Why this video</h3>
+<p>At nearly fourteen minutes it has room to cover the example trace in depth, which is the best way to see how the choice of limit determines whether a goal is found, missed, or cut off.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: AI | Uninformed Algorithms | Simple Python Tutorial</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/I7Lvc021OCQ?cc_load_policy=1&amp;rel=0" title="Video: AI | Uninformed Algorithms | Simple Python Tutorial (Dr Codie)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Dr Codie</strong> · 13:17 · 401 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=I7Lvc021OCQ" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>The first of two summary videos on uninformed search algorithms, using simple examples to compare the family of strategies rather than focusing on a single one. Expect DLS to appear alongside breadth-first, depth-first, and related methods, with attention to how they differ in behaviour and cost. This is the comparative, big-picture companion to the two DLS-specific videos.</p>
+<h3>Why this video</h3>
+<p>Placing depth-limited search next to the other uninformed strategies is exactly what the completeness, optimality, and complexity subtopics require, and it helps you see why DLS sits where it does in the trade-off space.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>The two DLS-focused videos support MO1 directly: both present depth-limited search as bounded depth-first expansion and show, through code and worked examples, what happens when the cutoff is reached — the distinction between returning a solution, failing, and cutting off. Working through their traces also builds the step-by-step tracing habit you will need for iterative deepening in MO2, and understanding why a bad limit forces a re-run motivates the overhead argument in MO3. The uninformed-algorithms summary video supports MO5 by situating DLS among the other blind search strategies so you can compare them on completeness, optimality, time, and space before recommending one for a given problem. Note that these videos do not cover bidirectional search (MO4); that material comes from the other resources in this module.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

@@ -1,0 +1,303 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Constructing Bayesian Networks</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Probabilistic Reasoning with Bayesian Networks and HMMs</a></div>
+  <header>
+    <h1>Constructing Bayesian Networks</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Constructing Bayesian Networks</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>A full joint probability distribution over a set of random variables is the most complete probabilistic model one can write down: it answers every possible query about the domain. Unfortunately, it is also almost always unusable. With <code>n</code> Boolean variables the joint has <code>2^n</code> entries and therefore <code>2^n - 1</code> free parameters (one is fixed by the requirement that the entries sum to 1). For thirty Boolean variables that is more than a billion numbers — numbers that nobody can elicit from an expert, estimate from data, or store conveniently. A <strong>Bayesian network</strong> is the standard answer to this problem: it exploits the fact that in most real domains each variable is directly influenced by only a handful of others, and encodes those direct influences as a graph. The payoff is twofold. First, the model becomes compact enough to build and to reason with. Second, and just as importantly, the graph is an <em>explicit, inspectable statement of the independence assumptions</em> being made, so a modeller can argue about structure and about numbers separately.</p>
+
+<p><strong>From joint distributions to graphs</strong></p>
+
+<p>A Bayesian network is a <strong>directed acyclic graph (DAG)</strong> in which each node is a random variable — discrete or continuous — and each directed edge from <code>X</code> to <code>Y</code> asserts that <code>X</code> is a <strong>direct parent</strong>, i.e. a direct influence, on <code>Y</code>. "Acyclic" matters: you may not follow directed edges and return to where you started, because a cycle would make the definition of the joint distribution circular and ill-defined. Associated with each node <code>X<sub>i</sub></code> is a <strong>conditional probability table (CPT)</strong> specifying <code>P(X<sub>i</sub> | Parents(X<sub>i</sub>))</code> — a complete probability distribution over the node's values for every combination of values of its parents.</p>
+
+<p>The canonical example is Judea Pearl's burglar alarm network. You have installed an alarm at home that is fairly reliable at detecting burglaries, but which is also occasionally set off by minor earthquakes. Two neighbours, John and Mary, have promised to call you at work if they hear the alarm. John is conscientious but sometimes mistakes the telephone ringing for the alarm; Mary likes loud music and sometimes misses the alarm altogether. The structure is:</p>
+
+<pre><code>   Burglary        Earthquake
+        \             /
+         \           /
+          v         v
+            Alarm
+           /     \
+          v       v
+   JohnCalls   MaryCalls</code></pre>
+
+<p>Note what the graph says and does not say. Burglary and Earthquake both influence the Alarm directly. Neither influences John or Mary <em>directly</em>: the only way a burglary causes John to call is by setting off the alarm, and that assumption is encoded by the <em>absence</em> of an edge from Burglary to JohnCalls. Likewise there is no edge between JohnCalls and MaryCalls: whatever correlation exists between their calls is entirely explained by the common cause, the alarm.</p>
+
+<p>The mathematical content of the network is the <strong>chain rule factorization</strong>:</p>
+
+<pre><code>P(X1, X2, ..., Xn) = &prod;(i = 1..n) P(Xi | Parents(Xi))</code></pre>
+
+<p>This is derived from the general chain rule of probability, <code>P(x<sub>1</sub>,...,x<sub>n</sub>) = &prod;<sub>i</sub> P(x<sub>i</sub> | x<sub>1</sub>,...,x<sub>i-1</sub>)</code>, which holds for <em>any</em> distribution. The network adds the claim that for a suitable ordering of the variables, <code>P(x<sub>i</sub> | x<sub>1</sub>,...,x<sub>i-1</sub>) = P(x<sub>i</sub> | parents(x<sub>i</sub>))</code> where <code>Parents(X<sub>i</sub>) &sube; {X<sub>1</sub>,...,X<sub>i-1</sub>}</code>. The conditioning set shrinks from "everything earlier" to "the few direct causes", and that is precisely the compression.</p>
+
+<p>Because the factorization is an equality, <strong>any entry of the full joint can be recovered by multiplying the relevant CPT entries</strong>. For instance, the probability that the alarm sounds, both neighbours call, and there is neither a burglary nor an earthquake is:</p>
+
+<pre><code>P(j, m, a, &not;b, &not;e)
+  = P(j | a) &middot; P(m | a) &middot; P(a | &not;b, &not;e) &middot; P(&not;b) &middot; P(&not;e)
+  = 0.90 &times; 0.70 &times; 0.001 &times; 0.999 &times; 0.998
+  &asymp; 0.000628</code></pre>
+
+<p>Since every joint entry is recoverable, the network is a complete model: marginal, conditional and posterior queries are all computable from it (even if, in practice, we compute them with smarter algorithms than by reconstructing the whole joint).</p>
+
+<p><strong>Conditional probability tables</strong></p>
+
+<p>A CPT is organised with one row per assignment to the parents and one column per value of the node. For a Boolean node with <code>k</code> Boolean parents there are <code>2^k</code> rows, and because each row is a distribution over two values that sums to 1, each row contributes only <strong>one independent parameter</strong>. Hence such a node requires <code>2^k</code> independent numbers. More generally, a node with <code>v</code> values and parents having <code>v<sub>1</sub>,...,v<sub>k</sub></code> values requires <code>(v - 1) &middot; &prod;<sub>j</sub> v<sub>j</sub></code> parameters. By convention we often display only the "true" column for Boolean nodes and leave the complement implicit.</p>
+
+<p><strong>Root nodes</strong> — nodes with no parents — have a single row, which is just an unconditional prior distribution. Here are the full CPTs for the alarm network:</p>
+
+<table>
+  <thead>
+    <tr><th>Node</th><th>Parents</th><th>Parent assignment</th><th>P(node = true)</th><th>P(node = false)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Burglary</td><td>none</td><td>&mdash;</td><td>0.001</td><td>0.999</td></tr>
+    <tr><td>Earthquake</td><td>none</td><td>&mdash;</td><td>0.002</td><td>0.998</td></tr>
+    <tr><td>Alarm</td><td>Burglary, Earthquake</td><td>b, e</td><td>0.95</td><td>0.05</td></tr>
+    <tr><td>Alarm</td><td>Burglary, Earthquake</td><td>b, &not;e</td><td>0.94</td><td>0.06</td></tr>
+    <tr><td>Alarm</td><td>Burglary, Earthquake</td><td>&not;b, e</td><td>0.29</td><td>0.71</td></tr>
+    <tr><td>Alarm</td><td>Burglary, Earthquake</td><td>&not;b, &not;e</td><td>0.001</td><td>0.999</td></tr>
+    <tr><td>JohnCalls</td><td>Alarm</td><td>a</td><td>0.90</td><td>0.10</td></tr>
+    <tr><td>JohnCalls</td><td>Alarm</td><td>&not;a</td><td>0.05</td><td>0.95</td></tr>
+    <tr><td>MaryCalls</td><td>Alarm</td><td>a</td><td>0.70</td><td>0.30</td></tr>
+    <tr><td>MaryCalls</td><td>Alarm</td><td>&not;a</td><td>0.01</td><td>0.99</td></tr>
+  </tbody>
+</table>
+
+<p>Every row of every CPT sums to 1 across the node's possible values — this is the <strong>normalisation constraint</strong>, and violating it is the single most common beginner error. Note that it is the <em>rows</em> that normalise, not the columns and not the table as a whole: <code>P(a|b,e) + P(a|&not;b,&not;e)</code> has no meaning and need not equal anything in particular.</p>
+
+<p>Counting parameters makes the space saving concrete. The alarm network needs <code>1 + 1 + 4 + 2 + 2 = 10</code> numbers; the full joint over the same five Boolean variables needs <code>2^5 - 1 = 31</code>. The saving grows dramatically with size: a network of <code>n</code> Boolean variables in which no node has more than <code>k</code> parents needs at most <code>n &middot; 2^k</code> parameters rather than <code>2^n - 1</code>.</p>
+
+<table>
+  <thead>
+    <tr><th>Number of Boolean variables (n)</th><th>Full joint parameters (2<sup>n</sup> &minus; 1)</th><th>Network with at most k = 3 parents (n &middot; 2<sup>k</sup>)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>5</td><td>31</td><td>40</td></tr>
+    <tr><td>10</td><td>1 023</td><td>80</td></tr>
+    <tr><td>20</td><td>1 048 575</td><td>160</td></tr>
+    <tr><td>30</td><td>1 073 741 823</td><td>240</td></tr>
+  </tbody>
+</table>
+
+<p>The table makes the key point: <strong>sparse parent sets are the main source of the network's space savings</strong>. For small <code>n</code> the network may offer no advantage at all; the gain is asymptotic and comes entirely from keeping in-degree low. It also warns of the main failure mode — a node with ten parents needs 1024 numbers all by itself, which is usually a sign that the model needs restructuring (for example by introducing an intermediate variable) or a <em>canonical</em> CPT such as a noisy-OR, which models <code>k</code> independently acting causes with just <code>k</code> parameters instead of <code>2^k</code>.</p>
+
+<p>Where do the numbers come from? Three routes, often combined:</p>
+<ul>
+  <li><strong>Expert elicitation.</strong> A domain expert supplies values such as "if the alarm goes off, John calls about nine times out of ten". Experts are generally better at estimating causal conditionals (<code>P(effect | cause)</code>) than diagnostic ones, which is one reason for preferring causal structure.</li>
+  <li><strong>Learned frequencies.</strong> Given a data set of complete observations, the maximum-likelihood estimate of a CPT entry is simply a count ratio: <code>P(x<sub>i</sub> | pa<sub>i</sub>) = N(x<sub>i</sub>, pa<sub>i</sub>) / N(pa<sub>i</sub>)</code>. Because sparse parent sets mean each row pools many records, estimates are far more reliable than estimating the full joint from the same data. Smoothing (e.g. adding a pseudo-count of 1 to each cell) avoids assigning probability 0 to events merely unobserved in a finite sample.</li>
+  <li><strong>A mix.</strong> Common in practice: structure and rare-event priors from experts, frequent-event parameters from data, with expert priors acting as Bayesian pseudo-counts that are gradually overwhelmed as data accumulates.</li>
+</ul>
+
+<p><strong>Network semantics and local independence</strong></p>
+
+<p>There are two equivalent ways to say what a Bayesian network means, and it is worth being fluent in both.</p>
+
+<p>The <strong>global semantics</strong> defines the network as shorthand for a joint distribution: the joint is the product of all the CPTs, as in the chain rule factorization above. This view is what you use when computing — enumeration, variable elimination and sampling all ultimately multiply CPT entries.</p>
+
+<p>The <strong>local semantics</strong> states an independence property: <em>each variable is conditionally independent of its non-descendants given its parents</em>. Formally, for each <code>X</code>, <code>X &perp; NonDescendants(X) | Parents(X)</code>. In the alarm network, JohnCalls is conditionally independent of Burglary, Earthquake and MaryCalls given Alarm — once you know whether the alarm sounded, learning that a burglary occurred tells you nothing further about whether John will call. The restriction to non-descendants is essential: JohnCalls is certainly <em>not</em> independent of its descendants given its parents, and in a longer chain knowing a downstream effect does change beliefs upstream.</p>
+
+<p>These two statements are mathematically equivalent: a distribution factorises according to the graph if and only if it satisfies the local Markov property with respect to the graph. Global semantics is easier to compute with; local semantics is easier to think with when deciding whether a proposed structure is honest.</p>
+
+<p>A third, stronger local property concerns the <strong>Markov blanket</strong> of a node <code>X</code>, written <code>MB(X)</code>, which consists of:</p>
+<ul>
+  <li>the <strong>parents</strong> of <code>X</code>,</li>
+  <li>the <strong>children</strong> of <code>X</code>, and</li>
+  <li>the <strong>other parents of those children</strong> (sometimes called the node's "spouses").</li>
+</ul>
+<p>The theorem is that <strong>a node is conditionally independent of every other node in the network given its Markov blanket</strong>: <code>X &perp; (AllOthers \ MB(X)) | MB(X)</code>. The spouses must be included because, as we shall see with colliders, observing a shared child creates a dependency between its parents.</p>
+
+<table>
+  <thead>
+    <tr><th>Node</th><th>Parents</th><th>Children</th><th>Children's other parents</th><th>Markov blanket</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Burglary</td><td>&mdash;</td><td>Alarm</td><td>Earthquake</td><td>{Alarm, Earthquake}</td></tr>
+    <tr><td>Earthquake</td><td>&mdash;</td><td>Alarm</td><td>Burglary</td><td>{Alarm, Burglary}</td></tr>
+    <tr><td>Alarm</td><td>Burglary, Earthquake</td><td>JohnCalls, MaryCalls</td><td>&mdash;</td><td>{Burglary, Earthquake, JohnCalls, MaryCalls}</td></tr>
+    <tr><td>JohnCalls</td><td>Alarm</td><td>&mdash;</td><td>&mdash;</td><td>{Alarm}</td></tr>
+    <tr><td>MaryCalls</td><td>Alarm</td><td>&mdash;</td><td>&mdash;</td><td>{Alarm}</td></tr>
+  </tbody>
+</table>
+
+<p>The Markov blanket is not merely a curiosity: it is the computational heart of Gibbs sampling, where each variable is resampled from its distribution given its blanket, a quantity proportional to <code>P(x | parents(x)) &middot; &prod;<sub>children y</sub> P(y | parents(y))</code> and therefore cheap to evaluate locally no matter how large the network is.</p>
+
+<p>Finally, a point of modelling discipline: <strong>missing edges are strong claims</strong>. An edge that is present merely permits a dependency; the CPT may still make the influence negligible. An edge that is absent <em>forbids</em> a direct dependency outright and cannot be repaired by tuning numbers. Consequently, when you are unsure whether a direct influence exists, the conservative move is to include the edge: an unnecessary edge costs parameters and inference time but leaves the model capable of representing the true distribution, whereas a missing necessary edge makes the model structurally wrong and no amount of data will fix it. The trade-off is real — a network with too many edges is harder to elicit and may overfit — so the usual advice is to add edges you doubt only when the resulting CPT remains elicitable.</p>
+
+<p><strong>Constructing a network in practice</strong></p>
+
+<p>Network construction proceeds in two stages: choose and order the variables, then determine parents and fill in CPTs.</p>
+
+<p><em>Choosing variables.</em> Good variables are:</p>
+<ul>
+  <li><strong>Relevant</strong> to the queries you intend to ask or to the evidence you expect to observe — if a variable is never queried, never observed, and never needed to mediate a dependency, leave it out;</li>
+  <li><strong>Mutually exclusive in their values</strong>, so that exactly one value is true at a time (a variable <code>Weather &isin; {sunny, rain, cloudy, snow}</code> is well formed; a variable whose values are "raining" and "cold" is not, because both can hold);</li>
+  <li><strong>Exhaustive</strong>, so that at least one value is always true — this often means adding a catch-all value such as <code>other</code> or <code>none</code>. Together, mutual exclusivity and exhaustiveness guarantee that the distribution over the variable sums to exactly 1.</li>
+</ul>
+<p>It also pays to fix the granularity carefully. Modelling <code>Temperature</code> as a Boolean <code>Hot</code> may be too coarse to capture the dependency you care about; modelling it to the nearest 0.1&deg;C makes CPTs impossible to fill. Discretising into a few meaningful bands is usually the right compromise.</p>
+
+<p><em>The construction algorithm.</em> Once variables are chosen:</p>
+<pre><code>1. Order the variables X1, ..., Xn so that causes come before their effects.
+2. For i = 1 to n:
+     a. Choose the MINIMAL subset Parents(Xi) &sube; {X1, ..., Xi-1}
+        such that  P(Xi | X1, ..., Xi-1) = P(Xi | Parents(Xi)).
+     b. Draw an edge from each member of Parents(Xi) to Xi.
+     c. Fill in the CPT P(Xi | Parents(Xi)).</code></pre>
+<p>Because every parent is drawn from variables earlier in the ordering, the result is guaranteed acyclic. And because step 2a enforces an equality, the product of the CPTs is guaranteed to equal the true joint — the network is consistent with the real distribution by construction, with no redundant and possibly contradictory numbers anywhere.</p>
+
+<p><em>Why causal order matters.</em> The algorithm works for any ordering, but the resulting networks differ enormously in size and intelligibility. Compare three orderings of the alarm domain:</p>
+
+<table>
+  <thead>
+    <tr><th>Ordering</th><th>Character</th><th>Edges required</th><th>Typical parameter required</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Burglary, Earthquake, Alarm, JohnCalls, MaryCalls</td><td>Causal (causes first)</td><td>4</td><td>P(JohnCalls | Alarm) &mdash; easy</td></tr>
+    <tr><td>MaryCalls, JohnCalls, Alarm, Burglary, Earthquake</td><td>Diagnostic (symptoms first)</td><td>6</td><td>P(Earthquake | Alarm, Burglary) &mdash; hard</td></tr>
+    <tr><td>MaryCalls, JohnCalls, Earthquake, Burglary, Alarm</td><td>Arbitrary</td><td>10 (fully connected)</td><td>P(Alarm | all four others) &mdash; hopeless</td></tr>
+  </tbody>
+</table>
+
+<p>Work through the diagnostic ordering to see why it degrades. Starting with MaryCalls, we ask whether JohnCalls is independent of it: no — if Mary calls, the alarm probably sounded, so John is more likely to call too. Edge <code>MaryCalls &rarr; JohnCalls</code>. Next, Alarm clearly depends on both calls, so two more edges. Then Burglary: given the Alarm, do the calls tell us anything more? No — so Burglary gets a single parent, Alarm. Finally Earthquake: given the Alarm, knowing a burglary occurred <em>does</em> matter, because a burglary explains away the alarm and makes an earthquake less likely; so Earthquake needs both Alarm and Burglary as parents. The result is a six-edge network that encodes exactly the same distribution as the four-edge causal one, but whose numbers include quantities such as <code>P(Earthquake | Alarm, &not;Burglary)</code> that no seismologist or homeowner can estimate directly. The third, arbitrary ordering is worse still: it ends up fully connected, with 31 parameters — the full joint in disguise, and no independence captured at all.</p>
+
+<p>The general lesson is that <strong>causal orderings typically produce far fewer edges and more intuitive probabilities than diagnostic orderings</strong>. Causal conditionals are stable properties of mechanisms (how reliably does an alarm trigger given a break-in?), whereas diagnostic conditionals bundle together the mechanism and the prevalence of the causes, so they change whenever the population changes. A practical heuristic: for each candidate variable ask "what directly brings this about?" rather than "what does this tell me about?", and let the arrows run from the answer to the question.</p>
+
+<p>A short worked construction illustrates the whole procedure. Suppose we want to model a car that may fail to start. Variables: <code>Battery</code> (charged/flat), <code>FuelInTank</code> (yes/no), <code>Starts</code> (yes/no), <code>Lights</code> (on/off), <code>FuelGauge</code> (full/empty). A causal ordering is Battery, FuelInTank, Starts, Lights, FuelGauge. Battery and FuelInTank are roots. Starts depends on both (you need charge and fuel), so it has parents {Battery, FuelInTank}. Lights depend only on the battery — given the battery state, fuel and starting tell us nothing more — so <code>Parents(Lights) = {Battery}</code>. FuelGauge depends on the fuel level, and (in a slightly more careful model) also on the battery, since a dead battery leaves the gauge unpowered; take <code>Parents(FuelGauge) = {FuelInTank, Battery}</code>. The graph is:</p>
+
+<pre><code>  Battery ----------------+-------------------+
+      |                   |                   |
+      v                   v                   v
+   Lights              Starts  <---- FuelInTank ----> FuelGauge
+                                                  (also &lt;- Battery)</code></pre>
+
+<p>Parameter count: 1 + 1 + 4 + 2 + 4 = 12, against 31 for the joint. More importantly, each number is something a mechanic could estimate: <code>P(Starts = yes | Battery = charged, Fuel = yes) = 0.98</code>, <code>P(Lights = on | Battery = flat) = 0.02</code>, and so on.</p>
+
+<p><strong>Reading independence with d-separation</strong></p>
+
+<p>Local semantics tells us about each node and its parents, but we often want a general question answered: given evidence <code>E</code>, are sets <code>X</code> and <code>Y</code> conditionally independent? <strong>D-separation</strong> ("directed separation") is a purely graphical criterion that answers it without touching a single number. The idea is to treat the graph as a network of pipes along which dependency can flow, and ask whether evidence blocks every pipe between <code>X</code> and <code>Y</code>.</p>
+
+<p>Consider an undirected path (a sequence of edges ignoring their direction) between a node in <code>X</code> and a node in <code>Y</code>. Every interior node <code>Z</code> on that path sits in one of exactly three local configurations, and each has its own blocking rule:</p>
+
+<table>
+  <thead>
+    <tr><th>Configuration</th><th>Shape</th><th>Name</th><th>Blocked when</th><th>Open when</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Chain</td><td><code>X &rarr; Z &rarr; Y</code></td><td>Causal chain / mediator</td><td>Z is observed</td><td>Z is unobserved</td></tr>
+    <tr><td>Fork</td><td><code>X &larr; Z &rarr; Y</code></td><td>Common cause</td><td>Z is observed</td><td>Z is unobserved</td></tr>
+    <tr><td>Collider</td><td><code>X &rarr; Z &larr; Y</code></td><td>Common effect / v-structure</td><td>Neither Z nor any descendant of Z is observed</td><td>Z or a descendant of Z is observed</td></tr>
+  </tbody>
+</table>
+
+<p>The first two rules match intuition. In a chain <code>Burglary &rarr; Alarm &rarr; JohnCalls</code>, learning that John called raises the probability of a burglary — information flows. But if you already know whether the alarm sounded, John's call adds nothing about burglary: the mediator, once observed, absorbs the entire influence. In a fork <code>JohnCalls &larr; Alarm &rarr; MaryCalls</code>, the two calls are correlated through their common cause, but once the alarm's state is known they become independent — this is the classic "controlling for the confounder" situation.</p>
+
+<p>The collider rule runs the other way and is the one students most often get backwards. In <code>Burglary &rarr; Alarm &larr; Earthquake</code>, with nothing observed, burglary and earthquake are independent — the <em>a priori</em> chance of an earthquake has nothing to do with whether a thief is at work. But condition on the alarm sounding, and they become dependent: if you then learn there was an earthquake, the earthquake <em>explains away</em> the alarm and the probability of a burglary drops. Observing a common effect couples its causes. The rule extends to descendants because observing anything downstream of the collider gives indirect information about the collider itself: in the alarm network, learning <code>JohnCalls = true</code> (a descendant of Alarm) is enough to make Burglary and Earthquake dependent, even though Alarm itself is unobserved.</p>
+
+<p>Putting the rules together: a path is <strong>blocked</strong> by evidence <code>E</code> if at least one node on it is blocked by the rules above; the path is <strong>active</strong> (or "d-connecting") if every node on it is open. Then:</p>
+
+<pre><code>X and Y are d-separated by E  &hArr;  EVERY undirected path from any node in X
+                                    to any node in Y is blocked by E.
+
+d-separated  &rArr;  X &perp; Y | E  in every distribution that factorises over the graph.</code></pre>
+
+<p>Two practical remarks on that last line. D-separation is <em>sound</em>: whatever it declares independent really is independent, in every distribution consistent with the DAG — the conclusion follows from the graph alone and never depends on the particular CPT numbers. The converse direction is weaker: if <code>X</code> and <code>Y</code> are d-<em>connected</em>, they are dependent in <em>almost all</em> distributions over the graph, but a special choice of parameters can create an accidental independence that the graph does not advertise. So d-separation tells you what the model guarantees, not everything that might happen to be true.</p>
+
+<p>Some worked queries on the alarm network:</p>
+
+<table>
+  <thead>
+    <tr><th>Query</th><th>Relevant path(s)</th><th>Status of path</th><th>Conclusion</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Burglary &perp; Earthquake | {} ?</td><td>B &rarr; A &larr; E</td><td>Collider A unobserved, no descendant observed &rarr; blocked</td><td>Yes, independent</td></tr>
+    <tr><td>Burglary &perp; Earthquake | Alarm ?</td><td>B &rarr; A &larr; E</td><td>Collider observed &rarr; active</td><td>No &mdash; explaining away</td></tr>
+    <tr><td>Burglary &perp; Earthquake | JohnCalls ?</td><td>B &rarr; A &larr; E</td><td>Descendant of collider observed &rarr; active</td><td>No</td></tr>
+    <tr><td>JohnCalls &perp; MaryCalls | {} ?</td><td>J &larr; A &rarr; M</td><td>Fork unobserved &rarr; active</td><td>No</td></tr>
+    <tr><td>JohnCalls &perp; MaryCalls | Alarm ?</td><td>J &larr; A &rarr; M</td><td>Fork observed &rarr; blocked</td><td>Yes</td></tr>
+    <tr><td>JohnCalls &perp; Burglary | Alarm ?</td><td>J &larr; A &larr; B</td><td>Chain node A observed &rarr; blocked</td><td>Yes</td></tr>
+    <tr><td>Burglary &perp; MaryCalls | {} ?</td><td>B &rarr; A &rarr; M</td><td>Chain node A unobserved &rarr; active</td><td>No</td></tr>
+  </tbody>
+</table>
+
+<p>A slightly larger example shows how to handle multiple paths. Extend the network with a node <code>Radio</code> reporting an earthquake, with <code>Earthquake &rarr; Radio</code>, and a node <code>Neighbourhood</code> that influences both <code>Burglary</code> and a new node <code>Vandalism</code>. Ask: is <code>Radio</code> d-separated from <code>Vandalism</code> given <code>Alarm</code>? Enumerate the paths: <code>Radio &larr; Earthquake &rarr; Alarm &larr; Burglary &larr; Neighbourhood &rarr; Vandalism</code>. Walk it node by node. At Earthquake we have a fork, unobserved, so open. At Alarm we have a collider, and Alarm is observed, so open. At Burglary we have a chain <code>Alarm &larr; Burglary &larr; Neighbourhood</code> — Burglary is unobserved, so open. At Neighbourhood we have a fork, unobserved, so open. Every node is open, the path is active, and therefore Radio and Vandalism are <em>not</em> d-separated given Alarm: hearing an earthquake report lowers suspicion of a burglary, which lowers our estimate that this is a rough neighbourhood, which lowers the probability of vandalism. Add <code>Burglary</code> to the evidence set and the same path is blocked at Burglary (chain, observed) and the two become independent again — a nice illustration that <em>adding</em> evidence can create independences and <em>also</em> destroy them, depending on which configuration the evidence lands in.</p>
+
+<p>Notice that the Markov blanket result is simply a corollary of d-separation. Every path leaving <code>X</code> must exit through a parent (blocked by the observed parent, as a chain or fork), through a child along a chain (blocked by the observed child), or through a child acting as a collider — and that collider is observed, so it is open, but the path must then continue through one of the child's other parents, which are also in the blanket and block it. Hence conditioning on parents, children and spouses seals <code>X</code> off from the rest of the graph.</p>
+
+<p>Two everyday uses of the criterion close the topic. First, <strong>verifying modelling assumptions</strong>: after drawing a structure, pick pairs of variables whose relationship you understand well, read off what the graph claims about them, and check it against domain knowledge. If the graph says two symptoms are independent given a disease and the clinician objects that one symptom aggravates the other, you have found a missing edge — this is far cheaper than discovering the error after the model is deployed. Second, <strong>pruning irrelevant variables before inference</strong>: for a query <code>P(X | E)</code>, any variable that is d-separated from <code>X</code> by <code>E</code> contributes nothing and can be deleted. A standard, easily checked special case is that every node that is neither an ancestor of a query variable nor an ancestor of an evidence variable is irrelevant and may be dropped — its CPT always sums away to 1. In the alarm network, a query for <code>P(Burglary | JohnCalls = true)</code> allows us to discard MaryCalls entirely, shrinking the summations that enumeration or variable elimination must perform. In large diagnostic networks with hundreds of nodes, this pruning step often removes the great majority of the graph and is the difference between an intractable query and an instant one.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1</strong> — Supported indirectly: the topic shows that every entry of the full joint is recoverable as a product of CPT entries, which is the starting point for any marginalisation, conditioning or Bayes'-rule computation; worked products such as <code>P(j, m, a, &not;b, &not;e)</code> supply exactly the joint values those operations consume.</li>
+  <li><strong>MO2</strong> — Directly supported: the topic defines the DAG and CPT representation, gives the normalisation and parameter-counting rules for CPTs, and sets out a step-by-step construction procedure (choose variables, order causes before effects, select minimal parent sets, fill in tables) with worked domains.</li>
+  <li><strong>MO3</strong> — Directly supported: the final part develops the three d-separation configurations (chain, fork, collider including descendants), the definition of d-separation between sets given evidence, and multiple worked queries, together with the Markov blanket as a corollary.</li>
+  <li><strong>MO4</strong> — Only background support: the topic does not present or compare enumeration, variable elimination, or sampling algorithms, but it supplies the factorisation, parameter counts, Markov blankets and relevance-pruning results on which those comparisons later rest.</li>
+  <li><strong>MO5</strong> — Not addressed: Hidden Markov Models and the forward, forward–backward and Viterbi algorithms fall outside this topic, which concerns static network construction and semantics rather than temporal inference.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Numbers in the alarm CPTs follow the standard Russell &amp; Norvig formulation so they can be cross-referenced with the textbook. The car-starting example and the extended Radio/Neighbourhood/Vandalism network are illustrative constructions and can be swapped for a domain closer to the cohort&#39;s interests. The noisy-OR mention is deliberately brief — it can be expanded into its own subtopic if canonical distributions are examinable.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

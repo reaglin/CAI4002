@@ -1,0 +1,401 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Implementation Project and Evaluation</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Propagation: Forward Checking and Arc Consistency</a></div>
+  <header>
+    <h1>Implementation Project and Evaluation</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Implementation Project and Evaluation</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>This topic turns the theory of constraint propagation into a working piece of software and, just as importantly, into a defensible experiment. The deliverable is a single configurable CSP solver that can be run as plain backtracking, as backtracking with forward checking, as backtracking maintaining arc consistency (MAC), or as a min-conflicts local search — plus a benchmark harness that measures what each configuration actually costs and gains. The engineering discipline matters as much as the algorithms: if the four configurations share one code path, differ only by arguments, and restore state identically, then any difference you measure is attributable to inference strength rather than to an accidental bug or an unfair implementation. Everything below assumes <em>binary</em> CSPs (every constraint relates exactly two variables), because that keeps arc consistency simple, but the architectural advice generalises to <em>n</em>-ary constraints with little change.</p>
+
+<p><strong>Project scope and solver architecture.</strong> A CSP is the triple <code>(X, D, C)</code>: a finite set of variables, a finite domain per variable, and a set of constraints. In code this becomes three fields and one index. The index is the part beginners forget and then pay for in every inner loop.</p>
+
+<pre><code>class CSP:
+    def __init__(self, variables, domains, constraints):
+        self.variables   = list(variables)        # ["WA", "NT", "SA", ...]
+        self.domains     = {v: set(domains[v]) for v in variables}
+        self.constraints = {}                     # (X, Y) -&gt; predicate(a, b)
+        self.neighbours  = {v: set() for v in variables}
+        for (x, y), pred in constraints.items():
+            self.constraints[(x, y)] = pred
+            self.constraints[(y, x)] = lambda a, b, p=pred: p(b, a)
+            self.neighbours[x].add(y)
+            self.neighbours[y].add(x)
+
+    def consistent(self, x, a, y, b):
+        pred = self.constraints.get((x, y))
+        return True if pred is None else pred(a, b)</code></pre>
+
+<p>Two design choices here pay dividends later. First, the constraint dictionary is stored in <em>both</em> directions, so <code>consistent(X, a, Y, b)</code> never has to test which ordering was supplied; the symmetric wrapper costs a closure per constraint and removes a whole class of ordering bugs. Second, <code>neighbours[v]</code> gives every variable sharing a constraint with <code>v</code> in O(1) lookup, so forward checking can iterate over exactly the affected variables rather than scanning all constraints. For a map-colouring instance with 13 variables this is irrelevant; for a 500-variable random graph scanned at every one of a million nodes it is the difference between seconds and minutes.</p>
+
+<p>The public interface should be a single function. Resist the temptation to write <code>backtracking_search()</code>, <code>forward_checking_search()</code> and <code>mac_search()</code> as three separate functions: they will drift apart, and then your comparison measures the drift rather than the algorithms.</p>
+
+<pre><code>def solve(csp, inference="none", var_order="first", val_order="natural",
+          timeout=None, stats=None):
+    """inference in {"none", "fc", "mac"}
+       var_order in {"first", "mrv", "mrv+degree"}
+       val_order in {"natural", "lcv", "random"}"""
+    ...</code></pre>
+
+<p>Inside, <code>inference</code> selects a function object with a fixed signature such as <code>infer(csp, X, v, assignment, trail) -&gt; bool</code>; <code>"none"</code> maps to a function that does nothing and returns <code>True</code>. The recursive body is then identical for every configuration, which is exactly what makes the experiment fair.</p>
+
+<p><strong>State restoration</strong> is the other architectural decision that determines whether the project is pleasant or painful. Backtracking search mutates domains on the way down and must restore them exactly on the way up. Two workable schemes:</p>
+
+<ul>
+<li><strong>Trail of removed values.</strong> Every pruning operation appends a <code>(variable, value)</code> pair to a list. Undo pops back to a recorded mark and re-inserts each value. Cost is proportional to the number of values actually removed — typically tiny — and memory overhead is one list for the whole search.</li>
+<li><strong>Copy-on-write / snapshot per level.</strong> Copy the affected domains before modifying them, and on undo simply discard the copies. Simpler to get right, but on a 500-variable problem with domain size 20 the copying can dominate runtime and inflate peak memory, which is precisely the effect you will later be asked to measure.</li>
+</ul>
+
+<pre><code>def prune(csp, var, val, trail):
+    csp.domains[var].discard(val)
+    trail.append((var, val))
+
+def undo_to(csp, trail, mark):
+    while len(trail) &gt; mark:
+        var, val = trail.pop()
+        csp.domains[var].add(val)</code></pre>
+
+<p>Note the <code>mark</code> idiom: the caller records <code>mark = len(trail)</code> before trying a value and calls <code>undo_to(csp, trail, mark)</code> afterwards. This works uniformly for forward checking (a few removals) and MAC (potentially hundreds), so both inference modes share one undo mechanism.</p>
+
+<p>Keep <strong>constraint checking separate from inference</strong>. Checking answers "is the partial assignment <code>{X=a, Y=b}</code> consistent?" and is a pure predicate with no side effects. Inference answers "given <code>X=a</code>, which values elsewhere are now impossible?" and mutates domains. Conflating them produces functions that are hard to unit-test and impossible to reuse: min-conflicts needs the checker but not the inference, and AC-3 as a preprocessor needs the inference but no assignment at all.</p>
+
+<p>Finally, <strong>write plain backtracking first and keep it forever</strong>. It is twenty lines, it is almost certainly correct, and it is the oracle against which every other configuration is validated. A variant of it that enumerates <em>all</em> solutions rather than stopping at the first is even more valuable for testing, as explained in the validation subsection.</p>
+
+<pre><code>def backtrack(csp, assignment, stats):
+    if len(assignment) == len(csp.variables):
+        return assignment
+    X = select_unassigned_variable(csp, assignment)
+    for v in order_domain_values(csp, X, assignment):
+        stats.nodes += 1
+        if consistent_with_assignment(csp, X, v, assignment):
+            assignment[X] = v
+            mark = len(trail)
+            if infer(csp, X, v, assignment, trail):
+                result = backtrack(csp, assignment, stats)
+                if result is not None:
+                    return result
+            undo_to(csp, trail, mark)
+            del assignment[X]
+            stats.backtracks += 1
+    return None</code></pre>
+
+<p><strong>Implementing forward checking.</strong> Forward checking is the cheapest useful inference: after committing <code>X = v</code>, look one step out along the constraint graph and delete from each unassigned neighbour's domain every value that cannot coexist with <code>v</code>. It enforces consistency of the arcs pointing <em>into</em> the newly assigned variable and nothing further.</p>
+
+<pre><code>def forward_check(csp, X, v, assignment, trail, stats):
+    for Y in csp.neighbours[X]:
+        if Y in assignment:
+            continue
+        doomed = []
+        for b in csp.domains[Y]:
+            stats.checks += 1
+            if not csp.consistent(X, v, Y, b):
+                doomed.append(b)
+        for b in doomed:
+            prune(csp, Y, b, trail)
+        if not csp.domains[Y]:
+            return False          # wipe-out: caller must undo
+    return True</code></pre>
+
+<p>Three implementation details deserve emphasis. First, collect the doomed values into a list before removing them — mutating a set while iterating over it raises an error in most languages. Second, every removal goes on the shared trail, recording the <em>exact</em> <code>(variable, value)</code> pairs rather than copying whole domains; on undo you re-insert perhaps three values instead of rebuilding fifty sets. Third, when a neighbour domain empties, return <code>False</code> <em>immediately</em>: there is no point pruning the remaining neighbours when the branch is already dead. The caller is responsible for the undo, which is why the recursive skeleton above calls <code>undo_to</code> unconditionally after the <code>if infer(...)</code> block rather than inside it.</p>
+
+<p>A worked trace on Australian map colouring with domains <code>{R, G, B}</code> and the usual adjacency (WA–NT, WA–SA, NT–SA, NT–Q, SA–Q, SA–NSW, SA–V, Q–NSW, NSW–V) makes the mechanism concrete:</p>
+
+<table>
+<thead><tr><th>Step</th><th>Assignment</th><th>WA</th><th>NT</th><th>SA</th><th>Q</th><th>NSW</th><th>V</th><th>T</th></tr></thead>
+<tbody>
+<tr><td>start</td><td>{}</td><td>RGB</td><td>RGB</td><td>RGB</td><td>RGB</td><td>RGB</td><td>RGB</td><td>RGB</td></tr>
+<tr><td>WA=R</td><td>{WA=R}</td><td>R</td><td>GB</td><td>GB</td><td>RGB</td><td>RGB</td><td>RGB</td><td>RGB</td></tr>
+<tr><td>Q=G</td><td>{WA=R, Q=G}</td><td>R</td><td>B</td><td>B</td><td>G</td><td>RB</td><td>RGB</td><td>RGB</td></tr>
+<tr><td>V=B</td><td>{WA=R, Q=G, V=B}</td><td>R</td><td>B</td><td>∅</td><td>G</td><td>R</td><td>B</td><td>RGB</td></tr>
+</tbody>
+</table>
+
+<p>Assigning <code>V=B</code> wipes out SA, so forward checking reports failure and the search backtracks without ever assigning NT or NSW. Plain backtracking, by contrast, would have happily assigned NT and NSW and only discovered the problem when it reached SA. Notice also what forward checking <em>misses</em>: after <code>Q=G</code> the domains of NT and SA are both the singleton-ish set <code>{B}</code>, yet NT and SA are adjacent and cannot both be blue. That inconsistency is visible to arc consistency but invisible to forward checking, which never examines arcs between two unassigned variables.</p>
+
+<p>Forward checking and the <strong>minimum-remaining-values heuristic</strong> are natural partners. MRV selects the unassigned variable with the smallest current domain, and forward checking is precisely the machinery that keeps those domain sizes up to date. Under plain backtracking, MRV degenerates to a static count and gains little; under forward checking it is dynamic and typically delivers an order-of-magnitude reduction in nodes. Break MRV ties with the degree heuristic (most constraints on unassigned variables) for a further small gain.</p>
+
+<pre><code>def mrv(csp, assignment):
+    unassigned = [v for v in csp.variables if v not in assignment]
+    return min(unassigned, key=lambda v: (len(csp.domains[v]),
+                                          -len(csp.neighbours[v])))</code></pre>
+
+<p>The single most valuable test for this component is a <strong>prune/restore round-trip assertion</strong>. Take a small unsatisfiable instance, snapshot every domain, run the full (exhaustive, failing) search, and assert that the domains are identical afterwards:</p>
+
+<pre><code>def test_restore_is_exact():
+    csp = make_unsatisfiable_instance()
+    before = {v: frozenset(d) for v, d in csp.domains.items()}
+    assert solve(csp, inference="fc") is None
+    after = {v: frozenset(d) for v, d in csp.domains.items()}
+    assert before == after</code></pre>
+
+<p>If this fails, your trail is leaking: some pruning is not being undone, which means later branches are searching with illegally shrunken domains and will silently miss solutions. Running the test on a <em>failing</em> search is deliberate — a successful search returns early and leaves state deliberately unrestored, so it proves nothing.</p>
+
+<p><strong>Implementing AC-3 and maintaining arc consistency.</strong> An arc <code>(X, Y)</code> is consistent when every value in <code>D(X)</code> has at least one <em>supporting</em> value in <code>D(Y)</code> that satisfies the constraint. AC-3 enforces this over all arcs by repeatedly revising arcs from a worklist until it reaches a fixed point. The workhorse is <code>REVISE</code>:</p>
+
+<pre><code>def revise(csp, X, Y, trail, stats):
+    stats.revisions += 1
+    removed = False
+    doomed = []
+    for a in csp.domains[X]:
+        supported = False
+        for b in csp.domains[Y]:
+            stats.checks += 1
+            if csp.consistent(X, a, Y, b):
+                supported = True
+                break                       # one support is enough
+        if not supported:
+            doomed.append(a)
+    for a in doomed:
+        prune(csp, X, a, trail)
+        removed = True
+    return removed</code></pre>
+
+<p>The early <code>break</code> matters: you need the existence of one support, not a count, so the inner loop should abandon as soon as it finds one. Worst-case cost of a revision is <code>d²</code> constraint checks for domain size <code>d</code>; AC-3 overall is <code>O(e·d³)</code> for <code>e</code> arcs, because each of the <code>e</code> arcs can be re-enqueued at most <code>d</code> times (once per value deleted from the far domain).</p>
+
+<pre><code>def ac3(csp, arcs, trail, stats):
+    queue = deque(arcs)
+    in_queue = set(arcs)                     # duplicate suppression
+    while queue:
+        X, Y = queue.popleft()
+        in_queue.discard((X, Y))
+        if revise(csp, X, Y, trail, stats):
+            if not csp.domains[X]:
+                return False                 # wipe-out: inconsistent
+            for Z in csp.neighbours[X]:
+                if Z != Y and (Z, X) not in in_queue:
+                    queue.append((Z, X))
+                    in_queue.add((Z, X))
+    return True</code></pre>
+
+<p>Four points to internalise. (1) <strong>Re-enqueue direction.</strong> When <code>revise(X, Y)</code> removes values from <code>D(X)</code>, the variables that might lose support are the <em>other</em> neighbours of <code>X</code>, so you push arcs <code>(Z, X)</code> — pointing <em>into</em> <code>X</code> — for every neighbour <code>Z</code> except <code>Y</code>. Excluding <code>Y</code> is safe because <code>D(Y)</code> did not change, so <code>(Y, X)</code> cannot have become inconsistent. Getting this direction backwards is the classic AC-3 bug and produces a solver that terminates quickly and prunes almost nothing. (2) <strong>Seeding.</strong> As a preprocessor, seed the queue with all <code>2e</code> directed arcs. As MAC inside search, after assigning <code>X = v</code> you first reduce <code>D(X)</code> to <code>{v}</code> and then seed the queue with only the arcs <code>(Y, X)</code> for unassigned neighbours <code>Y</code>; everything else was already arc-consistent before the assignment, so re-checking it is pure waste. (3) <strong>Early abort.</strong> Detect an empty domain the moment it happens and return <code>False</code> up to the search layer, which undoes the trail and tries the next value. (4) <strong>Duplicate suppression.</strong> The <code>in_queue</code> set prevents the same arc appearing many times; on dense graphs this visibly reduces the revision count, and since revisions are your overhead metric, it visibly improves measured runtime.</p>
+
+<p>Revisiting the map-colouring trace shows MAC's extra power. After <code>WA=R</code> and <code>Q=G</code>, forward checking left <code>D(NT)={B}</code> and <code>D(SA)={B}</code>. MAC revises the arc <code>(NT, SA)</code>: the only value <code>B</code> in <code>D(NT)</code> has no support in <code>D(SA)={B}</code>, so <code>B</code> is deleted, <code>D(NT)</code> empties, and the branch is refuted <em>immediately after Q=G</em> — one level earlier than forward checking managed. That is the whole trade in miniature: MAC does strictly more pruning per node at strictly higher per-node cost.</p>
+
+<table>
+<thead><tr><th>Property</th><th>Forward checking</th><th>MAC (AC-3 in search)</th><th>Min-conflicts</th></tr></thead>
+<tbody>
+<tr><td>Arcs examined per assignment</td><td>Only arcs into the assigned variable</td><td>Those arcs plus all cascading re-enqueues</td><td>None; evaluates conflicts of one variable</td></tr>
+<tr><td>Detects future–future conflicts</td><td>No</td><td>Yes (pairwise)</td><td>Only implicitly, via conflict counts</td></tr>
+<tr><td>Typical per-node cost</td><td>O(deg · d)</td><td>O(e · d³) worst case, far less in practice</td><td>O(deg · d) per move</td></tr>
+<tr><td>Complete?</td><td>Yes</td><td>Yes</td><td>No</td></tr>
+<tr><td>Best suited to</td><td>Loose constraints, large domains</td><td>Tight constraints, structured graphs</td><td>Large, loose, satisfiable instances</td></tr>
+</tbody>
+</table>
+
+<p><strong>Implementing a min-conflicts local search solver.</strong> Local search abandons the partial-assignment paradigm entirely: it starts from a <em>complete</em> but probably invalid assignment and repairs it. The canonical repair heuristic is min-conflicts — pick a variable currently involved in a violated constraint and move it to the value that minimises the number of violations.</p>
+
+<p>The <strong>initial assignment</strong> should be greedy rather than uniformly random. Process variables in some order and give each one the value conflicting least with the variables already placed, breaking ties randomly. On the classic <em>n</em>-queens benchmark this alone reduces the starting conflict count dramatically and is a large part of why min-conflicts solves million-queens instances in seconds.</p>
+
+<pre><code>def greedy_init(csp, rng):
+    assignment = {}
+    for X in csp.variables:
+        best, best_count = [], None
+        for v in csp.domains[X]:
+            c = sum(1 for Y in csp.neighbours[X] if Y in assignment
+                      and not csp.consistent(X, v, Y, assignment[Y]))
+            if best_count is None or c &lt; best_count:
+                best, best_count = [v], c
+            elif c == best_count:
+                best.append(v)
+        assignment[X] = rng.choice(best)
+    return assignment</code></pre>
+
+<p>The main loop then repeats: if no constraint is violated, return the assignment; otherwise choose a conflicted variable uniformly at random and reassign it to a minimising value, with random tie-breaking. Random tie-breaking is not cosmetic — deterministic tie-breaking causes the search to cycle between the same two states forever.</p>
+
+<pre><code>def min_conflicts(csp, max_steps=100000, p_walk=0.02, rng=random.Random(0)):
+    current = greedy_init(csp, rng)
+    conflicted = compute_conflicted_set(csp, current)
+    for step in range(max_steps):
+        if not conflicted:
+            return current, step
+        X = rng.choice(list(conflicted))
+        if rng.random() &lt; p_walk:
+            v = rng.choice(list(csp.domains[X]))          # random walk
+        else:
+            v = argmin_conflicts(csp, X, current, rng)    # greedy move
+        apply_move(csp, current, conflicted, X, v)        # incremental update
+    return None, max_steps                                 # give up</code></pre>
+
+<p><strong>Incremental conflict maintenance</strong> is what makes this fast. Recomputing the global conflict count after every move costs O(e); instead, keep a per-variable conflict count and a set of currently conflicted variables, and when <code>X</code> changes value, update only <code>X</code> and its neighbours. Each move then costs time proportional to <code>deg(X) · d</code>, independent of problem size. On a sparse graph this is effectively constant, which is why millions of steps per second are achievable.</p>
+
+<p><strong>Escaping local minima</strong> is mandatory, because min-conflicts is a hill-climber on the conflict-count landscape and such landscapes are riddled with plateaus. Two standard remedies, both cheap: a <em>random-walk probability</em> <code>p</code> (typically 0.02–0.2) of taking an arbitrary rather than a minimising value, which is the WalkSAT idea applied to CSPs; and <em>random restarts</em> after a fixed number of non-improving steps. Report which you used and with what parameter, since the parameter materially affects results.</p>
+
+<p>Finally, min-conflicts is <strong>incomplete</strong>: it can neither prove unsatisfiability nor guarantee it will find an existing solution. Always cap it with <code>max_steps</code> and return an explicit failure. Never let it loop forever, and never report its failure as "no solution exists" — on an unsatisfiable instance it will exhaust its budget and tell you nothing, whereas backtracking will prove unsatisfiability definitively.</p>
+
+<p><strong>Experimental design and benchmark instances.</strong> A benchmark suite exists to answer a question, and the question here is: <em>how does inference strength trade pruning against overhead across different problem families?</em> That dictates the instances you need.</p>
+
+<ul>
+<li><strong>Structured instances.</strong> Include tree-structured constraint graphs and "near-tree" graphs (a tree plus a handful of extra edges). Trees are special: a CSP whose constraint graph is a tree can be solved in O(n·d²) with no backtracking at all by making it directed-arc-consistent along a topological ordering of the tree. Benchmarking on trees therefore demonstrates the payoff of exploiting structure — MAC should solve them essentially backtrack-free, while plain backtracking may still thrash. Near-tree graphs let you show the degradation curve as cutset size grows.</li>
+<li><strong>Random binary CSPs.</strong> The standard generator is the four-parameter model <code>&lt;n, d, p1, p2&gt;</code>: <code>n</code> variables, domain size <code>d</code>, graph density <code>p1</code> (fraction of the <code>n(n−1)/2</code> possible constraints that exist), and tightness <code>p2</code> (fraction of the <code>d²</code> value pairs each constraint forbids). Fix <code>n</code>, <code>d</code> and <code>p1</code>, then sweep <code>p2</code> from near 0 to near 1 in small increments, generating many instances per point.</li>
+<li><strong>The phase transition.</strong> At low tightness nearly every instance is satisfiable and easy; at high tightness nearly every instance is trivially unsatisfiable and also easy. Between them lies a narrow band where the satisfiable fraction falls from ~1 to ~0 and median solving cost peaks by orders of magnitude. Sweeping tightness is how you locate that band and ensure your comparison includes genuinely hard instances rather than only trivial ones. Plotting satisfiable-fraction and median cost on the same <code>p2</code> axis makes the alignment of the cost peak with the 50 % crossover point visible.</li>
+</ul>
+
+<p><strong>Control one factor at a time.</strong> If you change inference and variable ordering simultaneously you cannot attribute the resulting difference to either. So when comparing none / FC / MAC, pin the variable ordering (say, MRV with degree tie-break) and the value ordering (say, LCV or natural) and vary only <code>inference</code>. Run a separate experiment, with inference pinned, to measure the effect of ordering heuristics. Use <em>identical instances</em> across configurations — the same generated CSP objects, not merely the same parameters — so that instance-to-instance variance cancels out and you can legitimately report paired comparisons.</p>
+
+<p><strong>Handle stochasticity honestly.</strong> Min-conflicts, random restarts, random tie-breaking and random instance generation all introduce variance. Run every stochastic configuration <em>k</em> times (k = 25 or more is typical) with distinct, recorded seeds, and report the <strong>median</strong> plus a spread measure (interquartile range, or 10th/90th percentiles). Means are a poor choice here because local-search runtime distributions are heavy-tailed: a handful of catastrophic runs drag the mean far from anything you would ever observe. Recording the seed makes a surprising run reproducible for debugging.</p>
+
+<p><strong>Impose a uniform timeout and record it.</strong> Give every run the same budget — say 60 seconds of wall clock, or an equivalent node cap — and when a run exceeds it, log it as a timeout with the budget value rather than deleting the row. Silently dropping failures is a serious methodological error: it systematically removes the hardest instances from precisely the configuration that struggles most, making the weak configuration look artificially good. The standard honest presentations are (a) a table of "solved within budget / total" alongside the median time <em>over solved instances</em>, or (b) a cactus plot of instances solved against cumulative time, which handles censored data gracefully.</p>
+
+<table>
+<thead><tr><th>Experiment</th><th>Factor varied</th><th>Held fixed</th><th>Question answered</th></tr></thead>
+<tbody>
+<tr><td>Inference sweep</td><td>none / FC / MAC</td><td>MRV + degree, LCV, instance set, timeout</td><td>How much does stronger propagation shrink the tree, and is it worth the cost?</td></tr>
+<tr><td>Tightness sweep</td><td><code>p2</code> from 0.1 to 0.9</td><td><code>n</code>, <code>d</code>, <code>p1</code>, inference = MAC</td><td>Where is the phase transition and how sharp is the cost peak?</td></tr>
+<tr><td>Ordering sweep</td><td>first / MRV / MRV+degree</td><td>inference = FC, instance set</td><td>How much of the gain is ordering rather than inference?</td></tr>
+<tr><td>Complete vs. local</td><td>MAC vs. min-conflicts</td><td>Satisfiable instances only, equal wall-clock budget</td><td>When does an incomplete method win?</td></tr>
+<tr><td>Structure exploitation</td><td>tree / near-tree / random</td><td>n, d, inference = MAC</td><td>Does graph structure predict backtrack-free behaviour?</td></tr>
+</tbody>
+</table>
+
+<p><strong>Performance metrics and instrumentation.</strong> One number cannot characterise a solver. Runtime alone conflates algorithmic quality with implementation quality and hardware; node counts alone ignore the cost of obtaining them. Use complementary metrics so each explains the other.</p>
+
+<ul>
+<li><strong>Nodes expanded</strong> — the number of assignments attempted, i.e. the size of the explored search tree. This is the cleanest measure of <em>pruning power</em> and is implementation- and machine-independent. Increment it at exactly one place in the code (the top of the value loop) so the definition is identical across configurations.</li>
+<li><strong>Backtracks</strong> — the number of times a value is retracted. Together with nodes it describes the shape of the tree: a high backtrack-to-node ratio indicates thrashing near the leaves.</li>
+<li><strong>Constraint checks</strong> — every evaluation of a constraint predicate. This is the classic machine-independent proxy for <em>work</em>, and it captures the overhead that inference adds. The informative statistic is checks <em>per node</em>: FC might use 30 checks per node, MAC 400, so MAC must reduce nodes by more than 13× to break even on this measure.</li>
+<li><strong>AC-3 revisions</strong> — how many times <code>REVISE</code> is called, plus optionally how many of those actually deleted something. A high call count with a low deletion rate is the signature of a missing duplicate-suppression set or an over-eager queue seeding.</li>
+<li><strong>Wall-clock time</strong> — the ground truth users care about, but report it with hardware, language and version. Measure with a monotonic clock and exclude instance generation and I/O from the timed region.</li>
+<li><strong>Peak memory</strong> — relevant because copy-on-write domain restoration allocates on every node; if you implemented both trail and copying schemes, this is the metric that shows why the trail wins on large instances. Recursion depth is a cheap companion statistic.</li>
+<li><strong>Local-search metrics</strong> — nodes and backtracks are meaningless for min-conflicts. Record instead <em>steps to solution</em>, <em>success rate within the step budget</em>, number of restarts, and time per step. Success rate is the headline number: a method that solves 60 % of instances quickly is not comparable to a complete method without saying so.</li>
+</ul>
+
+<pre><code>class Stats:
+    __slots__ = ("nodes", "backtracks", "checks", "revisions",
+                 "steps", "restarts", "seconds", "timed_out", "solved")
+    def __init__(self):
+        self.nodes = self.backtracks = self.checks = 0
+        self.revisions = self.steps = self.restarts = 0
+        self.seconds = 0.0
+        self.timed_out = False
+        self.solved = False</code></pre>
+
+<p>Instrument by passing one mutable <code>Stats</code> object down the recursion rather than using globals, so parallel or repeated runs cannot contaminate each other. Then <strong>log raw per-run rows to CSV</strong> — one row per (instance, configuration, seed) — rather than printing aggregated summaries. Aggregation is cheap and can be redone a dozen ways; re-running a 6-hour benchmark because you forgot to record the seed or wanted the 90th percentile instead of the mean is not.</p>
+
+<pre><code>instance_id,n,d,p1,p2,family,config,inference,var_order,seed,
+nodes,backtracks,checks,revisions,steps,restarts,seconds,timed_out,solved
+rand_0042,30,8,0.35,0.45,random,mac_mrv,mac,mrv,7,
+1183,402,91540,2217,0,0,0.214,False,True</code></pre>
+
+<p><strong>Debugging, validation, and interpreting results.</strong> Inference bugs are insidious because they do not crash; they quietly delete valid values and the solver returns "no solution" on a satisfiable instance, or returns a solution but explores suspiciously few nodes. The following checks catch essentially all of them.</p>
+
+<ul>
+<li><strong>Solution-count equivalence.</strong> On small instances (say 6–10 variables, domain size 3), run every configuration in <em>count-all-solutions</em> mode and assert the counts are identical to plain backtracking's. Inference may change how many nodes you visit but must never change the solution set. A smaller count means something is pruning values that participate in real solutions; a larger count means your consistency check is too weak or restoration is leaking values back in at the wrong moment. Randomly generate a few hundred such instances and run the comparison as a property-based test.</li>
+<li><strong>Restoration assertions.</strong> Around every assignment, snapshot the domains (in a debug build only — it is far too slow for benchmarking) and assert after the undo that the restored domains equal the snapshot exactly. This localises a trail bug to the specific inference call that caused it, which is far better than discovering at the top level that something, somewhere, leaked.</li>
+<li><strong>Idempotence of AC-3.</strong> Run AC-3 to a fixed point, then run it again on the result: the second run must remove nothing and must return <code>True</code>. If it removes a value, your re-enqueue logic is incomplete (you reached a state you wrongly believed was a fixed point). This is a one-line test that catches the single most common AC-3 bug.</li>
+<li><strong>Sanity on known instances.</strong> Australia map colouring has exactly 18 solutions with three colours; 8-queens has 92; a tree-structured CSP made arc-consistent should be solved with zero backtracks. Hard-code these as regression tests.</li>
+<li><strong>Determinism control.</strong> Seed every random source explicitly. A bug that appears once in fifty runs is only fixable if you can reproduce it.</li>
+</ul>
+
+<p>Once the implementation is trustworthy, <strong>interpretation</strong> becomes the intellectual content of the project. Some well-established expectations to compare your data against:</p>
+
+<table>
+<thead><tr><th>Observation</th><th>Usual explanation</th></tr></thead>
+<tbody>
+<tr><td>FC beats plain backtracking nearly everywhere, on both nodes and time</td><td>Its overhead is small and bounded (one pass over the neighbours of the assigned variable), while detecting wipe-outs one level early removes whole subtrees.</td></tr>
+<tr><td>MAC expands far fewer nodes than FC on tightly constrained instances</td><td>Tight constraints make future–future inconsistencies common, and only arc consistency sees them; the saved subtrees dwarf the propagation cost.</td></tr>
+<tr><td>MAC loses to FC on wall-clock time on loose instances</td><td>Few values can be pruned, so most revisions delete nothing; the propagation is pure overhead paid at every node.</td></tr>
+<tr><td>Node count is flat across inference levels on some instance family</td><td>The instances are already arc-consistent at the root and remain nearly so, so there is nothing for propagation to remove — a mechanism-level explanation, not noise.</td></tr>
+<tr><td>Min-conflicts solves huge loose instances in milliseconds but times out near the phase transition</td><td>The conflict landscape is smooth and solution-dense when constraints are loose, but riddled with deep local minima at the transition, where incompleteness bites.</td></tr>
+<tr><td>Node counts drop but runtime rises after an "optimisation"</td><td>Classic over-propagation: more inference per node than the instance repays. Check checks-per-node to confirm.</td></tr>
+</tbody>
+</table>
+
+<p>Explain anomalies <em>by mechanism</em>, not by hand-waving about noise. If MAC and FC produce identical node counts on your tree instances, say so and attribute it to the fact that forward checking is already sufficient to make a tree backtrack-free under a good ordering. If a single random seed produced a 100× outlier for min-conflicts, attribute it to the heavy tail of local-search runtime distributions and point at your percentile data.</p>
+
+<p>Finally, <strong>present the results as plots and a recommendation</strong>. The standard figures are: nodes expanded (log scale) against tightness <code>p2</code>, one line per configuration; wall-clock time (log scale) against <code>p2</code>, same lines; a cactus plot of instances solved against time budget; and a scatter of nodes against time to expose the per-node-cost difference between configurations. Then state a conclusion in words — for example: "for loose random binary CSPs use FC + MRV, because MAC's propagation does not pay for itself; for phase-transition and tightly constrained structured instances use MAC + MRV, which expands roughly 20× fewer nodes at about 6× the per-node cost; for large, loose, known-satisfiable instances where no proof of unsatisfiability is required, use min-conflicts, which solved 98 % of our instances within 10,000 steps." A benchmark report that stops at the graphs has only done half the work; the deliverable is the decision the graphs justify.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+<li><strong>MO1:</strong> The topic operationalises local consistency inside backtracking search — the trail-based domain mutation, the wipe-out test, and the separation of constraint checking from inference show concretely how propagation reduces domains during search and when it refutes a branch.</li>
+<li><strong>MO2:</strong> The forward-checking implementation section traces the algorithm step by step on Australian map colouring, tabulating the domain reductions after each assignment and identifying the wipe-out that triggers backtracking.</li>
+<li><strong>MO3:</strong> The AC-3 section gives a full implementation including the arc queue with duplicate suppression, the <code>REVISE</code> subroutine with early support break, correct re-enqueue direction, queue seeding for preprocessing versus MAC, and an idempotence test for validation.</li>
+<li><strong>MO4:</strong> The comparison table, the per-node cost metrics (checks per node, revisions), and the interpretation table explicitly contrast the pruning power and overhead of forward checking, MAC, and min-conflicts, including when each wins and why.</li>
+<li><strong>MO5:</strong> The experimental-design, instrumentation, and interpretation sections cover complementary metrics (nodes, backtracks, checks, revisions, time, memory, steps, success rate), timeout handling, median-and-spread reporting, CSV logging, and turning plots into a justified choice of technique.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Code is illustrative Python-style pseudocode; the &lt;code&gt;trail&lt;/code&gt; variable in the &lt;code&gt;backtrack&lt;/code&gt; skeleton is assumed to be threaded through from &lt;code&gt;solve&lt;/code&gt; (shown as a free variable for brevity). Suggested extensions if the project needs more depth: add LCV value ordering, conflict-directed backjumping, or a tree-structured solver using topological directed arc consistency, and measure them on the same harness. For reporting, note that the &lt;code&gt;&amp;lt;n, d, p1, p2&amp;gt;&lt;/code&gt; random CSP model can generate flawed (trivially unsatisfiable) instances at high tightness when a variable's domain is wiped by a single constraint — mention this caveat if the tightness sweep shows an unexpectedly easy high-p2 region.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>This topic shifts from theory to practice: you will build a working CSP solver and then measure how its components behave. The plan is to start with a clean architecture — a representation for variables, domains, and constraints, plus a backtracking search loop with pluggable inference — and then add forward checking, AC-3 with maintained arc consistency (MAC), and a min-conflicts local search alternative. Keeping these as interchangeable strategies behind one interface is what makes a fair comparison possible later.</p>
+<p>The second half of the topic is experimental. You choose benchmark instances (map colouring, scheduling, n-queens, random binary CSPs near the phase transition), instrument the solver to count nodes expanded, constraint checks, revisions, and wall-clock time, and then run controlled experiments with repeated trials. Good instrumentation is cheap to add up front and nearly impossible to retrofit mid-analysis, so decide early what you will record. Debugging and validation matter just as much: a solver that is subtly wrong can look impressively fast, so verify solutions against the constraint set and cross-check that different strategies find consistent answers.</p>
+<p>The videos below are short, project-style walkthroughs of CSP implementations in Python, built around familiar benchmark problems such as map colouring and scheduling. Watch them for the engineering decisions rather than for formal algorithm proofs: how the problem is encoded, how variables and constraints are represented in code, and how a solution is checked. As you watch, ask yourself where you would insert a forward-checking hook, where an AC-3 queue would live, and what counters you would add to turn each demo into a measurable experiment.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Map Coloring: Constraint Satisfaction Problem + Python (prototype project 01 | public version)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/jzh5VYmrsbo?cc_load_policy=1&amp;rel=0" title="Video: Map Coloring: Constraint Satisfaction Problem + Python (prototype project 01 | public version) (Prototype Project)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Prototype Project</strong> · 3:29 · 1,968 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=jzh5VYmrsbo" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short prototype-project video that walks through a map colouring constraint satisfaction problem implemented in Python. Based on its title and description, it demonstrates encoding regions as variables with colour domains and adjacency constraints, then running a solver to produce a valid colouring. A companion Java version is referenced, which can be useful if you prefer to compare implementations across languages.</p>
+<h3>Why this video</h3>
+<p>Map colouring is the canonical binary CSP used throughout this module, so this video gives you a concrete starting codebase for the Project Scope and Solver Architecture subtopic and a natural place to add forward checking.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Flight Scheduling: Constraint Satisfaction Problem + Python (public version)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/YWdRnbEvCSM?cc_load_policy=1&amp;rel=0" title="Video: Flight Scheduling: Constraint Satisfaction Problem + Python (public version) (Prototype Project)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Prototype Project</strong> · 5:07 · 911 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=YWdRnbEvCSM" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This video applies the same constraint satisfaction approach to a flight scheduling problem in Python. Expect to see how a scheduling scenario is translated into variables, domains, and constraints, and how the solver assigns resources or time slots without violating them. It is slightly longer than the map colouring example, reflecting the richer problem encoding.</p>
+<h3>Why this video</h3>
+<p>Scheduling gives you a second, structurally different benchmark instance, which directly supports the Experimental Design and Benchmark Instances subtopic — comparing solvers on only one problem type can mislead you.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: Constraint Satisfaction Problem + Map Coloring + Peer-to-peer + Python (public version)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/ee1xo0WJyFM?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problem + Map Coloring + Peer-to-peer + Python (public version) (Prototype Project)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Prototype Project</strong> · 4:55 · 270 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=ee1xo0WJyFM" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A variation on the map colouring CSP that adds a peer-to-peer framing, implemented in Python. The video appears to cover how the same constraint model can be adapted to a different problem context while keeping the core solver intact. As with the others, Java and members-only variants are mentioned in the description.</p>
+<h3>Why this video</h3>
+<p>Seeing the same solver reused across problem variants reinforces the modular architecture this project requires, where the inference strategy and the problem model are kept separate so each can be swapped and benchmarked independently.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These short project videos complement the module's algorithmic content by showing CSP models in running code. The map colouring examples give you the exact problem structure used for tracing forward checking and its domain reductions (MO1, MO2), and a working backtracking implementation is the scaffold into which you insert an AC-3 arc queue and REVISE routine (MO3). Having two distinct problem domains — colouring and scheduling — supplies the varied benchmark instances needed to compare pruning power and per-node cost across forward checking, MAC, and min-conflicts (MO4), and to interpret results using nodes expanded alongside runtime rather than either metric alone (MO5). Note that the videos demonstrate solving CSPs rather than formally deriving the propagation algorithms, so pair them with the module readings and your own instrumentation work.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

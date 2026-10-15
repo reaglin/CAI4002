@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backtracking Search for CSPs</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Satisfaction Problems and Backtracking Search</a></div>
+  <header>
+    <h1>Backtracking Search for CSPs</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Backtracking Search for CSPs</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>A constraint satisfaction problem gives us three things: a set of variables <code>X = {X₁,…,Xₙ}</code>, a domain <code>Dᵢ</code> of candidate values for each variable, and a set of constraints <code>C</code> that restrict which combinations of values are allowed. Defining the problem, however, does not solve it. The question this topic answers is: given such a triple, how do we <em>systematically</em> explore the space of assignments so that we are guaranteed to find a solution if one exists, without drowning in the combinatorial explosion of possibilities? The answer — depth-first <strong>backtracking search</strong> — is remarkably simple to state, yet it is the algorithmic backbone on which every serious CSP solver is built. Everything that follows in the study of CSPs (inference, heuristics, backjumping, clause learning) is best understood as a modification of this one procedure.</p>
+
+<p><strong>From generate-and-test to backtracking.</strong> The most obvious way to solve a CSP is to enumerate every complete assignment and check each one against the constraints. This is <em>generate-and-test</em>. It treats the CSP as a black box: the generator produces a finished candidate, the tester returns true or false, and no information passes between them. The tester never says <em>why</em> a candidate failed, and the generator never uses that information to skip similar candidates. For <code>n</code> variables with domains of size <code>d</code>, the generator must produce <code>dⁿ</code> candidates in the worst case, and each is tested from scratch.</p>
+
+<p>Consider the classic Australia map-colouring CSP: variables <code>WA, NT, SA, Q, NSW, V, T</code>, each with domain <code>{red, green, blue}</code>, and a binary inequality constraint between every pair of regions that share a border. Generate-and-test must consider <code>3⁷ = 2187</code> complete colourings. Now notice something that generate-and-test throws away: if <code>WA = red</code> and <code>NT = red</code>, the constraint <code>WA ≠ NT</code> is already violated, and <em>every one</em> of the <code>3⁵ = 243</code> colourings that extend this pair is doomed. Generate-and-test will nonetheless construct and test all 243 of them, one at a time.</p>
+
+<p>Backtracking exploits the structural fact that constraints are not only properties of complete assignments — they apply to <strong>partial assignments</strong> as well. A constraint can be evaluated as soon as all the variables it mentions have values, and once it is violated it stays violated no matter what we do to the remaining variables, because assignments in standard backtracking are never undone except by backtracking itself. Therefore a violated constraint discovered at depth <code>k</code> prunes an entire subtree containing <code>d^(n−k)</code> complete assignments in a single step. This <strong>early detection of failure</strong> is the single biggest source of savings over blind enumeration; it is worth far more than any micro-optimisation of the constraint tests themselves.</p>
+
+<table>
+  <thead>
+    <tr><th>Property</th><th>Generate-and-test</th><th>Backtracking search</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>What is evaluated</td><td>Only complete assignments</td><td>Every partial assignment as it is built</td></tr>
+    <tr><td>Use of constraint structure</td><td>None — CSP is a black box</td><td>Constraints guide and prune the search</td></tr>
+    <tr><td>Effect of an early violation</td><td>Rediscovered in every extension</td><td>Whole subtree pruned at once</td></tr>
+    <tr><td>Worst-case candidates examined</td><td><code>dⁿ</code> complete assignments</td><td><code>O(dⁿ)</code> nodes, usually far fewer in practice</td></tr>
+    <tr><td>Completeness</td><td>Complete</td><td>Complete</td></tr>
+    <tr><td>Memory</td><td><code>O(n)</code></td><td><code>O(n)</code> for the path (plus <code>O(nd)</code> if domains are copied)</td></tr>
+  </tbody>
+</table>
+
+<p>Crucially, pruning costs us nothing in terms of correctness. Backtracking is a <strong>complete, systematic search</strong>: it explores a tree that contains every assignment not provably ruled out by a violated constraint, so if a solution exists it will be found, and if the search returns failure after exhausting the tree, we have a <em>proof</em> that the CSP is unsatisfiable. This distinguishes it from local search methods such as min-conflicts, which may find solutions quickly but can never certify unsatisfiability.</p>
+
+<p><strong>The backtracking algorithm.</strong> The procedure is a recursive depth-first search over partial assignments. Written as pseudocode:</p>
+
+<pre><code>function BACKTRACKING-SEARCH(csp):
+    return BACKTRACK({}, csp)
+
+function BACKTRACK(assignment, csp):
+    # 1. Base case
+    if assignment assigns a value to every variable in csp.X:
+        return assignment                      # a complete, consistent assignment = solution
+
+    # 2. Choose ONE unassigned variable
+    var = SELECT-UNASSIGNED-VARIABLE(csp, assignment)
+
+    # 3. Iterate over the values of its domain
+    for each value in ORDER-DOMAIN-VALUES(var, assignment, csp):
+
+        # 4. Test only against already-assigned variables
+        if CONSISTENT(var, value, assignment, csp):
+            assignment[var] = value            # extend
+            result = BACKTRACK(assignment, csp)   # 5. recurse
+            if result != failure:
+                return result
+            del assignment[var]                # 6. undo and try next value
+
+    # 7. Every value failed: report failure to the caller
+    return failure</code></pre>
+
+<p>Each numbered step corresponds directly to one idea. The <strong>base case</strong> is reached when the assignment is complete; because we only ever extended with consistent values, completeness here implies a solution — no final re-check of all constraints is needed. <strong>Selecting one unassigned variable</strong> and looping over its domain is what produces a single level of the tree per variable. The <strong>consistency test</strong> checks the new pair <code>(var, value)</code> only against variables that already have values. The <strong>recursive call</strong> deepens the search; if it returns failure, the loop <strong>undoes</strong> the assignment (restoring the state exactly) and tries the next value. When the loop runs out of values, the function <strong>returns failure</strong>, which causes the caller — the previous variable in the ordering — to abandon its current value and move on. That return of failure <em>is</em> the "backtrack".</p>
+
+<p>Here is the algorithm in action on 4-Queens, formulated with one variable per column, <code>Q₁…Q₄</code>, domain <code>{1,2,3,4}</code> (the row), and constraints <code>Qᵢ ≠ Qⱼ</code> and <code>|Qᵢ − Qⱼ| ≠ |i − j|</code>:</p>
+
+<table>
+  <thead>
+    <tr><th>Step</th><th>Partial assignment attempted</th><th>Outcome</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td><code>Q₁=1</code></td><td>consistent (no assigned neighbours)</td></tr>
+    <tr><td>2</td><td><code>Q₂=1</code>, then <code>Q₂=2</code></td><td>both fail (same row; diagonal)</td></tr>
+    <tr><td>3</td><td><code>Q₂=3</code></td><td>consistent</td></tr>
+    <tr><td>4</td><td><code>Q₃ ∈ {1,2,3,4}</code></td><td>all four fail → return failure, undo <code>Q₂=3</code></td></tr>
+    <tr><td>5</td><td><code>Q₂=4</code>, then <code>Q₃=2</code></td><td>consistent</td></tr>
+    <tr><td>6</td><td><code>Q₄ ∈ {1,2,3,4}</code></td><td>all four fail → backtrack through <code>Q₃</code>, exhaust <code>Q₂</code>, undo <code>Q₁=1</code></td></tr>
+    <tr><td>7</td><td><code>Q₁=2, Q₂=4, Q₃=1, Q₄=3</code></td><td><strong>solution</strong></td></tr>
+  </tbody>
+</table>
+
+<p>In this trace the algorithm created only 10 consistent nodes and rejected 18 candidate values — 28 constraint checks of the "extend by one variable" kind — against the <code>4⁴ = 256</code> complete boards generate-and-test would have built and tested. The gap widens explosively with size: for 8-Queens, generate-and-test faces <code>8⁸ = 16{,}777{,}216</code> boards, while plain backtracking solves the problem after a few thousand node expansions.</p>
+
+<p><strong>Consistency checking of partial assignments.</strong> The efficiency of the inner loop rests on a precise rule: <em>only constraints whose variables are all currently assigned need to be evaluated</em>. A constraint that still mentions an unassigned variable cannot yet be violated, because some value might still satisfy it; evaluating it would be meaningless. In practice the test is even cheaper than this suggests. When we extend a consistent assignment with one new pair <code>(X, v)</code>, every constraint not mentioning <code>X</code> was already satisfied and cannot have changed. So the <strong>incremental check</strong> only needs to examine the constraints that involve <code>X</code> together with already-assigned variables — in a binary CSP, this means looking at the assigned neighbours of <code>X</code> in the constraint graph. For sparse graphs this is a handful of comparisons per node, which is why backtracking's per-node cost is essentially constant even though the number of nodes may be large.</p>
+
+<p><strong>Unary constraints</strong> deserve special treatment. A constraint such as "South Australia must not be red" or "cell (3,7) of this Sudoku is fixed at 5" involves exactly one variable, so it can be enforced once, before search begins, by deleting the forbidden values from that variable's domain. This is called making the problem <em>node-consistent</em>. Pre-processing unary constraints shrinks the branching factor permanently and removes the need to re-test them at every node; after this step, the search loop deals only with binary, higher-order, and global constraints.</p>
+
+<p>A vital conceptual point: a partial assignment that passes all applicable constraints is called <strong>consistent</strong>, and consistency is <em>not</em> the same as extendability. Consistency is a local, backward-looking property — nothing we have committed to so far contradicts anything else we have committed to. It carries no promise that the remaining variables can be filled in. In the 4-Queens trace, <code>{Q₁=1, Q₂=3}</code> is perfectly consistent, yet it cannot be extended to any solution; the search discovers this only by expanding and failing at the next level. The whole game of improving backtracking consists of detecting such dead ends sooner than brute recursion does.</p>
+
+<p><strong>Commutativity and the search tree.</strong> Why is it legitimate to pick one variable per level and ignore all the others at that node? Because CSPs are <strong>commutative</strong>: the result of applying a set of assignments does not depend on the order in which they are applied. The partial assignment <code>{WA=red, NT=green}</code> is the same object as <code>{NT=green, WA=red}</code>, and both constrain the future identically. A naive search that treated "assign WA next" and "assign NT next" as distinct decisions would generate the same set of assignments along <code>n!</code> different paths. Its tree would have branching factor <code>(n − i)·d</code> at level <code>i</code> and <code>n!·dⁿ</code> leaves, while containing only <code>dⁿ</code> distinct complete assignments — an enormous amount of duplicated work.</p>
+
+<p>Backtracking exploits commutativity by committing to a single variable at each node. This yields a tree of <strong>depth exactly <code>n</code></strong>, one level per variable, with <strong>branching factor at most <code>d</code></strong>, and <code>dⁿ</code> leaves at most. No completeness is lost: every set of assignments is still reachable, just along one canonical path instead of <code>n!</code> permutations of it. An important consequence is that the solver is free to choose a <em>different</em> variable at each node, even dynamically, based on the current state — and this freedom is exactly what variable-ordering heuristics exploit later.</p>
+
+<table>
+  <thead>
+    <tr><th>Search formulation</th><th>Branching at level i</th><th>Leaves</th><th>Depth</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Naive (choose variable <em>and</em> value)</td><td><code>(n − i)·d</code></td><td><code>n!·dⁿ</code></td><td><code>n</code></td></tr>
+    <tr><td>Backtracking (fixed variable per level)</td><td><code>≤ d</code></td><td><code>≤ dⁿ</code></td><td><code>n</code></td></tr>
+  </tbody>
+</table>
+
+<p><strong>Complexity and the exponential worst case.</strong> In the worst case backtracking still explores <code>O(dⁿ)</code> nodes: if constraints are loose, almost nothing is pruned, and the tree is traversed nearly in full. This is unavoidable in general — deciding satisfiability of a CSP is NP-complete, so no algorithm is known that avoids exponential worst-case behaviour. The table below shows how fast this grows, which is why heuristics and inference matter so much in practice.</p>
+
+<table>
+  <thead>
+    <tr><th>n (variables)</th><th>d = 2</th><th>d = 3</th><th>d = 9</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>10</td><td>1.0 × 10³</td><td>5.9 × 10⁴</td><td>3.5 × 10⁹</td></tr>
+    <tr><td>20</td><td>1.0 × 10⁶</td><td>3.5 × 10⁹</td><td>1.2 × 10¹⁹</td></tr>
+    <tr><td>50</td><td>1.1 × 10¹⁵</td><td>7.2 × 10²³</td><td>5.2 × 10⁴⁷</td></tr>
+    <tr><td>81 (Sudoku)</td><td>2.4 × 10²⁴</td><td>4.4 × 10³⁸</td><td>2.0 × 10⁷⁷</td></tr>
+  </tbody>
+</table>
+
+<p>The <strong>space</strong> requirement, by contrast, is modest. Being depth-first, backtracking stores only the current path from the root — at most <code>n</code> variable–value pairs — plus whatever bookkeeping the implementation keeps for domains, giving <code>O(n)</code> space (or <code>O(nd)</code> if a copy of the current domains is maintained at each level for inference). This is the key practical advantage over breadth-first or best-first strategies, which would need to store exponentially many frontier nodes to search the same space.</p>
+
+<p>Hard instances exhibit a characteristic pathology: a bad choice made <em>near the root</em> cannot be repaired locally, so the solver performs repeated deep failures before it ever reconsiders that early decision. Suppose in the Australia CSP the solver colours the regions in the order <code>WA, Q, V, NT, NSW, T, SA</code>. The variable <code>SA</code> borders five other regions, so it is the hardest to colour, yet it is assigned last. If the first six choices give five neighbours of <code>SA</code> three different colours among them, every value for <code>SA</code> fails — but the solver backtracks only one level, changes <code>T</code> (an island that constrains nothing), and fails at <code>SA</code> again, for every value of <code>T</code>. This rediscovery of the same conflict in subtree after subtree is called <strong>thrashing</strong>. It is caused not by a flaw in the algorithm's logic but by the mismatch between the chronological order of backtracking and the actual culprit of the failure. Its cure is better ordering (assign <code>SA</code> early) or smarter backing-up (jump straight back to a variable implicated in the conflict). The general lesson is that <strong>performance depends heavily on which variable and which value are chosen at each step</strong> — two runs of the same algorithm on the same instance can differ by many orders of magnitude in node count.</p>
+
+<p><strong>Where improvements come from.</strong> Notice that the pseudocode above deliberately leaves three procedures abstract: <code>SELECT-UNASSIGNED-VARIABLE</code>, <code>ORDER-DOMAIN-VALUES</code>, and the implicit opportunity to do inference after each assignment. These are the hooks through which every enhancement enters, and each corresponds to a natural question:</p>
+
+<ul>
+  <li><strong>Which unassigned variable should be chosen next?</strong> Choosing the variable most likely to fail soon ("fail-first") makes dead ends shallow. The <em>minimum-remaining-values</em> rule picks the variable with the fewest legal values left; the <em>degree</em> rule breaks ties by picking the variable involved in the most constraints on unassigned variables. Applying MRV to the thrashing example would assign <code>SA</code>code> early and eliminate the whole pathology.</li>
+  <li><strong>In what order should the values of that variable be tried?</strong> Since any single value may lead to a solution, we want to try the most promising first. The <em>least-constraining-value</em> rule prefers the value that rules out the fewest choices for the neighbouring unassigned variables, keeping maximum flexibility for the rest of the search.</li>
+  <li><strong>Can failures be detected earlier by propagating constraints after each assignment?</strong> Instead of merely checking the new value against past assignments, the solver can look <em>forward</em>: <em>forward checking</em> deletes the newly inconsistent values from the domains of unassigned neighbours and fails immediately if any domain becomes empty; <em>arc consistency</em> (AC-3, MAC) propagates these deletions transitively until no further pruning is possible. Both turn a future failure into a present one, pruning subtrees before they are ever entered.</li>
+  <li><strong>Can the search learn from a failure to avoid repeating it elsewhere in the tree?</strong> <em>Backjumping</em> returns not to the chronologically previous variable but to the deepest variable in the conflict set that actually caused the dead end, skipping irrelevant levels such as <code>T</code> in the Australia example. <em>Constraint learning</em> (no-good recording) stores the offending combination as a new constraint so the same conflict is recognised instantly anywhere else in the tree — the idea that powers modern CDCL SAT solvers.</li>
+  <li><strong>Restarts and randomisation</strong> attack the same problem from another angle: if a run exceeds a node budget, abandon it and restart with a different (randomised) ordering, escaping the "bad early choice" that caused the heavy tail of runtimes.</li>
+</ul>
+
+<p>The essential property of all these refinements is that they are <strong>correctness-preserving</strong>. Variable ordering, value ordering, propagation, backjumping, and learning never remove an assignment that could be part of a solution; they only remove assignments that are provably doomed, or reorganise the order in which the surviving ones are visited. The solver therefore remains sound (any assignment it returns satisfies all constraints) and complete (it will find a solution if one exists, and certify unsatisfiability otherwise). What changes is purely the <em>number of nodes explored</em> — which is why the proper experimental measure of a CSP improvement is node count (or constraint checks) on a benchmark set, not merely wall-clock time on a single instance.</p>
+
+<p>To put all of this together, a simple mental model is useful: backtracking search explores a tree whose nodes are consistent partial assignments, whose edges are single variable–value commitments, and whose leaves are either solutions (depth <code>n</code>) or dead ends (any depth). Generate-and-test, in these terms, looks only at the leaves at depth <code>n</code> and ignores the tree structure entirely. Backtracking uses the tree. Everything beyond backtracking is about pruning more of the tree, earlier, and about choosing the order in which its branches are visited.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> Supported indirectly. The topic relies on the CSP triple of variables, domains, and constraints and makes heavy, precise use of the distinction between partial, complete, and consistent assignments — consistency of a partial assignment is the central test in the algorithm — but it does not re-teach the formal definition itself.</li>
+  <li><strong>MO2:</strong> Partially supported. Unary constraints are singled out for pre-processing into node-consistent domains, and incremental consistency checking is explained in terms of assigned neighbours in the constraint graph; the topic does not otherwise classify or represent constraint types.</li>
+  <li><strong>MO3:</strong> Supported through its worked examples. Map colouring, 4-Queens, and Sudoku are used with explicit variables, domains, and constraints to illustrate how the search operates on real formulations, reinforcing the modelling skill rather than teaching it anew.</li>
+  <li><strong>MO4:</strong> Directly and primarily supported. The topic gives the full recursive pseudocode for depth-first backtracking that assigns one variable at a time, explains each step (base case, variable selection, consistency test, recursion, undo, failure return), and traces its execution, which is exactly what an implementation requires.</li>
+  <li><strong>MO5:</strong> Prepared for rather than achieved. The topic establishes why variable and value ordering dominate performance, introduces minimum-remaining-values, degree, and least-constraining-value as the hooks in the algorithm, and argues that node count is the correct measure — but the empirical evaluation on benchmark instances is left to later material.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Figures used are illustrative: the 4-Queens trace follows the standard left-to-right column ordering with values tried in increasing row order, and the quoted node/check counts are approximate teaching figures, not benchmark measurements. The exponential growth table reports d^n rounded to two significant figures (the 81-variable row is included only to dramatise Sudoku&#39;s nominal space, since real Sudoku has d = 9). The naive-search leaf count n!&#183;d^n is an upper bound on the duplicated work when variable choice is treated as a search decision. Instructors may wish to pair this topic with a lab in which students instrument the solver with a node counter before heuristics are introduced, so that MO5&#39;s before/after comparison has a baseline.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

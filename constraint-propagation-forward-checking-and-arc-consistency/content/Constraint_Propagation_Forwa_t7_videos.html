@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Implementation Project and Evaluation</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Propagation: Forward Checking and Arc Consistency</a></div>
+<h1>Implementation Project and Evaluation</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: Map Coloring: Constraint Satisfaction Problem + Python (prototype project 01 | public version)</a>
+<a href="#sec3">Video 2: Flight Scheduling: Constraint Satisfaction Problem + Python (public version)</a>
+<a href="#sec4">Video 3: Constraint Satisfaction Problem + Map Coloring + Peer-to-peer + Python (public version)</a>
+<a href="#sec5">How These Videos Support the Learning Outcomes</a>
+<a href="#sec6">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>This topic shifts from theory to practice: you will build a working CSP solver and then measure how its components behave. The plan is to start with a clean architecture — a representation for variables, domains, and constraints, plus a backtracking search loop with pluggable inference — and then add forward checking, AC-3 with maintained arc consistency (MAC), and a min-conflicts local search alternative. Keeping these as interchangeable strategies behind one interface is what makes a fair comparison possible later.</p>
+<p>The second half of the topic is experimental. You choose benchmark instances (map colouring, scheduling, n-queens, random binary CSPs near the phase transition), instrument the solver to count nodes expanded, constraint checks, revisions, and wall-clock time, and then run controlled experiments with repeated trials. Good instrumentation is cheap to add up front and nearly impossible to retrofit mid-analysis, so decide early what you will record. Debugging and validation matter just as much: a solver that is subtly wrong can look impressively fast, so verify solutions against the constraint set and cross-check that different strategies find consistent answers.</p>
+<p>The videos below are short, project-style walkthroughs of CSP implementations in Python, built around familiar benchmark problems such as map colouring and scheduling. Watch them for the engineering decisions rather than for formal algorithm proofs: how the problem is encoded, how variables and constraints are represented in code, and how a solution is checked. As you watch, ask yourself where you would insert a forward-checking hook, where an AC-3 queue would live, and what counters you would add to turn each demo into a measurable experiment.</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: Map Coloring: Constraint Satisfaction Problem + Python (prototype project 01 | public version)</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/jzh5VYmrsbo?cc_load_policy=1&amp;rel=0" title="Video: Map Coloring: Constraint Satisfaction Problem + Python (prototype project 01 | public version) (Prototype Project)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Prototype Project</strong> · 3:29 · 1,968 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=jzh5VYmrsbo" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short prototype-project video that walks through a map colouring constraint satisfaction problem implemented in Python. Based on its title and description, it demonstrates encoding regions as variables with colour domains and adjacency constraints, then running a solver to produce a valid colouring. A companion Java version is referenced, which can be useful if you prefer to compare implementations across languages.</p>
+<h3>Why this video</h3>
+<p>Map colouring is the canonical binary CSP used throughout this module, so this video gives you a concrete starting codebase for the Project Scope and Solver Architecture subtopic and a natural place to add forward checking.</p>
+</section>
+<section class="item" id="sec3">
+<h2>Video 2: Flight Scheduling: Constraint Satisfaction Problem + Python (public version)</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/YWdRnbEvCSM?cc_load_policy=1&amp;rel=0" title="Video: Flight Scheduling: Constraint Satisfaction Problem + Python (public version) (Prototype Project)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Prototype Project</strong> · 5:07 · 911 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=YWdRnbEvCSM" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This video applies the same constraint satisfaction approach to a flight scheduling problem in Python. Expect to see how a scheduling scenario is translated into variables, domains, and constraints, and how the solver assigns resources or time slots without violating them. It is slightly longer than the map colouring example, reflecting the richer problem encoding.</p>
+<h3>Why this video</h3>
+<p>Scheduling gives you a second, structurally different benchmark instance, which directly supports the Experimental Design and Benchmark Instances subtopic — comparing solvers on only one problem type can mislead you.</p>
+</section>
+<section class="item" id="sec4">
+<h2>Video 3: Constraint Satisfaction Problem + Map Coloring + Peer-to-peer + Python (public version)</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/ee1xo0WJyFM?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problem + Map Coloring + Peer-to-peer + Python (public version) (Prototype Project)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Prototype Project</strong> · 4:55 · 270 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=ee1xo0WJyFM" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A variation on the map colouring CSP that adds a peer-to-peer framing, implemented in Python. The video appears to cover how the same constraint model can be adapted to a different problem context while keeping the core solver intact. As with the others, Java and members-only variants are mentioned in the description.</p>
+<h3>Why this video</h3>
+<p>Seeing the same solver reused across problem variants reinforces the modular architecture this project requires, where the inference strategy and the problem model are kept separate so each can be swapped and benchmarked independently.</p>
+</section>
+<section class="item" id="sec5">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>These short project videos complement the module&#39;s algorithmic content by showing CSP models in running code. The map colouring examples give you the exact problem structure used for tracing forward checking and its domain reductions (MO1, MO2), and a working backtracking implementation is the scaffold into which you insert an AC-3 arc queue and REVISE routine (MO3). Having two distinct problem domains — colouring and scheduling — supplies the varied benchmark instances needed to compare pruning power and per-node cost across forward checking, MAC, and min-conflicts (MO4), and to interpret results using nodes expanded alongside runtime rather than either metric alone (MO5). Note that the videos demonstrate solving CSPs rather than formally deriving the propagation algorithms, so pair them with the module readings and your own instrumentation work.</p>
+</section>
+<section class="item" id="sec6">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evaluating Search Algorithms</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Problem Formulation and State Space Representation</a></div>
+  <header>
+    <h1>Evaluating Search Algorithms</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Evaluating Search Algorithms</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Once a task has been formulated as a search problem — a state space, an initial state, a set of actions, a transition model, a goal test and a path cost function — the problem itself is fixed. What remains open is the <strong>strategy</strong>: the rule that decides, at each step, which of the currently available unexpanded nodes should be expanded next. Remarkably, all of the classical uninformed search algorithms share exactly the same skeleton and differ <em>only</em> in that one decision. Because the problem is the same but the behaviour is wildly different, we need a vocabulary and a set of measurements that let us compare strategies fairly, argue about them on paper, and predict whether a given approach will finish in seconds, in days, or never.</p>
+
+<p>The common skeleton makes the point concrete. Every graph search algorithm can be written as:</p>
+
+<pre><code>function GRAPH-SEARCH(problem) returns a solution or failure
+    frontier &lt;- a container holding one node: the initial state
+    explored &lt;- an empty set
+    loop do
+        if frontier is empty then return failure
+        node &lt;- REMOVE-CHOICE(frontier)          // <-- the ONLY difference between strategies
+        if problem.GOAL-TEST(node.state) then return SOLUTION(node)
+        add node.state to explored
+        for each action in problem.ACTIONS(node.state) do
+            child &lt;- CHILD-NODE(problem, node, action)
+            if child.state not in explored and child not in frontier then
+                add child to frontier</code></pre>
+
+<p>Replace <code>REMOVE-CHOICE</code> with "remove the oldest node" and you have breadth-first search; with "remove the newest node" and you have depth-first search; with "remove the node of lowest path cost" and you have uniform-cost search. The state space graph is unchanged, but the <em>search tree</em> that is actually built — and therefore the time and memory consumed — can differ by many orders of magnitude.</p>
+
+<p><strong>Why we need evaluation criteria.</strong> Suppose you are routing a delivery vehicle across a city with ten thousand junctions. One ordering of the frontier might find a route after examining three hundred junctions; another might wander down a long ring road, revisiting states, and exhaust memory before finding anything. Running both on the full instance to find out which is better is expensive and, on an infinite or very large space, may never terminate. Evaluation criteria let us reason <em>before</em> implementation, using only structural facts about the problem such as how many actions are available per state and how deep the shallowest solution is likely to be. The four standard criteria are:</p>
+
+<ul>
+  <li><strong>Completeness</strong> — is the algorithm guaranteed to find a solution when one exists, and to report failure when none exists?</li>
+  <li><strong>Optimality</strong> — if it finds a solution, is it guaranteed to be one of lowest path cost?</li>
+  <li><strong>Time complexity</strong> — how long does it take, measured in nodes generated or expanded?</li>
+  <li><strong>Space complexity</strong> — how much memory does it need at its peak?</li>
+</ul>
+
+<p>No strategy wins on all four. Breadth-first search buys completeness and (under uniform costs) optimality by paying exponential memory. Depth-first search buys linear memory by surrendering both completeness and optimality. Uniform-cost search guarantees the cheapest solution but may expand enormous numbers of cheap, useless nodes. Selection is therefore always a trade-off, and the criteria are the currency in which the trade is priced.</p>
+
+<p><strong>Completeness in detail.</strong> A strategy is complete if, whenever a goal state is reachable from the initial state, the strategy will eventually reach it. The usual phrasing — "it will eventually generate every reachable state" — is a sufficient condition and a useful mental test: if there is any reachable state the strategy could permanently fail to look at, it is incomplete. Two mechanisms cause incompleteness:</p>
+
+<ul>
+  <li><strong>Infinite paths.</strong> In an infinite state space, depth-first search can descend forever down a single branch. Consider the problem of generating a number equal to 100 starting at 0 with the actions "add 1" and "subtract 1". Depth-first search may follow 0, 1, 2, 3, … and succeed by luck, or follow 0, −1, −2, −3, … and never terminate, even though the goal is only a hundred steps away.</li>
+  <li><strong>Cycles (loops).</strong> Even a finite state space produces an infinite <em>tree</em> if the graph contains cycles. In a road network you can drive A → B → A → B indefinitely; the search tree has infinite depth although the state space has only a handful of states.</li>
+</ul>
+
+<p>The standard repair is to remember where you have been. A <strong>cycle check</strong> compares each new node's state against the states on its own ancestor path and discards repeats; it costs memory proportional to the depth of the path only. A full <strong>explored set</strong> (closed list) records every state ever expanded and discards any duplicate; in a finite state space this makes even depth-first search complete, because each state can be expanded at most once and the number of states is finite. The price is memory proportional to the number of distinct states visited — which, as we will see, can destroy depth-first search's main advantage.</p>
+
+<p>Completeness is always stated relative to assumptions, and those assumptions must be checked for the problem at hand. Breadth-first search is complete only if the <strong>branching factor is finite</strong>: with infinitely many successors per node, the algorithm would never finish expanding even the root. Uniform-cost search is complete only if every step cost exceeds some small positive ε: if actions can cost zero, the algorithm can be trapped expanding an infinite sequence of zero-cost actions while a cheap goal waits one unit of cost away. Negative step costs break the guarantees of nearly every classical algorithm.</p>
+
+<p>Finally, incompleteness is not automatically disqualifying. If solutions are <em>dense</em> — if a large proportion of leaves at modest depth are goals, as in many constraint-satisfaction-style problems such as placing 8 queens — a fast, memory-light, incomplete method with random restarts may dramatically outperform a complete one. The judgement is pragmatic, not dogmatic.</p>
+
+<p><strong>Optimality in detail.</strong> Optimality has no meaning independent of the path cost function chosen during problem formulation. A route that is optimal under "minimise kilometres" may be far from optimal under "minimise travel time" or "minimise toll charges". If the formulation defines cost as the number of actions, then the shallowest solution is by definition the cheapest, and breadth-first search is optimal. The moment step costs vary — a 2 km city street and a 90 km motorway stretch both count as one action — shallowest and cheapest come apart, and breadth-first search loses its optimality guarantee while uniform-cost search retains one based on cumulative cost.</p>
+
+<p>Depth-first search returns the <em>first</em> solution it stumbles upon. In a tree where one branch reaches a goal at depth 40 and another reaches a different goal at depth 4, depth-first search may well return the depth-40 solution simply because of the order in which successors were generated. There is no mechanism for it to know that a better solution exists elsewhere.</p>
+
+<p>Guaranteeing optimality almost always costs something. Uniform-cost search cannot stop when it <em>generates</em> a goal; it must wait until the goal is <em>selected for expansion</em>, because a cheaper route to the same goal may still be lurking in the frontier. That delay translates into extra node expansions and a larger frontier. In practice, many applications accept <strong>satisficing</strong> solutions: a delivery route within 5% of optimal, computed in 50 milliseconds, is usually worth more than the perfect route computed in 50 seconds. Heuristic methods with bounded suboptimality (for example, weighted A*) formalise exactly this trade.</p>
+
+<p><strong>Measuring time and space.</strong> We do not measure time in seconds, because seconds depend on hardware, language and implementation. We count <strong>node generations</strong> (or equivalently, up to a constant factor, node expansions), treating each as a constant-cost operation: apply the transition model, build a node record, test it, place it in the frontier. Space is measured as the <strong>peak</strong> number of nodes held in memory simultaneously — the frontier plus the explored set, if one is used. Peak, not total, is what matters, because exceeding available memory causes outright failure, whereas taking a long time merely causes impatience.</p>
+
+<p>Three parameters characterise the search tree:</p>
+
+<ul>
+  <li><strong>b</strong>, the <em>branching factor</em>: the maximum (or, for average-case analysis, the average) number of successors of any node.</li>
+  <li><strong>d</strong>, the <em>depth of the shallowest goal node</em>: the length of the shortest solution in actions.</li>
+  <li><strong>m</strong>, the <em>maximum depth</em> of the state space: the length of the longest path, which may be infinite.</li>
+</ul>
+
+<p>For the 8-puzzle, the blank tile has 2, 3 or 4 moves depending on whether it is in a corner, an edge or the centre, giving an average branching factor of about 2.67 (around 3 before accounting for the move that immediately undoes the previous one), and the hardest instances have d = 31. For an 8-queens formulation that places one queen per column, b = 8 and d = 8 exactly. For route finding on a road network, b is the average number of outgoing roads per junction — typically 2 to 4 — and d is the number of road segments in the shortest route.</p>
+
+<p>Note the asymmetry between d and m. In an infinite state space, or one with cycles and no cycle checking, m is unbounded, so a bound like O(b<sup>m</sup>) carries no information at all: it is a formal way of saying "this may never terminate". This is exactly why the analysis of depth-first search is so sensitive to whether the space is finite.</p>
+
+<p><strong>Exponential growth and the branching factor.</strong> A uniform tree with branching factor b has b nodes at depth 1, b² at depth 2, and b<sup>d</sup> at depth d; the total down to depth d is b + b² + … + b<sup>d</sup> = O(b<sup>d</sup>), dominated overwhelmingly by the deepest level. Breadth-first search must generate essentially all of these nodes and, because every node at the deepest completed level sits in the frontier at once, it must also <em>store</em> O(b<sup>d</sup>) of them. Depth-first search generates in the worst case all O(b<sup>m</sup>) nodes, but it only ever stores the nodes on the current path plus their unexpanded siblings: m levels with at most b nodes each, hence O(bm).</p>
+
+<p>The following figures assume b = 10, one million nodes generated per second, and 1 kilobyte per node. They are approximate but the orders of magnitude are the message.</p>
+
+<table>
+  <thead>
+    <tr><th>Depth d</th><th>Nodes generated</th><th>Time (BFS)</th><th>Memory (BFS)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>2</td><td>110</td><td>0.11 milliseconds</td><td>107 kilobytes</td></tr>
+    <tr><td>4</td><td>11,110</td><td>11 milliseconds</td><td>10.6 megabytes</td></tr>
+    <tr><td>6</td><td>10<sup>6</sup></td><td>1.1 seconds</td><td>1 gigabyte</td></tr>
+    <tr><td>8</td><td>10<sup>8</sup></td><td>2 minutes</td><td>103 gigabytes</td></tr>
+    <tr><td>10</td><td>10<sup>10</sup></td><td>3 hours</td><td>10 terabytes</td></tr>
+    <tr><td>12</td><td>10<sup>12</sup></td><td>13 days</td><td>1 petabyte</td></tr>
+    <tr><td>14</td><td>10<sup>14</sup></td><td>3.5 years</td><td>99 petabytes</td></tr>
+  </tbody>
+</table>
+
+<p>Two lessons follow. First, adding two levels of depth multiplies the cost by 100; the difference between a tractable and an impossible problem can be a single extra action in the solution. Second, and more importantly for algorithm design, <strong>reducing b beats buying faster hardware</strong>. Doubling processor speed halves the running time — equivalent to a fraction of one extra level of depth. But reducing the effective branching factor from 10 to 5 at depth 12 cuts the node count from 10<sup>12</sup> to about 2.4 × 10<sup>8</sup>, a factor of roughly four thousand. This is precisely what a good heuristic does: it does not make each node cheaper to process, it makes most nodes unnecessary to process at all. The quality of a heuristic is often reported as its <em>effective branching factor</em> b*, the branching factor a uniform tree would need to contain the same number of nodes that the heuristic search actually generated, and a value close to 1 indicates excellent guidance.</p>
+
+<p><strong>Memory as the binding constraint.</strong> Students usually expect time to be the limiting factor, but in practice a search that needs 100 gigabytes fails immediately, whereas a search that needs two minutes merely annoys. Breadth-first search's fatal flaw is that an entire frontier level — O(b<sup>d</sup>) nodes — must coexist in memory. At a million nodes per second and a kilobyte per node, memory runs out in minutes while there are still hours of processing time available in the budget.</p>
+
+<p>Depth-first search inverts the profile: linear O(bm) memory, no completeness, no optimality. <strong>Iterative deepening depth-first search</strong> resolves the dilemma by running depth-limited depth-first searches with limits 0, 1, 2, 3, … until a solution is found. It inherits depth-first search's O(bd) memory and breadth-first search's completeness and (under uniform step costs) optimality, because the first solution found is at the shallowest depth at which any solution exists.</p>
+
+<p>The obvious objection is wasted work: the nodes at depth 1 are generated d times, those at depth 2 are generated d−1 times, and so on. But exponential growth makes this cheap, because the deepest level dominates and is generated only once. With b = 10 and d = 5, iterative deepening generates 50 + 400 + 3,000 + 20,000 + 100,000 = 123,450 nodes against breadth-first search's 111,110 — an overhead of about 11%, in exchange for reducing peak memory from roughly 100,000 nodes to about 50. As b grows the overhead shrinks further, tending towards b/(b−1). The general principle is worth internalising: <em>when costs grow exponentially with depth, repeating the shallow work to save memory is almost always a good trade.</em></p>
+
+<p>An explored set presents the mirror-image trade. It eliminates repeated states — essential in spaces like the 8-puzzle, where the tree of 3<sup>22</sup> ≈ 3.1 × 10<sup>10</sup> paths collapses onto only 181,440 reachable states — but it costs memory proportional to the number of distinct states visited. Adding a full explored set to depth-first or iterative-deepening search therefore sacrifices the very linear-memory property that motivated choosing them. The usual compromise is cycle checking against the current path only: cheap, memory-light, and sufficient to prevent infinite loops, though it will not prevent the same state being re-reached via a different branch.</p>
+
+<p><strong>Applying the criteria to strategy selection.</strong> The standard comparison table should be the first thing you reach for. Here b is the branching factor, d the depth of the shallowest solution, m the maximum depth, l a depth limit, C* the cost of the optimal solution and ε the minimum step cost.</p>
+
+<table>
+  <thead>
+    <tr><th>Strategy</th><th>Complete?</th><th>Optimal?</th><th>Time</th><th>Space</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Breadth-first</td><td>Yes, if b is finite</td><td>Yes, if all step costs equal</td><td>O(b<sup>d</sup>)</td><td>O(b<sup>d</sup>)</td></tr>
+    <tr><td>Uniform-cost</td><td>Yes, if step costs ≥ ε &gt; 0</td><td>Yes</td><td>O(b<sup>1+⌊C*/ε⌋</sup>)</td><td>O(b<sup>1+⌊C*/ε⌋</sup>)</td></tr>
+    <tr><td>Depth-first</td><td>No (yes in finite spaces with an explored set)</td><td>No</td><td>O(b<sup>m</sup>)</td><td>O(bm)</td></tr>
+    <tr><td>Depth-limited</td><td>No (fails if d &gt; l)</td><td>No</td><td>O(b<sup>l</sup>)</td><td>O(bl)</td></tr>
+    <tr><td>Iterative deepening</td><td>Yes, if b is finite</td><td>Yes, if all step costs equal</td><td>O(b<sup>d</sup>)</td><td>O(bd)</td></tr>
+    <tr><td>Bidirectional (BFS both ends)</td><td>Yes, if b is finite</td><td>Yes, if all step costs equal</td><td>O(b<sup>d/2</sup>)</td><td>O(b<sup>d/2</sup>)</td></tr>
+  </tbody>
+</table>
+
+<p>A disciplined selection procedure runs roughly as follows.</p>
+
+<ul>
+  <li><strong>Decide whether optimality is genuinely required.</strong> If the task is "find any legal configuration" — as in 8-queens — optimality is meaningless and a cheap, memory-light strategy is appropriate. If the task is "find the cheapest delivery route", you need uniform-cost search, A*, or an explicit suboptimality bound you are willing to defend.</li>
+  <li><strong>Check whether step costs are uniform.</strong> If they are, breadth-first and iterative-deepening search are optimal and you can avoid the overhead of a priority queue. If they are not, be explicit that shallowest ≠ cheapest, and move to uniform-cost or heuristic search.</li>
+  <li><strong>Estimate b and d before implementing.</strong> Count the typical number of applicable actions per state for b, and estimate the length of a plausible solution for d. Compute b<sup>d</sup>. If it is 10<sup>6</sup>, implement whatever is simplest. If it is 10<sup>12</sup>, do not write the code yet.</li>
+  <li><strong>Check for infinite depth and cycles.</strong> If the state space is infinite (unbounded counters, continuous coordinates discretised without limit) or heavily cyclic (any navigation graph), rule out plain depth-first search and either add cycle detection or choose iterative deepening or breadth-first search.</li>
+  <li><strong>Check the memory budget, not just the time budget.</strong> Multiply the predicted peak node count by the bytes per node. If the result exceeds available RAM, prefer a linear-space strategy such as iterative deepening even at the cost of regenerating nodes.</li>
+  <li><strong>If b<sup>d</sup> is infeasible, do not just pick a different uninformed strategy — change the problem.</strong> Uninformed strategies are all exponential; swapping one for another buys a constant factor or a memory profile, not a complexity class. The real gains come from improving the formulation (coarser abstraction, fewer irrelevant state variables, pruning symmetric or redundant actions, a better action set) or from adding heuristic guidance that reduces the <em>effective</em> branching factor.</li>
+</ul>
+
+<p>A concrete illustration: the 15-puzzle has about 10<sup>13</sup> reachable states and solutions averaging 53 moves,with b ≈ 2.13 after excluding the inverse move; blind breadth-first search would need on the order of 2.13<sup>53</sup> ≈ 10<sup>17</sup> node generations and far more memory than exists. Iterative deepening fixes the memory problem but not the time problem. Adding the Manhattan-distance heuristic to an IDA* search drops the effective branching factor to roughly 1.5, bringing the node count down to the order of 10<sup>9</sup> — solvable in minutes on an ordinary machine. Nothing about the hardware changed; the formulation gained information, and the exponent's base shrank. That single comparison encapsulates why the four criteria matter: they tell you, before a line of code is written, whether you need a better algorithm, a better formulation, or simply a bigger coffee.</p>
+
+<p><strong>A worked critique.</strong> Suppose a student proposes solving a warehouse-robot routing problem with depth-first search on a grid of 200 × 200 cells, with states recording the robot's position, the battery level to two decimal places, and a timestamp. The criteria expose three faults at once. Time: including the timestamp makes the state space effectively infinite and acyclic in a useless way, so m is unbounded and O(b<sup>m</sup>) is a non-answer. Completeness: on a cyclic grid without an explored set, depth-first search can loop forever; with the timestamp in the state it never recognises a loop, because no two states are ever equal. Optimality: if the cost function is distance travelled but actions have differing lengths (diagonal versus orthogonal moves), depth-first search's first solution carries no guarantee whatsoever. The fix is formulation-level — drop the timestamp, discretise or drop the battery level if it is not needed for the goal test, and then apply uniform-cost or A* search on a space of only 40,000 states, where b ≤ 8 and d ≤ 400 and the whole problem becomes trivial.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Supported indirectly. The topic assumes the five standard components are already defined and shows why they matter downstream: the path cost function determines what "optimal" means, the transition model determines b, and the goal test determines when search may stop. It does not itself teach how to define the components for a new task.</li>
+  <li><strong>MO2</strong> — Supported. The discussion of over-rich states (the warehouse timestamp example) and of reducing the effective branching factor shows concretely why abstraction that removes irrelevant detail is not cosmetic: it converts an infinite or intractable space into a finite, searchable one while leaving the solution reachable.</li>
+  <li><strong>MO3</strong> — Partially supported. Classic problems (8-puzzle, 15-puzzle, 8-queens, route finding) are used as running examples for estimating b, d and m, so students see formulated problems in action, but the mechanics of formulating them from scratch belong to an earlier topic.</li>
+  <li><strong>MO4</strong> — Supported. The shared GRAPH-SEARCH skeleton, the role of the frontier and explored set in space complexity, and the contrast between a finite cyclic state space graph and an infinite search tree directly reinforce the distinction between the two structures.</li>
+  <li><strong>MO5</strong> — Strongly supported. This topic supplies the four criteria themselves, the comparison table, the estimation procedure for b and d, and a worked critique that identifies over-rich states, missing cycle detection and an inconsistent notion of cost — exactly the errors the outcome names.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Numerical figures in the depth/time/memory table follow the standard Russell &amp; Norvig illustration (b = 10, 10^6 nodes/second, 1 KB per node) and are rounded; they are intended to convey orders of magnitude rather than precise benchmarks. The 8-puzzle figures (181,440 reachable states, hardest instance d = 31, average branching factor ≈ 2.67 after excluding the inverse move) and the 15-puzzle figures (≈ 10^13 states, average optimal solution ≈ 53 moves, IDA* with Manhattan distance giving an effective branching factor near 1.5) are standard published values. Superscript and subscript formatting was achieved with inline markup where available; if the rendering environment strips it, the expressions b^d, b^m and b^(1+⌊C*/ε⌋) should be substituted.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

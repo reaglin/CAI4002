@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strong AI versus Weak AI</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ History and Foundations of Artificial Intelligence</a></div>
+  <header>
+    <h1>Strong AI versus Weak AI</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Strong AI versus Weak AI</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Few distinctions in artificial intelligence carry as much conceptual weight — or are as frequently mangled in popular discussion — as the split between <strong>weak (narrow) AI</strong> and <strong>strong AI</strong>, also called <strong>artificial general intelligence (AGI)</strong>. The distinction is not primarily about how powerful a system is, how much money it cost to train, or how impressive its outputs look. It is about the <em>kind</em> of achievement a system represents. A weak AI system is an engineered artefact that produces intelligent-seeming behaviour within a bounded domain; a strong AI system would be a general learner and, on the strongest readings of the claim, a genuine mind. The terminology descends from the philosopher John Searle, who in 1980 coined "strong AI" for the thesis that an appropriately programmed computer <em>is</em> a mind with genuine understanding, and "weak AI" for the more modest thesis that computers are useful tools for simulating and studying mental processes. Every deployed system in existence today — every fraud detector, translation engine, radiology triage model, and chatbot — sits on the weak side of that line, however sophisticated it appears.</p>
+
+<p>Understanding this boundary matters practically as well as philosophically. It shapes what you should expect from a procurement decision, how you should read a vendor's marketing copy, how you interpret a headline claiming a model "understands" physics, and how you reason about long-range policy questions such as machine rights or existential risk. What follows examines each side of the distinction in detail, the philosophical arguments that give it its bite, the actual status of contemporary systems, and the reasons many researchers now prefer to think in terms of a continuum rather than a clean dichotomy.</p>
+
+<p><strong>Defining weak (narrow) AI.</strong> A weak AI system <em>simulates</em> intelligent behaviour rather than possessing intelligence in any general sense. The system is constructed — by programming, by training on data, or by some combination — to map inputs to outputs in a way that a human observer would judge competent. Nothing in the architecture requires that the system grasp what the inputs mean. A convolutional network that labels an image "golden retriever" has learned a statistical association between arrangements of pixel intensities and a token in its label set. It has no concept of a dog as a living animal that breathes, ages, belongs to someone, or might bite. Its competence is an artefact of the correlation structure in its training distribution, and it is real competence in the engineering sense: the labels are useful and often correct. But it is competence <em>without</em> comprehension.</p>
+
+<p>The defining structural feature of weak AI is that <strong>performance is bounded by the task the system was trained or programmed to handle</strong>. The boundary is usually sharp and often surprising. A speech recogniser trained on North American broadcast English degrades badly on Glaswegian or Nigerian accents it never encountered. A credit-scoring model built on pre-pandemic repayment data produces systematically miscalibrated risk estimates once employment patterns shift. A chess engine of superhuman strength cannot play draughts, cannot explain why it moved, and cannot notice that the board has been set up illegally unless someone wrote that check for it. The engineering term for this is <em>distribution shift</em>: the system's guarantees hold only while the world it meets resembles the world it was fitted to.</p>
+
+<ul>
+  <li><strong>Spam filters</strong> classify messages as wanted or unwanted using lexical features, sender reputation, and header patterns. They are constantly retrained because spammers adapt, and a filter that is excellent in January may be mediocre by June.</li>
+  <li><strong>Recommendation engines</strong> predict which item a user will click or watch next by exploiting patterns of co-consumption across millions of users. They optimise engagement, not the user's interests, and they have no model of what a film is <em>about</em>.</li>
+  <li><strong>Image classifiers</strong> assign labels to visual input and underpin applications from medical screening to agricultural pest detection. They can be fooled by adversarial perturbations imperceptible to a human eye — powerful evidence that their internal representation is not the human one.</li>
+  <li><strong>Speech recognisers</strong> transcribe audio to text. Transcription is not understanding: a system may render "recognise speech" perfectly and still have no notion of what recognition or speech are.</li>
+  <li><strong>Game-playing programs</strong> such as Deep Blue, AlphaGo, and AlphaZero reach or exceed the best human play in their domains. AlphaGo's famous Move 37 against Lee Sedol was creative by any reasonable behavioural standard, yet the program could not be asked to plan a dinner party, and knew nothing of the tournament it was winning.</li>
+</ul>
+
+<p>Because the competence is task-bound, <strong>transfer to an unrelated problem generally requires retraining or redesign by human engineers</strong>. There is no button that converts a protein-folding predictor into a legal-document summariser. Even within a family of related tasks, transfer is a deliberate engineering act: fine-tuning a vision model on a new dataset, adapting a language model with domain-specific corpora, rebuilding a feature pipeline. The intelligence that performs the transfer lives in the human team, not in the artefact. This is precisely the capacity that strong AI is defined by possessing.</p>
+
+<p>It follows that <strong>success for weak AI is measured by task metrics rather than by evidence of comprehension</strong>. Practitioners report accuracy, precision and recall, F1 score, area under the ROC curve, word error rate, BLEU or ROUGE scores, mean average precision, perplexity, regret, or Elo rating. Every one of these quantities is defined relative to a dataset or an opponent pool. None of them is a measure of understanding, and none of them claims to be. A system that reaches 99.2% accuracy on a benchmark has demonstrated a statistical property of its input–output mapping over a particular sample — a genuinely valuable thing to know, and an entirely different thing from knowing that the system grasps its subject matter.</p>
+
+<pre><code>Weak AI, schematically:
+
+    bounded task T  --&gt;  engineered system S  --&gt;  metric M on test set D
+                          (trained/programmed by humans for T)
+
+    Change T  =&gt;  humans must rebuild or retrain S
+    High M    =&gt;  evidence about behaviour on D, not about understanding
+</code></pre>
+
+<p><strong>Defining strong AI.</strong> Strong AI, or artificial general intelligence, is defined by the removal of exactly the boundary that characterises weak AI. A strong AI would <strong>learn any intellectual task a human can learn, without task-specific engineering</strong>. Handed a rulebook for an unfamiliar game, a research paper in an unfamiliar field, or a broken appliance and a toolkit, it would do what a capable adult does: form a model of the situation, identify what it does not know, acquire the missing knowledge, and act. The generality is the point. A system that is superhuman at a thousand tasks but requires a human team to add the thousand-and-first is still, on this definition, a collection of narrow systems.</p>
+
+<p>The claim typically goes further. In Searle's original and strongest formulation, strong AI <strong>asserts that the system actually understands</strong>, rather than merely behaving as though it does. This is a claim about the system's internal states having genuine semantic content — about its representation of "water" being <em>about</em> water, not merely a symbol that participates in water-related input–output regularities. Philosophers call this property <em>intentionality</em> or <em>aboutness</em>, and it is not obviously reducible to any pattern of behaviour, which is why the strong AI thesis is contested rather than empirically settled.</p>
+
+<p>Some formulations extend further still, to <strong>self-awareness, intentionality, and subjective experience</strong> — the claim that there is something it is like to be the system, that it has a point of view, that it can suffer or flourish. This is the hardest version of the thesis and connects directly to the philosophy of mind's "hard problem" of consciousness. It is worth separating these strands, because they come apart:</p>
+
+<table>
+  <thead>
+    <tr><th>Strand of the strong AI claim</th><th>What is asserted</th><th>How it might be assessed</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Generality of learning</td><td>The system can acquire competence in any intellectual domain a human can</td><td>Behavioural: give it novel domains and measure acquisition, transfer, and sample efficiency</td></tr>
+    <tr><td>Genuine understanding (semantics)</td><td>Internal states have real content, not just symbol manipulation</td><td>Contested; no agreed empirical test exists</td></tr>
+    <tr><td>Self-awareness / metacognition</td><td>The system models itself, its knowledge, and its limits</td><td>Partly behavioural (calibration, knowing when it does not know); partly philosophical</td></tr>
+    <tr><td>Phenomenal consciousness</td><td>There is subjective experience — something it is like to be the system</td><td>No accepted test; the "hard problem" may resist third-person methods entirely</td></tr>
+  </tbody>
+</table>
+
+<p>A system could conceivably be fully general without being conscious, or (less plausibly) conscious without being general. Careless discussion collapses these, which is one reason debates about whether a given model "is AGI" so often stall: the participants are asserting and denying different propositions.</p>
+
+<p>On the empirical question, the position is straightforward: <strong>no existing system meets these criteria by any widely accepted standard</strong>. Contemporary models are impressive, broad, and commercially transformative, and none of them learns arbitrary new domains autonomously, maintains reliable long-horizon goals, or gives us any reason to attribute understanding beyond sophisticated pattern completion. Meanwhile, <strong>predictions of when or whether strong AI will arrive vary enormously</strong>. Surveys of published AI researchers have repeatedly produced aggregate forecasts spanning many decades, with large fractions of respondents placing meaningful probability both on arrival within twenty years and on arrival beyond the century — and a minority holding that it is not achievable at all on current computational paradigms. The historical record counsels humility in both directions: Herbert Simon predicted in 1965 that machines would be capable of any human work within twenty years, while sceptics in the 1970s confidently declared computer chess and machine translation impossible. Both were wrong, in opposite directions, and for instructive reasons.</p>
+
+<p><strong>The philosophical stakes.</strong> Why does any of this matter beyond terminology? Because the weak/strong distinction is the point where engineering meets the philosophy of mind, and the outcome shapes what we owe machines and what we may claim on their behalf.</p>
+
+<p>The position friendliest to strong AI is <strong>functionalism</strong>: the view that mental states are individuated by their causal-functional roles rather than by the material that realises them. On this view, pain just <em>is</em> whatever state is typically caused by tissue damage, typically causes avoidance behaviour, and typically interacts with beliefs and desires in characteristic ways. If a silicon system instantiates the same functional organisation as a human brain, it thereby has the same mental states — the substrate is irrelevant, just as a clock keeps time whether it is driven by a pendulum or a quartz crystal. Functionalism underwrites the intuition behind thought experiments such as gradual neuron-by-neuron replacement: if each silicon neuron reproduces the input–output behaviour of the biological one it replaces, at what point would the lights go out, and why?</p>
+
+<p>The most celebrated counter-argument is Searle's <strong>Chinese Room</strong>, which presses the claim that <strong>syntax alone cannot generate semantics</strong>. Imagine a person who speaks no Chinese sealed in a room with an enormous rulebook. Chinese characters arrive through a slot; the person looks up the shapes, follows the rules mechanically, and passes out other characters. To Chinese speakers outside, the room gives fluent, apparently intelligent replies. Yet the person inside understands nothing — they manipulate uninterpreted shapes. Searle's conclusion is that running a program, which is by definition formal symbol manipulation, cannot be sufficient for understanding, because the symbols have no meaning <em>for the system</em>; any meaning is projected onto them by observers. Defenders reply with the <em>systems response</em> (the person is only one component; understanding is a property of the whole room, rulebook and all), the <em>robot response</em> (embed the system in a body with sensors and effectors so its symbols are causally grounded in the world), and the <em>brain simulator response</em> (a program simulating neuron-by-neuron activity of a Chinese speaker's brain would seem to leave nothing out). The debate has run for four decades without resolution, which is itself informative: this is not a question that a benchmark result can close.</p>
+
+<p>That last point has a sharp corollary for testing. <strong>The Turing test evaluates observable behaviour and therefore cannot settle the strong AI question.</strong> Turing's imitation game deliberately replaced the intractable question "can machines think?" with an operational, behavioural substitute. That was a methodological virtue for its purpose, but it means a passing grade is silent about what is happening inside. A system could pass by being a mind, or by being an enormous lookup table (Ned Block's "Blockhead" argument), or by exploiting human credulity — as the crude 1966 ELIZA program did, eliciting emotional disclosures from users who knew they were talking to a script. Conversely, a genuinely understanding system might fail for lacking human-typical ignorance, human reaction times, or the inclination to deceive an interrogator about its nature.</p>
+
+<p>The practical stakes escalate if the strong thesis is ever satisfied. <strong>If strong AI were achieved, questions of machine moral status and rights would follow.</strong> An entity with interests, preferences, and the capacity for suffering would plausibly belong in the moral circle, and that would raise very concrete problems: would deleting a trained model be killing? Would running it on demand for commercial purposes be forced labour? Could it own property, consent to experiments, or refuse to be modified? These questions are currently hypothetical, but the history of moral-circle expansion suggests that the practices we establish before the question becomes urgent tend to persist afterwards.</p>
+
+<p>Finally, the debate <strong>influences how much weight we give to claims that a system "knows" or "believes" something</strong>. Engineers and journalists routinely use intentional vocabulary — the model "thinks", "knows", "wants", "tries" — because it is a compact and predictively useful shorthand, what Daniel Dennett called adopting the <em>intentional stance</em>. There is nothing wrong with the shorthand as long as everyone remembers it is one. It becomes dangerous when it migrates into safety cases, legal filings, or clinical documentation: "the system knows the patient is allergic to penicillin" is a claim about a data field and a retrieval mechanism that can silently fail, not about a state of knowledge that can be relied upon the way a colleague's knowledge can.</p>
+
+<p><strong>Where today's systems actually sit.</strong> Modern <strong>foundation models</strong> — large models pre-trained on broad data and adapted to many downstream uses — complicate the picture without changing the verdict. A single large language model will draft contracts, write and debug code, translate between dozens of languages, summarise research, tutor a student in algebra, and generate plausible poetry. That breadth is genuinely new; no previous artefact spanned so many tasks with one set of weights. Nevertheless, the behaviour <strong>derives from patterns in training data</strong> — from next-token prediction over a corpus comprising a large fraction of the accessible written record, refined by fine-tuning and human feedback. Breadth of training corpus produces breadth of behaviour. It does not, by itself, produce the open-ended autonomous learning that defines generality.</p>
+
+<p>Several concrete deficits mark the gap. Such systems <strong>lack persistent goals</strong>: absent external scaffolding, a language model does not carry an intention across sessions, notice that yesterday's plan is failing, or pursue an objective over weeks. They <strong>lack grounded experience of the world</strong>: their representation of "heavy", "sour", or "three metres away" is derived from co-occurrence statistics of words rather than from sensorimotor contact, which is the symbol-grounding problem in contemporary dress. And they lack <strong>reliable self-correction</strong>: a model's expressed confidence is often poorly calibrated against its actual accuracy, so it will assert a fabricated citation, a non-existent legal precedent, or a wrong arithmetic result in the same fluent register it uses for correct claims. Real cases exist of practitioners sanctioned by courts for filing briefs containing invented case law generated in exactly this way.</p>
+
+<p><strong>Failures on simple reasoning or novel situations reveal the absence of genuine comprehension</strong> more clearly than successes on hard benchmarks reveal its presence. Characteristic failure modes include:</p>
+
+<ul>
+  <li><strong>Surface-form sensitivity</strong> — rewording a problem, changing the names of the people in it, or altering the numeric values can flip a correct answer to an incorrect one, indicating reliance on familiar templates rather than on the problem's structure.</li>
+  <li><strong>Distractor vulnerability</strong> — inserting an irrelevant but topical clause into a word problem measurably degrades accuracy, which should be impossible for a solver that has genuinely modelled the task.</li>
+  <li><strong>Benchmark contamination</strong> — a model may score highly on a published test simply because that test, or material closely resembling it, appeared in its training data, inflating apparent understanding.</li>
+  <li><strong>Brittleness on trivially novel puzzles</strong> — variants of classic riddles with the twist removed often elicit the memorised answer to the original rather than the obvious answer to the variant.</li>
+  <li><strong>Inconsistency</strong> — the same factual question asked in two forms can produce two contradictory answers within one conversation, with no sign that the system notices the conflict.</li>
+</ul>
+
+<p>These are exactly the errors one expects from an extremely capable pattern-completer and exactly the errors one does not expect from an understander. For this reason, broad capability across many tasks is better described as <strong>"broad narrow AI"</strong> than as general intelligence: the coverage is wide, but the underlying mechanism is the same distributional pattern-matching, and the mechanism's failure signature is visible at every edge.</p>
+
+<p>Complicating matters, <strong>marketing language frequently blurs the line</strong>. Product copy speaks of systems that "reason", "understand your business", or "think through problems"; the term "AGI" is deployed in fundraising materials and roadmap announcements where it functions as an aspiration rather than a claim about current capability. Anthropomorphic interface design — first-person pronouns, apologies, simulated deliberation — amplifies the effect on users. Critical evaluation therefore requires disciplined questions:</p>
+
+<ul>
+  <li>What is the exact task, and what is the evaluation set? Could that set have appeared in training data?</li>
+  <li>What happens under distribution shift — different phrasing, different demographics, different domain, adversarial input?</li>
+  <li>Does the system report calibrated uncertainty, and is that calibration measured?</li>
+  <li>Is the claim of "understanding" doing any work beyond reporting a benchmark score?</li>
+  <li>What human scaffolding — prompt engineering, retrieval pipelines, output filtering, human review — is required for the demonstrated behaviour, and is it visible in the demo?</li>
+</ul>
+
+<p><strong>A spectrum rather than a binary.</strong> Although the weak/strong contrast is conceptually clean, treating it as a switch that is either off or on obscures real variation among systems. A more useful picture positions systems along a continuum by <strong>how many domains they handle and how far they transfer learning</strong> — the second dimension being the more diagnostic. Transfer distance asks: how far from the training distribution can the system go while remaining competent, and how much new data or human intervention does adaptation require? A system that masters a new task from a handful of examples has travelled further towards generality than one that matches its performance only after a million labelled instances and a rebuilt pipeline.</p>
+
+<table>
+  <thead>
+    <tr><th>Position on the spectrum</th><th>Domain coverage</th><th>Transfer capability</th><th>Illustrative systems</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Single-task narrow</td><td>One well-defined task</td><td>None; redesign required for anything else</td><td>Chess engine, OCR module, thermostat controller, spam filter</td></tr>
+    <tr><td>Multi-task within a domain</td><td>Several related tasks sharing a representation</td><td>Fine-tuning on related tasks; fails outside the domain</td><td>Vision backbone used for detection, segmentation, and classification</td></tr>
+    <tr><td>Multimodal / foundation models</td><td>Many tasks across text, image, audio, code</td><td>In-context and few-shot adaptation; still bounded by training distribution</td><td>Large language and vision-language models</td></tr>
+    <tr><td>Strong AI (AGI) — hypothetical</td><td>Any intellectual domain a human can learn</td><td>Autonomous acquisition of new domains without task-specific engineering</td><td>None</td></tr>
+    <tr><td>Artificial superintelligence — hypothetical</td><td>All domains, at levels exceeding the best humans</td><td>Recursive self-improvement often assumed</td><td>None</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Multi-task and multimodal models occupy the intermediate positions</strong>, and this is where the interesting disagreements live. A vision-language model that answers questions about an image it has never seen, using concepts combined in a way absent from its training data, has done something that single-task systems cannot. Whether that counts as a step towards generality or merely as broader interpolation is precisely the contested question — and it is a question of degree, not of kind, which is why the continuum framing is more honest than a yes/no verdict.</p>
+
+<p>Beyond strong AI, commentators sometimes place a further hypothetical stage, <strong>artificial superintelligence (ASI)</strong>: intelligence substantially exceeding the best human performance in essentially every domain, including scientific creativity, strategy, and social skill. Discussions of ASI typically invoke recursive self-improvement — a system capable of improving its own design produces a successor more capable still — and it is from this scenario that most long-range existential-risk arguments derive. It should be labelled clearly as speculative: it rests on assumptions about the tractability of self-improvement and the absence of physical or informational bottlenecks that are asserted more often than demonstrated.</p>
+
+<p>Taking the continuum seriously has a methodological consequence: <strong>measuring progress requires benchmarks for generality, not just task accuracy</strong>. A leaderboard score on a fixed dataset measures narrow competence by construction, and saturates. Generality-oriented evaluation instead measures properties such as sample efficiency on gen
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

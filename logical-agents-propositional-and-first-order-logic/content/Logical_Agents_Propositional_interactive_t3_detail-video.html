@@ -1,0 +1,269 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entailment, Validity, and Satisfiability</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Logical Agents: Propositional and First-Order Logic</a></div>
+  <header>
+    <h1>Entailment, Validity, and Satisfiability</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Entailment, Validity, and Satisfiability</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Logic gives us a way to say precisely what it means for one piece of knowledge to <em>follow from</em> another. When a knowledge-based agent is told a collection of facts about its world and then asked a question, we need a standard — independent of any program, data structure, or search strategy — that says which answers are correct. That standard is <strong>logical entailment</strong>. Everything else in this topic (validity, satisfiability, equivalence, soundness, completeness) is either a reformulation of entailment or a way of judging whether a particular algorithm lives up to it. The central idea is deceptively simple: an agent is entitled to conclude α from its knowledge base only if there is <em>no possible way the world could be</em> that makes the knowledge base true and α false.</p>
+
+<p><strong>Models and the semantics of entailment.</strong> A <em>model</em> is a mathematical abstraction of a possible world. In propositional logic, a model is nothing more exotic than an assignment of <code>true</code> or <code>false</code> to every proposition symbol in the language. If the language contains the symbols <code>P</code>, <code>Q</code>, and <code>R</code>, then one model is <code>{P = true, Q = false, R = true}</code>; there are 2³ = 8 models in total. The semantics of the logic — the truth tables for the connectives — then fix the truth value of <em>every</em> sentence in the language once the model is given. We say that model <em>m</em> <strong>satisfies</strong> α, or that <em>m</em> is a model <em>of</em> α, when α is true in <em>m</em>. The notation <code>M(α)</code> denotes the set of all models in which α is true.</p>
+
+<p>Thinking of sentences as the set of worlds they permit is the key move. A sentence is a <em>constraint</em> on how the world might be: asserting it rules out every model in which it is false. The more you assert, the fewer worlds remain. With this picture, entailment has a crisp set-theoretic definition:</p>
+
+<pre><code>KB ⊨ α   if and only if   M(KB) ⊆ M(α)</code></pre>
+
+<p>In words: every world in which the knowledge base is true is also a world in which α is true. The knowledge base has already narrowed the possibilities down so far that α cannot fail. Note the direction of the subset relation, which students often reverse: the <em>stronger</em> sentence (the KB) has the <em>smaller</em> model set and sits on the left.</p>
+
+<p>Consider a tiny concrete example drawn from the Wumpus world. Suppose an agent has visited squares [1,1] and [2,1], felt no breeze in [1,1] but a breeze in [2,1]. Let <code>P12</code>, <code>P22</code>, and <code>P31</code> mean "there is a pit in [1,2]", "…in [2,2]", "…in [3,1]". The physics of the world says a square is breezy exactly when an adjacent square has a pit, so the agent's knowledge base entails <code>¬P12</code> (because [1,1] is breeze-free) and also the disjunction <code>P22 ∨ P31</code> (because [2,1] is breezy). Enumerating the eight assignments to these three symbols, exactly three survive as models of the KB:</p>
+
+<table>
+  <thead>
+    <tr><th>Model</th><th>P12</th><th>P22</th><th>P31</th><th>Satisfies KB?</th><th>¬P12 true?</th><th>P22 true?</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>m1</td><td>false</td><td>false</td><td>false</td><td>no</td><td>yes</td><td>no</td></tr>
+    <tr><td>m2</td><td>false</td><td>false</td><td>true</td><td><strong>yes</strong></td><td>yes</td><td>no</td></tr>
+    <tr><td>m3</td><td>false</td><td>true</td><td>false</td><td><strong>yes</strong></td><td>yes</td><td>yes</td></tr>
+    <tr><td>m4</td><td>false</td><td>true</td><td>true</td><td><strong>yes</strong></td><td>yes</td><td>yes</td></tr>
+    <tr><td>m5</td><td>true</td><td>false</td><td>false</td><td>no</td><td>no</td><td>no</td></tr>
+    <tr><td>m6</td><td>true</td><td>false</td><td>true</td><td>no</td><td>no</td><td>no</td></tr>
+    <tr><td>m7</td><td>true</td><td>true</td><td>false</td><td>no</td><td>no</td><td>yes</td></tr>
+    <tr><td>m8</td><td>true</td><td>true</td><td>true</td><td>no</td><td>no</td><td>yes</td></tr>
+  </tbody>
+</table>
+
+<p>Reading off the table: <code>M(KB) = {m2, m3, m4}</code>. Since <code>¬P12</code> is true in all three, <code>M(KB) ⊆ M(¬P12)</code> and therefore <code>KB ⊨ ¬P12</code> — square [1,2] is provably safe. By contrast <code>P22</code> is false in m2, so <code>M(KB) ⊄ M(P22)</code> and <code>KB ⊭ P22</code>. The agent cannot conclude there is a pit in [2,2]; neither, note, can it conclude <code>¬P22</code>, because that fails in m3 and m4. Entailment is a three-way outcome at the level of a query: α entailed, ¬α entailed, or neither (the KB is simply silent).</p>
+
+<p>Two structural consequences of the model-set view are worth drawing out. First, <strong>entailment is a relation between sentences</strong>, defined purely by the semantics. It exists whether or not anybody ever computes it, and it is not defined in terms of any algorithm, proof system, or inference rule. An algorithm can be <em>evaluated against</em> entailment, but it does not define it. Second, classical logic is <strong>monotonic</strong>: adding sentences to a KB can only shrink <code>M(KB)</code>, because each new sentence is an extra constraint that eliminates models. If <code>M(KB) ⊆ M(α)</code> and <code>M(KB ∧ β) ⊆ M(KB)</code>, then <code>M(KB ∧ β) ⊆ M(α)</code>, so anything previously entailed stays entailed:</p>
+
+<pre><code>if  KB ⊨ α   then   KB ∧ β ⊨ α      (for any β)</code></pre>
+
+<p>Monotonicity is computationally convenient — a conclusion once derived never has to be retracted as new premises arrive — but it is also a genuine limitation. Everyday "default" reasoning is non-monotonic: learning that Tweety is a bird licenses the conclusion that Tweety flies, but learning additionally that Tweety is a penguin retracts it. Classical propositional and first-order logic cannot behave that way, which is precisely why extensions such as default logic, circumscription, and probabilistic reasoning exist.</p>
+
+<p><strong>Entailment as formal correct reasoning.</strong> Saying <code>KB ⊨ α</code> is saying that α is true <em>whenever</em> the KB is true — that no counterexample world exists. A counterexample is simply a model that satisfies the KB but falsifies α; entailment holds exactly when the search for such a model comes up empty. This is why entailment captures <strong>necessity</strong> rather than plausibility, typicality, or statistical likelihood. If a KB says "99% of swans are white" and "Odette is a swan", it does not entail "Odette is white", because a model exists in which Odette is one of the exceptional black swans. Logical entailment licenses no leaps, however reasonable those leaps may be; grading degrees of belief is the job of probability theory, not of ⊨.</p>
+
+<p>The most direct way to decide entailment is the procedure the table above illustrates: <strong>model checking</strong>. Enumerate every possible model; for each one, test whether the KB is true; if it is, check that α is also true. If some model satisfies the KB and falsifies α, report "not entailed"; if no such model turns up after exhaustive enumeration, report "entailed". In pseudocode form:</p>
+
+<pre><code>function TT-ENTAILS?(KB, α) returns true or false
+    symbols ← a list of the proposition symbols in KB and α
+    return TT-CHECK-ALL(KB, α, symbols, {})
+
+function TT-CHECK-ALL(KB, α, symbols, model) returns true or false
+    if symbols is empty then
+        if PL-TRUE?(KB, model) then return PL-TRUE?(α, model)
+        else return true                      // vacuously OK: KB is false here
+    else
+        P ← FIRST(symbols);  rest ← REST(symbols)
+        return TT-CHECK-ALL(KB, α, rest, model ∪ {P = true})
+           and TT-CHECK-ALL(KB, α, rest, model ∪ {P = false})</code></pre>
+
+<p>This is a depth-first enumeration of a complete binary tree of assignments. Its correctness is beyond dispute — it is a literal transcription of the definition of ⊨ — but its cost is brutal. With <em>n</em> proposition symbols there are <strong>2<sup>n</sup></strong> models, so time is O(2<sup>n</sup>) even though space is only O(<em>n</em>) for the recursion stack. Ten symbols means 1,024 rows, which is trivial; fifty symbols means over 10<sup>15</sup> rows, which is not. A realistic Wumpus world of size 4×4 already needs dozens of symbols once you include pits, breezes, the wumpus, stench, and time-indexed agent locations; industrial circuit-verification or planning problems routinely involve hundreds of thousands. The exponential blow-up is the standing motivation for everything that follows: normal forms, resolution, Horn-clause chaining, and modern SAT solving all exist to avoid enumerating models one by one.</p>
+
+<p>Because algorithms and the entailment relation are distinct things, we use distinct notation. <code>KB ⊨ α</code> is the semantic claim about models. <code>KB ⊢ᵢ α</code> — read "α is <em>derived</em> from KB by procedure <em>i</em>" — is the syntactic claim that running inference procedure <em>i</em> on KB actually produces α. The subscript names the procedure, so one may write <code>KB ⊢<sub>RES</sub> α</code> for a resolution derivation and <code>KB ⊢<sub>FC</sub> α</code> for forward chaining. Keeping ⊨ and ⊢ apart is what makes it even possible to ask the questions of soundness and completeness discussed at the end of this topic: are the things the program prints exactly the things that are true in all models?</p>
+
+<p><strong>Validity and the deduction theorem.</strong> A sentence is <strong>valid</strong> if it is true in <em>all</em> models — under every possible assignment of truth values to its proposition symbols. Valid sentences are also called <em>tautologies</em>. Examples include <code>P ∨ ¬P</code> (the law of the excluded middle), <code>P ⇒ P</code>, <code>(P ∧ (P ⇒ Q)) ⇒ Q</code> (modus ponens packaged as a sentence), and <code>True</code> itself. In model-set terms, α is valid exactly when <code>M(α)</code> is the set of <em>all</em> models.</p>
+
+<p>Validity connects to entailment through the <strong>deduction theorem</strong>, one of the most useful bridges in logic:</p>
+
+<pre><code>KB ⊨ α   if and only if   the sentence (KB ⇒ α) is valid</code></pre>
+
+<p>The proof is a one-line consequence of the truth table for ⇒. The implication <code>KB ⇒ α</code> is false in a model precisely when KB is true and α is false there — that is, precisely at a counterexample to entailment. So "<code>KB ⇒ α</code> has no falsifying model" and "there is no counterexample to <code>KB ⊨ α</code>" say the same thing. Applying this to the Wumpus example, <code>KB ⊨ ¬P12</code> is the same claim as "<code>(KB ⇒ ¬P12)</code> is a tautology", which you could verify by building an eight-row truth table for that single compound sentence and checking that the final column is all <code>true</code>.</p>
+
+<p>The practical payoff is <em>reduction</em>: a question about the relationship between two objects (a KB and a query) becomes a question about a property of one object (a single sentence). Any machinery that tests one sentence for validity can now answer arbitrary entailment questions, and a KB consisting of many sentences can be folded into one by conjunction, since <code>{α₁, α₂, …, αₙ} ⊨ β</code> iff <code>(α₁ ∧ α₂ ∧ … ∧ αₙ) ⇒ β</code> is valid.</p>
+
+<p>There is a philosophical corollary worth noticing: <strong>valid sentences carry no information about the world</strong>. Because a valid sentence excludes no model, telling an agent "<code>P ∨ ¬P</code>" does not shrink <code>M(KB)</code> at all and so cannot help it distinguish one state of affairs from another. "Either it is raining or it is not raining" is unimpeachably true and completely useless as a weather report. Information content, in this framework, is exactly the capacity to eliminate possible worlds — which is why tautologies are empty and contradictions, at the other extreme, are catastrophic.</p>
+
+<p><strong>Satisfiability and proof by refutation.</strong> A sentence α is <strong>satisfiable</strong> if it is true in <em>some</em> model, i.e. <code>M(α) ≠ ∅</code>; it is <strong>unsatisfiable</strong> (contradictory) if no model makes it true, i.e. <code>M(α) = ∅</code>. <code>P ∧ ¬P</code> is the canonical unsatisfiable sentence; <code>(P ∨ Q) ∧ (¬P ∨ R)</code> is satisfiable, as witnessed by <code>{P = false, Q = true, R = anything}</code>. Determining satisfiability of a propositional sentence is the <strong>SAT</strong> problem, the first problem shown to be NP-complete (Cook, 1971).</p>
+
+<p>The three notions line up neatly along a spectrum of how many models a sentence has:</p>
+
+<table>
+  <thead>
+    <tr><th>Property of α</th><th>Model set M(α)</th><th>Informal reading</th><th>Example</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Valid (tautology)</td><td>all models</td><td>true no matter what</td><td><code>P ∨ ¬P</code></td></tr>
+    <tr><td>Satisfiable but not valid (contingent)</td><td>some but not all models</td><td>says something about the world</td><td><code>P ∧ Q</code></td></tr>
+    <tr><td>Unsatisfiable (contradiction)</td><td>empty</td><td>cannot possibly be true</td><td><code>P ∧ ¬P</code></td></tr>
+  </tbody>
+</table>
+
+<p>Validity and satisfiability are duals, linked by negation:</p>
+
+<pre><code>α is valid           iff   ¬α is unsatisfiable
+α is satisfiable     iff   ¬α is not valid</code></pre>
+
+<p>Combining this duality with the deduction theorem produces the single most important identity in automated reasoning:</p>
+
+<pre><code>KB ⊨ α   iff   (KB ⇒ α) is valid
+         iff   ¬(KB ⇒ α) is unsatisfiable
+         iff   (KB ∧ ¬α) is unsatisfiable</code></pre>
+
+<p>This is the basis of <strong>proof by refutation</strong> (equivalently, <em>reductio ad absurdum</em>): to show that α follows, add the <em>negation</em> of α to the knowledge base and show that the enlarged set is contradictory. If assuming "not α" alongside everything you know leads to an impossibility, then α could not have been false, given the KB. Back in the Wumpus example, to prove <code>KB ⊨ ¬P12</code> we would assert <code>KB ∧ ¬¬P12</code>, i.e. <code>KB ∧ P12</code>, and derive a contradiction from the breeze-free report at [1,1] together with the rule <code>B11 ⇔ (P12 ∨ P21)</code>.</p>
+
+<p>Refutation is attractive for several reasons. It converts an open-ended "is this true in all models?" question into a closed, goal-directed search for an inconsistency; it fits naturally with the resolution rule, which is refutation-complete for propositional logic (it can always derive the empty clause from an unsatisfiable set of clauses, though it is not designed to enumerate all entailed sentences directly); and it hands the whole problem to a SAT solver. Although SAT is NP-complete in the worst case, <strong>modern SAT solvers</strong> — conflict-driven clause learning, unit propagation with watched literals, activity-based variable ordering, restarts — routinely settle real-world instances with millions of variables and clauses. The practical consequence is that reducing an entailment question to an unsatisfiability question is not an academic manoeuvre but the standard engineering path, used in hardware verification, software model checking, planning as satisfiability, and configuration.</p>
+
+<p><strong>Logical equivalence.</strong> Two sentences α and β are <strong>logically equivalent</strong>, written <code>α ≡ β</code>, if they are true in exactly the same set of models: <code>M(α) = M(β)</code>. Equivalently — and this is the definition worth memorising because it is stated purely in terms of entailment —</p>
+
+<pre><code>α ≡ β   if and only if   α ⊨ β  and  β ⊨ α</code></pre>
+
+<p>Mutual entailment forces mutual subset inclusion of the model sets, hence equality. This is why equivalence is strictly stronger than implication in one direction: <code>(P ∧ Q) ⊨ P</code>, but <code>P ⊭ (P ∧ Q)</code>, so the two are not equivalent — the model <code>{P = true, Q = false}</code> separates them. Equivalence <strong>preserves meaning exactly</strong>; it is a licence to substitute one sentence for another anywhere, in any context, without changing what the knowledge base says about the world. One-directional implication offers no such licence.</p>
+
+<p>Note also the related distinction: <code>α ≡ β</code> is a statement <em>about</em> sentences (metalanguage), whereas <code>α ⇔ β</code> is itself a sentence (object language). They are connected in the obvious way: <code>α ≡ β</code> holds exactly when <code>α ⇔ β</code> is valid.</p>
+
+<p>The standard catalogue of equivalences is the toolkit for rewriting sentences:</p>
+
+<table>
+  <thead>
+    <tr><th>Name</th><th>Equivalence</th><th>Typical use</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Commutativity of ∧</td><td><code>(α ∧ β) ≡ (β ∧ α)</code></td><td>reordering conjuncts</td></tr>
+    <tr><td>Commutativity of ∨</td><td><code>(α ∨ β) ≡ (β ∨ α)</code></td><td>reordering literals in a clause</td></tr>
+    <tr><td>Associativity of ∧</td><td><code>((α ∧ β) ∧ γ) ≡ (α ∧ (β ∧ γ))</code></td><td>dropping parentheses; flattening a CNF conjunction</td></tr>
+    <tr><td>Associativity of ∨</td><td><code>((α ∨ β) ∨ γ) ≡ (α ∨ (β ∨ γ))</code></td><td>treating a clause as a flat set of literals</td></tr>
+    <tr><td>Double-negation elimination</td><td><code>¬(¬α) ≡ α</code></td><td>cleaning up after refutation and after De Morgan</td></tr>
+    <tr><td>Contraposition</td><td><code>(α ⇒ β) ≡ (¬β ⇒ ¬α)</code></td><td>backward reasoning</td></tr>
+    <tr><td>Implication elimination</td><td><code>(α ⇒ β) ≡ (¬α ∨ β)</code></td><td>step 1 of CNF conversion</td></tr>
+    <tr><td>Biconditional elimination</td><td><code>(α ⇔ β) ≡ ((α ⇒ β) ∧ (β ⇒ α))</code></td><td>step 0 of CNF conversion</td></tr>
+    <tr><td>De Morgan (1)</td><td><code>¬(α ∧ β) ≡ (¬α ∨ ¬β)</code></td><td>step 2: pushing ¬ inwards</td></tr>
+    <tr><td>De Morgan (2)</td><td><code>¬(α ∨ β) ≡ (¬α ∧ ¬β)</code></td><td>step 2: pushing ¬ inwards</td></tr>
+    <tr><td>Distributivity of ∨ over ∧</td><td><code>(α ∨ (β ∧ γ)) ≡ ((α ∨ β) ∧ (α ∨ γ))</code></td><td>step 3: producing CNF</td></tr>
+    <tr><td>Distributivity of ∧ over ∨</td><td><code>(α ∧ (β ∨ γ)) ≡ ((α ∧ β) ∨ (α ∧ γ))</code></td><td>producing DNF</td></tr>
+  </tbody>
+</table>
+
+<p>Because each rewrite preserves the model set, a chain of rewrites preserves it too. That is exactly what justifies <strong>conversion to conjunctive normal form</strong> (CNF) — a conjunction of clauses, each clause a disjunction of literals — as a legitimate preprocessing step before resolution. The output sentence is not merely "close enough" to the input; it has identical models, so any entailment question answered about the CNF form is answered about the original. A worked conversion of the Wumpus biconditional:</p>
+
+<pre><code>B11 ⇔ (P12 ∨ P21)
+  1. eliminate ⇔ :   (B11 ⇒ (P12 ∨ P21)) ∧ ((P12 ∨ P21) ⇒ B11)
+  2. eliminate ⇒ :   (¬B11 ∨ P12 ∨ P21) ∧ (¬(P12 ∨ P21) ∨ B11)
+  3. De Morgan   :   (¬B11 ∨ P12 ∨ P21) ∧ ((¬P12 ∧ ¬P21) ∨ B11)
+  4. distribute ∨ over ∧ :
+                     (¬B11 ∨ P12 ∨ P21) ∧ (¬P12 ∨ B11) ∧ (¬P21 ∨ B11)</code></pre>
+
+<p>The result is three clauses, ready for resolution, and logically indistinguishable from the sentence we started with. Note that double-negation elimination is quietly doing work throughout: when a refutation proof adds <code>¬α</code> and α itself contains a negation — as with <code>¬¬P12</code> above — the rule <code>¬(¬α) ≡ α</code> is what restores a well-formed literal. The same rule tidies up after De Morgan's laws push negations through nested expressions. Associativity and commutativity, meanwhile, are what allow us to stop writing parentheses inside a clause and to treat a clause as an unordered <em>set</em> of literals, which is how resolution implementations actually store them. One caution: distributing ∨ over ∧ can in the worst case cause an exponential blow-up in the number of clauses, which is why industrial tools often use the Tseitin transformation — introducing fresh symbols to name subformulas — producing a sentence that is merely <em>equisatisfiable</em> rather than strictly equivalent, but only linearly larger.</p>
+
+<p><strong>Soundness and completeness of inference.</strong> With ⊨ fixed as the standard of correctness and ⊢ᵢ denoting what a particular algorithm actually produces, we can finally grade algorithms. Two properties matter.</p>
+
+<ul>
+  <li><strong>Soundness</strong> (also called <em>truth-preservation</em>): an inference procedure <em>i</em> is sound if whenever <code>KB ⊢ᵢ α</code>, it is also the case that <code>KB ⊨ α</code>. Everything the algorithm derives really is entailed. Soundness means the set of derivable sentences is a <em>subset</em> of the set of entailed sentences.</li>
+  <li><strong>Completeness</strong>: procedure <em>i</em> is complete if whenever <code>KB ⊨ α</code>, it is also the case that <code>KB ⊢ᵢ α</code>. Everything that is entailed can be derived. Completeness means the derivable set is a <em>superset</em> of the entailed set.</li>
+</ul>
+
+<p>An algorithm that is both sound and complete derives exactly the entailed sentences — no more, no less — and can therefore be trusted as a faithful mechanisation of the entailment relation.</p>
+
+<table>
+  <thead>
+    <tr><th>Property</th><th>Formal statement</th><th>What its failure costs you</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Sound</td><td>if <code>KB ⊢ᵢ α</code> then <code>KB ⊨ α</code></td><td>An <strong>unsound</strong> procedure announces conclusions that do not follow — it invents facts. An agent might march into a square it has "proved" safe and be eaten.</td></tr>
+    <tr><td>Complete</td><td>if <code>KB ⊨ α</code> then <code>KB ⊢ᵢ α</code></td><td>An <strong>incomplete</strong> procedure may fail to find an answer that is genuinely there — it misses valid conclusions. The agent gets stuck, or falls back on guessing, even though the information was already in its KB.</td></tr>
+  </tbody>
+</table>
+
+<p>Unsoundness is normally the worse defect, because its errors are silent and positively misleading, whereas incompleteness at least fails honestly. Still, both matter. A trivially sound procedure is one that derives nothing at all; a trivially complete procedure is one that derives every sentence in the language. Neither is useful, which is why the two criteria must be assessed together.</p>
+
+<p><strong>Model checking is both sound and complete for propositional logic.</strong> This follows immediately from its construction: <code>TT-ENTAILS?</code> returns true exactly when no model satisfies the KB while falsifying α, which is verbatim the definition of ⊨. Because the number of propositional models is finite (2<sup>n</sup>), the enumeration always terminates with a definite yes or no — propositional entailment is <em>decidable</em>. The price, as noted, is the exponential blow-up, so soundness and completeness are necessary but not sufficient virtues: an algorithm must also finish in a usable amount of time. This is the trade-off landscape in which other methods are placed. Resolution with a complete search strategy is sound and refutation-complete for propositional logic, but can generate enormous numbers of clauses. Forward and backward chaining over definite clauses are sound and complete <em>for that restricted class of sentences</em> and run in time linear in the size of the KB — a deliberate exchange of expressive power for tractability. In first-order logic the situation shifts again: resolution is sound and complete (Gödel's completeness theorem, realised procedurally), but entailment is only <em>semi</em>-decidable, so a procedure may run forever on a non-entailed query without ever reporting "no".</p>
+
+<p>Finally, soundness and completeness are properties of the <em>reasoning</em>, not guarantees about reality. They certify that the algorithm correctly tracks the entailment relation among sentences; they say nothing about whether those sentences describe the agent's actual environment. <strong>Grounding</strong> is the extra requirement that the KB's sentences themselves be true of the world. If the agent's percepts are reliable and its model of the world's physics is accurate — if "there is a breeze in [2,1]" really was perceived and "breezy iff adjacent pit" really is how the cave works — then sound inference carries that truth forward, and every derived sentence is also true of the world. Sentences enter the KB either from perception (the sensor-to-sentence link, which can be faulty) or from general rules supplied by the designer or learned from experience (which may be only approximately correct, like "flames mean fire"). Garbage in, impeccably derived garbage out: a perfectly sound and complete reasoner on a false knowledge base yields confident falsehoods. The logical apparatus guarantees the <em>validity of the step</em> from premises to conclusion; responsibility for the truth of the premises lies elsewhere.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Supported indirectly. The topic explains what the knowledge base means semantically and what guarantee the ASK operation must honour (return α only if <code>KB ⊨ α</code>), and shows via monotonicity why successive TELL operations progressively shrink the model set; it does not itself describe the agent's control loop.</li>
+  <li><strong>MO2</strong> — Supported indirectly. The topic uses well-formed propositional sentences built from ¬, ∧, ∨, ⇒ and ⇔ throughout and supplies the equivalences that relate them, but it does not teach the BNF grammar or the rules of sentence construction.</li>
+  <li><strong>MO3</strong> — Directly supported. Model checking (<code>TT-ENTAILS?</code> and truth-table enumeration), the equivalences that justify conversion to CNF, and the identity <code>KB ⊨ α iff (KB ∧ ¬α) is unsatisfiable</code> that underpins resolution refutation are all developed here, together with their soundness, completeness and complexity.</li>
+  <li><strong>MO4</strong> — Not addressed. This topic works entirely within propositional semantics and does not cover predicates, functions, quantifiers, or translation from natural language into first-order sentences.</li>
+  <li><strong>MO5</strong> — Supported indirectly. The topic supplies the soundness, completeness and complexity criteria by which forward and backward chaining are compared, and notes that both are sound and complete for definite clauses, but it does not present the two algorithms themselves.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The Wumpus-world example is adapted to three symbols (P12, P22, P31) for a compact eight-row table; a fuller treatment would include P21 and the breeze symbols B11 and B21, giving a larger model set. The CNF worked example deliberately reuses B11 ⇔ (P12 ∨ P21) so that it can be reused verbatim when resolution is introduced in a later topic. The Tseitin transformation and the equivalent/equisatisfiable distinction are included as enrichment beyond the listed subtopics and may be treated as optional reading.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Logic gives us a precise way to say what an agent knows and what follows from that knowledge. The central idea is entailment: a knowledge base KB entails a sentence alpha (written KB |= alpha) when alpha is true in every model — every assignment of truth values to the symbols — in which KB is true. Entailment is a relation about meaning, not about symbol manipulation, and it is the standard against which we judge any inference procedure.</p>
+<p>Around entailment sit several related notions. A sentence is valid if it is true in every model, and the deduction theorem links entailment to validity: KB |= alpha exactly when the implication KB =&gt; alpha is valid. A sentence is satisfiable if it is true in at least one model, and this gives us proof by refutation: KB |= alpha exactly when KB AND NOT alpha is unsatisfiable, which is precisely how resolution proofs work. Two sentences are logically equivalent when each entails the other, which justifies the rewriting steps used to convert sentences to conjunctive normal form. Finally, an inference procedure is sound if everything it derives is entailed, and complete if it can derive everything that is entailed.</p>
+<p>The videos below come from Stanford's CS221 logic unit. As you watch, keep asking two questions: what does this inference rule let me derive, and is it sound and complete with respect to entailment? Pay particular attention to the moment where resolution turns a question about entailment into a question about satisfiability by negating the query — that move is the practical heart of this topic.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Logic 6 - Propositional Resolutions | Stanford CS221: AI (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/egLAF4dFdBo?cc_load_policy=1&amp;rel=0" title="Video: Logic 6 - Propositional Resolutions | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 19:32 · 23,195 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=egLAF4dFdBo" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This lecture covers propositional resolution: the resolution inference rule, the conversion of sentences into conjunctive normal form so that the rule applies, and the use of resolution to answer entailment questions. Based on its place in the CS221 logic sequence, it should present resolution refutation — adding the negated query to the knowledge base and deriving the empty clause — and discuss the soundness and completeness properties of the resulting procedure.</p>
+<h3>Why this video</h3>
+<p>It is the most direct coverage of satisfiability and proof by refutation, and of why logical equivalences matter for CNF conversion, delivered by Stanford's graduate AI course.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Logic 5 - Propositional Modus Ponens | Stanford CS221: AI (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/6bj4z2mt1KE?cc_load_policy=1&amp;rel=0" title="Video: Logic 5 - Propositional Modus Ponens | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 8:07 · 7,102 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=6bj4z2mt1KE" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short lecture on modus ponens as an inference rule for propositional logic, including the restricted class of sentences (definite or Horn clauses) on which it operates. It is likely to contrast what modus ponens can and cannot derive, setting up the discussion of whether an inference rule is complete for a given fragment of the language.</p>
+<h3>Why this video</h3>
+<p>Modus ponens is the cleanest example for seeing the difference between what is derivable and what is entailed, which is exactly the soundness and completeness distinction this topic introduces.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: Logic 10 - Recap | Stanford CS221: Artificial Intelligence (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/LYsOjtmLpPo?cc_load_policy=1&amp;rel=0" title="Video: Logic 10 - Recap | Stanford CS221: Artificial Intelligence (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 11:46 · 5,420 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=LYsOjtmLpPo" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>The recap video for the CS221 logic unit, pulling together the semantics of propositional and first-order logic, the inference rules covered, and the properties used to evaluate them. Expect a consolidated summary of models, entailment, and the relationships among the inference procedures discussed across the unit.</p>
+<h3>Why this video</h3>
+<p>A compact review is valuable for this topic because entailment, validity, satisfiability, and equivalence are best understood as one connected framework rather than as separate definitions.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos target MO3 most directly: resolution and CNF conversion are the mechanics of deciding entailment, and the refutation strategy shows why checking unsatisfiability answers an entailment question. The modus ponens lecture supports MO5 by clarifying what definite-clause inference can derive, which is the foundation for later comparing forward and backward chaining. The recap reinforces MO2 by revisiting well-formed sentences and connectives in context, and situates the propositional material within the broader first-order setting relevant to MO1 and MO4.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

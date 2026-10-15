@@ -1,0 +1,227 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classifying Task Environments</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Intelligent Agents, Rationality, and PEAS</a></div>
+  <header>
+    <h1>Classifying Task Environments</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Classifying Task Environments</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Once an agent and its task have been specified — typically through a PEAS description naming the <strong>P</strong>erformance measure, <strong>E</strong>nvironment, <strong>A</strong>ctuators and <strong>S</strong>ensors — the next engineering question is: <em>what kind of world is this agent operating in?</em> Two tasks may look superficially similar and yet demand radically different machinery. A robot that inspects widgets on a conveyor belt and a robot that drives a taxi both perceive images and act in the physical world, but the first can be built from a single classifier that forgets everything after each decision, while the second needs maps, trackers, predictive models of other drivers, and a planner. The difference is not in the agent — it is in the <strong>task environment</strong>. Classifying task environments along a small set of well-chosen dimensions gives us a vocabulary for recognising this difference before a line of code is written.</p>
+
+<p>The standard dimensions are six (sometimes counted as seven, if "known vs. unknown" is included): fully vs. partially observable, deterministic vs. stochastic, episodic vs. sequential, static vs. dynamic, discrete vs. continuous, and single-agent vs. multi-agent. Each is a question about the structure of the world, not about the agent's cleverness, and each has direct consequences for the agent's architecture.</p>
+
+<p><strong>Why classify task environments at all?</strong> The classification is useful because environment properties behave as <em>design constraints</em>: they rule particular agent designs in or out. If the environment is fully observable, static, deterministic, episodic, discrete and single-agent, then a lookup table or a set of condition–action rules suffices — the current percept contains everything the agent could possibly need. Weaken any one of those properties and that design breaks:</p>
+
+<ul>
+  <li><strong>Drop full observability</strong> and the agent must maintain an internal state (a belief state) that summarises the percept history, because the current percept is no longer a sufficient statistic for choosing an action.</li>
+  <li><strong>Drop determinism</strong> and the agent must reason about probability distributions over outcomes, hedge against failure, and be ready to re-plan when an action does not do what was expected.</li>
+  <li><strong>Drop episodicity</strong> and the agent needs lookahead — search, planning, or a learned value function — because the consequences of today's action show up many steps later.</li>
+  <li><strong>Drop staticness</strong> and the agent faces a deadline: deliberation itself has a cost, so anytime algorithms, reactive layers and continual re-sensing become necessary.</li>
+  <li><strong>Drop discreteness</strong> and exhaustive enumeration of states and actions is impossible; the agent needs discretisation, sampling, function approximation or continuous optimisation.</li>
+  <li><strong>Drop single-agency</strong> and the agent must model other decision-makers who are modelling it in return, bringing in game theory, opponent modelling, communication and negotiation.</li>
+</ul>
+
+<p>A useful rule of thumb follows: <em>harder environments generally require internal state, models, learning, or search over long horizons</em>. Each "hard" label adds a capability requirement, and the requirements compose. An agent for a partially observable, stochastic, sequential, dynamic, continuous, multi-agent world — that is, the real world — needs essentially all of them at once, which is exactly why autonomous driving is a far larger engineering project than tournament chess, despite chess being the harder <em>game</em>.</p>
+
+<p>Three further points about how the classification should be used. First, <strong>the dimensions are largely independent</strong>, so an environment is not a single category but a combination of labels: one speaks of "a partially observable, stochastic, sequential, dynamic, continuous, multi-agent environment". With six binary dimensions there are already sixty-four combinations, and most of them are genuinely instantiated by real tasks. Second, <strong>classification depends on how the task is defined</strong> — including the agent's sensors, actuators and performance measure. The environment is not an objective fact about the universe but a fact about the <em>agent–environment pair</em>. Third, <strong>real-world environments typically fall at the hard end of most dimensions</strong>, so the easy categories should be treated as idealisations we deliberately engineer towards (by adding sensors, constraining the workspace, fencing off the robot cell) rather than as something we find for free.</p>
+
+<p>The dependence on task definition deserves emphasis because it is the most common source of confusion. Consider the same physical vacuum robot described three ways:</p>
+
+<table>
+  <thead>
+    <tr><th>Task definition</th><th>Sensors assumed</th><th>Observability</th><th>Why</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Abstract two-square vacuum world</td><td>Location sensor + dirt sensor for both squares</td><td>Fully observable</td><td>The percept <code>[A, Dirty, Clean]</code> pins down the complete world state</td></tr>
+    <tr><td>Local-sensing vacuum world</td><td>Location sensor + dirt sensor for current square only</td><td>Partially observable</td><td>The agent cannot see whether the <em>other</em> square is dirty</td></tr>
+    <tr><td>Real household robot</td><td>Bump sensors, cliff sensor, optical flow</td><td>Partially observable, stochastic, continuous</td><td>Rooms, furniture, pets and wheel slip are all unsensed or unpredictable</td></tr>
+  </tbody>
+</table>
+
+<p>Nothing about the dirt changed; what changed was the sensor suite and the level of abstraction at which we chose to model the task. Likewise, if we define a taxi's performance measure as "get to the destination" the problem is sequential, but if we define a sub-task as "classify this traffic sign from this image", that sub-task is episodic. Classification is always relative to a task specification.</p>
+
+<p><strong>Fully observable vs. partially observable.</strong> An environment is <em>fully observable</em> if the agent's sensors give it access, at each point in time, to the complete state of the environment that is relevant to the choice of action. The key consequence is liberating: a fully observable environment means <strong>the agent need not maintain any internal state to track the world</strong>, because the world itself acts as its own perfect memory. The agent can be a pure function of the current percept.</p>
+
+<p><em>Partial observability</em> arises in two distinct ways, and it is worth keeping them apart:</p>
+
+<ul>
+  <li><strong>Missing sensing:</strong> parts of the state are simply not sensed. A taxi cannot see around the corner, cannot see what is in the boot of the car ahead, and cannot see the intentions of the pedestrian at the kerb. A poker agent cannot see opponents' hole cards.</li>
+  <li><strong>Noisy or inaccurate sensing:</strong> the relevant quantity is sensed, but imperfectly. A GPS fix carries several metres of error; a dirt sensor may occasionally report "clean" on a dirty square; a thermometer drifts. Here the agent has information about the state but not certainty.</li>
+</ul>
+
+<p>Either way, the design consequence is the same: <strong>the agent must keep a belief state</strong> — a representation of which world states are currently possible, or a probability distribution over them — and update it as percepts and actions arrive. This is the move from a simple reflex agent to a model-based agent. The update has two halves, a prediction using a transition model and a correction using a sensor model:</p>
+
+<pre><code>belief &lt;- InitialBelief()
+loop:
+    percept &lt;- Sensors()
+    belief  &lt;- UpdateWithPercept(belief, percept)      # sensor model
+    action  &lt;- ChooseAction(belief)
+    Actuators(action)
+    belief  &lt;- UpdateWithAction(belief, action)        # transition model</code></pre>
+
+<p>Examples make the contrast concrete. <strong>Chess with a visible board is fully observable</strong>: every piece's position is on the table, and nothing relevant is hidden (castling and en-passant rights are usually folded into the state definition). <strong>Poker is partially observable</strong> because opponents' cards are hidden — and indeed much of the skill of poker consists in inferring the hidden state from betting behaviour. <strong>Automated driving is partially observable</strong> because of occlusions, sensor noise, weather and the unobservable mental states of other road users. And in the small vacuum world, <strong>an agent with only a local dirt sensor cannot see the other square</strong>, so even that toy domain becomes partially observable: after cleaning square A the agent must <em>remember</em> or <em>assume</em> something about B in order to act sensibly.</p>
+
+<p>A limiting case worth naming is the <em>unobservable</em> or sensorless environment, where the agent perceives nothing at all. Surprisingly, such agents can still succeed if the environment is deterministic: a sensorless vacuum agent executing <code>Suck, Right, Suck</code> cleans both squares from any starting configuration, because the action sequence drives the entire belief state into a goal state. This shows that "partially observable" is not synonymous with "hopeless" — it means the agent must reason about sets of possible states rather than single states.</p>
+
+<p><strong>Deterministic vs. stochastic.</strong> An environment is <em>deterministic</em> if the next state is completely determined by the current state and the action executed by the agent; otherwise it is <em>stochastic</em>. In a deterministic world <strong>the agent can predict outcomes exactly and plan with certainty</strong>: a plan computed offline will execute as imagined, so classical search and planning techniques, which assume a single predicted successor per action, are sound.</p>
+
+<p>In a <em>stochastic</em> world the agent must <strong>reason about probabilities and handle unexpected results</strong>. Three consequences follow. The agent's plans become <em>contingent</em> (branching on what actually happens) or <em>policies</em> (a mapping from state to action, defined everywhere) rather than linear action sequences. The agent's objective shifts from "achieve the goal" to "maximise expected utility", because outcomes are now random variables. And the agent needs an execution-monitoring loop that detects deviation and re-plans.</p>
+
+<p><strong>Taxi driving is stochastic</strong> in every respect: traffic density, weather, whether a light turns amber as you approach, and the possibility of a tyre blowout are all unpredictable from the agent's point of view. By contrast, <strong>a simple grid vacuum world with reliable actions is deterministic</strong> — <code>Right</code> always moves the agent right, <code>Suck</code> always cleans. (Add a 10% chance that <code>Suck</code> deposits dirt instead, as in the "slippery" variants, and the world becomes stochastic and the optimal behaviour changes.)</p>
+
+<p>Two subtleties. First, stochasticity in this sense is <em>epistemic</em> as much as physical: a tyre blowout is governed by deterministic physics, but because the agent cannot sense tread micro-fractures, it must model the event as random. The practical test is not "is the universe random?" but "can this agent, with these sensors, predict the outcome?" This also means that a partially observable environment will usually be <em>modelled</em> as stochastic even if the underlying dynamics are deterministic. Second, if an environment is deterministic except for the actions of other agents, it is conventionally called <strong>strategic</strong> (or sometimes "deterministic but multi-agent"). Chess is the canonical example: the board evolves deterministically given both players' moves, and the uncertainty comes entirely from not knowing the opponent's choice. The distinction matters because strategic uncertainty is handled by adversarial search and game theory (minimax, equilibrium reasoning) rather than by probability over nature's coin flips.</p>
+
+<p>A third label sometimes used is <em>nondeterministic</em>, reserved for environments where actions have multiple possible outcomes but <em>no probabilities are attached</em>. There the agent typically plans for the worst case ("a plan must work no matter which outcome occurs"), whereas in a genuinely stochastic environment it optimises the expectation.</p>
+
+<p><strong>Episodic vs. sequential.</strong> In an <em>episodic</em> task environment the agent's experience is divided into atomic episodes. In each episode the agent perceives and then performs a single action, and crucially the choice of action in one episode does not affect any later episode. The agent can therefore <strong>decide each case in isolation without looking ahead</strong>.</p>
+
+<p>The classic example is <strong>a defect-detection robot on an assembly line</strong>: it sees a part, decides "pass" or "reject", and the next part arrives in a state entirely unaffected by that decision. Spam filtering, medical image classification, and optical character recognition are episodic for the same reason. Such environments are <strong>simpler precisely because the agent does not need to think ahead</strong>; the whole problem reduces to learning a good percept-to-action mapping, which is why supervised machine learning fits episodic tasks so naturally.</p>
+
+<p>In a <em>sequential</em> environment, by contrast, current decisions affect all future decisions. <strong>Chess and taxi driving are sequential</strong>: a pawn structure weakened on move 8 may lose the endgame forty moves later; a missed motorway exit costs ten minutes and a different set of future choices. Sequential environments therefore <strong>require search, planning, or lookahead over sequences of actions</strong> — minimax or Monte Carlo tree search in games, A* or hierarchical planning in robotics, dynamic programming and reinforcement learning when outcomes are stochastic. They also introduce the <em>credit assignment problem</em>: when a long sequence ends badly, which action was to blame?</p>
+
+<p>A common error is to equate "episodic" with "short". An episode may involve a lengthy computation; what matters is that episodes are <em>independent</em>. Conversely, a chess move takes a second to play but is deeply sequential. Note too that the same physical system can be decomposed into episodic sub-tasks nested inside a sequential whole: a self-driving car's "recognise this traffic sign" module is episodic even though "drive to the airport" is sequential.</p>
+
+<p><strong>Static vs. dynamic.</strong> An environment is <em>static</em> if it cannot change while the agent is deliberating; it is <em>dynamic</em> if it can. Static environments <strong>remove time pressure</strong>, which is a substantial simplification: the agent may take as long as it likes to compute the best action, it need not re-sense the world during deliberation, and it need not worry that the state it is reasoning about has already gone stale.</p>
+
+<p><strong>Crossword puzzles are static</strong> — the grid will patiently wait while you think about 14-across for an hour. <strong>Taxi driving is dynamic</strong>: traffic keeps moving while the agent deliberates, so a plan computed from a two-second-old snapshot may already be dangerous. In dynamic environments, <strong>inaction is itself a choice</strong>: if the agent has not decided what to do by the time the car ahead brakes, it has effectively decided to keep its current speed and will crash. This makes real-time response guarantees a first-class design requirement, and it motivates <em>anytime algorithms</em> (which always have a usable answer available and improve it with more time), reactive safety layers that bypass deliberation, and <strong>continuous re-sensing, because plans may become stale</strong> and must be validated against fresh percepts.</p>
+
+<p>Between the two lies the <em>semi-dynamic</em> case: the environment itself does not change with time, but the agent's performance score does. <strong>Chess played with a clock is semi-dynamic</strong> — the pieces do not move while you think, but your remaining time drains away and slow deliberation is penalised, eventually by loss on time. Correspondence chess with no time limit is static; blitz chess is strongly semi-dynamic and is played with heuristics and pattern recognition rather than deep search. The same mechanism appears outside games: a diagnostic system billed by compute-seconds is semi-dynamic.</p>
+
+<p><strong>Discrete vs. continuous.</strong> This distinction applies separately to the <em>state</em> of the environment, to the handling of <em>time</em>, and to the agent's <em>percepts</em> and <em>actions</em>; an environment can be discrete along one axis and continuous along another.</p>
+
+<ul>
+  <li><strong>Chess</strong> has a finite, discrete set of board states and a finite set of legal moves per turn (typically 20–40), and time advances in discrete ply. This is what makes exhaustive enumeration meaningful: one can in principle generate every successor state, and algorithms like minimax with alpha–beta pruning are built on exactly that ability.</li>
+  <li><strong>Taxi driving</strong> is continuous in state and in time: position, velocity, heading, steering angle and throttle all vary smoothly, and the vehicle's configuration changes continuously rather than in ticks. There is no "next state" to enumerate — between any two steering angles lie infinitely many others.</li>
+</ul>
+
+<p>Because enumeration is impossible, <strong>continuous domains usually require discretisation, approximation, or specialised numeric methods</strong>. Typical responses include: sampling the action space (consider steering angles in 2° increments); sampling the state space (probabilistic roadmaps, rapidly-exploring random trees); representing value or policy functions with parametric approximators such as neural networks instead of tables; and using gradient-based or convex optimisation, Kalman filters and other techniques designed for real-valued variables. Discretisation always trades fidelity for tractability, and a key design judgement is how fine a grid the task's performance measure actually demands.</p>
+
+<p>A nuance worth noting: <strong>camera input is technically discrete</strong> — a fixed array of pixels, each with a bounded integer intensity — yet it is almost always <em>modelled</em> as continuous intensities and continuous object positions, because the discretisation is so fine that continuous mathematics (convolution, interpolation, sub-pixel estimation) gives better answers than treating each pixel value as a distinct symbol. This reinforces the earlier point: these labels describe the <em>model</em> we choose for the task, and the right choice is the one that supports the most effective algorithms.</p>
+
+<p><strong>Single-agent vs. multi-agent.</strong> The last dimension asks whether other entities in the environment must be modelled as <em>agents</em> — that is, as decision-makers — or merely as part of the physics. The operative test is behavioural rather than metaphysical: <strong>an entity counts as an agent if its behaviour is best described as maximising a performance measure whose value depends on your agent's actions</strong>. A beach whose waves raise and lower the sand is not an agent, because the waves are not trying to do anything in response to you; a chess opponent is, because their score depends directly on your moves and they will choose their moves accordingly. Occasionally it is useful to treat a non-agent as an adversary (robust control treats "nature" as a malicious player), and occasionally it is useful to treat an agent as a stochastic process (modelling pedestrians by statistical trajectory distributions rather than by reasoning about their goals) — this is a modelling decision driven by what works.</p>
+
+<p>Multi-agent environments divide by how performance measures interrelate:</p>
+
+<table>
+  <thead>
+    <tr><th>Type</th><th>Relation between performance measures</th><th>Example</th><th>Typical techniques</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Single-agent</td><td>No other entity's goals interact with the agent's</td><td>Crossword puzzle, Sudoku, sensorless vacuum world</td><td>Classical search, constraint satisfaction, planning</td></tr>
+    <tr><td>Competitive multi-agent</td><td>Strictly opposed: one agent's gain is another's loss</td><td>Chess, Go, two-player zero-sum games</td><td>Minimax, alpha–beta pruning, MCTS, opponent modelling</td></tr>
+    <tr><td>Cooperative multi-agent</td><td>Shared or aligned performance measures</td><td>Robot soccer teammates, warehouse robot fleets</td><td>Joint planning, task allocation, communication protocols</td></tr>
+    <tr><td>Mixed (partly cooperative, partly competitive)</td><td>Some objectives aligned, others opposed</td><td>Taxi driving; auctions; traffic networks</td><td>Game theory, equilibrium analysis, negotiation, conventions</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Chess is competitive</strong> in the pure sense: by the rules, one agent's success entails the other's failure, so the two performance measures sum to a constant. <strong>Taxi driving is mixed</strong> — all drivers share the strong goal of avoiding collisions, which makes the environment partially cooperative and gives rise to conventions such as lane discipline, indicator signals and right-of-way rules; yet drivers compete for a single parking space or for a gap in merging traffic. <strong>A crossword puzzle is single-agent</strong>: the grid has no goals, no response to your choices, and nothing to gain from your failure.</p>
+
+<p>Multi-agency brings genuinely new requirements. It introduces <strong>communication</strong> as a rational action (flashing headlights to yield; broadcasting an intended route), <strong>negotiation and commitment</strong> (bidding, contracts, conventions), and <strong>game-theoretic reasoning</strong>, including the recursive problem that the other agents are modelling you while you model them. It is also the main source of <em>strategic</em> uncertainty and often the reason randomised policies are optimal — in poker or rock–paper–scissors, any deterministic policy is exploitable, so rationality itself requires a mixed strategy. Finally, multi-agent environments are usually dynamic by construction, since other agents act while you deliberate.</p>
+
+<p>Putting the dimensions together for a set of familiar tasks shows how sharply the labels discriminate, and how the real-world tasks cluster at the hard end:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Task environment</th>
+      <th>Observable</th>
+      <th>Deterministic</th>
+      <th>Episodic</th>
+      <th>Static</th>
+      <th>Discrete</th>
+      <th>Agents</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Crossword puzzle</td><td>Fully</td><td>Deterministic</td><td>Sequential</td><td>Static</td><td>Discrete</td><td>Single</td></tr>
+    <tr><td>Chess with a clock</td><td>Fully</td><td>Deterministic (strategic)</td><td>Sequential</td><td>Semi-dynamic</td><td>Discrete</td><td>Multi (competitive)</td></tr>
+    <tr><td>Poker</td><td>Partially</td><td>Stochastic</td><td>Sequential</td><td>Static</td><td>Discrete</td><td>Multi (competitive)</td></tr>
+    <tr><td>Backgammon</td><td>Fully</td><td>Stochastic</td><td>Sequential</td><td>Static</td><td>Discrete</td><td>Multi (competitive)</td></tr>
+    <tr><td>Two-square vacuum world (full sensing, reliable actions)</td><td>Fully</td><td>Deterministic</td><td>Sequential</td><td>Static</td><td>Discrete</td><td>Single</td></tr>
+    <tr><td>Part-picking / defect-detection robot</td><td>Partially</td><td>Stochastic</td><td>Episodic</td><td>Dynamic</td><td>Continuous</td><td>Single</td></tr>
+    <tr><td>Medical diagnosis system</td><td>Partially</td><td>Stochastic</td><td>Sequential</td><td>Dynamic</td><td>Continuous</td><td>Single (or multi, with patient/insurer)</td></tr>
+    <tr><td>Automated taxi driving</td><td>Partially</td><td>Stochastic</td><td>Sequential</td><td>Dynamic</td><td>Continuous</td><td>Multi (mixed)</td></tr>
+    <tr><td>Interactive English tutor</td><td>Partially</td><td>Stochastic</td><td>Sequential</td><td>Dynamic</td><td>Discrete</td><td>Multi (cooperative)</td></tr>
+  </tbody>
+</table>
+
+<p>Reading the table downwards, the pattern predicted earlier is visible: the puzzle and game environments sit at the easy end of several dimensions and can be attacked with pure search; the real-world engineering tasks are partially observable, stochastic, sequential, dynamic and continuous all at once, and are therefore built from perception pipelines, state estimators, probabilistic models, learned components and real-time planners stacked together. The classification does not solve the design problem, but it tells you, in advance and in a few minutes of analysis, which of those components you cannot avoid building.</p>
+
+<p>Two closing cautions. First, some cells in such a table are genuinely debatable, and that is a feature rather than a bug: arguing about whether a medical diagnosis system is single- or multi-agent forces you to be explicit about the task definition, the performance measure and the sensor suite. Second, a seventh distinction — <em>known vs. unknown</em> — is sometimes added. It is not a property of the environment at all but of the agent's knowledge: in a known environment the outcomes (or outcome probabilities) of all actions are given to the agent, while in an unknown one they must be learned through exploration. A known environment may be stochastic (the rules of backgammon, including the dice distribution, are fully known) and an unknown one may be deterministic (a new video game whose physics you must discover by experiment). An unknown environment is the defining reason to build a <em>learning</em> agent.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> Supported indirectly. The topic repeatedly frames observability in terms of what sensors deliver and how percept sequences must be summarised into a belief state when the current percept is not a sufficient statistic, reinforcing the sensor–actuator–percept–agent-function picture, though it does not develop the agent function formalism itself.</li>
+  <li><strong>MO2:</strong> Only lightly addressed. The discussion of stochastic and partially observable worlds shows why a rational agent cannot guarantee success and must maximise expected performance given limited percepts, which underpins the distinction between rationality and omniscience, but the four ingredients of the rational agent definition are not covered here.</li>
+  <li><strong>MO3:</strong> Partially supported. PEAS is referenced as the prior step that fixes the task definition, and the topic shows how the E, A and S entries determine the environment classification (for example the vacuum world's sensors deciding observability), but it does not teach the construction of a full PEAS specification.</li>
+  <li><strong>MO4:</strong> Directly and fully addressed. The topic defines each of the observability, determinism, episodicity, dynamism, discreteness and agent-count dimensions, gives worked examples and edge cases (semi-dynamic, strategic, nondeterministic, unobservable), and provides a comparative table that models the classification task itself.</li>
+  <li><strong>MO5:</strong> Strongly supported. Each dimension is presented as a design constraint that rules architectures in or out — full observability permitting simple reflex agents, partial observability forcing model-based agents with belief states, sequentiality forcing goal-based search, stochasticity forcing utility-based expected-value reasoning, and unknown environments forcing learning agents — which is precisely the justification pattern the outcome requires.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Suggested teaching uses: (1) give students a fresh task (e.g. a warehouse picking robot, an email auto-responder, a poker bot, a chess engine without a clock) and have them fill in a blank six-column classification table, then defend each debatable cell by stating the sensors and performance measure they assumed; (2) run a &quot;change one dimension&quot; exercise in which a toy vacuum world is successively made partially observable, stochastic and dynamic, with students naming the architectural component that must be added at each step. The known/unknown dimension and the sensorless-vacuum belief-state example are included as well-established extensions beyond the listed subtopics and can be omitted for a shorter version.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Structures for Search and State Representation</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Python Programming Toolkit for AI Development</a></div>
+<h1>Data Structures for Search and State Representation</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: Heaps in 3 minutes — Intro</a>
+<a href="#sec3">Video 2: Heaps in 6 minutes — Methods</a>
+<a href="#sec4">Video 3: Python Collections | More Simple Python Tutorials | 2021</a>
+<a href="#sec5">How These Videos Support the Learning Outcomes</a>
+<a href="#sec6">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>Search algorithms are only as good as the data structures that hold their working state. Every uninformed or informed search you will write in this course — breadth-first, depth-first, uniform-cost, greedy, A* — needs some way to store the frontier of nodes still to be expanded, some way to remember which states have already been visited, and some way to represent a state so that it can be compared and looked up quickly. Python gives you these pieces in its built-in collections (lists, tuples, sets, dictionaries), in the heapq module for priority queues, and in the collections module for specialized containers like deque, Counter, and defaultdict.</p>
+<p>The choices matter because they change the asymptotic behavior of your search. A visited set backed by a hash set gives roughly constant-time membership checks, while scanning a list for the same thing is linear and will quietly turn a workable search into one that never finishes. Popping from the front of a list is expensive; popping from the front of a deque is cheap. Pulling the lowest-cost node from an unsorted list requires a full scan, while a binary heap gives you that in logarithmic time. Hashability also matters: a state you want to put in a set or use as a dictionary key must be immutable, which is why tuples and frozensets show up so often in state encodings.</p>
+<p>The videos below focus on two of the areas students most often find unfamiliar: how a heap actually works underneath heapq, and what the collections module offers beyond the built-in types. While watching, keep asking yourself which search role each structure would fill — frontier, visited set, cost table, or state encoding — and what the cost of each operation would be when the search tree grows large.</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: Heaps in 3 minutes — Intro</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/0wPlzMU-k00?cc_load_policy=1&amp;rel=0" title="Video: Heaps in 3 minutes — Intro (Michael Sambol)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Michael Sambol</strong> · 3:29 · 368,008 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=0wPlzMU-k00" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A brief conceptual introduction to the heap data structure, covering what a heap is, the min-heap and max-heap ordering property, and how a heap is typically stored in an array. Based on the title and description it is a short overview rather than a code walkthrough, with accompanying Python source linked by the author.</p>
+<h3>Why this video</h3>
+<p>Python&#39;s heapq module is a binary min-heap, so understanding the underlying structure makes the priority queue behavior in informed search algorithms like A* far less mysterious; Michael Sambol&#39;s data structures series is a well-known, concise and accurate reference.</p>
+</section>
+<section class="item" id="sec3">
+<h2>Video 2: Heaps in 6 minutes — Methods</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/pAU21g-jBiE?cc_load_policy=1&amp;rel=0" title="Video: Heaps in 6 minutes — Methods (Michael Sambol)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Michael Sambol</strong> · 5:56 · 156,531 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=pAU21g-jBiE" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A follow-up to the introduction that walks step by step through the operations on a heap, including building a heap and the insert and extract procedures that restore the heap ordering property. The description indicates it focuses on method-level, step-by-step construction rather than theory alone.</p>
+<h3>Why this video</h3>
+<p>It gives you the operational picture — push, pop, and heapify — that maps directly onto heapq.heappush, heapq.heappop and heapq.heapify, and explains why those operations are logarithmic rather than constant, which is the heart of the priority-queue performance trade-off.</p>
+</section>
+<section class="item" id="sec4">
+<h2>Video 3: Python Collections | More Simple Python Tutorials | 2021</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/VHGz1GYtRwY?cc_load_policy=1&amp;rel=0" title="Video: Python Collections | More Simple Python Tutorials | 2021 (Dr Codie)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Dr Codie</strong> · 17:59 · 1,980 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=VHGz1GYtRwY" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A beginner-oriented tutorial on Python&#39;s collections module, covering Counter, OrderedDict, defaultdict and deque according to its description. It demonstrates how each specialized container is created and used in ordinary Python code.</p>
+<h3>Why this video</h3>
+<p>This directly addresses the collections module subtopic, and deque in particular is the structure you should reach for when implementing a FIFO frontier for breadth-first search, while defaultdict and Counter are handy for cost tables and bookkeeping.</p>
+</section>
+<section class="item" id="sec5">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>These videos chiefly support MO3 by building the understanding needed to compare frontier and visited-state structures: the two heap videos explain the binary heap that backs heapq-based priority queues and why its operations cost what they do, while the collections tutorial introduces deque and the dictionary variants used for FIFO frontiers and lookup tables. They also feed into MO2, since translating search pseudocode into Python requires knowing which container implements each abstract operation the pseudocode assumes. Pair them with the topic readings on tuples, sets and hashable state encodings to cover the remaining subtopics.</p>
+</section>
+<section class="item" id="sec6">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

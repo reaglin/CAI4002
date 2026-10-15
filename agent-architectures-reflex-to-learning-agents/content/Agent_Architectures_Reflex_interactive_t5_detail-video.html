@@ -1,0 +1,244 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Utility-Based Agents</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Agent Architectures: Reflex to Learning Agents</a></div>
+  <header>
+    <h1>Utility-Based Agents</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Utility-Based Agents</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>A goal-based agent is a substantial advance over a reflex agent: it can look ahead, simulate the consequences of its actions, and select a sequence that reaches a desired state. But a goal is a <em>binary predicate</em>. It partitions the universe of possible states into exactly two classes — acceptable and unacceptable — and says nothing whatsoever about how the members of each class compare with one another. A delivery robot whose goal is <code>parcel_at(destination)</code> is perfectly satisfied by a route that takes four minutes and by a route that takes forty, by a route through an empty corridor and by a route that weaves between a crowd of people and a flight of stairs. A utility-based agent closes exactly this gap. It replaces the question <em>"Is this state a goal?"</em> with the far richer question <em>"How desirable is this state, compared with the alternatives available to me?"</em> This single change in the internal representation of preference is what allows an agent to be <strong>rational</strong> in the demanding sense required by messy, costly, risky, real-world task environments.</p>
+
+<p><strong>From goals to preferences: why utility is needed.</strong> Consider a goal test written as a boolean function and a utility function written as a scalar function of the same state:</p>
+
+<pre><code>def is_goal(state):            # goal-based agent
+    return state.parcel_location == state.destination
+
+def utility(state):            # utility-based agent
+    return (100 * state.parcel_delivered
+            -  1.0 * state.minutes_elapsed
+            -  5.0 * state.collision_count
+            -  0.2 * state.battery_used_percent)</code></pre>
+
+<p>The goal test answers "did I succeed?"; the utility function answers "how good was this success?" The practical consequences of that difference are large:</p>
+
+<ul>
+  <li><strong>Many plans satisfy a goal, but they are not equivalent.</strong> A search over a city road network will typically return dozens of loop-free routes from A to B. All of them satisfy <code>at(B)</code>. They differ in distance, travel time, fuel burn, toll cost, number of unprotected left turns, and exposure to accident risk. A goal test cannot see any of these differences because they are all collapsed into "true".</li>
+  <li><strong>Goals give no principled tie-breaking rule.</strong> When two plans both work, a goal-based agent must fall back on something arbitrary — whichever plan the search happened to find first, or whichever had the fewest actions. "Fewest actions" is in fact a crude, implicit utility function, and it is frequently the wrong one: a three-step plan that flies a drone through a thunderstorm is worse than an eight-step plan that routes around it.</li>
+  <li><strong>Utility separates <em>achieving</em> from <em>achieving well</em>.</strong> Two robots can both deliver the parcel; only one of them does so quickly, quietly, without startling pedestrians and with 60% battery to spare. Only utility can express that distinction.</li>
+  <li><strong>Utility degrades gracefully when the goal is unreachable.</strong> This is perhaps the most underappreciated benefit. If the destination corridor is flooded and no plan achieves <code>parcel_at(destination)</code>, a goal-based agent's search returns failure and it has nothing sensible to do. A utility-based agent simply notices that every reachable state scores poorly, and then picks the least-bad one: deliver the parcel to the reception desk, notify the recipient, and return to the charging dock. Partial credit is representable; a boolean goal has no notion of partial credit.</li>
+</ul>
+
+<p><strong>The utility function as an internalized performance measure.</strong> In the standard formulation, the agent designer specifies an external <em>performance measure</em> that an outside observer uses to judge the agent's behaviour over a sequence of environment states. A utility function <code>U(s) → ℝ</code> is the agent's own internal copy of that yardstick: a scalar score attached to a state (or to a history, or to an outcome), where higher means more preferred. Rationality then has a crisp operational definition: <em>choose the action whose outcome maximizes utility</em>.</p>
+
+<ul>
+  <li><strong>The designer encodes what matters.</strong> Speed, safety, energy, comfort, monetary cost, fairness, noise — each becomes a term in <code>U</code>. The act of writing <code>U</code> forces the designer to state, in numbers, what the system is actually for.</li>
+  <li><strong>Alignment is the critical correctness condition.</strong> If the external performance measure rewards clean floors but <code>U</code> rewards "dirt collected", a vacuum agent can maximize its utility by dumping collected dirt back onto the floor and sweeping it up again. The agent is behaving perfectly rationally with respect to <code>U</code>; the fault is entirely in the misalignment between <code>U</code> and the performance measure. Specification gaming of this kind is a design bug, not an agent malfunction.</li>
+  <li><strong>Utilities are comparative, not absolute.</strong> Only the ordering (and, once probabilities are involved, the ratios of differences) carries meaning. Any positive affine transformation <code>U'(s) = aU(s) + b</code> with <code>a &gt; 0</code> leaves every decision unchanged. So "this state has utility 73" is meaningless in isolation; "this state has higher utility than that one, and the gap is twice as large as the other gap" is meaningful. A common engineering convention is to normalize each criterion onto <code>[0, 1]</code> so weights can be compared sensibly.</li>
+  <li><strong>Consistency buys you a utility function for free.</strong> The von Neumann–Morgenstern result shows that if an agent's preferences over uncertain outcomes obey a few constraints (completeness, transitivity, continuity, independence), then there <em>exists</em> a utility function whose expectation the agent is implicitly maximizing. An agent with intransitive preferences (A &gt; B &gt; C &gt; A) can be exploited by a "money pump" that charges it to cycle round forever — so the axioms are not arbitrary mathematical tidiness, they are a defence against self-defeating behaviour.</li>
+</ul>
+
+<p><strong>Trading off conflicting goals.</strong> Real tasks pull in incompatible directions: fast versus safe, cheap versus comfortable, thorough versus timely. Utility resolves this by <em>scalarization</em> — aggregating multiple criteria into one number that can be ranked. The commonest aggregation is a weighted linear sum:</p>
+
+<pre><code>U(s) = w1*f1(s) + w2*f2(s) + ... + wn*fn(s)
+
+# Autonomous taxi, criteria normalized to [0,1], higher = better
+U(s) = 0.45*safety(s) + 0.25*speed(s) + 0.15*comfort(s)
+     + 0.10*fuel_economy(s) + 0.05*legality_margin(s)</code></pre>
+
+<p>Other aggregations suit other intentions. A <em>multiplicative</em> form <code>U = Π fi^wi</code> refuses to let a strong criterion compensate for a near-zero one (useful when every criterion is essential). A <em>min</em> or "maximin" form <code>U = min(f1..fn)</code> optimizes the worst-performing criterion, which is appropriate for safety-critical or fairness-sensitive systems. A <em>lexicographic</em> ordering compares on safety first and only consults speed when safety ties, which approximates a hard constraint. Hard constraints can also be encoded as very large negative terms (a "penalty barrier"), e.g. <code>-10^6 * collides(s)</code>.</p>
+
+<p>The following comparison shows how the same route-planning situation is handled by each architecture:</p>
+
+<table>
+  <thead>
+    <tr><th>Candidate route</th><th>Time (min)</th><th>Risk of incident</th><th>Fuel (L)</th><th>Goal test</th><th>U = 1 − 0.04·time − 3·risk − 0.1·fuel</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>A: Motorway</td><td>22</td><td>0.02</td><td>2.1</td><td>Pass</td><td>−0.27</td></tr>
+    <tr><td>B: Arterial roads</td><td>28</td><td>0.01</td><td>1.6</td><td>Pass</td><td>−0.30</td></tr>
+    <tr><td>C: Shortcut through school zone</td><td>19</td><td>0.09</td><td>1.4</td><td>Pass</td><td>−0.17 (before penalty)</td></tr>
+    <tr><td>C with safety penalty term (−3·risk doubled near pedestrians)</td><td>19</td><td>0.09</td><td>1.4</td><td>Pass</td><td>−0.44</td></tr>
+    <tr><td>D: Long detour, road closed midway</td><td>—</td><td>—</td><td>—</td><td>Fail</td><td>−0.95 (partial progress)</td></tr>
+  </tbody>
+</table>
+
+<p>Notice three things. First, the goal test cannot separate A, B and C at all. Second, the ranking produced by <code>U</code> is explicit and auditable: anyone can read the weights and see that the designer values avoiding risk about 75 times more per unit than avoiding a minute of travel. Third, the trade-off lives in <em>data</em> rather than in control flow. When a city tightens its school-zone policy, an engineer retunes one weight; nobody rewrites the planner. Compare that to a goal-based agent with hand-coded rules such as <code>if near_school and hour &lt; 16: avoid()</code>, where every policy change is a code change with a regression-test tail.</p>
+
+<p>The flip side is that bad weights produce behaviour that is <em>technically optimal and practically unacceptable</em>. If <code>speed</code> is weighted far above <code>comfort</code>, the taxi will brake and accelerate like a rally car; passengers will be miserable while the agent reports maximal utility. If a cleaning robot's utility counts only "square metres covered per hour", it will race over surfaces without actually cleaning them. Weight elicitation — interviewing stakeholders, running pairwise comparisons, simulating edge cases, inspecting the resulting behaviour, and iterating — is a genuine engineering activity, not a formality.</p>
+
+<p><strong>Handling uncertainty with expected utility.</strong> In deterministic, fully observable worlds the agent knows precisely which state each action produces, and it can simply compare <code>U(result(a, s))</code> across actions. Most interesting environments are not like that. Actuators slip, sensors are noisy, other agents behave unpredictably, and the agent may not even know which state it is currently in. The outcome of an action is therefore a <em>probability distribution</em> over states, and the agent needs a transition model <code>P(s' | s, a)</code> alongside its utility function. The decision rule becomes the <strong>Maximum Expected Utility (MEU)</strong> principle:</p>
+
+<pre><code>EU(a | e) = ∑_s'  P(s' | a, e) * U(s')
+
+action* = argmax_a  EU(a | e)        # e = the evidence/percepts so far</code></pre>
+
+<p>A worked example makes the mechanics concrete. A delivery drone must choose between three actions with the following outcome distributions, where utility is measured in "net value of the delivery":</p>
+
+<table>
+  <thead>
+    <tr><th>Action</th><th>Outcomes and probabilities</th><th>Utilities</th><th>Expected utility</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Fly direct over the lake</td><td>0.80 arrive fast; 0.20 crash in water</td><td>+100; −400</td><td>0.8(100) + 0.2(−400) = <strong>0.0</strong></td></tr>
+    <tr><td>Fly the shoreline detour</td><td>1.00 arrive late</td><td>+55</td><td><strong>+55.0</strong></td></tr>
+    <tr><td>Wait 20 min for the wind to drop, then fly direct</td><td>0.95 arrive late; 0.05 crash</td><td>+60; −400</td><td>0.95(60) + 0.05(−400) = <strong>+37.0</strong></td></tr>
+  </tbody>
+</table>
+
+<p>MEU selects the shoreline detour. A goal-based agent asking only "does this plan achieve <code>delivered</code>?" would regard all three as acceptable and might well pick the fastest, flying the drone into the lake once every five trips. Expected utility lets the agent compare a certain small gain against a risky large gain on a single common scale, which is impossible with a boolean goal.</p>
+
+<p>The <em>shape</em> of the utility function encodes the agent's attitude to risk, and this is a design decision, not an accident:</p>
+
+<ul>
+  <li><strong>Concave <code>U</code> (diminishing returns) → risk aversion.</strong> If <code>U(money) = √money</code>, then a certain €100 has utility 10 while a 50/50 gamble between €0 and €200 has expected utility 0.5(0) + 0.5(14.1) = 7.07. The agent prefers the sure thing even though the gamble has the same expected <em>monetary</em> value. The gap, called the insurance premium, is what the agent would pay to avoid the risk. Medical, aviation and financial-compliance agents should normally be risk-averse.</li>
+  <li><strong>Linear <code>U</code> → risk neutrality.</strong> The agent cares only about expected value. Appropriate when the same decision will be repeated thousands of times and losses average out — e.g. a high-frequency ad-bidding agent.</li>
+  <li><strong>Convex <code>U</code> (increasing returns) → risk seeking.</strong> An agent that must reach a threshold or lose everything — a game agent trailing badly in the final seconds, or a rover with just enough battery for one gamble — rationally prefers the high-variance option.</li>
+</ul>
+
+<p>Expected utility also supplies the graceful-degradation behaviour mentioned earlier. When no action guarantees success, every action has an expected utility that is merely low rather than undefined, so the agent still has a well-defined best move. It additionally supports <em>information-gathering</em> actions: the value of a sensing action is the difference between the expected utility of acting after the observation and the expected utility of acting now (the "value of information"), which explains why a rational agent will pause to take a sensor reading even though looking achieves no goal directly.</p>
+
+<p><strong>Architecture and decision cycle.</strong> Structurally, a utility-based agent is a model-based agent with the goal test replaced by a scoring function. It retains every component needed for partial observability and adds the evaluation machinery:</p>
+
+<ul>
+  <li><strong>Internal state / belief state.</strong> Updated each cycle from the previous state, the chosen action, the transition model ("how the world evolves" and "what my actions do"), and the new percept. In a stochastic, partially observable world this is a probability distribution over states rather than a single state.</li>
+  <li><strong>Predictive model.</strong> Answers "what will the world be like if I do action A?" — in general producing a distribution <code>P(s' | s, a)</code> rather than one successor.</li>
+  <li><strong>Utility function.</strong> Answers "how happy will I be in that state?" instead of "is that state the goal?".</li>
+  <li><strong>Decision step.</strong> Compute <code>EU</code> for each candidate action (or each candidate plan, if the agent looks several steps ahead) and send the argmax to the actuators.</li>
+</ul>
+
+<pre><code>function UTILITY-AGENT(percept) returns an action
+    persistent: belief     # distribution over states
+                T, O       # transition and sensor models
+                U          # utility function
+                a_prev     # previous action
+
+    belief ← UPDATE-BELIEF(belief, a_prev, percept, T, O)
+
+    best_a, best_eu ← null, −∞
+    for each a in ACTIONS(belief):
+        eu ← 0
+        for each s' in PREDICT(belief, a, T):
+            eu ← eu + P(s' | belief, a) * U(s')
+        if eu &gt; best_eu:
+            best_a, best_eu ← a, eu
+
+    a_prev ← best_a
+    return best_a</code></pre>
+
+<p>The price of this expressiveness is computation. Where a goal-based agent stops searching the instant the goal test returns true, a utility-based agent must in principle enumerate and score many candidate outcomes, and for multi-step lookahead the branching over actions <em>and</em> stochastic outcomes grows explosively (an expectimax tree of depth <em>d</em> with <em>b</em> actions and <em>k</em> outcomes per action has roughly <code>(bk)^d</code> leaves). Practical systems therefore bound the cost: depth-limited lookahead with a learned or hand-crafted evaluation function at the horizon, Monte Carlo sampling of outcomes instead of exhaustive enumeration, pruning of dominated actions, caching of utility values, and offline policy computation (value iteration over an MDP) so that online behaviour reduces to a table lookup. Richer forms — representing utility over whole histories rather than single states, or discounting future reward with a factor γ — are the foundation of MDP and reinforcement-learning methods.</p>
+
+<p><strong>When to choose a utility-based architecture.</strong> The choice is an engineering trade-off between decision quality and design/runtime cost. The table below summarizes where each architecture is appropriate:</p>
+
+<table>
+  <thead>
+    <tr><th>Situation</th><th>Preferred architecture</th><th>Reason</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Single acceptable outcome, deterministic, cheap goal test (e.g. solving a sliding puzzle, compiling a file)</td><td>Goal-based</td><td>Any solution is as good as any other; utility adds cost with no benefit.</td></tr>
+    <tr><td>Many solutions exist and the <em>best</em> one must be identified (route planning, scheduling, resource allocation)</td><td>Utility-based</td><td>Only a scalar score can rank equally goal-satisfying alternatives.</td></tr>
+    <tr><td>Competing criteria must be balanced (cost vs. time vs. risk vs. comfort)</td><td>Utility-based</td><td>Scalarization makes the trade-off explicit, tunable and inspectable.</td></tr>
+    <tr><td>Stochastic actuators, noisy sensors, partial observability</td><td>Utility-based with MEU</td><td>Outcomes are distributions; expected utility is the principled comparison rule.</td></tr>
+    <tr><td>The goal may be unachievable and partial success is still valuable</td><td>Utility-based</td><td>Permits "least-bad" choices instead of search failure.</td></tr>
+    <tr><td>Tight real-time loop, trivial state, no conflicting objectives (thermostat, line follower)</td><td>Simple reflex</td><td>Lookahead and scoring are unnecessary overhead.</td></tr>
+  </tbody>
+</table>
+
+<p>Two caveats are worth stating plainly. First, the main design burden <em>shifts</em> rather than disappears: instead of writing elaborate conditional rules, the engineer must elicit, calibrate and validate a utility function — gathering stakeholder preferences, choosing a sensible functional form, normalizing criteria, and testing for perverse maxima. Second, utility-based reasoning is only as good as the probability model behind it; confident probabilities derived from a bad world model produce confidently bad decisions. In practice, teams validate utility designs by running the agent in simulation over adversarial scenarios, performing sensitivity analysis on the weights (does a 10% change in one weight flip the chosen action?), and sanity-checking the ranking it induces against expert human judgement.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> Supported indirectly. The topic uses and reinforces the core vocabulary — percepts and percept sequences feed the belief-state update, the utility-based decision cycle is an agent function realized by an agent program, and the described components (model, utility function, actuators) constitute the agent architecture — but it does not formally define these terms from scratch.</li>
+  <li><strong>MO2:</strong> Only lightly addressed. The topic notes that utility over histories with discounting underpins MDP and reinforcement-learning methods, which connects to the learning element, but it does not analyse the interaction of performance element, critic, learning element and problem generator.</li>
+  <li><strong>MO3:</strong> Partially supported. The utility function is presented as the agent's internalization of the externally specified performance measure (the P in PEAS), and the delivery-drone, taxi and vacuum examples illustrate environment, actuator and sensor considerations, but the topic does not walk through constructing a full PEAS specification.</li>
+  <li><strong>MO4:</strong> Directly supported. The topic contrasts utility-based agents with simple reflex, model-based reflex and goal-based agents, and ties the choice explicitly to environment properties such as determinism, observability and the existence of multiple goal-satisfying solutions.</li>
+  <li><strong>MO5:</strong> Directly supported. The "when to choose a utility-based architecture" discussion, the architecture-selection table, and the treatment of computational cost, weight-tuning maintainability and utility-elicitation burden give students the criteria needed to justify selecting or rejecting a utility-based design for a given scenario.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Teaching notes: (1) The worked drone table and the route-planning table are the two highest-value artefacts for class discussion — ask students to re-derive the MEU choice after changing the crash probability from 0.20 to 0.05 and observe the decision flip, which demonstrates sensitivity analysis concretely. (2) The square-root utility example (certain €100 = 10 utils vs. 50/50 €0/€200 = 7.07 utils) is a compact way to make risk aversion quantitative without introducing full vNM axiomatics. (3) Specification-gaming examples (vacuum dumping dirt to re-collect it; coverage-maximizing cleaner that never actually cleans) are deliberately included to make the alignment point memorable. (4) The pseudocode deliberately mirrors the model-based reflex agent skeleton so the only visible difference is the replacement of the goal test with the expectation computation.
+
+ (5) A useful in-class extension is to ask students to propose a utility function for a familiar task environment (lift/elevator controller, exam-timetabling agent, warehouse picker), then to deliberately break it by finding an action sequence that scores highly but is obviously undesirable — this exercise reliably produces the insight that writing &lt;code&gt;U&lt;/code&gt; is harder than writing a goal test, which is the central practical lesson of the topic.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Goal-based agents ask a single yes-or-no question: does this action sequence reach the goal? That is often not enough. There are usually many ways to reach a goal, and they differ in cost, time, risk, comfort, and side effects. A utility-based agent replaces the binary goal test with a utility function — a mapping from states (or outcomes) to a number that expresses how desirable each one is. This lets the agent rank competing outcomes rather than merely accept or reject them, and it is how we build agents that not only achieve a goal but achieve it well.</p>
+<p>Two ideas do most of the work in this topic. First, the utility function acts as an internalized version of the external performance measure: the designer's standard of success is written into the agent so the agent can evaluate its own options. Second, when the environment is stochastic or partially observable, the agent cannot know which outcome an action will produce, so it chooses the action with the highest expected utility — probability-weighted desirability averaged over possible outcomes. This is what makes utility-based agents the natural architecture for uncertain, multi-objective settings, and the direct ancestor of decision-theoretic and reinforcement-learning methods later in the course.</p>
+<p>While watching, keep a running comparison in mind. Watch for where a score or weight replaces a goal test, how conflicting objectives are combined into one comparable number, how probabilities enter the calculation, and what the decision cycle looks like: perceive, predict outcomes, score them, pick the best. Also notice the cost side — designing and tuning utility functions is real engineering work, which matters when you later justify choosing (or rejecting) this architecture for a given scenario.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: How Utility AI Helps NPCs Decide What To Do Next | AI 101</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/p3Jbp2cZg3Q?cc_load_policy=1&amp;rel=0" title="Video: How Utility AI Helps NPCs Decide What To Do Next | AI 101 (AI and Games)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>AI and Games</strong> · 15:48 · 60,052 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=p3Jbp2cZg3Q" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A dedicated explainer on utility AI as used for non-player characters in games, from the AI and Games channel. Based on its title and framing, it should walk through how an agent scores a set of candidate actions against current needs and world state, and then selects the highest-scoring option rather than following a fixed rule or goal test. Expect concrete examples from commercial games where characters balance competing drives such as hunger, safety, and social behavior.</p>
+<h3>Why this video</h3>
+<p>It gives a worked, practical picture of exactly the mechanics this topic cares about — scoring outcomes, trading off conflicting goals, and the repeated decide-act cycle — in a domain where the consequences of the utility function are immediately visible.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/fXizBc03D7E?cc_load_policy=1&amp;rel=0" title="Video: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 10:22 · 430,733 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=fXizBc03D7E" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>IBM Technology's survey of five agent types, moving from simple reflex and model-based reflex agents through goal-based, utility-based, and learning agents. The chapter markers show utility-based agents treated as their own segment at roughly 5:43, placed directly after the goal-based discussion. The presenter uses whiteboard-style diagrams and short application examples for each type.</p>
+<h3>Why this video</h3>
+<p>It situates utility-based agents inside the full architecture ladder, so you can see precisely what utility adds to a goal-based agent and why the progression matters for this module's comparison work.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: 10 Use Cases for AI Agents: IoT, RAG, &amp; Disaster Response Explained</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Ts42JTye-AI?cc_load_policy=1&amp;rel=0" title="Video: 10 Use Cases for AI Agents: IoT, RAG, &amp; Disaster Response Explained (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 9:12 · 191,696 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=Ts42JTye-AI" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A companion IBM Technology video running through ten application scenarios for AI agents, including IoT monitoring, retrieval-augmented generation, and disaster response. Each use case sketches the task environment and the kind of decision-making the agent must perform. The emphasis is on where agent approaches pay off in practice rather than on formal definitions.</p>
+<h3>Why this video</h3>
+<p>It supplies the scenario material you need for the final subtopic — when to choose a utility-based architecture — by letting you ask which of these settings involve uncertainty, cost, and competing objectives that a simple goal test could not capture.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos reinforce the vocabulary of rational agents and, most directly, support MO4 by showing utility-based agents in contrast with reflex, model-based, and goal-based designs (IBM's five-types overview) and in depth as a scoring mechanism (AI and Games). The utility-AI video makes the internalized performance measure concrete, which is the key conceptual step from goal satisfaction to preference ranking and expected utility. The use-case video feeds MO5 by giving varied task environments against which you can argue for or against a utility-based architecture on grounds of performance, uncertainty, and the effort required to design and maintain a good utility function. None of the three substitutes for the textbook treatment of expected utility, so use them alongside the assigned reading.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

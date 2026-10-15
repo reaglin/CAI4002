@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Variable Ordering Heuristics</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Satisfaction Problems and Backtracking Search</a></div>
+  <header>
+    <h1>Variable Ordering Heuristics</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Variable Ordering Heuristics</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Backtracking search for a constraint satisfaction problem repeatedly answers two questions at every node of the search tree: <em>which unassigned variable should I assign next?</em> and <em>which value from its domain should I try first?</em> Variable ordering heuristics answer the first question. They do not change what the solver is able to find, nor do they change the definition of the problem — they change only the <em>shape</em> of the tree that the solver walks through. Because the size of that tree can differ by many orders of magnitude between a good ordering and a bad one, variable ordering is one of the cheapest and most dramatic improvements that can be added to a plain depth-first backtracking solver.</p>
+
+<p><strong>Why variable ordering matters.</strong> A backtracking solver that assigns one variable at a time explores a tree whose leaves at depth <em>n</em> correspond to complete assignments of the <em>n</em> variables. Any order of the variables along a root-to-leaf path produces the same set of complete assignments, because assignment is commutative: assigning <code>A=red</code> then <code>B=blue</code> yields exactly the same state as assigning <code>B=blue</code> then <code>A=red</code>. This is the key observation behind the claim that <strong>any complete ordering is still a complete search strategy</strong>. If a solution exists, a systematic backtracking solver will find it under <em>any</em> variable order; if none exists, it will prove unsatisfiability under any variable order. Correctness is therefore never at stake, and heuristics are purely about <em>speed</em> — about how many internal nodes are generated before the answer is reached.</p>
+
+<p>Two further properties shape how these heuristics are designed:</p>
+<ul>
+  <li><strong>They are usually dynamic.</strong> A <em>static</em> ordering fixes the sequence of variables once, before search begins. A <em>dynamic</em> ordering recomputes the choice at every node, using the current state of the domains after the assignments made so far (and after any propagation such as forward checking or arc consistency). Dynamic ordering is strictly more informative: the same variable may be a terrible choice at the root and an excellent choice ten levels down, once its domain has been pruned.</li>
+  <li><strong>The goal is early contradiction.</strong> A backtracking search spends almost all of its time inside subtrees that contain no solution. The only way to make such a search fast is to discover that a subtree is doomed as high in the tree as possible, so the entire subtree below is never generated. Good variable ordering is therefore a technique for <em>accelerating failure</em>, not for accelerating success.</li>
+</ul>
+
+<p>The practical effect is striking on structured problems. On map coloring with three colours, a naive alphabetical ordering can thrash through thousands of nodes re-discovering the same conflict; with a good ordering the solver frequently walks straight down to a solution with few or no backtracks at all. On Sudoku, a solver that always picks the next empty cell in row-major order may generate millions of nodes on a hard instance, while a solver that always picks the cell with the fewest candidate digits behaves much like a competent human player and often completes easy and medium puzzles <em>backtrack-free</em> — every choice it makes is forced, so the "search" degenerates into deduction.</p>
+
+<p><strong>Minimum Remaining Values (MRV).</strong> The MRV heuristic — also called the <em>most constrained variable</em> or <em>fail-first</em> heuristic — says: among the unassigned variables, choose the one with the fewest legal values remaining. "Legal" means consistent with the current partial assignment; in a solver with forward checking or maintained arc consistency, it simply means the current size of the live domain.</p>
+
+<pre><code>function SELECT-UNASSIGNED-VARIABLE(assignment, csp):
+    best = None
+    best_count = +infinity
+    for each X in csp.variables where X not in assignment:
+        count = |{ v in domain(X) : assignment ∪ {X = v} is consistent }|
+        if count &lt; best_count:
+            best_count = count
+            best = X
+    return best</code></pre>
+
+<p>Three special cases explain most of MRV's power:</p>
+<ul>
+  <li><strong>A domain of size 1 is a forced assignment.</strong> If a variable has exactly one surviving value, that value must appear in any solution extending the current partial assignment. Selecting it next creates a node with branching factor one — no choice, no risk of a wrong branch, and no need to ever reconsider it within this subtree. MRV automatically prefers such variables, so a solver equipped with MRV performs unit propagation "for free".</li>
+  <li><strong>A domain of size 0 is immediate failure.</strong> If any unassigned variable has an empty domain, the current partial assignment cannot be extended to a solution. MRV finds that variable first (count = 0), the solver tries no values at all, and it backtracks immediately. Without MRV the solver might assign a dozen other variables before stumbling onto the wipe-out.</li>
+  <li><strong>Smallest domain means smallest branching factor.</strong> If a variable has <em>d</em> remaining values, assigning it creates <em>d</em> children. Choosing the variable with minimum <em>d</em> minimises the fan-out <em>at that node</em>. Because the cost of a subtree is roughly the product of the branching factors along the path to it, reducing the branching factor near the top of the tree multiplies savings through everything below. Shrinking the root branching factor from 5 to 2 can, by itself, remove more than half the tree.</li>
+</ul>
+
+<p>In Sudoku, MRV is exactly the human tactic known as the "naked single": scan the grid, find a cell whose row, column and box together eliminate all but one digit, write it in, and repeat. In map coloring with three colours, MRV will jump to a region whose neighbours already use two of the colours, because only one colour remains for it.</p>
+
+<p><strong>The fail-first principle.</strong> MRV is the best-known instance of a general design rule: <em>to succeed, try first where you are most likely to fail</em>. The justification is combinatorial rather than intuitive, and it is worth working through carefully.</p>
+
+<p>Suppose a problem contains a variable <code>Z</code> that, given the current partial assignment, has no consistent value at all — it is already doomed. Suppose also that there are three other variables <code>A</code>, <code>B</code>, <code>C</code>, each with 5 legal values, which the solver chooses to assign first. The solver will now enumerate assignments to <code>A</code>, <code>B</code> and <code>C</code>, and only at depth four will it try <code>Z</code> and discover the conflict. But the conflict does not depend on <code>A</code>, <code>B</code> or <code>C</code>, so it will be rediscovered in <em>every single one</em> of the 5 × 5 × 5 = 125 sibling subtrees. The solver therefore performs 125 independent failures plus the ~155 internal nodes needed to generate them, where one failure would have sufficed. If <code>Z</code> is selected first, the solver tries zero values, fails once, and backtracks.</p>
+
+<p>Several consequences follow:</p>
+<ul>
+  <li><strong>Postponement duplicates work.</strong> A conflict that is independent of the intervening variables is re-derived once per combination of those variables.</li>
+  <li><strong>The savings grow multiplicatively with depth.</strong> Catching a dead end <em>k</em> levels higher avoids on the order of <em>d<sup>k</sup></em> nodes, where <em>d</em> is the average branching factor. This is why fail-first is not a small constant-factor optimisation but a change in the effective exponent of the search.</li>
+  <li><strong>The tightest variable is the most informative.</strong> A variable with a small domain is close to being refuted; probing it extracts the maximum amount of information per node expanded.</li>
+  <li><strong>Its limits.</strong> Fail-first is a heuristic about pruning failure, so it pays least on loosely constrained problems with many solutions scattered densely through the space — there, almost any first dive reaches a solution and ordering barely matters. It pays most on tightly constrained and over-constrained instances, and on problems near the satisfiability "phase transition". Crucially, the overhead is small and bounded, so while MRV may occasionally fail to help, it very rarely makes a solver appreciably worse.</li>
+</ul>
+
+<p><strong>The degree heuristic.</strong> MRV is silent at the very start of search: before any assignment has been made, every variable typically has a full domain, so all counts are tied. The <em>degree heuristic</em> breaks exactly this kind of tie by looking at the structure of the constraint graph rather than at domain sizes. The degree of an unassigned variable is the number of constraint edges connecting it to <em>other unassigned</em> variables; edges to already-assigned variables are ignored, because those constraints have already done whatever pruning they can. The heuristic selects the variable of maximum degree.</p>
+
+<p>The rationale is the mirror image of MRV's. MRV asks "which variable is most constrained <em>by</em> the others?"; the degree heuristic asks "which variable most constrains the others?" Assigning a high-degree variable immediately applies a pruning pressure to the largest number of neighbours, shrinking many domains at once and thereby manufacturing the small domains that MRV can then exploit at the next node.</p>
+
+<p>Consider the classic Australia map-coloring CSP, with variables WA, NT, SA, Q, NSW, V, T and the binary constraint that adjacent regions differ in colour:</p>
+
+<table>
+  <thead>
+    <tr><th>Variable (region)</th><th>Neighbours in the constraint graph</th><th>Degree</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>SA (South Australia)</td><td>WA, NT, Q, NSW, V</td><td>5</td></tr>
+    <tr><td>NT (Northern Territory)</td><td>WA, SA, Q</td><td>3</td></tr>
+    <tr><td>Q (Queensland)</td><td>NT, SA, NSW</td><td>3</td></tr>
+    <tr><td>NSW (New South Wales)</td><td>Q, SA, V</td><td>3</td></tr>
+    <tr><td>WA (Western Australia)</td><td>NT, SA</td><td>2</td></tr>
+    <tr><td>V (Victoria)</td><td>SA, NSW</td><td>2</td></tr>
+    <tr><td>T (Tasmania)</td><td>— (island)</td><td>0</td></tr>
+  </tbody>
+</table>
+
+<p>With all domains equal to {red, green, blue}, MRV cannot distinguish the seven variables at the root, but the degree heuristic picks SA, the region bordering the most uncoloured regions. Colouring SA red instantly removes red from five domains. Thereafter MRV takes over: every remaining mainland region now has at most two candidates, and the solver proceeds essentially without backtracking. Tasmania, with degree 0, is correctly deferred to last — it interacts with nothing, so assigning it early would only add a useless branching factor of 3 above everything else.</p>
+
+<p>A key distinction to keep clear:</p>
+
+<table>
+  <thead>
+    <tr><th>Aspect</th><th>MRV</th><th>Degree heuristic</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Information used</td><td>Current domain sizes</td><td>Constraint-graph connectivity</td></tr>
+    <tr><td>Nature</td><td>Dynamic and state-dependent; changes as values are pruned</td><td>Structural; a static property of the graph, made semi-dynamic by counting only unassigned neighbours</td></tr>
+    <tr><td>Question answered</td><td>Which variable is nearest to failing?</td><td>Which variable influences the most others?</td></tr>
+    <tr><td>Typical role</td><td>Primary selection criterion throughout search</td><td>Tie-breaker, especially at the top of the tree</td></tr>
+    <tr><td>Weakness alone</td><td>Uninformative when all domains are full</td><td>Blind to how much pruning has already occurred</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Combining MRV and degree in practice.</strong> The standard composite rule is lexicographic: <em>rank candidates by smallest remaining domain; among those tied for smallest, choose the one with the highest degree to unassigned variables; break any remaining ties deterministically.</em></p>
+
+<pre><code>function SELECT-VARIABLE(assignment, csp):
+    unassigned = [X for X in csp.variables if X not in assignment]
+    # primary key: smallest domain  (ascending)
+    # secondary key: highest degree (descending)
+    # tertiary key: variable index  (ascending, for determinism)
+    return min(unassigned,
+               key = lambda X: (len(curr_domain[X]),
+                                -unassigned_degree(X),
+                                index(X)))</code></pre>
+
+<p>Points of practical importance when implementing this:</p>
+<ul>
+  <li><strong>Deterministic tie-breaking.</strong> Residual ties can be broken arbitrarily, but breaking them by a fixed variable index (or any stable rule) makes runs reproducible, which matters enormously when you are counting nodes to compare heuristics, debugging a backtracking bug, or writing unit tests. Random tie-breaking is sometimes used deliberately in restart-based solvers to diversify search, but it should then be seeded and recorded.</li>
+  <li><strong>Keep the overhead small.</strong> The heuristic is evaluated at every node, so a naive implementation that recomputes each variable's legal-value count by re-testing all constraints can cost more than it saves. Instead, maintain the live domains explicitly and keep an incremental <em>counter</em> of each domain's size, updated by the propagation routine as values are removed and restored on backtracking (for example with a trail or a time-stamped structure). Then selection is a single O(<em>n</em>) scan, or O(log <em>n</em>) with an indexed priority queue. Similarly, maintain each variable's unassigned-degree incrementally: when a variable is assigned, decrement the counter of each of its neighbours; increment them again when it is unassigned.</li>
+  <li><strong>Pair it with value ordering.</strong> Variable ordering decides where to branch; the <em>least-constraining-value</em> heuristic decides in what order to try the branches, preferring the value that rules out the fewest options for the remaining neighbours. The two are complementary: fail-first on variables narrows the tree, succeed-first on values steers the first dive toward a solution. Used together with forward checking, they are what typically turns a toy solver into one that handles realistic instances.</li>
+  <li><strong>It needs propagation to shine.</strong> MRV's domain counts are only informative if something is actually shrinking the domains. With pure chronological backtracking and consistency checks only against assigned variables, MRV still works but is much weaker; with forward checking or MAC (maintaining arc consistency), the counts become sharp and the heuristic becomes powerful. This combination of MRV plus degree plus propagation is, for graph colouring, essentially the classical DSATUR strategy.</li>
+</ul>
+
+<p>The following table shows the characteristic pattern of node counts observed when the same backtracking solver is run with different orderings. The figures are representative rather than exact — the point is the <em>order of magnitude</em> of the difference, which is the kind of measurement you should produce yourself on benchmark instances.</p>
+
+<table>
+  <thead>
+    <tr><th>Problem instance</th><th>Plain backtracking (fixed order)</th><th>Backtracking + MRV</th><th>Forward checking + MRV + degree</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Map coloring, 50 US states, 4 colours</td><td>&gt; 1,000,000 nodes</td><td>~ 10,000 nodes</td><td>~ 60 nodes</td></tr>
+    <tr><td>8-Queens</td><td>~ 15,000 nodes</td><td>~ 1,000 nodes</td><td>~ 100 nodes</td></tr>
+    <tr><td>Hard 9×9 Sudoku</td><td>hundreds of thousands of nodes</td><td>a few thousand nodes</td><td>tens to a few hundred nodes</td></tr>
+    <tr><td>Zebra / logic puzzle</td><td>~ 3,900,000 nodes</td><td>~ 1,000 nodes</td><td>~ 500 nodes</td></tr>
+  </tbody>
+</table>
+
+<p>A short worked trace makes the mechanism concrete. Take a 3-colouring of the Australia CSP with domains {R, G, B}. Plain alphabetical order assigns NSW, NT, Q, SA, T, V, WA. The solver happily sets NSW=R, NT=R, Q=G, then reaches SA, which borders NSW(R), NT(R), Q(G) and so can only be B; it continues, and whenever a later conflict forces backtracking it re-explores assignments to T — a variable constrained by nothing — wasting a factor of three on every such excursion. Now run MRV+degree. At the root all domains have size 3, so degree decides: SA (degree 5) is chosen and set to R. Forward checking reduces WA, NT, Q, NSW and V to {G, B}; T remains {R, G, B}. MRV now prefers any of the five size-2 variables, and degree breaks the tie toward NT or Q (degree 2 among unassigned) over WA or V. Setting NT=G prunes WA and Q to {B}; MRV then seizes those size-1 domains and assigns them without any choice. The whole mainland is coloured with essentially no branching, and T — the least constrained variable — is handled last, where its three options cost nothing because no backtracking occurs beneath it.</p>
+
+<p>Finally, it is worth knowing that MRV and degree are the base of a family. Weighted-degree heuristics such as <code>dom/wdeg</code> attach a weight to each constraint, increment that weight every time the constraint causes a domain wipe-out, and then select the variable minimising domain size divided by accumulated constraint weight. This lets the solver <em>learn</em> during search which parts of the problem are really the hard ones, rather than relying on the static graph. Activity- and impact-based orderings do something similar by measuring how much search-space reduction each variable has historically produced. All of them, however, are refinements of the same two ideas presented here: branch where the domain is smallest, and, when that is uninformative, branch where the influence is greatest.</p>
+
+<p><strong>Alignment with Learning Outcomes.</strong></p>
+<ul>
+  <li><strong>MO1</strong> — Supported indirectly: the topic works throughout with partial assignments and with the consistency test that decides whether a value is "legal", reinforcing the variables–domains–constraints triple, but it does not itself define the CSP formalism.</li>
+  <li><strong>MO2</strong> — Supported: the degree heuristic is defined by counting edges in the constraint graph to unassigned variables, so students must read and use the graph representation of binary constraints.</li>
+  <li><strong>MO3</strong> — Supported: map coloring (the Australia CSP) and Sudoku are used as running examples whose variables, domains and constraints drive the heuristic's behaviour, though the topic applies rather than teaches the formulation step.</li>
+  <li><strong>MO4</strong> — Supported: the heuristics are presented as the variable-selection routine inside a depth-first backtracking solver, with pseudocode and incremental data-structure advice that feed directly into an implementation.</li>
+  <li><strong>MO5</strong> — Directly supported: the topic explains the efficiency effect of minimum-remaining-values and degree heuristics, the fail-first argument for why savings compound with depth, their pairing with least-constraining-value, and node-count comparison on benchmark instances as the measurement method.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The node-count table is deliberately labelled as representative/illustrative; exact figures vary by instance, propagation level and tie-breaking, and students should generate their own counts on fixed benchmark instances rather than cite these numbers. Suggested lab exercise: instrument the solver with a node counter and compare fixed-order, MRV, and MRV+degree on (a) the Australia 3-colouring, (b) 8- and 16-Queens, (c) a set of 10 Sudoku puzzles of graded difficulty, reporting mean and median nodes. Note for instructors: the Australia degree figures assume the standard seven-region map with Tasmania disconnected; if a variant map connects Tasmania to Victoria, the degree values and the "defer T to last" argument change accordingly. Also worth flagging in class: MRV's tie at the root is the pedagogical motivation for the degree heuristic, and DSATUR is a useful historical cross-reference for students who have met graph colouring elsewhere.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Backtracking search assigns one variable at a time, and the order in which you pick those variables is not fixed by the problem — it is a choice you make. That choice can change the size of the search tree by orders of magnitude, even though every ordering eventually finds the same solutions. This topic looks at the standard heuristics for making that choice well: minimum remaining values (MRV), also called the most constrained variable, and the degree heuristic, which breaks ties by counting constraints on still-unassigned variables.</p>
+<p>The underlying idea is the fail-first principle. If some branch of the search is doomed, you want to discover that as early and as cheaply as possible, so pick the variable most likely to fail soon — the one with the fewest legal values left. The degree heuristic complements this at the start of search, when all domains are still full, by choosing the variable that constrains the most others. In practice solvers combine the two: MRV first, degree as a tie-breaker.</p>
+<p>While watching, pay attention to three things. First, how domains shrink dynamically during search (this is what makes MRV a dynamic rather than static ordering). Second, the distinction between choosing which variable to assign next and choosing which value to try — they are separate decisions with separate heuristics. Third, count nodes or branches in the worked examples, because node counts are how we will measure whether a heuristic actually helps.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Constraint Satisfaction Problems (CSPs) 4 - Dynamic Ordering | Stanford CS221: AI (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Lyu8VzbIe_A?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problems (CSPs) 4 - Dynamic Ordering | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 19:17 · 13,708 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=Lyu8VzbIe_A" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This Stanford CS221 lecture segment covers dynamic ordering in constraint satisfaction solvers — deciding at each step which variable to assign next based on the current state of the search rather than a fixed order set in advance. Expect discussion of most-constrained-variable style selection, how it interacts with lookahead and domain filtering, and worked illustration on CSP examples.</p>
+<h3>Why this video</h3>
+<p>It is the most directly on-topic video in the set, taught in a rigorous university AI course, and its focus on dynamic ordering is exactly the MRV and fail-first material at the core of this topic.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Constraint Satisfaction Problems (CSPs) 2 - Definitions | Stanford CS221: AI (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/uj5wCcHsSlA?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problems (CSPs) 2 - Definitions | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 19:12 · 21,537 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=uj5wCcHsSlA" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>An earlier segment of the same Stanford CS221 CSP sequence, this video sets up the formal definitions: variables, domains, constraints, and what it means for an assignment to be consistent or complete. It establishes the vocabulary and notation that the later ordering lecture builds on.</p>
+<h3>Why this video</h3>
+<p>Variable ordering heuristics only make sense once you can talk precisely about domains and consistency, so this gives you the definitions you need before the dynamic ordering discussion — and it comes from the same instructor and notation.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: The 4 Queens Problem, AI &amp; CSPs</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/X6m0DXt95bs?cc_load_policy=1&amp;rel=0" title="Video: The 4 Queens Problem, AI &amp; CSPs (a bit of intelligence)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>a bit of intelligence</strong> · 5:51 · 15,056 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=X6m0DXt95bs" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short, visual explainer that uses the 4-Queens puzzle — a scaled-down version of the classic Eight Queens problem — to introduce constraint satisfaction. It should walk through formulating the puzzle as a CSP and show search proceeding placement by placement, with conflicts forcing backtracking.</p>
+<h3>Why this video</h3>
+<p>The small board makes it feasible to follow every branch and see concretely how quickly a bad choice fails, which is the intuition behind the fail-first principle; at under six minutes it is a good warm-up or review.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>The Stanford definitions video supports MO1 and MO2 by grounding the formal triple of variables, domains, and constraints and the vocabulary of partial, complete, and consistent assignments. The 4-Queens explainer supports MO3 and MO4 by showing a real puzzle formulated as a CSP and solved by depth-first backtracking with consistency checks at each placement. The dynamic ordering lecture is the primary support for MO5: it shows how choosing the next variable adaptively prunes the tree, giving you the reasoning you will need to compare MRV and degree heuristics by node count on benchmark instances.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

@@ -1,0 +1,378 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IDEs and Interactive Tools for AI Work</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Python Programming Toolkit for AI Development</a></div>
+  <header>
+    <h1>IDEs and Interactive Tools for AI Work</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>IDEs and Interactive Tools for AI Work</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>The tools you choose to write code in shape how quickly you can move from a half-understood idea to a working, inspectable implementation. In an artificial intelligence course this matters more than in a typical programming subject, because you will spend your time alternating between two very different kinds of work. One kind is <strong>algorithm construction</strong>: writing a breadth-first search, a minimax routine with alpha-beta pruning, a constraint propagation loop, or a class hierarchy for agents and environments. That work is structural, it spans multiple files, it benefits from refactoring, and it needs a real debugger because the bugs live in control flow and in subtle data-structure misuse. The other kind is <strong>data and model exploration</strong>: loading a CSV, checking what the columns actually contain, plotting a distribution, trying three values of a hyperparameter, and looking at a confusion matrix. That work is iterative and exploratory, and it is miserable if every small question requires re-running an expensive data load from scratch.</p>
+
+<p>An integrated development environment (IDE) serves the first kind of work. A notebook serves the second. Neither is a replacement for the other, and the practitioners who struggle most are usually those who try to force all their work into whichever single tool they learned first — writing a 400-line search algorithm in a notebook cell, or restarting a script that takes ninety seconds to load data every time they want to check the shape of an array. Learning to move fluidly between the two, and knowing which questions belong in which environment, is a genuine professional skill rather than a matter of taste.</p>
+
+<p>Everything described below is free for students and runs on Windows, macOS, and Linux. Visual Studio Code is open source and free for any use. PyCharm Community Edition is free, and the Professional Edition is available free to students and educators through JetBrains' educational licence. Jupyter is open-source software from Project Jupyter and installs through <code>pip</code> like any other Python package. There is no cost barrier to trying all three, and you should try all three before settling into a habit.</p>
+
+<p><strong>Visual Studio Code as the course default.</strong> VS Code is a lightweight, extensible editor that becomes a capable Python IDE once the Microsoft Python and Pylance extensions are installed. It is the course default because it starts quickly, handles both scripts and notebooks, has first-class Git integration, and does not demand that you create a formal "project" before you can edit a file.</p>
+
+<p>The single most important configuration step — and the source of most early confusion — is <strong>interpreter selection</strong>. VS Code does not automatically know which Python you intend to use. Open the Command Palette (<code>Ctrl+Shift+P</code> on Windows and Linux, <code>Cmd+Shift+P</code> on macOS) and run <strong>Python: Select Interpreter</strong>. You will see a list that typically includes a system Python, perhaps a Homebrew or Microsoft Store Python, and any virtual environments VS Code has discovered. Choose the one inside your course virtual environment — its path will end in something like <code>.venv/bin/python</code> on macOS or Linux, or <code>.venv\Scripts\python.exe</code> on Windows. Once selected, the interpreter is shown in the status bar at the bottom of the window, and VS Code stores the choice per workspace in <code>.vscode/settings.json</code>:</p>
+
+<pre><code>{
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.terminal.activateEnvironment": true
+}</code></pre>
+
+<p>Symptoms of a wrong interpreter are distinctive and worth memorising: <code>ModuleNotFoundError: No module named 'numpy'</code> when you are certain you installed NumPy; squiggly underlines under imports that nevertheless run fine; or autocompletion offering nothing for <code>pandas</code>. In almost every case the editor is analysing your code with a different Python installation from the one you installed packages into.</p>
+
+<p>The <strong>integrated terminal</strong> (<code>Ctrl+`</code>) opens a shell rooted at your workspace folder, and with <code>python.terminal.activateEnvironment</code> enabled it activates the selected virtual environment automatically — you will see the environment name in the prompt. This means you can install a package, run a script, and inspect the output without ever leaving the editor window:</p>
+
+<pre><code>$ python -m pip install scikit-learn
+$ python -m pip freeze &gt; requirements.txt
+$ python search/bfs.py --start A --goal G</code></pre>
+
+<p>Use <code>python -m pip</code> rather than a bare <code>pip</code>. The <code>-m</code> form guarantees that the pip being invoked belongs to the interpreter you just ran, which eliminates an entire family of "I installed it but Python can't find it" problems.</p>
+
+<p>The <strong>Source Control panel</strong> (the branch icon in the activity bar) gives a live view of your repository. Modified files appear under "Changes" with an <code>M</code>, new untracked files with a <code>U</code>, and deleted files with a <code>D</code>. Clicking a file opens a side-by-side diff showing exactly what changed since the last commit, which is a far better way to review your own work than scrolling through the file hoping to spot the edit. The <code>+</code> icon stages a file (equivalent to <code>git add</code>), the message box plus the commit button performs <code>git commit</code>, and the sync arrows push and pull from the remote. Gutter markers in the editor itself — small coloured bars beside the line numbers — show added, modified, and removed lines in real time as you type. None of this replaces understanding the underlying Git commands, but it makes the state of your repository continuously visible rather than something you must interrogate with <code>git status</code>.</p>
+
+<p>The <strong>Jupyter extension</strong> lets VS Code open <code>.ipynb</code> files natively. You get the familiar cell-based interface — <code>Shift+Enter</code> to run a cell and advance, outputs rendered beneath each cell — but inside the editor, with the same keybindings, extensions, and Git panel you use for scripts. A useful intermediate mode is the <strong>interactive window</strong>: in an ordinary <code>.py</code> file, write a comment of the form <code># %%</code> to mark a cell boundary, and VS Code will offer a "Run Cell" code lens above it. The code executes in a persistent kernel with its output shown in a side panel, so you get notebook-style iteration while your file remains a plain Python script that diffs cleanly in Git.</p>
+
+<pre><code># %%
+import pandas as pd
+df = pd.read_csv("data/iris.csv")
+
+# %%
+df.describe()          # runs against the already-loaded df
+
+# %%
+df["species"].value_counts()</code></pre>
+
+<p><strong>Linting and formatting</strong> extensions keep style consistent without argument. <em>Black</em> is an opinionated formatter: it rewrites your code to a canonical layout — line length, quote style, trailing commas, bracket placement — and offers almost no configuration, which is precisely the point. <em>Ruff</em> is an extremely fast linter (and now also a formatter) that implements the rules of Flake8, isort, pycodestyle, and many others; it catches unused imports, undefined names, shadowed built-ins, and mutable default arguments. Enable format-on-save so that correctness of style is never something you have to think about:</p>
+
+<pre><code>{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "charliermarsh.ruff",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  }
+}</code></pre>
+
+<p>Beyond aesthetics, consistent formatting has a concrete benefit for assessed work: when everyone's code is formatted the same way, Git diffs contain only meaningful changes rather than reflowed whitespace, and a marker reading your submission spends their attention on your algorithm rather than on your indentation.</p>
+
+<p><strong>PyCharm for larger, structured projects.</strong> PyCharm is a full IDE built specifically for Python, and its strengths appear as projects grow beyond a handful of files. Where VS Code is an editor that you extend into an IDE, PyCharm arrives as an IDE and indexes your entire project up front — which is why it is slower to start and heavier in memory, but also why it understands your code more deeply.</p>
+
+<p>On opening a folder, PyCharm will <strong>detect an existing virtual environment</strong> in conventional locations such as <code>.venv</code> or <code>venv</code> and offer to use it; if none exists it can create one during the New Project dialog, choosing between <code>venv</code>, Conda, Pipenv, or Poetry. It also notices a <code>requirements.txt</code> in the project root and displays a banner offering to install any packages listed there but missing from the environment. Conversely, if you import a package that is installed but not listed in <code>requirements.txt</code>, PyCharm can flag it — a small guard against the classic situation where your code works on your machine and nowhere else.</p>
+
+<p>PyCharm's <strong>refactoring</strong> tools operate on a semantic model of your code rather than on text. <em>Rename</em> (<code>Shift+F6</code>) on a class or method updates every reference across the project, including in docstrings and string literals if you ask it to, while correctly leaving alone an unrelated identifier of the same name in a different scope — something a find-and-replace cannot do. <em>Extract Method</em> takes a selected block, works out which local variables must become parameters and which must be returned, and creates the new function with a correct signature. <em>Move</em> relocates a class or function to another module and rewrites every import that referred to it. Consider a search module that has grown unwieldy:</p>
+
+<pre><code>class GraphSearch:
+    def solve(self, problem):
+        frontier = [(0, problem.initial)]
+        explored = set()
+        while frontier:
+            cost, node = heapq.heappop(frontier)
+            if problem.goal_test(node):
+                return node
+            explored.add(node)
+            for action in problem.actions(node):
+                child = problem.result(node, action)
+                if child not in explored:
+                    heapq.heappush(frontier, (cost + problem.step_cost(node, action), child))
+        return None</code></pre>
+
+<p>Selecting the inner <code>for</code> loop and invoking Extract Method produces an <code>_expand(self, problem, node, cost, frontier, explored)</code> method with the right parameters, leaving <code>solve</code> readable. Doing the same by hand is where off-by-one parameter mistakes creep in.</p>
+
+<p>The <strong>integrated test runner</strong> discovers tests automatically. Point PyCharm at <code>pytest</code> or <code>unittest</code> in the project settings and it will find every <code>test_*.py</code> file, display the test tree in a dedicated panel, and let you run a single test, a single class, or the whole suite with one click. Failures are shown with the assertion diff expanded, and a green gutter arrow appears beside each test function so you can re-run it from the source file. For algorithm work this is transformative: you write a small test asserting that uniform-cost search on a known graph returns a path of cost 11, then re-run it after every refactor to confirm you have not broken the behaviour.</p>
+
+<pre><code>def test_ucs_finds_cheapest_path():
+    problem = RomaniaProblem(initial="Arad", goal="Bucharest")
+    node = GraphSearch().solve(problem)
+    assert node.path_cost == 418
+    assert node.path() == ["Arad", "Sibiu", "Rimnicu Vilcea", "Pitesti", "Bucharest"]</code></pre>
+
+<p>PyCharm's <strong>visual debugger</strong> is particularly well suited to recursive code. When execution pauses inside a recursive call, the Frames panel shows the entire call stack — <code>minimax</code> at depth 1, depth 2, depth 3 — and clicking any frame shows the local variables as they were in that frame. For a recursive search you can literally watch the stack grow and unwind, and see which branch returned which value to its parent. The variable inspector renders nested structures as expandable trees, so a dictionary of lists of tuples can be explored without writing any printing code, and large collections are paginated rather than truncated. Conditional breakpoints — right-click a breakpoint and enter an expression such as <code>depth == 4 and node.state == "E"</code> — let you stop only at the moment of interest instead of pressing Continue two hundred times.</p>
+
+<p>The cost of all this is weight. PyCharm takes noticeably longer to start, consumes more RAM, indexes the project before it is fully responsive, and insists on a project-level mental model. For a twelve-line script to check how <code>itertools.product</code> behaves, opening PyCharm is disproportionate; VS Code or even a terminal REPL is the right tool. A reasonable working rule is: PyCharm for the multi-file assignment with tests, VS Code for everything else.</p>
+
+<p>The following comparison summarises where each tool earns its place.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Capability</th>
+      <th>VS Code</th>
+      <th>PyCharm</th>
+      <th>Jupyter Notebook</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Startup time</td>
+      <td>Fast</td>
+      <td>Slow (project indexing)</td>
+      <td>Fast once kernel starts</td>
+    </tr>
+    <tr>
+      <td>Multi-file navigation</td>
+      <td>Good with Pylance</td>
+      <td>Excellent</td>
+      <td>Poor</td>
+    </tr>
+    <tr>
+      <td>Automated refactoring</td>
+      <td>Basic (rename, extract)</td>
+      <td>Extensive and semantic</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td>Step debugging</td>
+      <td>Yes, full featured</td>
+      <td>Yes, best-in-class inspector</td>
+      <td>Limited (<code>%debug</code>, cell splitting)</td>
+    </tr>
+    <tr>
+      <td>Persistent state between runs</td>
+      <td>Via interactive window</td>
+      <td>Via Python console</td>
+      <td>Native and central</td>
+    </tr>
+    <tr>
+      <td>Inline plots and DataFrames</td>
+      <td>Yes (Jupyter extension)</td>
+      <td>Yes (Professional / SciView)</td>
+      <td>Yes, by default</td>
+    </tr>
+    <tr>
+      <td>Test discovery and running</td>
+      <td>Yes, via extension</td>
+      <td>Yes, built in</td>
+      <td>Not suitable</td>
+    </tr>
+    <tr>
+      <td>Git diffs of your own files</td>
+      <td>Clean and visual</td>
+      <td>Clean and visual</td>
+      <td>Noisy JSON</td>
+    </tr>
+    <tr>
+      <td>Best suited to</td>
+      <td>General-purpose daily work</td>
+      <td>Large structured codebases</td>
+      <td>Exploration and reporting</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Jupyter notebooks for interactive exploration.</strong> A Jupyter notebook is a document made of cells, executed by a background process called a <em>kernel</em>. The kernel is an ordinary Python interpreter that stays alive between cell executions, and this single fact explains the notebook's entire character. When you run a cell that assigns <code>df = pd.read_csv("large_dataset.csv")</code>, that DataFrame remains in memory. You can then run twenty subsequent cells that inspect, filter, group, and plot it without ever paying the loading cost again. The same applies to an expensive model fit: train once in one cell, then evaluate it, inspect its coefficients, and plot its predictions in separate cells over the following half hour.</p>
+
+<pre><code># Cell 1 — slow, run once
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+X_train, y_train = load_training_data()        # takes 40 seconds
+model = RandomForestClassifier(n_estimators=500).fit(X_train, y_train)
+
+# Cell 2 — fast, run many times
+importances = pd.Series(model.feature_importances_, index=X_train.columns)
+importances.sort_values(ascending=False).head(10)</code></pre>
+
+<p><strong>Markdown cells</strong> let you write prose, headings, bullet lists, and LaTeX mathematics between code cells. This turns a notebook into a narrative document rather than a pile of code: you can state a hypothesis, show the code that tests it, display the result, and then interpret the result immediately beneath it. For report-style assessments this is exactly the structure a marker wants to read, and it is the reason notebooks are often the required submission format for analysis tasks. A heuristic admissibility argument, for example, can be written in a Markdown cell as $h(n) \le h^*(n)$ with surrounding explanation, directly above the code that empirically checks it on a sample of states.</p>
+
+<p><strong>Rich output rendering</strong> is the third pillar. A Matplotlib figure appears as an image beneath the cell that created it (enable this with <code>%matplotlib inline</code>, which is the default in modern Jupyter). A pandas DataFrame renders as an HTML table with styled headers rather than as monospaced text. A scikit-learn estimator displays as an interactive diagram of its pipeline steps. Because outputs are stored in the notebook file, a reader can see your results without re-running anything.</p>
+
+<pre><code>import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(6, 4))
+ax.plot(depths, nodes_expanded, marker="o")
+ax.set_xlabel("Search depth limit")
+ax.set_ylabel("Nodes expanded")
+ax.set_title("Iterative deepening cost growth")
+plt.show()</code></pre>
+
+<p>The great danger of the live kernel is <strong>hidden state from out-of-order execution</strong>. Cells can be run in any order, any number of times, and the execution counter in the brackets beside each cell — <code>[1]</code>, <code>[7]</code>, <code>[2]</code> — records the order in which they actually ran, which may bear no relation to their order on the page. A variable may exist in the kernel because you defined it in a cell you have since edited or deleted. Consider this sequence: you write <code>threshold = 0.5</code> in cell 3, run everything, then edit cell 3 to <code>threshold = 0.8</code> but forget to re-run it before running cell 8. Cell 8 silently uses the old value. Worse, you might delete the cell that defined a helper function entirely; the function remains in the kernel's namespace, your notebook continues to work perfectly on your machine, and it fails immediately for anyone else.</p>
+
+<p>The defence is simple and non-negotiable: before submitting or sharing any notebook, use <strong>Kernel → Restart Kernel and Run All Cells</strong>. This discards the entire namespace and executes every cell from the top in document order. If it completes without error and reproduces the outputs you expect, the notebook is genuinely reproducible. If it fails, you have just discovered a dependency on hidden state that your marker would otherwise have discovered for you. After a successful restart-and-run-all, the execution counters will read <code>[1]</code>, <code>[2]</code>, <code>[3]</code>… in order, which is itself a quick visual check that a reader can perform on your submitted file.</p>
+
+<p><strong>Choosing between notebooks and scripts.</strong> The decision is not about preference but about the nature of the artefact you are producing. Ask whether the code's primary purpose is to <em>answer a question now</em> or to <em>be used again later</em>.</p>
+
+<ul>
+  <li><strong>Notebooks for data inspection.</strong> Checking column dtypes, finding missing values, looking at class balance, plotting feature distributions — all of this is a conversation with a dataset, and a conversation needs persistent memory and immediate visual feedback.</li>
+  <li><strong>Notebooks for hyperparameter experiments.</strong> Trying five values of <code>max_depth</code> and comparing validation scores is naturally cell-by-cell work, and the resulting table or plot is the deliverable.</li>
+  <li><strong>Notebooks for visual explanation of results.</strong> When the audience needs to see the reasoning as well as the answer, interleaved Markdown and output is the clearest medium available.</li>
+  <li><strong>Scripts for reusable functions and classes.</strong> A <code>Node</code> class, an <code>astar(problem, heuristic)</code> function, a <code>Problem</code> abstract base class — these are library code. They belong in a <code>.py</code> module that both your notebook and your tests can import.</li>
+  <li><strong>Scripts for command-line tools.</strong> Anything you want to launch with arguments (<code>python run_search.py --algorithm astar --heuristic manhattan</code>) needs an <code>if __name__ == "__main__":</code> block and <code>argparse</code>, which only make sense in a script.</li>
+  <li><strong>Scripts for anything under unit test.</strong> <code>pytest</code> collects from <code>.py</code> files. Code that must be verified automatically must live where the test runner can import it.</li>
+  <li><strong>Scripts for long-running or batch jobs.</strong> A training run of several hours should be launched from a terminal, ideally under <code>nohup</code>, <code>screen</code>, or <code>tmux</code>, so that it survives a closed laptop lid or a dropped SSH connection. A browser tab is not a reliable host for a long computation.</li>
+</ul>
+
+<p>The <strong>version control argument</strong> deserves emphasis because it is the one students most often underestimate. A <code>.py</code> file is plain text, so <code>git diff</code> shows a human-readable change: three lines added, one line modified. A <code>.ipynb</code> file is JSON containing source, metadata, execution counts, and base64-encoded output images. Changing a single character in one cell and re-running the notebook can produce a diff of thousands of lines, most of it altered execution counters and re-encoded PNG data. Merge conflicts in notebook JSON are notoriously painful to resolve by hand because a mistake produces an invalid file that will not open at all. Mitigations exist — <code>nbstripout</code> as a Git filter to remove outputs before committing, or <code>jupytext</code> to pair each notebook with a synchronised <code>.py</code> representation — but the structural solution is to keep substantial logic in modules and let the notebook be a thin layer of calls and commentary:</p>
+
+<pre><code># In the notebook
+from search.algorithms import astar
+from search.heuristics import manhattan
+from problems.puzzle import EightPuzzle
+
+problem = EightPuzzle(start=(1, 2, 3, 4, 5, 6, 7, 0, 8))
+solution = astar(problem, manhattan)
+print(f"Solved in {len(solution.path())} moves, {solution.nodes_expanded} nodes expanded")</code></pre>
+
+<p>This hybrid is the arrangement most working practitioners settle on. The algorithm is tested, refactorable, and diffable; the notebook is short, readable, and cheap to re-run.</p>
+
+<p><strong>Debugging and inspecting intermediate results.</strong> Printing works, but it scales badly: every question you want to ask requires editing the source, re-running, and then remembering to remove the print afterwards. A debugger lets you ask arbitrary questions at an arbitrary moment without changing the program at all, which is why it is worth the small investment required to learn the five keys that matter.</p>
+
+<p>In both VS Code and PyCharm, a <strong>breakpoint</strong> is set by clicking in the gutter to the left of a line number; a red dot appears. Starting the program under the debugger (<code>F5</code> in VS Code, the bug icon in PyCharm) runs normally until that line is about to execute, then pauses with the whole program state intact. From there the controls are:</p>
+
+<ul>
+  <li><strong>Step Over</strong> (<code>F10</code> / <code>F8</code>) — execute the current line, including any function it calls, and stop on the next line of the same function.</li>
+  <li><strong>Step Into</strong> (<code>F11</code> / <code>F7</code>) — if the current line calls a function you wrote, descend into it and stop at its first line.</li>
+  <li><strong>Step Out</strong> (<code>Shift+F11</code> / <code>Shift+F8</code>) — run the rest of the current function and stop immediately after it returns.</li>
+  <li><strong>Continue</strong> (<code>F5</code> / <code>F9</code>) — resume until the next breakpoint is hit.</li>
+  <li><strong>Restart / Stop</strong> — begin again or abandon the session.</li>
+</ul>
+
+<p>This is exactly the right instrument for watching a search frontier evolve. Place a breakpoint on the line that pops from the frontier in a best-first search, then press Continue repeatedly and watch the frontier and explored set change at each iteration:</p>
+
+<pre><code>import heapq
+
+def best_first(problem, f):
+    frontier = [(f(problem.initial), problem.initial)]
+    explored = set()
+    while frontier:
+        priority, node = heapq.heappop(frontier)   # &lt;-- breakpoint here
+        if problem.goal_test(node):
+            return node
+        explored.add(node)
+        for child in problem.expand(node):
+            if child not in explored:
+                heapq.heappush(frontier, (f(child), child))
+    return None</code></pre>
+
+<p>Stopping on the <code>heappop</code> line each time round the loop answers questions that prints struggle with: Is the frontier ordered as I expect? Is the same state being pushed twice with different priorities? Does <code>explored</code> grow monotonically, or am I accidentally re-adding states? If the loop runs thousands of times before the interesting moment, attach a <strong>condition</strong> to the breakpoint — right-click it and enter something like <code>node.state == "Bucharest"</code> or <code>len(explored) &gt; 50</code> — so it only triggers when the condition holds. A <em>hit count</em> condition ("break on the 200th hit") serves the same purpose when you know roughly how deep the problem lies.</p>
+
+<p>The <strong>variables pane</strong> shows every local and global name in the paused frame, with nested structures expandable: click the arrow beside <code>frontier</code> to see its elements, click into an element to see the tuple's contents, click into the node to see its parent chain. This is where the debugger decisively beats printing, because a <code>print(frontier)</code> of a hundred-element heap of custom objects produces an unreadable wall of <code>&lt;Node object at 0x7f3c...&gt;</code>, whereas the tree view lets you open only the parts you care about. <strong>Watch expressions</strong> go further: add an arbitrary expression such as <code>len(frontier)</code>, <code>sorted(p for p, _ in frontier)[:5]</code>, or <code>problem.heuristic(node)</code> and it will be re-evaluated and displayed every time execution pauses. Most debuggers also offer a <em>debug console</em> in which you can type and evaluate any Python expression in the paused frame — effectively a REPL positioned at the exact point of the bug.</p>
+
+<p>Recursive code deserves special mention. When <code>minimax</code> calls itself, each invocation gets its own frame with its own copies of <code>depth</code>, <code>alpha</code>, <code>beta</code>, and <code>best_value</code>. The <strong>call stack panel</strong> lists these frames from the innermost outwards, and selecting a frame repopulates the variables pane with that frame's locals. Stepping out of a deep frame and watching the returned value propagate upwards makes the structure of recursion concrete in a way that no amount of reading does. It is also the fastest way to find the classic recursion bugs: a base case that never fires, a mutable default argument shared between calls, or a value that is computed but never returned.</p>
+
+<p>Notebooks have weaker step-debugging support, but their cell structure substitutes for it. If a long function misbehaves, <strong>paste its body into a cell</strong>, define its arguments as ordinary variables above it, and run the statements in small groups so you can inspect every intermediate value directly:</p>
+
+<pre><code># Instead of debugging preprocess(df) blindly, unroll it
+df = pd.read_csv("data/raw.csv")
+df = df.dropna(subset=["label"])
+print(df.shape)                 # 4821 rows — expected ~5000, so 179 dropped
+
+X = df.drop(columns=["label"])
+print(X.dtypes)                 # 'age' is object, not int64 — found the bug</code></pre>
+
+<p>IPython also provides the <code>%debug</code> magic: run it in a fresh cell immediately after an exception and it opens a post-mortem <code>pdb</code> session at the point where the error was raised, letting you inspect the local variables that caused it. <code>%pdb on</code> makes this automatic for every subsequent exception. For shape errors in NumPy and pandas work, printing <code>arr.shape</code>, <code>arr.dtype</code>, and <code>df.head()</code> at each step remains the fastest diagnostic, because almost all such bugs are a mismatch between the shape you believe you have and the shape you actually have.</p>
+
+<p>In any script, from any terminal and with no IDE at all, you can insert the built-in <code>breakpoint()</code> call. Since Python 3.7 this drops you into <code>pdb</code> at that line:</p>
+
+<pre><code>def astar(problem, h):
+    frontier = [(h(problem.initial), problem.initial)]
+    while frontier:
+        priority, node = heapq.heappop(frontier)
+        if priority &gt; 1000:
+            breakpoint()        # investigate the suspicious priority
+        ...</code></pre>
+
+<p>Running the script normally produces a <code>(Pdb)</code> prompt where <code>n</code> steps to the next line, <code>s</code> steps into a call, <code>c</code> continues, <code>l</code> lists surrounding source, <code>p expr</code> prints an expression, <code>pp expr</code> pretty-prints it, <code>w</code> shows the call stack, <code>u</code> and <code>d</code> move up and down it, and <code>q</code> quits. Because <code>breakpoint()</code> consults the <code>PYTHONBREAKPOINT</code> environment variable, setting <code>PYTHONBREAKPOINT=0</code> disables every such call without editing the code — useful when running a batch job that you forgot to clean up. It also means the same statement can be routed to a richer debugger such as <code>ipdb</code> by setting <code>PYTHONBREAKPOINT=ipdb.set_trace</code>.</p>
+
+<p>Finally, for diagnostic output you intend to keep in submitted code, use the <strong>logging</strong> module rather than <code>print</code>. A logging call carries a severity level, so the same statements can be silenced in normal operation and switched on when you need them, without deleting or re-adding anything:</p>
+
+<pre><code>import logging
+
+logger = logging.getLogger(__name__)
+
+def astar(problem, h):
+    frontier = [(h(problem.initial), problem.initial)]
+    explored = set()
+    while frontier:
+        f_cost, node = heapq.heappop(frontier)
+        logger.debug("Expanding %s with f=%.2f (frontier=%d, explored=%d)",
+                     node.state, f_cost, len(frontier), len(explored))
+        if problem.goal_test(node):
+            logger.info("Goal reached after expanding %d nodes", len(explored))
+            return node
+        explored.add(node)
+        ...
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG,
+                        format="%(levelname)s %(name)s: %(message)s")</code></pre>
+
+<p>Changing the single <code>level</code> argument to <code>logging.INFO</code> suppresses every per-node message while keeping the summary, and <code>logging.WARNING</code> silences both. Note the <code>%s</code> style arguments: passing values to the logger rather than formatting the string yourself means the formatting cost is never paid when the message is filtered out, which matters inside a loop that runs a hundred thousand times. Levels run <code>DEBUG</code> &lt; <code>INFO</code> &lt; <code>WARNING</code> &lt; <code>ERROR</code> &lt; <code>CRITICAL</code>, and output can be redirected to a file with a single configuration change — all of which prints cannot do. A submission littered with commented-out <code>print</code> statements reads as unfinished; the same code with a clean logging configuration reads as professional.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> Directly supported through the treatment of interpreter selection in VS Code, automatic virtual environment detection in PyCharm, and the use of the integrated terminal with <code>python -m pip</code> and <code>pip freeze &gt; requirements.txt</code> to install and pin course libraries inside an isolated environment.</li>
+  <li><strong>MO2:</strong> Supported indirectly: the topic provides the editing, refactoring, test-running, and debugging environment in which functions, classes, and recursive algorithms are written and verified, including stack-frame inspection of recursive search code, but it does not teach the Python language constructs themselves.</li>
+  <li><strong>MO3:</strong> Supported indirectly: the debugging and inspection techniques — breakpoints on the frontier pop, watch expressions on frontier length, and variable-pane exploration of heaps and visited sets — are the practical means by which the behaviour and cost of different frontier and visited-state structures are observed, though the comparison of their complexity is not covered here.</li>
+  <li><strong>MO4:</strong> Supported through the notebook workflow for loading data with pandas, inspecting DataFrames and dtypes, rendering plots and metrics inline, and iterating on a fitted scikit-learn estimator without repeating an expensive training step; the fit/predict API itself is treated elsewhere.</li>
+  <li><strong>MO5:</strong> Supported through the VS Code Source Control panel for viewing modified files, staging, committing, diffing, and syncing with a remote, and through the discussion of why <code>.py</code> files diff cleanly while notebook JSON produces noisy history and painful merge conflicts.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Keyboard shortcuts are given in the common Windows/Linux form first and the macOS or PyCharm-default form second where they differ; students on other keymaps should confirm bindings in their own settings. The PyCharm SciView panel for inline plots is a Professional Edition feature, available free to students under the JetBrains educational licence but not present in Community Edition. The &lt;code&gt;nbstripout&lt;/code&gt; and &lt;code&gt;jupytext&lt;/code&gt; tools are mentioned as mitigations only and are optional for the course. Examples use a generic &lt;code&gt;Problem&lt;/code&gt;/&lt;code&gt;Node&lt;/code&gt; search interface consistent with the AIMA-style formulation used in later search topics.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

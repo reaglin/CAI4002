@@ -1,0 +1,269 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hill Climbing and Its Variants</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Local Search: Hill Climbing and Simulated Annealing</a></div>
+  <header>
+    <h1>Hill Climbing and Its Variants</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Hill Climbing and Its Variants</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Hill climbing is the simplest member of a family of algorithms called <strong>local search</strong>. Where classical search algorithms such as breadth-first search or A* build a tree of partial solutions and reason about paths from an initial state to a goal, local search throws the path away entirely. It keeps a single <em>complete</em> candidate solution in memory, repeatedly tweaks it, and keeps the tweak if it looks better. This apparently crude idea turns out to be one of the most practically important techniques in artificial intelligence and operations research: it is what underlies much of automated scheduling, VLSI layout, telecommunications network design, protein structure prediction, and the configuration of machine-learning models. The discussion below develops the formulation that makes local search possible, the basic hill-climbing loop, and the four standard variants — steepest-ascent, first-choice, stochastic, and random-restart — together with the trade-offs that determine which one to use.</p>
+
+<p><strong>Local search and the complete-state formulation</strong></p>
+
+<p>In an <em>incremental</em> (or constructive) formulation, a state is a partial solution: in the 8-queens problem, a board with between zero and eight queens placed, and an action adds one more queen. The solution is the path of placements. In a <strong>complete-state formulation</strong>, by contrast, every state is already a full candidate answer — all eight queens are on the board from the very beginning, possibly attacking each other — and the task is not to <em>build</em> a solution but to <em>repair</em> one. Three ingredients define such a formulation:</p>
+
+<ul>
+  <li><strong>The state representation.</strong> A complete configuration that can be written down and evaluated on its own, with no reference to how it was reached. For 8-queens, an array of eight integers <code>[c1 … c8]</code> where <code>ci</code> is the row of the queen in column <em>i</em>; for the travelling salesperson problem (TSP), a permutation of the cities; for a nurse roster, a full assignment of every nurse to every shift in the planning horizon.</li>
+  <li><strong>An objective function</strong> <code>f(s)</code> (to be maximised) or a <strong>cost function</strong> <code>h(s)</code> (to be minimised) that returns a single number measuring the quality of the state. For 8-queens the usual choice is <code>h(s)</code> = the number of pairs of queens attacking each other, directly or indirectly; a solution has <code>h = 0</code>. For TSP, <code>h(s)</code> = total tour length. For a roster, a weighted sum of constraint violations and staff-preference penalties.</li>
+  <li><strong>A neighbourhood (move) operator.</strong> The set of states reachable from <code>s</code> by one small modification. For the 8-queens array, "move a single queen to another square in its own column" yields 8 × 7 = 56 neighbours. For TSP, the classic <em>2-opt</em> move removes two edges and reconnects the tour the other way round, giving roughly <code>n(n−3)/2</code> neighbours — 4 850 for 100 cities. For a roster, "swap the shifts of two nurses on one day" or "reassign one nurse's single shift".</li>
+</ul>
+
+<p>Because the current state is a complete solution, the algorithm may be stopped at any moment and will still return something usable — a valuable property called <em>anytime</em> behaviour. The memory footprint is tiny: the current state, its value, and at most one candidate neighbour. There is no frontier, no explored set, and no search tree, so memory use is <em>O</em>(size of one state) rather than exponential in depth. This is precisely why local search can attack state spaces that systematic search cannot touch. The 8-queens space has 8<sup>8</sup> ≈ 16.7 million states; 100-queens has 100<sup>100</sup>; a 100-city TSP has 99!/2 ≈ 4.7 × 10<sup>155</sup> tours. Local search is also meaningful in <em>continuous</em> spaces that are literally infinite — for example, choosing real-valued coordinates for the sites of three airports so as to minimise the sum of squared distances from every city to its nearest airport.</p>
+
+<p>The standard mental picture is the <strong>state-space landscape</strong>. Imagine the states spread out on a horizontal plane (location = state, with neighbouring states placed near one another) and the objective value plotted as <em>elevation</em>. Maximising <code>f</code> means walking uphill to find the highest peak; minimising <code>h</code> means rolling downhill into the deepest valley. The two views are interchangeable — maximising <code>f = −h</code> is the same as minimising <code>h</code> — and the literature slides freely between "hill climbing", "gradient ascent" and "descent". A perfect landscape would be a single smooth hill; real landscapes are rugged, with many features that trap a purely uphill walker:</p>
+
+<table>
+  <thead>
+    <tr><th>Landscape feature</th><th>Definition</th><th>Effect on a hill climber</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Global maximum</td><td>The highest point in the whole space; the true optimum.</td><td>The desired outcome, but never recognisable as such from local information alone.</td></tr>
+    <tr><td>Local maximum</td><td>A state better than all its neighbours but worse than the global maximum.</td><td>The climber halts and returns a suboptimal answer.</td></tr>
+    <tr><td>Plateau / flat local maximum</td><td>A connected region of equal-valued states with no uphill neighbour.</td><td>No improving move exists; the climber halts or, if sideways moves are allowed, may wander indefinitely.</td></tr>
+    <tr><td>Shoulder</td><td>A flat region from which progress uphill <em>is</em> still possible after crossing it.</td><td>Escapable only if sideways (equal-value) moves are permitted, usually with a cap on consecutive sideways moves.</td></tr>
+    <tr><td>Ridge</td><td>A sequence of local maxima forming a narrow ascending crest that is not aligned with any single move direction.</td><td>Every individual move goes down, even though the ridge rises; the climber stalls part-way up.</td></tr>
+  </tbody>
+</table>
+
+<p>It is worth stressing that the landscape is defined <em>jointly</em> by the objective function and the move operator. Change the neighbourhood — say from 2-opt to 3-opt in TSP — and the very same states acquire a different set of local optima. Designing a smooth landscape with few spurious peaks is therefore as much a part of problem formulation as choosing the cost function.</p>
+
+<p><strong>The basic hill-climbing loop</strong></p>
+
+<p>Hill climbing, sometimes called <em>greedy local search</em>, is a loop that repeatedly moves to a better neighbour and stops when none exists.</p>
+
+<pre><code>function HILL-CLIMBING(problem) returns a state that is a local maximum
+    current &lt;- an initial complete state (random, or built by a heuristic)
+    loop do
+        neighbour &lt;- a highest-valued successor of current
+        if VALUE(neighbour) &lt;= VALUE(current) then return current
+        current &lt;- neighbour</code></pre>
+
+<p>Four properties of this loop deserve emphasis.</p>
+
+<ul>
+  <li><strong>Initialisation matters.</strong> The start state may be uniformly random (cheap, unbiased, good for restarts) or produced by a constructive heuristic. For TSP, starting from a nearest-neighbour tour rather than a random permutation typically cuts the number of improving 2-opt moves needed by a large factor and yields a better final tour; the danger is that a clever heuristic start may deposit every run in the same basin of attraction, destroying the diversity that restarts rely on.</li>
+  <li><strong>Evaluation should be incremental.</strong> Recomputing <code>h</code> from scratch for every neighbour is usually wasteful. In 8-queens, moving one queen changes only the conflicts involving that queen, so the <em>delta</em> can be computed in <em>O</em>(n) instead of <em>O</em>(n²). In 2-opt TSP, the change in tour length is <code>d(a,c) + d(b,d) − d(a,b) − d(c,d)</code> — four distance lookups, independent of <em>n</em>. Efficient delta evaluation is what makes local search viable on large instances.</li>
+  <li><strong>No memory of the past.</strong> Because visited states are not recorded, hill climbing cannot detect that it is revisiting a state; the strict "must improve" test is what guarantees termination, since the objective value increases monotonically and the space is finite.</li>
+  <li><strong>Speed without guarantees.</strong> Hill climbing is <em>incomplete</em>: it returns a local maximum, which may be arbitrarily far below the global one. It is also not optimal in any sense. What it offers is extreme speed and tiny memory use, which is often exactly the right trade.</li>
+</ul>
+
+<p>A concrete trace helps. Consider a small one-dimensional landscape in which the states are integers 0–11 and the neighbours of state <em>i</em> are <em>i</em>−1 and <em>i</em>+1:</p>
+
+<table>
+  <thead>
+    <tr><th>State</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>f(state)</td><td>3</td><td>5</td><td>7</td><td>6</td><td>4</td><td>4</td><td>4</td><td>6</td><td>8</td><td>9</td><td>7</td><td>5</td></tr>
+  </tbody>
+</table>
+
+<p>Starting at state 0: neighbours of 0 is {1} with value 5 &gt; 3, so move to 1; from 1 the best neighbour is 2 (value 7 &gt; 5), so move to 2; from 2 the neighbours are 1 (5) and 3 (6), both worse than 7 — the algorithm halts and returns state 2 with value 7. The global maximum, state 9 with value 9, is never seen. States 4–6 form a <strong>shoulder</strong>: a hill climber that lands there finds no improving move, but one sideways step to state 7 would open the route to the real summit. This is why many implementations allow <em>sideways moves</em> (accepting a neighbour of equal value) with a hard limit on the number of consecutive sideways steps, to avoid looping forever on a true plateau.</p>
+
+<p>The canonical empirical benchmark is 8-queens with the 56-successor neighbourhood. Starting from random states, basic steepest-ascent hill climbing solves roughly <strong>14%</strong> of instances, taking on average about 4 steps when it succeeds and 3 steps when it gets stuck — so even the failures are extremely cheap compared with the 17 million states in the space. Permitting up to 100 consecutive sideways moves raises the success rate to about <strong>94%</strong>, at the cost of about 21 steps per success and 64 per failure. That single modification, which simply lets the search cross shoulders, is the cheapest performance improvement available.</p>
+
+<p><strong>Steepest-ascent hill climbing</strong></p>
+
+<p>Steepest ascent is the version written above: generate <em>all</em> successors, evaluate every one, and move to the best. It is "steepest" in the sense of taking the direction of greatest local improvement, by analogy with gradient ascent in continuous optimisation.</p>
+
+<pre><code>function STEEPEST-ASCENT-STEP(current) returns next state
+    best &lt;- current
+    for each s in NEIGHBOURS(current) do
+        if VALUE(s) &gt; VALUE(best) then best &lt;- s
+    return best        // equals current if no neighbour improves</code></pre>
+
+<ul>
+  <li><strong>Strength: maximal progress per step.</strong> Each iteration buys the largest available gain, so the number of iterations to reach a local optimum is typically small — in 8-queens, three or four moves.</li>
+  <li><strong>Weakness: cost per step scales with the branching factor.</strong> Every step costs <em>b</em> evaluations, where <em>b</em> is the neighbourhood size. For 8-queens that is 56 — trivial. For 1000-queens it is 999 000 evaluations <em>per move</em>. For a scheduling problem where a state has millions of neighbours, or where evaluating a state requires running a simulation, steepest ascent is simply unaffordable.</li>
+  <li><strong>Weakness: determinism.</strong> Given a fixed tie-breaking rule, steepest ascent from a given start always follows exactly the same trajectory to exactly the same local optimum. Re-running it changes nothing. In the small trace above, every run from state 0 ends at state 2. This makes it the variant most reliably trapped, and it means the only way to get diversity is to change the start state.</li>
+  <li><strong>Note on greed.</strong> "Steepest" is not "best". The locally largest improvement may lead into a narrow, low peak while a modest improvement would have led to a broad, high one. Greedy choice is a heuristic about the future, not a guarantee.</li>
+</ul>
+
+<p><strong>First-choice hill climbing</strong></p>
+
+<p>First-choice hill climbing generates successors <em>one at a time, in random order</em>, and immediately accepts the first one that is better than the current state.</p>
+
+<pre><code>function FIRST-CHOICE-STEP(current) returns next state
+    repeat
+        s &lt;- RANDOM-NEIGHBOUR(current)        // sampled without replacement, or just at random
+        if VALUE(s) &gt; VALUE(current) then return s
+    until a stopping budget is exhausted (e.g. k consecutive failures,
+          or all neighbours tried)
+    return current                            // declare local optimum</code></pre>
+
+<ul>
+  <li><strong>Cheap steps.</strong> If a fraction <em>p</em> of neighbours are improving, the expected number of evaluations per step is about 1/<em>p</em>, independent of the total neighbourhood size. Early in a run, when the state is poor, improving moves are plentiful and a step may cost two or three evaluations instead of a million. This is the decisive advantage when a state has thousands or millions of successors — for example, local search on a 10 000-city TSP, or on a timetable with 50 000 assignment variables.</li>
+  <li><strong>Smaller gains per step.</strong> The accepted move is merely improving, not optimal, so more steps are generally needed. In practice the product (cost per step × number of steps) is usually far lower than steepest ascent's, which is why first-choice is the default in large-scale implementations.</li>
+  <li><strong>Stochastic trajectories.</strong> Because the order of successor generation is random, two runs from the <em>same</em> start can diverge immediately and terminate in different local optima. This built-in diversity is valuable: repeating first-choice from one good start can yield several distinct solutions, something steepest ascent can never do.</li>
+  <li><strong>Detecting a local optimum.</strong> Strictly, one must try all neighbours before concluding none improves. In practice a budget is used (e.g. "stop after <em>k</em> = 3<em>b</em> consecutive non-improving samples"), which makes the termination test probabilistic rather than exact — an acceptable approximation when <em>b</em> is huge.</li>
+</ul>
+
+<p>Applying first-choice to the 1-D example from state 0 with random neighbour selection: at state 1, the candidate 0 (value 3) is rejected and candidate 2 (value 7) is accepted; at state 2 both candidates fail and the run ends at the same local optimum. In this tiny neighbourhood (<em>b</em> = 2) first-choice saves almost nothing; its value appears only when <em>b</em> is large.</p>
+
+<p><strong>Stochastic hill climbing</strong></p>
+
+<p>Stochastic hill climbing restricts itself to uphill moves — like the other variants, it never knowingly goes downhill — but it does not automatically take the best one. Instead it chooses randomly among the improving neighbours, often with a probability weighted by the size of the improvement.</p>
+
+<pre><code>function STOCHASTIC-STEP(current) returns next state
+    U &lt;- { s in NEIGHBOURS(current) : VALUE(s) &gt; VALUE(current) }
+    if U is empty then return current
+    for each s in U: w(s) &lt;- VALUE(s) - VALUE(current)      // improvement size
+    return s drawn from U with probability w(s) / sum of all w</code></pre>
+
+<p>Suppose the current state has value 20 and three improving neighbours A, B, C with values 21, 24 and 30, i.e. improvements of 1, 4 and 10. Steepest ascent takes C with certainty. Proportional stochastic selection takes A with probability 1/15 ≈ 0.07, B with 4/15 ≈ 0.27 and C with 10/15 ≈ 0.67. Large improvements are still strongly preferred, but the search retains the option of a different route. Other weighting schemes are common: uniform choice among improving neighbours (maximum diversity), or a softmax/Boltzmann weighting <code>exp(Δ/T)</code> that can be sharpened or flattened by a temperature parameter <em>T</em>.</p>
+
+<ul>
+  <li><strong>Slower per-iteration convergence.</strong> Because it sometimes takes a small improvement when a large one was available, stochastic hill climbing typically needs more iterations than steepest ascent to reach a local optimum.</li>
+  <li><strong>Better final quality on rugged landscapes.</strong> Randomised route selection means the search is not forced down a single deterministic funnel. On landscapes with many shallow peaks surrounding a few deep basins, this wider exploration frequently ends in a better optimum, and repeated runs give a distribution of answers from which the best can be taken.</li>
+  <li><strong>A conceptual bridge.</strong> Stochastic hill climbing is the natural stepping stone to simulated annealing. Both randomise the choice of move; the crucial difference is that simulated annealing also accepts <em>downhill</em> moves with probability <code>exp(−ΔE/T)</code>, with <em>T</em> lowered on a cooling schedule, which is what lets it escape local optima altogether rather than merely choosing between uphill routes.</li>
+  <li><strong>Cost note.</strong> In its full form it still evaluates all neighbours to build the candidate set, so it shares steepest ascent's per-step cost; a cheap hybrid samples a small random subset of neighbours and selects stochastically among the improving ones found there.</li>
+</ul>
+
+<p><strong>Random-restart hill climbing</strong></p>
+
+<p>Random-restart hill climbing is a meta-strategy, not a new move rule. It runs an inner hill climber to completion from a randomly generated start, records the result, and repeats — keeping the best state found across all runs. It embodies the maxim "if at first you don't succeed, try, try again".</p>
+
+<pre><code>function RANDOM-RESTART-HILL-CLIMBING(problem, max_restarts) returns best state
+    best &lt;- none
+    for i = 1 to max_restarts do
+        s &lt;- INNER-HILL-CLIMB(RANDOM-STATE())      // any variant above
+        if best = none or VALUE(s) &gt; VALUE(best) then best &lt;- s
+        if GOAL-TEST(best) then return best        // optional early exit
+    return best</code></pre>
+
+<p>The analysis is simple and attractive. If each independent trial succeeds with probability <em>p</em>, the probability that at least one of <em>n</em> trials succeeds is <code>1 − (1 − p)^n</code>, which tends to 1 as <em>n</em> grows; hence random-restart hill climbing is <strong>complete with probability approaching 1</strong>, for the trivial reason that it will eventually generate a goal state as a starting state. The expected number of trials until the first success is 1/<em>p</em>, so the expected total work is <code>(1/p) × (cost of one trial)</code> — roughly one successful run plus <code>(1/p) − 1</code> failed runs.</p>
+
+<table>
+  <thead>
+    <tr><th>Setting (8-queens, random starts)</th><th>Success probability p per trial</th><th>Expected trials 1/p</th><th>Rough expected steps overall</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Steepest ascent, no sideways moves</td><td>≈ 0.14</td><td>≈ 7</td><td>≈ 6 failures × 3 steps + 1 success × 4 steps ≈ 22</td></tr>
+    <tr><td>Steepest ascent with ≤100 sideways moves</td><td>≈ 0.94</td><td>≈ 1.06</td><td>≈ 0.06 × 64 + 1 × 21 ≈ 25</td></tr>
+  </tbody>
+</table>
+
+<p>Both configurations solve 8-queens in well under a hundred state evaluations' worth of steps — a vanishing fraction of a 17-million-state space. The same technique scales startlingly well: random-restart hill climbing with the min-conflicts heuristic solves the 3 000 000-queens problem in well under a minute, because for large <em>n</em> the landscape has very few local optima relative to its size.</p>
+
+<ul>
+  <li><strong>Independence is the point.</strong> Restarts share no information, which is both the weakness (nothing is learned from a failed run) and the strength: the trials are statistically independent, so the failure probabilitydecays geometrically rather than linearly.</li>
+  <li><strong>Trivially parallelisable.</strong> Because no run depends on another, <em>n</em> restarts can be farmed out to <em>n</em> cores, machines or GPU threads with no synchronisation, no shared memory and no communication beyond reporting the final value. Few search algorithms parallelise so cleanly: wall-clock time falls almost linearly with the number of processors.</li>
+  <li><strong>Cost grows linearly with restarts.</strong> Total work is (number of restarts) × (cost of one climb), so the strategy only pays when <em>p</em> is not vanishingly small. If <em>p</em> = 10<sup>−6</sup>, the expected million trials may be far more expensive than a single run of simulated annealing or a genetic algorithm. In practice a budget is imposed — a fixed <code>max_restarts</code>, a wall-clock deadline, or a stagnation rule such as "stop after 50 consecutive restarts that fail to improve the incumbent".</li>
+  <li><strong>Diversity of starts matters.</strong> Uniformly random starts give independent samples of the basins of attraction. Starts produced by a strong deterministic heuristic may all land in the same basin, which destroys the statistical argument; randomised construction (e.g. a nearest-neighbour tour from a random city, or a greedy choice perturbed by noise, as in GRASP) is the usual compromise between quality and diversity.</li>
+  <li><strong>When the goal is unknown.</strong> For optimisation problems with no recognisable "goal test" (TSP, scheduling), there is no early exit; one simply runs the budget out and returns the best incumbent. The incumbent value typically improves rapidly over the first few restarts and then plateaus, a diminishing-returns curve that itself suggests when to stop.</li>
+</ul>
+
+<p><strong>Comparing the variants</strong></p>
+
+<p>The four variants differ along two axes: <em>how much of the neighbourhood is examined before committing to a move</em>, and <em>how much randomness is injected</em>. The table below summarises the trade-offs, where <em>b</em> is the neighbourhood size and <em>p</em> the fraction of improving neighbours at a typical state.</p>
+
+<table>
+  <thead>
+    <tr><th>Variant</th><th>Neighbours evaluated per step</th><th>Move selected</th><th>Deterministic?</th><th>Main strength</th><th>Main weakness</th><th>Best suited to</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Steepest ascent</td><td>All <em>b</em></td><td>Highest-valued neighbour</td><td>Yes (given a fixed tie-break)</td><td>Largest gain per step; fewest iterations</td><td>Cost <em>O</em>(<em>b</em>) per step; one fixed trajectory per start</td><td>Small or moderate branching factors; cheap evaluation</td></tr>
+    <tr><td>First-choice</td><td>≈ 1/<em>p</em> on average</td><td>First improving neighbour found</td><td>No (random generation order)</td><td>Very cheap steps; independent of <em>b</em></td><td>Smaller gain per step; more iterations; approximate stopping test</td><td>Thousands or millions of successors; expensive evaluation</td></tr>
+    <tr><td>Stochastic</td><td>All <em>b</em> (or a sampled subset)</td><td>Random improving neighbour, often weighted by Δ</td><td>No</td><td>Wider exploration; better quality on rugged landscapes; repeated runs give a distribution</td><td>Slower convergence in iterations; still pays full scan cost in the basic form</td><td>Rugged landscapes with many shallow peaks; as a precursor to annealing</td></tr>
+    <tr><td>Random restart</td><td>Depends on the inner climber</td><td>Inner climber's rule; best incumbent kept</td><td>No (random starts)</td><td>Escapes local optima; complete with probability → 1; trivially parallel</td><td>Linear cost in restarts; no learning across runs</td><td>Any problem where one climb is cheap and <em>p</em> is not tiny</td></tr>
+  </tbody>
+</table>
+
+<p>Several conclusions follow from this comparison.</p>
+
+<ul>
+  <li><strong>Per-step power versus per-step price.</strong> Steepest ascent maximises progress per move but pays <em>b</em> evaluations to get it; first-choice pays about 1/<em>p</em> evaluations for a weaker move. The right choice depends entirely on <em>b</em> and on the cost of evaluating a state. With <em>b</em> = 56 (8-queens) the full scan is free and steepest ascent is sensible; with <em>b</em> in the millions, or when each evaluation requires a discrete-event simulation, first-choice wins by orders of magnitude.</li>
+  <li><strong>Determinism is a liability.</strong> Steepest ascent's single trajectory means that repeating the run from the same start is pointless. First-choice and stochastic hill climbing both break that determinism internally, so repetition yields diversity even without restarts.</li>
+  <li><strong>Randomness buys quality, not speed.</strong> Stochastic hill climbing almost always needs more iterations than steepest ascent, yet often terminates higher, because it is not funnelled into whichever peak the greedy rule happens to point at. On smooth, unimodal landscapes this extra wandering is pure overhead; on rugged ones it is where the benefit lies.</li>
+  <li><strong>Random restart composes with everything.</strong> It is an outer wrapper, so one may run restarts around steepest ascent, around first-choice, or around stochastic hill climbing — and the inner choice should be made on cost grounds while the outer restart count is set by the time budget. Given a fixed budget it is usually better to run many cheap, imperfect climbs than one exhaustive, expensive one.</li>
+  <li><strong>None of them is complete on its own.</strong> Steepest-ascent, first-choice and stochastic hill climbing all share the defining restriction that no downhill move is ever accepted. Consequently each terminates at the first local optimum (or plateau) it meets and has no mechanism whatsoever for leaving it. Only two remedies exist: start somewhere else (random restart, which abandons the trapped state) or allow the search to go downhill under controlled conditions (simulated annealing's <code>exp(−ΔE/T)</code> acceptance, tabu search's memory-guided non-improving moves, or local beam and genetic algorithms' populations). Sideways moves help with shoulders but not with genuine local maxima, and they introduce the risk of infinite looping on plateaus unless capped.</li>
+  <li><strong>Practical recipe.</strong> A sound default for a large real problem is: a complete-state representation with cheap delta evaluation, a first-choice inner climber with a capped number of sideways moves, wrapped in random restarts across all available cores, with the best incumbent reported at the deadline. If this plateaus well short of acceptable quality, the next step is to accept downhill moves (simulated annealing) or to enrich the neighbourhood operator rather than to scan the existing one more thoroughly.</li>
+</ul>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Directly supported: the topic defines complete-state formulations, neighbour/move operators and objective (or cost) functions, and explains how a hill climber walks the resulting state-space landscape of states and elevations.</li>
+  <li><strong>MO2</strong> — Directly supported: the worked formulations of n-queens (column-array states, single-queen moves, attacking-pairs cost), TSP (permutations, 2-opt, tour length) and nurse rostering (full assignments, shift swaps, weighted penalties) model exactly the specification of states, operators and objectives required.</li>
+  <li><strong>MO3</strong> — Directly supported: pseudocode and step-by-step traces are given for steepest-ascent, first-choice, stochastic and random-restart hill climbing, including an explicit numeric landscape walk and 8-queens statistics.</li>
+  <li><strong>MO4</strong> — Supported: the landscape feature table and the shoulder in the traced example define and illustrate local maxima, plateaus, shoulders and ridges, together with the symptoms each produces in a running hill climber.</li>
+  <li><strong>MO5</strong> — Partially supported: the topic supplies the cost-versus-quality comparison of the hill-climbing variants and the expected-work analysis for restarts that such a justification needs, and identifies where simulated annealing becomes preferable, but it does not develop cooling schedules, which belong to the simulated-annealing topic.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Empirical 8-queens figures (≈14% success without sideways moves, ≈94% with up to 100 sideways moves, ~4/3 and ~21/64 steps respectively) follow Russell &amp; Norvig, *Artificial Intelligence: A Modern Approach*; they are standard benchmark values, not exact constants. The 3,000,000-queens result likewise comes from the min-conflicts literature cited there. The 1-D landscape table is invented purely for tracing and contains a deliberate shoulder (states 4–6) and a local maximum (state 2) so it can be reused for exercises on MO3 and MO4.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

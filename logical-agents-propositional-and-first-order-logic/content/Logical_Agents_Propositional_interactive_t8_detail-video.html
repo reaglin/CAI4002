@@ -1,0 +1,334 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forward and Backward Chaining in First-Order Logic</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Logical Agents: Propositional and First-Order Logic</a></div>
+  <header>
+    <h1>Forward and Backward Chaining in First-Order Logic</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Forward and Backward Chaining in First-Order Logic</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>First-order logic gives us an expressive language for describing worlds, but expressiveness comes at a cost: general resolution theorem proving over full first-order logic is only <em>semidecidable</em>, and in practice the search space explodes. A great deal of useful knowledge, however, can be written in a highly restricted but still powerful form — the <strong>definite clause</strong>. For knowledge bases made only of definite clauses, two simple and complementary inference strategies become available. <strong>Forward chaining</strong> works from the facts towards whatever conclusions they support; <strong>backward chaining</strong> works from a goal backwards towards the facts that would establish it. These two strategies underpin production-rule systems, deductive databases, expert systems and logic programming languages such as Prolog. This topic develops both algorithms in detail, examines how they are made efficient in practice, and sets out the criteria an engineer uses to choose between them.</p>
+
+<p><strong>Definite clauses and the chaining setting</strong></p>
+
+<p>A <em>literal</em> is an atomic sentence or its negation. A <em>clause</em> is a disjunction of literals. A <strong>definite clause</strong> is a clause containing <em>exactly one</em> positive literal. Because of the logical equivalence</p>
+
+<pre><code>(¬P₁ ∨ ¬P₂ ∨ … ∨ ¬Pₙ ∨ Q)  ≡  (P₁ ∧ P₂ ∧ … ∧ Pₙ) ⇒ Q</code></pre>
+
+<p>a definite clause is almost always written in the far more readable implication form, with a conjunction of positive atoms as the <em>body</em> (or premise, or antecedent) and a single positive atom as the <em>head</em> (or conclusion, or consequent). For example:</p>
+
+<pre><code>King(x) ∧ Greedy(x) ⇒ Evil(x)
+Missile(x) ∧ Owns(Nono, x) ⇒ Sells(West, x, Nono)
+Parent(x, y) ∧ Parent(y, z) ⇒ Grandparent(x, z)</code></pre>
+
+<p>A <strong>fact</strong> is simply a definite clause with an empty body — there are no premises to satisfy, so the head is asserted unconditionally. <code>Greedy(John)</code>, <code>King(John)</code>, <code>Owns(Nono, M1)</code> and <code>American(West)</code> are all facts. Logically, the fact <code>Greedy(John)</code> is the degenerate clause consisting of the single positive literal <code>Greedy(John)</code>; the "empty conjunction" in the body is vacuously true.</p>
+
+<p>All variables appearing in a definite clause are implicitly <strong>universally quantified over the whole clause</strong>. Thus <code>King(x) ∧ Greedy(x) ⇒ Evil(x)</code> is shorthand for <code>∀x (King(x) ∧ Greedy(x) ⇒ Evil(x))</code>. Note where the quantifier sits: it scopes over the entire implication, not just the body. A consequence is that variable names are local to a clause — the <code>x</code> in one rule has nothing to do with the <code>x</code> in another — which is why implementations <em>standardise apart</em> (rename variables) before each unification attempt.</p>
+
+<p>It is useful to place definite clauses within the wider family of clause forms:</p>
+
+<table>
+  <thead>
+    <tr><th>Clause type</th><th>Positive literals</th><th>Example</th><th>Implication reading</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Fact (unit definite clause)</td><td>exactly one, no negatives</td><td><code>Greedy(John)</code></td><td><code>True ⇒ Greedy(John)</code></td></tr>
+    <tr><td>Rule (definite clause)</td><td>exactly one</td><td><code>¬King(x) ∨ ¬Greedy(x) ∨ Evil(x)</code></td><td><code>King(x) ∧ Greedy(x) ⇒ Evil(x)</code></td></tr>
+    <tr><td>Goal / integrity constraint</td><td>none</td><td><code>¬Evil(x)</code></td><td><code>Evil(x) ⇒ False</code></td></tr>
+    <tr><td>Horn clause</td><td>at most one</td><td>either of the two rows above</td><td>definite clauses plus goals</td></tr>
+    <tr><td>General clause</td><td>any number</td><td><code>Rain ∨ Snow ∨ ¬Cloudy</code></td><td><code>Cloudy ⇒ Rain ∨ Snow</code></td></tr>
+  </tbody>
+</table>
+
+<p>The restriction matters enormously. Because definite clauses admit no negated conclusions and no disjunctive conclusions, a definite-clause knowledge base can never express uncertainty about which of several things is true — and therefore it never requires <em>case analysis</em> or <em>proof by contradiction</em>. There is always a unique minimal model (the set of ground atoms derivable from the facts), and every entailed atomic sentence is derivable by repeated application of <em>Generalized Modus Ponens</em>:</p>
+
+<pre><code>  p₁′, p₂′, …, pₙ′ ,   (p₁ ∧ p₂ ∧ … ∧ pₙ ⇒ q)
+  ───────────────────────────────────────────────   where θ = a substitution with pᵢ′θ = pᵢθ for all i
+                  SUBST(θ, q)</code></pre>
+
+<p>Generalized Modus Ponens is a <em>lifted</em> inference rule: it performs in a single step what propositional inference would require after exhaustive ground instantiation of the rule. Inference over definite clauses is sound (nothing false is derived) and complete (every entailed atom is derived), and it avoids the branching and factoring machinery of full resolution. The practical payoff is large: entailment for propositional Horn clauses is decidable in linear time, and for function-free first-order definite clauses (Datalog) it is decidable in time polynomial in the number of ground facts.</p>
+
+<p>This is not an exotic corner of logic. Enormous amounts of real knowledge fit the definite-clause pattern naturally:</p>
+
+<ul>
+  <li><strong>Business/product rules:</strong> <code>OrderValue(o, v) ∧ GreaterThan(v, 500) ∧ Customer(o, c) ∧ Gold(c) ⇒ FreeShipping(o)</code>.</li>
+  <li><strong>Diagnostic rules:</strong> <code>Fever(p) ∧ Rash(p) ∧ Unvaccinated(p) ⇒ SuspectMeasles(p)</code>, the shape used by classic expert systems such as MYCIN and R1/XCON.</li>
+  <li><strong>Deductive database views:</strong> transitive closure rules like <code>Edge(x, y) ⇒ Path(x, y)</code> and <code>Edge(x, z) ∧ Path(z, y) ⇒ Path(x, y)</code>.</li>
+  <li><strong>Prolog programs:</strong> every pure Prolog clause <code>head :- body.</code> is literally a definite clause.</li>
+</ul>
+
+<p>Throughout this topic we use a standard worked example. The knowledge base says that it is a crime for an American to sell weapons to a hostile nation; the country Nono has some missiles, all sold to it by Colonel West, who is American; missiles are weapons; and an enemy of America counts as hostile.</p>
+
+<pre><code>(1) American(x) ∧ Weapon(y) ∧ Sells(x, y, z) ∧ Hostile(z) ⇒ Criminal(x)
+(2) Owns(Nono, M1)
+(3) Missile(M1)
+(4) Missile(x) ∧ Owns(Nono, x) ⇒ Sells(West, x, Nono)
+(5) Missile(x) ⇒ Weapon(x)
+(6) Enemy(x, America) ⇒ Hostile(x)
+(7) American(West)
+(8) Enemy(Nono, America)
+
+Query:  Criminal(West)?</code></pre>
+
+<p><strong>Forward chaining: data-driven inference</strong></p>
+
+<p>Forward chaining is <em>data-driven</em>: it starts from what is known and pushes conclusions outwards. One iteration of the basic algorithm does the following:</p>
+
+<ul>
+  <li>For every rule <code>p₁ ∧ … ∧ pₙ ⇒ q</code> in the knowledge base, find every substitution θ such that each premise <code>pᵢθ</code> matches a fact already in the knowledge base. Finding such a θ is exactly the problem of unifying a conjunctive pattern against the fact base.</li>
+  <li>For each such θ, compute the instantiated conclusion <code>qθ</code>. If <code>qθ</code> is not already in the knowledge base (and is not a renaming of something already there), add it.</li>
+  <li>If the new conclusion unifies with the query, return the answer substitution.</li>
+</ul>
+
+<p>Iterations repeat until a pass adds nothing new. At that moment the algorithm has reached a <strong>fixed point</strong>, and the set of facts present is the <strong>deductive closure</strong> of the original knowledge base — precisely the set of ground atoms entailed by it. Running the algorithm on the Colonel West knowledge base gives:</p>
+
+<table>
+  <thead>
+    <tr><th>Iteration</th><th>Rule fired</th><th>Substitution</th><th>New fact added</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>(5) <code>Missile(x) ⇒ Weapon(x)</code></td><td><code>{x/M1}</code></td><td><code>Weapon(M1)</code></td></tr>
+    <tr><td>1</td><td>(4) <code>Missile(x) ∧ Owns(Nono,x) ⇒ Sells(West,x,Nono)</code></td><td><code>{x/M1}</code></td><td><code>Sells(West, M1, Nono)</code></td></tr>
+    <tr><td>1</td><td>(6) <code>Enemy(x, America) ⇒ Hostile(x)</code></td><td><code>{x/Nono}</code></td><td><code>Hostile(Nono)</code></td></tr>
+    <tr><td>2</td><td>(1) the crime rule</td><td><code>{x/West, y/M1, z/Nono}</code></td><td><code>Criminal(West)</code></td></tr>
+    <tr><td>3</td><td>— none applicable —</td><td>—</td><td>fixed point reached</td></tr>
+  </tbody>
+</table>
+
+<p>Notice that the crime rule could not fire in iteration 1, because <code>Weapon(M1)</code>, <code>Sells(West, M1, Nono)</code> and <code>Hostile(Nono)</code> did not yet exist. Forward chaining naturally layers its derivations by "depth": each iteration computes all facts whose shortest proof has length equal to the iteration number. This makes it a <em>breadth-first</em> strategy in proof space.</p>
+
+<p>Three formal properties are worth stating precisely:</p>
+
+<ul>
+  <li><strong>Soundness.</strong> Every fact added is a conclusion of Generalized Modus Ponens applied to sentences in the knowledge base, and GMP is sound; therefore everything derived is entailed.</li>
+  <li><strong>Completeness.</strong> For definite-clause knowledge bases, forward chaining derives every entailed ground atom. The argument runs via the fixed point: the set of facts at the fixed point, read as a Herbrand interpretation, satisfies every clause in the knowledge base (otherwise some rule would still be fireable), so it is a model; and because it is the <em>minimal</em> model, any ground atom true in all models must be in it.</li>
+  <li><strong>Termination.</strong> If the knowledge base contains no function symbols — the <strong>Datalog</strong> case — then with <em>k</em> predicates of arity at most <em>a</em> and <em>n</em> constants, there are at most <code>k·nᵃ</code> distinct ground atoms. Since each iteration either adds a fact or halts, the process must terminate; the whole closure is computable in time polynomial in <em>n</em> (though exponential in <em>a</em>). With function symbols, termination is lost: from <code>NatNum(0)</code> and <code>NatNum(x) ⇒ NatNum(S(x))</code>, forward chaining will happily generate <code>S(0), S(S(0)), S(S(S(0))), …</code> forever. In that setting forward chaining is complete only in the weaker sense that any entailed fact appears after finitely many iterations.</li>
+</ul>
+
+<p>The natural home of forward chaining is an agent that receives a stream of percepts and must keep its picture of the world up to date. A plant-monitoring agent that is told <code>TemperatureHigh(Reactor3)</code> should immediately conclude whatever that implies — <code>Alarm(Reactor3)</code>, <code>NotifyOperator(Shift7)</code> — without waiting to be asked. Similarly, a fraud-detection system asserting a new transaction wants every matching pattern rule to fire straight away. Because the consequences are already materialised, answering a query afterwards is a lookup rather than a search.</p>
+
+<p>The corresponding weakness is <strong>irrelevance</strong>. Forward chaining does not know what you want. Given a geography knowledge base with rules about borders, populations, currencies and climates, asking "is West a criminal?" would, under naive forward chaining, still derive thousands of facts about rainfall. In the deductive-database literature this is the motivation for goal-directed rewriting (magic sets, discussed below). A second cost is the raw matching work: deciding whether a rule with <em>n</em> premises matches the fact base is equivalent to conjunctive query evaluation, which is NP-hard in the size of the rule — one reason why premise ordering and indexing matter so much.</p>
+
+<p><strong>Backward chaining: goal-driven inference</strong></p>
+
+<p>Backward chaining inverts the direction of travel. It starts with the goal and asks: what would have to be true for this goal to hold? The recursive definition is compact:</p>
+
+<ul>
+  <li>A goal <code>q</code> succeeds with substitution θ if <code>q</code> unifies with a known fact under θ.</li>
+  <li>Otherwise, <code>q</code> succeeds if there is some rule <code>p₁ ∧ … ∧ pₙ ⇒ q′</code> (with variables renamed afresh) such that <code>q</code> unifies with <code>q′</code> under θ, <em>and</em> each of the subgoals <code>p₁θ, …, pₙθ</code> can in turn be proved, with substitutions composed along the way.</li>
+  <li>A conjunction of goals succeeds if the first succeeds with θ₁ and the rest, after applying θ₁, succeed with θ₂; the overall answer is the composition <code>θ₁ ∘ θ₂</code>.</li>
+</ul>
+
+<p>This produces an <strong>AND–OR tree</strong>. The OR-branching is the choice of which clause to use for a goal; the AND-branching is the requirement to solve <em>all</em> premises of the chosen clause. Standard implementations explore it depth-first with backtracking. Here is the trace for <code>Criminal(West)</code>:</p>
+
+<pre><code>Criminal(West)                                    [rule 1, θ = {x/West}]
+ ├── American(West)                                 fact (7)                        ✓
+ ├── Weapon(y)                                     [rule 5, θ = {x′/y}]
+ │     └── Missile(y)                               fact (3) ⇒ θ = {y/M1}           ✓
+ ├── Sells(West, M1, z)                            [rule 4, θ = {x″/M1, z/Nono}]
+ │     ├── Missile(M1)                              fact (3)                        ✓
+ │     └── Owns(Nono, M1)                           fact (2)                        ✓
+ └── Hostile(Nono)                                 [rule 6, θ = {x‴/Nono}]
+       └── Enemy(Nono, America)                     fact (8)                        ✓
+
+Answer: yes, with bindings {x/West, y/M1, z/Nono}</code></pre>
+
+<p>Several points deserve emphasis. First, <strong>substitution propagation</strong>: solving <code>Weapon(y)</code> bound <code>y</code> to <code>M1</code>, and that binding was carried into the next conjunct, which therefore became the much more constrained goal <code>Sells(West, M1, z)</code> rather than the open <code>Sells(West, y, z)</code>. Composing substitutions as subgoals are solved is what turns backward chaining into a mechanism for <em>computing answers</em>, not merely checking yes/no. A query such as <code>Criminal(p)</code> with a free variable returns the binding <code>{p/West}</code>, and on backtracking would return further solutions if any existed.</p>
+
+<p>Second, <strong>memory behaviour</strong>. Because the search is depth-first, at any instant the algorithm need only hold the current branch of the proof tree — the stack of open subgoals plus their choice points. Space is therefore linear in the size of the proof, not in the size of the knowledge base or of the deductive closure. This is precisely the opposite of forward chaining, which must materialise the whole closure in memory.</p>
+
+<p>Third, <strong>relevance</strong>. Only clauses whose head unifies with some goal are ever examined. If the knowledge base also contained ten thousand facts about rainfall, backward chaining would never look at them, because no rainfall predicate ever appears as a subgoal of <code>Criminal(West)</code>. For large knowledge bases with narrowly focused questions, this is a decisive advantage.</p>
+
+<p>The price is paid in <strong>completeness and redundancy</strong>:</p>
+
+<ul>
+  <li><em>Infinite loops.</em> Given the rules <code>Path(x, y) ⇐ Edge(x, y)</code> and <code>Path(x, y) ⇐ Path(x, z) ∧ Edge(z, y)</code>, a depth-first prover that tries the recursive clause first will expand <code>Path(x,y)</code> into <code>Path(x,z₁)</code> into <code>Path(x,z₂)</code> … and never return. Depth-first search is not complete on infinite trees, so backward chaining is incomplete as a proof procedure even though the definite-clause fragment itself is decidable in the Datalog case. Remedies include iterative deepening, ordering the non-recursive clause first, cycle detection, or <strong>tabling</strong> (SLG resolution, as in XSB Prolog), which records goals already being solved.</li>
+  <li><em>Repeated work.</em> The same subgoal may be re-proved many times in different branches. Computing Fibonacci numbers in the naive declarative way causes exponentially many redundant subgoal solutions. Memoisation/tabling converts this to polynomial time at the cost of storing the answer tables — effectively a hybrid that borrows forward chaining's bookkeeping.</li>
+</ul>
+
+<p><strong>Efficiency considerations and pattern matching</strong></p>
+
+<p>Both algorithms spend the overwhelming majority of their time matching rule premises against facts. Five techniques dominate practical systems.</p>
+
+<p><strong>1. Conjunct ordering.</strong> The order in which the premises of a rule are tested does not change the logical result, but it can change the amount of work by orders of magnitude. The heuristic is to test the <em>most constrained</em> conjunct first — the one expected to yield the fewest matches — which is the inference-engine analogue of the minimum-remaining-values heuristic in constraint satisfaction. Consider:</p>
+
+<pre><code>Missile(x) ∧ Owns(Nono, x) ⇒ Sells(West, x, Nono)</code></pre>
+
+<p>If the knowledge base holds 100,000 missiles but Nono owns only four objects, testing <code>Missile(x)</code> first generates 100,000 candidate bindings, each then checked against <code>Owns</code>. Testing <code>Owns(Nono, x)</code> first generates four. A selectivity-aware engine keeps cardinality statistics per predicate and per argument position and reorders accordingly — exactly as a relational query optimiser chooses a join order. Finding the optimal ordering is NP-hard in general, so heuristics are used.</p>
+
+<p><strong>2. Incremental forward chaining.</strong> Naive forward chaining re-examines every rule against the entire fact base on every iteration, re-deriving facts it already has. The key observation is that <em>a rule can only produce a new conclusion on iteration k if at least one of its premises was matched by a fact added on iteration k−1</em>. The incremental version therefore maintains an agenda of newly added facts and, for each one, considers only rules containing a premise that unifies with it, and only matches in which that premise is bound to the new fact. This is the standard semi-naive evaluation strategy of deductive databases and typically reduces the work from quadratic to near-linear in the number of derivations.</p>
+
+<p><strong>3. The rete algorithm.</strong> Production systems such as OPS5, CLIPS, Jess and Drools take incrementality much further. Rete compiles all rule premises into a single dataflow network in which common prefixes of premise patterns are <em>shared</em> between rules. The network has two main kinds of node:</p>
+
+<ul>
+  <li><strong>Alpha nodes</strong> perform single-pattern tests — "is this fact a <code>Missile</code>?", "is argument 1 equal to <code>Nono</code>?" — and feed matching facts into alpha memories.</li>
+  <li><strong>Beta (join) nodes</strong> combine two streams of partial matches, checking consistency of shared variable bindings, and store the resulting partial matches in beta memories.</li>
+</ul>
+
+<p>When a fact is asserted, it is pushed through the network and only the affected partial matches are updated; when a fact is retracted, the corresponding partial matches are removed. Because partial matches are <em>cached</em> rather than recomputed, and because two rules that share the premises <code>Missile(x) ∧ Owns(Nono, x)</code> share the same join node, the cost of each update is proportional to the change rather than to the size of the rule set. Rete trades memory for time — the beta memories can be large — and the classic rule of thumb is that it pays off when the fact base changes slowly relative to its size, which is exactly the situation in monitoring and business-rule applications. Variants such as Rete II, TREAT and LEAPS adjust that memory/time balance differently.</p>
+
+<p><strong>4. Indexing.</strong> Retrieving the facts that could unify with a pattern must not require scanning the whole knowledge base. The minimum useful scheme is <strong>predicate indexing</strong>: a hash table from predicate symbol (and often arity) to the list of its facts, so that <code>Owns(Nono, x)</code> only touches <code>Owns</code> facts. Beyond that, <strong>argument indexing</strong> builds a table keyed on constants appearing in particular positions, so <code>Owns(Nono, x)</code> goes straight to the four facts whose first argument is <code>Nono</code>. Prolog systems commonly use <em>first-argument indexing</em>, which is why experienced Prolog programmers arrange the discriminating argument first. For very large or highly structured knowledge bases one can index on a <em>subsumption lattice</em> of patterns, though the lattice itself grows exponentially with the number of arguments, so engineers index selectively on the positions that queries actually constrain.</p>
+
+<p><strong>5. Magic sets.</strong> This technique gives forward chaining a dose of goal-directedness, and is the standard answer to the irrelevance problem in deductive databases. The idea is to rewrite the rule set so that each rule carries an extra "magic" premise representing the fact that the corresponding subgoal is actually relevant to the query. Suppose the query is <code>Criminal(West)</code>. The rewriting adds a seed fact and filters:</p>
+
+<pre><code>Magic_Criminal(West).                                        -- seed from the query
+
+Magic_Criminal(x) ∧ American(x) ∧ Weapon(y)
+      ∧ Sells(x, y, z) ∧ Hostile(z)  ⇒  Criminal(x)</code></pre>
+
+<p>Now the crime rule cannot fire for any individual other than West, because no <code>Magic_Criminal</code> fact licenses it. Further rules propagate magic predicates to the subgoals ("if <code>Criminal(x)</code> is relevant and <code>American(x)</code> holds, then <code>Sells(x, …)</code> is relevant"), mirroring exactly the bindings that backward chaining would have passed down the proof tree. The result is a forward-chaining computation that derives only facts relevant to the query, while retaining forward chaining's set-at-a-time evaluation, its automatic sharing of repeated subcomputations, and its guaranteed termination on Datalog — advantages that depth-first backward chaining lacks. Magic-set rewriting is thus best understood as an automatic compilation of goal-directedness into a bottom-up engine.</p>
+
+<p><strong>Logic programming and Prolog</strong></p>
+
+<p>Prolog is the most widely used embodiment of backward chaining. A Prolog program <em>is</em> a definite-clause knowledge base, written with <code>:-</code> for "if", commas for conjunction, uppercase initial letters for variables, and a terminating period:</p>
+
+<pre><code>criminal(X) :- american(X), weapon(Y), sells(X, Y, Z), hostile(Z).
+weapon(X)   :- missile(X).
+sells(west, X, nono) :- missile(X), owns(nono, X).
+hostile(X)  :- enemy(X, america).
+
+american(west).
+missile(m1).
+owns(nono, m1).
+enemy(nono, america).
+
+?- criminal(X).
+X = west.</code></pre>
+
+<p>The execution model is fixed and deliberately predictable: <strong>clauses are tried in the order they appear in the program file, and the premises of a clause are solved left to right</strong>, with chronological backtracking when a subgoal fails. This is depth-first search of the AND–OR tree with a fixed, declarative-looking but operationally meaningful ordering. The combination is known as SLD resolution. Because the ordering is part of the language definition, the programmer can reason about control as well as about logic — Kowalski's slogan "algorithm = logic + control".</p>
+
+<p>Several pragmatic departures from pure first-order logic follow:</p>
+
+<ul>
+  <li><strong>No occur check.</strong> Sound unification must refuse to bind a variable <code>X</code> to a term containing <code>X</code>, since no finite term satisfies <code>X = f(X)</code>. The test costs time linear in the size of the term, so standard Prolog omits it. The consequence is that the query <code>?- X = f(X).</code> succeeds, creating a cyclic term, and in rare cases unsound conclusions can be drawn. Most systems provide <code>unify_with_occurs_check/2</code> for when correctness matters; in everyday programming the unsoundness almost never bites.</li>
+  <li><strong>Negation as failure.</strong> Prolog's <code>\+ Goal</code> succeeds precisely when the interpreter fails to prove <code>Goal</code>. This is not logical negation; it is an inference under the <strong>closed-world assumption</strong>, that anything not derivable is false. Under CWA, <code>\+ enemy(france, america)</code> succeeds merely because no such fact or rule exists. The reading is sound for ground, finitely-failing goals in stratified programs, but it is non-monotonic — adding facts can retract previously derivable conclusions — and it interacts badly with unbound variables, so <code>\+ p(X)</code> should generally only be called when <code>X</code> is already bound.</li>
+  <li><strong>Explicit control.</strong> Because search is depth-first, clause order can be the difference between an answer and an infinite loop. A left-recursive rule such as <code>path(X,Y) :- path(X,Z), edge(Z,Y).</code> placed before its base case will not terminate; written after, and with the recursion on the right, it usually will. The <strong>cut</strong> operator <code>!</code> commits the interpreter to the choices made so far in the current clause, discarding alternative clauses and alternative solutions to goals to its left. Cuts are used to express "if-then-else" (<code>max(X,Y,X) :- X &gt;= Y, !.</code>), to prune provably useless branches for efficiency (a "green" cut), and sometimes to patch logic that would otherwise be wrong (a "red" cut, which changes the program's declarative meaning and is a frequent source of bugs). Other impure facilities — <code>assert/retract</code>, <code>findall</code>, arithmetic via <code>is</code> — similarly trade declarative purity for practicality.</li>
+</ul>
+
+<p>Prolog implementations are fast: programs are compiled to the Warren Abstract Machine, an instruction set designed around unification and backtracking, and good systems achieve millions of logical inferences per second with first-argument indexing, last-call optimisation and clause compilation. Typical application areas include:</p>
+
+<ul>
+  <li><strong>Natural-language parsing,</strong> where definite clause grammars (DCGs) compile grammar rules directly into Prolog clauses and parsing is simply proof search.</li>
+  <li><strong>Expert systems and configuration,</strong> where rules mirror domain expertise and explanations can be read off the proof tree.</li>
+  <li><strong>Deductive databases,</strong> where Datalog — Prolog without function symbols or impure features — supports recursive views with guaranteed termination; modern descendants include Soufflé and LogicBlox, used for program analysis and business analytics.</li>
+  <li><strong>Automated reasoning, scheduling, constraint solving and theorem proving,</strong> often via constraint logic programming (CLP), which replaces plain unification with constraint propagation over domains such as finite integers or reals.</li>
+</ul>
+
+<p><strong>Choosing between forward and backward chaining</strong></p>
+
+<p>Since both algorithms are sound and complete for definite clauses, the choice is an engineering decision about <em>computational cost and usage pattern</em>, not about what can in principle be proved. The deciding question is where the "fan-out" lies: does the knowledge base generate few consequences from many queries, or many consequences from few facts?</p>
+
+<table>
+  <thead>
+    <tr><th>Criterion</th><th>Favours forward chaining</th><th>Favours backward chaining</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Size of fact base</td><td>Small; closure is affordable to materialise</td><td>Large; only a small portion is relevant per query</td></tr>
+    <tr><td>Number and variety of queries</td><td>Many different queries, all answered by lookup once the closure exists</td><td>Few, narrowly focused queries</td></tr>
+    <tr><td>Arrival of information</td><td>Continuous stream of percepts/events to react to</td><td>Information static; questions arrive instead</td></tr>
+    <tr><td>Response-time requirement</td><td>Precomputation up front, then constant-time answers</td><td>No precomputation cost; work done on demand</td></tr>
+    <tr><td>Memory</td><td>Must store the whole deductive closure</td><td>Linear in proof depth</td></tr>
+    <tr><td>Risk</td><td>Deriving masses of irrelevant facts</td><td>Non-termination on loops; repeated subgoals</td></tr>
+    <tr><td>Typical systems</td><td>Production systems (CLIPS, Drools), real-time monitoring and alarm agents, materialised database views, semantic-web RDFS/OWL reasoners</td><td>Prolog and logic programming, question-answering systems, goal-driven diagnosis, theorem provers</td></tr>
+  </tbody>
+</table>
+
+<p>Concretely: a network operations centre with ten thousand incoming SNMP traps per minute and a fixed set of escalation rules should forward chain, because every event must be evaluated anyway and the operator expects alerts without asking for them. A legal-reasoning assistant sitting on a knowledge base of a million statutory facts, asked occasionally whether a particular contract clause is enforceable, should backward chain, because computing the closure of the statute book to answer one question would be absurd. A medical diagnosis system may sensibly do both: forward chain from newly entered observations to flag anything urgent, then backward chain from candidate diagnoses to decide which test to order next.</p>
+
+<p>Hybrids are common and often the right answer. Magic sets give bottom-up engines goal direction; tabling gives top-down engines termination and sharing; rule engines frequently run a forward-chaining "recognise–act" cycle whose actions invoke backward-chained queries. The important conceptual point is that forward and backward chaining are two traversal strategies over the <em>same</em> AND–OR derivation space defined by the definite clauses — one from the leaves up, one from the root down — and the clauses themselves remain a declarative specification independent of which direction you choose to walk them.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> Only indirectly supported. The chaining algorithms are the inference procedures that sit behind a knowledge-based agent's ASK operation, and incremental forward chaining is described as the natural response to TELL, but the agent architecture and its control loop are not developed here.</li>
+  <li><strong>MO2:</strong> Partially supported. Definite clauses are presented with their connectives and their equivalence to the disjunctive clause form, reinforcing well-formedness of logical sentences, although the BNF grammar of propositional logic is not treated in this topic.</li>
+  <li><strong>MO3:</strong> Partially supported. Definite clauses are a restricted clausal (CNF) form, and the topic explains why this fragment permits sound and complete inference by Generalized Modus Ponens without the full resolution refutation machinery, situating resolution-based entailment in a wider context.</li>
+  <li><strong>MO4:</strong> Supported through example. Natural-language statements such as "it is a crime for an American to sell weapons to a hostile nation" and business, diagnostic and database rules are rendered as first-order definite clauses with appropriate predicates, constants and implicit universal quantification.</li>
+  <li><strong>MO5:</strong> Directly and fully supported. The topic develops both algorithms in detail and supplies explicit criteria — fact-base size, query variety, memory use, termination risk and typical application classes — for judging which is better suited to a given inference task.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Worked example throughout is the standard Colonel West / Nono knowledge base, so it can be reused alongside any companion material on unification and resolution. Suggested classroom activities: (1) trace forward chaining on a small Datalog transitive-closure program and count derived facts, then repeat with magic-set rewriting to compare; (2) run the left-recursive &lt;code&gt;path/2&lt;/code&gt; program in Prolog to observe non-termination, then fix it by clause reordering and again by enabling tabling; (3) measure the effect of conjunct ordering by swapping the premises of the &lt;code&gt;sells&lt;/code&gt; rule over a synthetic fact base. Possible assessment items: justify a chaining strategy for a described application; identify why a given Prolog program loops; explain why omitting the occur check is unsound and construct a query that exposes it.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Many practical knowledge bases can be written as definite clauses: implications whose premises are conjunctions of positive literals and whose conclusion is a single positive literal (a plain fact is just a clause with no premises). Restricting ourselves to this form gives up some expressive power, but it buys a great deal: inference becomes sound, complete, and tractable enough to run on large rule sets, and the whole process reduces to repeated applications of Modus Ponens with unification.</p>
+<p>There are two natural directions to apply those rules. Forward chaining is data-driven: start from the known facts, fire every rule whose premises are satisfied, add the new conclusions, and repeat until the query appears or nothing new can be derived. Backward chaining is goal-driven: start from the query, find rules that could conclude it, and recursively try to prove their premises, backtracking when a branch fails. The two directions derive the same conclusions but do very different amounts of work depending on whether the knowledge base has many facts and few relevant rules, or a single focused question. Backward chaining with depth-first search is also the execution model behind Prolog and logic programming generally.</p>
+<p>While watching, pay attention to three things: how unification lets a general rule match specific facts (the pattern-matching step that dominates the cost of inference), how the inference engine avoids redoing work or looping forever, and how control constructs let a programmer influence the search. These are exactly the issues you will weigh when deciding which chaining strategy fits a given task.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Logic 8 - First Order Modus Ponens | Stanford CS221: Artificial Intelligence (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/mndzhfBpyUw?cc_load_policy=1&amp;rel=0" title="Video: Logic 8 - First Order Modus Ponens | Stanford CS221: Artificial Intelligence (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 16:08 · 13,844 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=mndzhfBpyUw" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A lecture segment from Stanford's CS221 course covering Modus Ponens lifted to first-order logic. Based on its title and placement in the logic sequence, it should show how inference rules apply to quantified sentences with variables, requiring substitution and unification to match rule premises against known facts, and how this yields sound and complete inference on a restricted clause form.</p>
+<h3>Why this video</h3>
+<p>It targets the core inference step that both forward and backward chaining repeat, from a well-regarded university course, so the treatment of definite clauses and the chaining setting should be precise and consistent with standard textbook presentations.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Logic 5 - Propositional Modus Ponens | Stanford CS221: AI (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/6bj4z2mt1KE?cc_load_policy=1&amp;rel=0" title="Video: Logic 5 - Propositional Modus Ponens | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 8:07 · 7,102 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=6bj4z2mt1KE" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>The earlier propositional counterpart from the same CS221 logic sequence, presenting Modus Ponens on propositional definite clauses. Expect a walkthrough of how an inference engine repeatedly applies the rule to derive new facts from a knowledge base, plus discussion of what this restricted form does and does not let you conclude.</p>
+<h3>Why this video</h3>
+<p>Watching this before the first-order video gives you the chaining mechanism in its simplest setting, which makes the added complication of variables and pattern matching in first-order logic much easier to follow.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: The Cut in Prolog (control backtracking using side-effects)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/qGBdoP7-64c?cc_load_policy=1&amp;rel=0" title="Video: The Cut in Prolog (control backtracking using side-effects) (a bit of intelligence)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>a bit of intelligence</strong> · 4:19 · 1,500 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=qGBdoP7-64c" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short, focused clip on Prolog's cut operator, with an animated illustration of how it prunes the search space during backtracking. It explains that the cut always succeeds and is used for its side effect of committing to choices already made, discarding alternative branches the interpreter would otherwise explore.</p>
+<h3>Why this video</h3>
+<p>It connects backward chaining directly to a working logic programming system and makes the goal-driven search tree visible, which is useful for the efficiency and Prolog subtopics of this lesson.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos chiefly support MO5. The propositional and first-order Modus Ponens lectures establish the definite-clause setting and the unification-based inference step that forward and backward chaining both rely on, giving you the vocabulary to describe each strategy and argue about the work it performs. The Prolog cut video shows goal-driven inference as it actually runs, with an explicit search tree, so you can reason concretely about when a focused backward search beats exhaustively deriving all consequences. The first-order material also reinforces MO4 by exercising predicates, variables, and quantified rules, and the propositional segment connects back to the entailment machinery of MO3.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

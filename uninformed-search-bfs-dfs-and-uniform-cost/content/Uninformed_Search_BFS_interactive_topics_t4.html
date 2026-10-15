@@ -1,0 +1,286 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uniform-Cost Search</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Uninformed Search: BFS, DFS, and Uniform Cost</a></div>
+  <header>
+    <h1>Uniform-Cost Search</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Uniform-Cost Search</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Uniform-cost search (UCS) is the uninformed strategy that answers the question breadth-first search cannot: <em>what if some actions are more expensive than others?</em> Breadth-first search explores the state space in layers of increasing <em>depth</em>, which is the right thing to do only when depth and cost happen to be the same quantity. Uniform-cost search replaces the notion of "shallowest unexpanded node" with "cheapest unexpanded node", and in doing so it becomes a general shortest-path algorithm over arbitrary non-negative edge weights while remaining completely blind to where the goal actually is. It is, in essence, Dijkstra's algorithm recast in the vocabulary of problem solving by search: a start state instead of a source vertex, a transition model instead of an adjacency list, and a goal test instead of a full distance table.</p>
+
+<p><strong>From BFS to Uniform-Cost Search</strong></p>
+
+<p>Consider a road map in which the operator "drive from Arad to Sibiu" costs 140 km and "drive from Arad to Zerind" costs 75 km. Breadth-first search treats these two actions as interchangeable: both produce a node at depth 1, both are enqueued in generation order, and BFS will happily return a two-step route of 500 km in preference to a three-step route of 200 km. BFS is optimal with respect to <em>number of actions</em>, and that coincides with optimality in <em>cost</em> only under the special condition that every action has the same positive cost. Remove that condition and BFS's guarantee evaporates immediately.</p>
+
+<p>Uniform-cost search fixes this by ordering the frontier on the function</p>
+
+<pre><code>g(n) = the total cost of the path from the initial state to node n
+     = sum of the step costs of every action along that path</code></pre>
+
+<p>For the root, <code>g(start) = 0</code>. For any child generated by applying an action to a parent, <code>g(child) = g(parent) + cost(parent, action, child)</code>. The algorithm then always expands a frontier node with minimum <code>g</code>. Everything else — the transition model, the explored set, parent pointers, path reconstruction — is unchanged from BFS.</p>
+
+<p>Three consequences follow directly from this definition and are worth stating explicitly:</p>
+
+<ul>
+  <li><strong>UCS generalises BFS.</strong> If every step costs the same constant <code>c &gt; 0</code>, then <code>g(n) = c × depth(n)</code>, so ordering by cost is exactly ordering by depth. UCS then expands nodes in non-decreasing depth order and reduces to BFS (with the minor difference, discussed below, that it goal-tests later). This is a useful sanity check: any correct UCS implementation, run on an unweighted graph, must reproduce BFS's expansion order up to tie-breaking.</li>
+  <li><strong>UCS requires non-negative step costs.</strong> The entire correctness argument rests on the claim that once a node is expanded, no cheaper route to it can ever appear later — because every route still under construction already costs at least as much, and extending a route can only add cost. A negative edge breaks this. Take <code>S→A</code> = 2, <code>S→B</code> = 5, <code>B→A</code> = −4. UCS pops <code>A</code> at cost 2 and marks it explored, but the true cheapest path <code>S→B→A</code> costs 1 and is discovered only after <code>A</code> has been closed. For graphs with negative weights one needs Bellman–Ford or Johnson's algorithm, not UCS.</li>
+  <li><strong>UCS is still uninformed.</strong> It consults <code>g(n)</code>, the cost <em>already spent</em>, and never any estimate <code>h(n)</code> of the cost <em>remaining</em>. It therefore has no idea whether a node is near the goal or in the opposite direction; it only knows which partial routes are cheap. Adding an estimate of the remainder produces A* and greedy best-first search, which belong to the informed family.</li>
+</ul>
+
+<p><strong>The Priority Queue Frontier</strong></p>
+
+<p>The data structure that implements "cheapest first" is a <em>priority queue</em> (usually a binary min-heap) keyed on <code>g</code>. Its contract is simple: <code>pop()</code> removes and returns an element whose key is minimal among all elements currently stored. A typical UCS implementation maintains three structures:</p>
+
+<ul>
+  <li><strong>frontier</strong> — a priority queue of generated-but-not-yet-expanded nodes, ordered by <code>g</code>;</li>
+  <li><strong>explored</strong> — a set of states already expanded (sometimes called the <em>closed set</em>);</li>
+  <li><strong>parent / cost tables</strong> — maps recording, for each reached state, its best known predecessor and its best known <code>g</code> value, so that the solution path can be reconstructed backwards from the goal.</li>
+</ul>
+
+<p>A crucial invariant is that <strong>each state appears at most once in the frontier, holding its cheapest known cost</strong>. If a state is reached again by a cheaper route, we do not insert a second copy; we lower the key of the existing entry. Allowing duplicates is not wrong in the sense of producing wrong answers (the cheap copy pops first, and the expensive copy can be discarded when it eventually pops), but it inflates memory and lets the heap grow with the number of <em>edges</em> rather than the number of <em>states</em>.</p>
+
+<pre><code>function UNIFORM-COST-SEARCH(problem) returns a solution or failure
+    node  ← NODE(state = problem.INITIAL, g = 0, parent = none)
+    frontier ← priority queue ordered by g, containing node
+    explored ← empty set
+
+    loop do
+        if frontier is empty then return failure
+        node ← POP(frontier)                      # cheapest unexpanded node
+        if problem.IS-GOAL(node.state) then       # goal test AT EXPANSION
+            return RECONSTRUCT-PATH(node)
+        add node.state to explored
+        for each action in problem.ACTIONS(node.state) do
+            child ← CHILD-NODE(problem, node, action)
+            # child.g = node.g + problem.STEP-COST(node.state, action)
+            if child.state not in explored and child.state not in frontier then
+                INSERT(frontier, child)
+            else if child.state in frontier with g_old &gt; child.g then
+                DECREASE-KEY(frontier, child.state, child.g)
+                set parent[child.state] ← node    # keep the path consistent
+</code></pre>
+
+<p>On cost: a binary heap performs <code>insert</code>, <code>pop-min</code> and <code>decrease-key</code> in <code>O(log n)</code> time for a heap of <code>n</code> entries. Since every generated node is inserted at most once and popped at most once, the queue discipline multiplies the work by only a logarithmic factor — the dominant cost of UCS is still the number of nodes generated, not the bookkeeping. With a Fibonacci heap, <code>decrease-key</code> becomes amortised <code>O(1)</code>, giving the textbook Dijkstra bound <code>O(E + V log V)</code>; in practice binary heaps are faster for the graph sizes typical of search problems.</p>
+
+<p>Many standard libraries (for example Python's <code>heapq</code>) provide no <code>decrease-key</code> operation. The usual workaround is <em>lazy deletion</em>: push a second entry <code>(new_g, state)</code> and, when popping, discard any entry whose state is already in <code>explored</code> or whose stored cost exceeds the best known cost for that state. This preserves correctness and the optimality guarantee, at the price of a larger heap.</p>
+
+<pre><code># Lazy-deletion variant of the pop step
+cost, state, parent = heappop(frontier)
+if state in explored: continue          # stale duplicate — skip it
+if cost &gt; best_g[state]: continue       # superseded entry — skip it
+</code></pre>
+
+<p><strong>Goal Test at Expansion, Not Generation</strong></p>
+
+<p>Breadth-first search is normally written to test each child <em>as it is generated</em>, which saves a whole extra layer of expansion. Uniform-cost search must not do this. The reason is that in a weighted graph a goal node can be <em>generated</em> early by an expensive route while a cheaper route to the same goal is still buried in the frontier.</p>
+
+<p>The minimal counterexample has three nodes. Let <code>S→G</code> cost 10, <code>S→A</code> cost 1, and <code>A→G</code> cost 2.</p>
+
+<ul>
+  <li>Expand <code>S</code>. Children generated: <code>A</code> at <code>g = 1</code> and <code>G</code> at <code>g = 10</code>.</li>
+  <li>Testing at generation would return the route <code>S→G</code> at cost 10 and stop.</li>
+  <li>Testing at expansion, we instead pop <code>A</code> (cost 1), generate <code>G</code> again at cost 3, lower <code>G</code>'s key from 10 to 3, and finally pop <code>G</code> at cost 3 — the optimal answer.</li>
+</ul>
+
+<p>The positive statement of the rule is the heart of UCS's correctness: <strong>because the frontier is ordered by <code>g</code>, every node still in the frontier costs at least as much as the node just popped, and (with non-negative costs) every node reachable through the frontier costs at least that much too. Therefore the first goal node popped has minimal path cost among all solutions.</strong> BFS escapes this argument only because, with uniform costs, all paths reaching a given depth cost exactly the same, so no later-found route to the goal can possibly be cheaper.</p>
+
+<p>Testing at expansion costs a little: UCS will typically pop and expand every node whose <code>g</code> is strictly less than <code>C*</code> (the optimal solution cost), and may also pop some nodes whose <code>g</code> exactly equals <code>C*</code> if tie-breaking happens to order them before the goal. That extra work is precisely the price of the optimality guarantee, and it is the same phenomenon that makes A* expand all nodes with <code>f(n) &lt; C*</code> and some with <code>f(n) = C*</code>.</p>
+
+<p><strong>Re-opening Nodes with Cheaper Paths</strong></p>
+
+<p>When a child is generated whose state has already been reached, UCS must decide what to do with it. There are exactly three cases:</p>
+
+<ul>
+  <li><strong>The state is in the frontier at a higher cost.</strong> The new route is better: perform <code>decrease-key</code> to lower the stored cost to <code>g(child)</code>, <em>and</em> update the parent pointer to the new parent. Updating the key without updating the parent is a classic bug — the algorithm would then report the correct cost but reconstruct a different, more expensive path, so cost and path disagree.</li>
+  <li><strong>The state is in the frontier at an equal or lower cost.</strong> The new route is no improvement. Discard the child node immediately; do not insert, do not touch the parent pointer. (Discarding on ties keeps the frontier small and causes no loss, since the retained path costs the same.)</li>
+  <li><strong>The state is already in the explored set.</strong> With non-negative step costs it has already been expanded at its optimal cost, so no cheaper route to it can exist. Discard the child. This is why UCS never genuinely "re-opens" closed nodes — the term <em>re-opening</em> properly belongs to A* with an inconsistent heuristic, where a closed node's value can still improve. For UCS, re-opening is unnecessary, and an implementation that does it wastes time without changing the answer.</li>
+</ul>
+
+<p>Omitting the first check entirely — simply ignoring any child whose state has been seen before, regardless of cost — does not break termination and still returns a path, but that path may be suboptimal, because the first route discovered to a state is not necessarily the cheapest one. In the trace below, exactly this check is what turns a 12-cost answer into the correct 9-cost answer.</p>
+
+<p><strong>Tracing UCS on a Weighted Route Map</strong></p>
+
+<p>Take the following undirected road map, with distances as step costs. Start state <code>S</code>, goal state <code>G</code>.</p>
+
+<table>
+  <thead>
+    <tr><th>Edge</th><th>Cost</th><th>Edge</th><th>Cost</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>S – A</td><td>1</td><td>B – C</td><td>2</td></tr>
+    <tr><td>S – B</td><td>4</td><td>B – D</td><td>5</td></tr>
+    <tr><td>A – B</td><td>2</td><td>C – D</td><td>1</td></tr>
+    <tr><td>A – C</td><td>5</td><td>C – G</td><td>7</td></tr>
+    <tr><td colspan="2"></td><td>D – G</td><td>3</td></tr>
+  </tbody>
+</table>
+
+<p>Initialise the frontier with <code>S</code> at cost 0 and an empty explored set, then repeatedly pop the cheapest node, goal-test it, close it, and expand it. The full trace:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Step</th>
+      <th>Popped (g)</th>
+      <th>Goal?</th>
+      <th>Action on successors</th>
+      <th>Frontier after step (state : g, parent)</th>
+      <th>Explored</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td><td>—</td><td>—</td><td>initialise</td>
+      <td>S : 0, –</td><td>{ }</td>
+    </tr>
+    <tr>
+      <td>1</td><td>S (0)</td><td>no</td>
+      <td>add A = 0+1 = 1; add B = 0+4 = 4</td>
+      <td>A : 1, S &nbsp;|&nbsp; B : 4, S</td><td>{S}</td>
+    </tr>
+    <tr>
+      <td>2</td><td>A (1)</td><td>no</td>
+      <td>S explored → skip; B = 1+2 = 3 &lt; 4 → <em>decrease-key</em>, reparent to A; add C = 1+5 = 6</td>
+      <td>B : 3, A &nbsp;|&nbsp; C : 6, A</td><td>{S, A}</td>
+    </tr>
+    <tr>
+      <td>3</td><td>B (3)</td><td>no</td>
+      <td>S, A explored → skip; C = 3+2 = 5 &lt; 6 → <em>decrease-key</em>, reparent to B; add D = 3+5 = 8</td>
+      <td>C : 5, B &nbsp;|&nbsp; D : 8, B</td><td>{S, A, B}</td>
+    </tr>
+    <tr>
+      <td>4</td><td>C (5)</td><td>no</td>
+      <td>A, B explored → skip; D = 5+1 = 6 &lt; 8 → <em>decrease-key</em>, reparent to C; add G = 5+7 = 12</td>
+      <td>D : 6, C &nbsp;|&nbsp; G : 12, C</td><td>{S, A, B, C}</td>
+    </tr>
+    <tr>
+      <td>5</td><td>D (6)</td><td>no</td>
+      <td>B, C explored → skip; G = 6+3 = 9 &lt; 12 → <em>decrease-key</em>, reparent to D</td>
+      <td>G : 9, D</td><td>{S, A, B, C, D}</td>
+    </tr>
+    <tr>
+      <td>6</td><td>G (9)</td><td><strong>yes</strong></td>
+      <td>return solution</td>
+      <td>(empty)</td><td>{S, A, B, C, D}</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Reconstructing by following parent pointers backwards from the popped goal node gives <code>G ← D ← C ← B ← A ← S</code>, i.e. the route <code>S → A → B → C → D → G</code>, whose costs sum to <code>1 + 2 + 2 + 1 + 3 = 9</code> — matching the <code>g</code> value recorded at <code>G</code>, which is the correctness check you should always perform on a hand trace.</p>
+
+<p>Several features of the trace deserve comment:</p>
+
+<ul>
+  <li><strong>Expansion order follows increasing <code>g</code>:</strong> 0, 1, 3, 5, 6, 9. This is a strict invariant of UCS with non-negative costs and is the easiest way to spot an error in a hand trace — if your popped costs ever decrease, something is wrong.</li>
+  <li><strong>Cost contours.</strong> UCS sweeps outwards from the start in bands of equal cumulative cost, like ripples on a pond. After expanding the node at cost 5, every state reachable for 5 or less has been settled. This is the geometric intuition behind the phrase "uniform cost": the search boundary is a surface of uniform <code>g</code>.</li>
+  <li><strong>Three decrease-key events occurred</strong> (B from 4 to 3, C from 6 to 5, D from 8 to 6, and G from 12 to 9 — four in fact). Had the implementation skipped already-reached states instead of comparing costs, it would have returned <code>S → B → C → G</code> or similar at cost 12: valid, but 33% worse than optimal.</li>
+  <li><strong>UCS expands nodes "in the wrong direction".</strong> Node <code>A</code>, at cost 1, is expanded first even though it may lie away from <code>G</code>; a greedy or A* search with a straight-line heuristic would prefer nodes pointing towards the goal. UCS cannot do this because it has no notion of where <code>G</code> is. On a road map this means UCS explores a roughly circular region around the start of radius <code>C*</code>, whereas A* explores an ellipse stretched towards the goal.</li>
+</ul>
+
+<p><strong>Properties and Complexity</strong></p>
+
+<p>Let <code>b</code> be the branching factor, <code>C*</code> the cost of the optimal solution, and <code>ε</code> a positive lower bound on any step cost (so every action costs at least <code>ε</code>).</p>
+
+<ul>
+  <li><strong>Completeness.</strong> UCS is complete <em>provided</em> every step cost is at least <code>ε &gt; 0</code> and a solution exists. The <code>ε</code> condition is not pedantry: if costs may approach zero, an infinite sequence of ever-cheaper actions can form an infinite path of finite total cost, and UCS can get trapped expanding it forever without ever reaching the contour containing the goal. With costs bounded below, only finitely many nodes have <code>g &lt; C*</code>, so the goal must eventually be popped.</li>
+  <li><strong>Optimality.</strong> UCS is optimal, by the argument given above: the first goal node expanded has the lowest achievable path cost. Note that this holds regardless of where goal states sit in the graph and regardless of how many of them there are.</li>
+  <li><strong>Time and space complexity.</strong> UCS's performance is governed by <em>cost</em>, not depth. It may expand every node with <code>g &lt; C*</code>, and the number of such nodes is bounded by <code>O(b^(1 + ⌊C*/ε⌋))</code>. Compare BFS's <code>O(b^d)</code>: when all step costs equal <code>ε</code>, <code>C*/ε = d</code> and the two bounds coincide apart from the "+1" that reflects UCS's later goal test. When cheap actions abound, <code>C*/ε</code> can greatly exceed <code>d</code>, and UCS does strictly more work than BFS would — the price of handling weights.</li>
+  <li><strong>Space is the binding constraint.</strong> As with BFS, space complexity equals time complexity because every generated node is retained in either the frontier or the explored set. Exponential growth in the frontier exhausts memory long before patience runs out: a frontier of a few tens of millions of nodes is already gigabytes. This, not running time, is what usually kills UCS on large problems, and it motivates memory-bounded variants and informed search.</li>
+  <li><strong>Relationship to Dijkstra's algorithm.</strong> UCS is Dijkstra's single-source shortest-path algorithm with two cosmetic differences: it stops as soon as the goal is popped rather than settling every vertex, and it generates successors on demand from the transition model rather than reading a stored adjacency list. The second point matters for implicitly defined state spaces (puzzle configurations, robot poses) where the graph is far too large to build explicitly but each node's successors are cheap to compute.</li>
+</ul>
+
+<table>
+  <thead>
+    <tr><th>Criterion</th><th>Breadth-first search</th><th>Uniform-cost search</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Frontier structure</td><td>FIFO queue</td><td>Priority queue keyed on <code>g</code></td></tr>
+    <tr><td>Node selected for expansion</td><td>Shallowest</td><td>Cheapest</td></tr>
+    <tr><td>Goal test performed</td><td>At generation</td><td>At expansion</td></tr>
+    <tr><td>Complete?</td><td>Yes (finite <code>b</code>)</td><td>Yes, if every step cost ≥ <code>ε &gt; 0</code></td></tr>
+    <tr><td>Optimal?</td><td>Only if step costs are uniform</td><td>Yes, for non-negative step costs</td></tr>
+    <tr><td>Time</td><td><code>O(b^d)</code></td><td><code>O(b^(1 + ⌊C*/ε⌋))</code></td></tr>
+    <tr><td>Space</td><td><code>O(b^d)</code></td><td><code>O(b^(1 + ⌊C*/ε⌋))</code></td></tr>
+    <tr><td>Overhead per node</td><td><code>O(1)</code></td><td><code>O(log n)</code> heap operations</td></tr>
+  </tbody>
+</table>
+
+<p>In practice, the decision rule is simple. If every action costs the same, use BFS: it is simpler, has <code>O(1)</code> frontier operations, and can goal-test at generation. If actions differ in cost and you have no usable estimate of the distance remaining, use UCS. If you do have an admissible estimate, use A*, which is UCS with the key changed from <code>g(n)</code> to <code>g(n) + h(n)</code> — note that setting <code>h(n) = 0</code> turns A* back into UCS exactly, which is why UCS is often described as the uninformed special case of A*.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> Supported indirectly. The topic relies throughout on the five-part specification — initial state <code>S</code>, actions as road links, a transition model generating successors, a goal test applied at expansion, and above all an explicit <em>path cost</em> function <code>g</code> — and shows why the path-cost component is the part that determines which strategy is appropriate.</li>
+  <li><strong>MO2:</strong> Directly supported. The worked route-map trace records popped node, cumulative cost, frontier contents and explored set at every step, giving an exact model of how to trace UCS expansion order, and the discussion of the uniform-cost special case connects that order back to BFS.</li>
+  <li><strong>MO3:</strong> Directly supported. The pseudocode specifies a priority-queue frontier, an explored set, parent-pointer updates on <code>decrease-key</code>, and path reconstruction from the popped goal node, including the lazy-deletion idiom needed in libraries without <code>decrease-key</code>.</li>
+  <li><strong>MO4:</strong> Partly supported. Completeness, optimality, and the <code>O(b^(1 + ⌊C*/ε⌋))</code> time and space bounds for UCS are derived and tabulated against BFS; depth-limited and iterative-deepening search are not covered here and are treated in the companion topics on DFS variants.</li>
+  <li><strong>MO5:</strong> Directly supported. The treatment of when BFS suffices, when the <code>ε</code> bound matters, how <code>C*/ε</code> compares with <code>d</code>, and why memory rather than time is usually the binding constraint gives the criteria for justifying UCS against alternatives for a given problem.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The trace deliberately contains four decrease-key events so that students who skip the cost-comparison check obtain a visibly worse answer (cost 12 via S→B→C→G is reachable under a naive &quot;ignore already-reached states&quot; implementation), making the optimality point concrete. Tie-breaking is not exercised in the trace; if you want to discuss it, add an edge A–D of cost 5 so that D can be reached at cost 6 by two distinct routes. The negative-edge counterexample (S→A = 2, S→B = 5, B→A = −4) can be used as a quick in-class exercise before stating the non-negativity requirement.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

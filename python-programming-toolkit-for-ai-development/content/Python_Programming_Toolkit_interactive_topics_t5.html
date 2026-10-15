@@ -1,0 +1,802 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Numerical and Scientific Libraries</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Python Programming Toolkit for AI Development</a></div>
+  <header>
+    <h1>Numerical and Scientific Libraries</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Numerical and Scientific Libraries</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Artificial intelligence is, at its computational core, arithmetic performed at scale. A nearest-neighbour classifier computes thousands of Euclidean distances; a linear regression fits coefficients by solving a system of normal equations; a neural network layer is a matrix multiplication followed by an element-wise non-linearity; a Bayesian update is a weighted sum followed by a normalisation. Pure Python can express every one of these operations, but it expresses them slowly and verbosely. The numerical stack — <strong>NumPy</strong> for arrays and vectorised mathematics, <strong>pandas</strong> for tabular data handling, and <strong>Matplotlib</strong> for visualisation — gives you a vocabulary in which these operations are written almost exactly as they appear in the textbook pseudocode, and executed by compiled C and Fortran routines underneath. This topic builds that vocabulary from the ground up, starting with <em>why</em> the libraries exist, moving through the array model and broadcasting rules, then through data loading and inspection, plotting, and finally the assembly of a complete workflow.</p>
+
+<p><strong>Why Numerical Libraries Matter for AI</strong></p>
+
+<p>Consider what happens inside the inner loop of a typical AI algorithm. In <em>k</em>-nearest neighbours you repeatedly evaluate a squared distance <code>sum((x_i - q_i)**2 for i in range(d))</code>. In gradient descent you repeatedly evaluate a dot product <code>sum(w_i * x_i)</code> and then a weighted update <code>w_i = w_i - lr * grad_i</code>. In A* search with a learned heuristic you evaluate a weighted sum of feature values at every node expansion. In a hidden Markov model you repeatedly multiply a probability vector by a transition matrix. These are not incidental operations — they dominate the runtime. Any improvement in how fast a dot product runs is an improvement in how fast the whole algorithm runs.</p>
+
+<p>The difficulty is that a Python <code>list</code> is not a block of numbers. It is an array of <em>pointers</em> to Python objects, and each of those objects — even a humble integer — is a full heap-allocated structure carrying a reference count and a type pointer alongside its value. Adding two lists element by element therefore requires, for every single element: dereference a pointer, check the object's type, dispatch to the correct <code>__add__</code> implementation, allocate a brand-new object for the result, write its header fields, and store a new pointer. The actual machine instruction that adds two numbers is a vanishingly small fraction of that work. This is the cost of Python's dynamic typing, and it is paid once per element, inside the interpreter loop.</p>
+
+<p>A NumPy array removes all of that. It is a single contiguous buffer of raw machine values — say, 1,000,000 consecutive 8-byte doubles — with the type recorded <em>once</em> in the array's metadata rather than once per element. An addition of two such arrays becomes a tight compiled loop with no type checks, no allocations, and excellent CPU cache behaviour, often further accelerated by SIMD instructions that process several values per clock cycle. The practical result is a speedup of one to two orders of magnitude for simple element-wise work, and considerably more for linear algebra, where NumPy delegates to highly optimised BLAS/LAPACK implementations.</p>
+
+<pre><code>import numpy as np
+import time
+
+n = 1_000_000
+a_list = list(range(n))
+b_list = list(range(n))
+a_arr = np.arange(n, dtype=np.float64)
+b_arr = np.arange(n, dtype=np.float64)
+
+t0 = time.perf_counter()
+c_list = [x + y for x, y in zip(a_list, b_list)]
+t1 = time.perf_counter()
+c_arr = a_arr + b_arr
+t2 = time.perf_counter()
+
+print(f"list comprehension: {t1 - t0:.4f} s")
+print(f"numpy vectorised:   {t2 - t1:.4f} s")
+print(f"speedup:            {(t1 - t0) / (t2 - t1):.1f}x")</code></pre>
+
+<p>Typical output shows the list version taking tens of milliseconds and the NumPy version taking a few milliseconds or less. Memory tells a similar story: one million Python integers in a list consume roughly 36–40 MB (pointer plus object), while one million <code>float64</code> values in an array consume exactly 8 MB plus a small fixed header. For datasets that must stay resident during training, this difference decides whether an experiment fits in RAM.</p>
+
+<p>There is a second, less quantifiable but equally important benefit: <strong>expressiveness</strong>. Compare the two renderings of a mean-squared-error calculation below.</p>
+
+<pre><code># Loop version: 6 lines, index bookkeeping, easy to get wrong
+total = 0.0
+for i in range(len(y_true)):
+    diff = y_true[i] - y_pred[i]
+    total += diff * diff
+mse = total / len(y_true)
+
+# Vectorised version: reads like the mathematical definition
+mse = np.mean((y_true - y_pred) ** 2)</code></pre>
+
+<p>The second version has no loop variable to mis-increment, no off-by-one risk, and maps one-to-one onto the formula. When later in the course you implement perceptron updates, k-means centroid recomputation, or policy evaluation for a Markov decision process, this correspondence between the pseudocode in the lecture notes and the Python on screen is what makes the implementations tractable. The stack is also the <em>lingua franca</em> of the ecosystem: scikit-learn estimators accept and return NumPy arrays, pandas is built directly on top of NumPy buffers, Matplotlib plots arrays natively, and deep learning frameworks such as PyTorch and TensorFlow deliberately mirror NumPy's API. Learning the stack early is therefore not a detour — it is the prerequisite for everything that follows.</p>
+
+<p><strong>NumPy Arrays and the ndarray Model</strong></p>
+
+<p>The central object is the <code>ndarray</code> (n-dimensional array). To use it well you must understand four pieces of its metadata: <code>dtype</code>, <code>shape</code>, <code>strides</code>, and the data buffer itself.</p>
+
+<p>The <strong>dtype</strong> is the single element type shared by every entry. Unlike a list, an array is homogeneous. Common dtypes in AI work include:</p>
+
+<table>
+  <thead>
+    <tr><th>dtype</th><th>Size</th><th>Typical use</th><th>Caution</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>float64</code></td><td>8 bytes</td><td>Default for feature matrices, weights, probabilities</td><td>Memory-hungry for very large datasets</td></tr>
+    <tr><td><code>float32</code></td><td>4 bytes</td><td>Large datasets, GPU interoperability, deep learning</td><td>~7 significant decimal digits only</td></tr>
+    <tr><td><code>int64</code> / <code>int32</code></td><td>8 / 4 bytes</td><td>Class labels, indices, counts</td><td>Silent overflow; integer division truncates</td></tr>
+    <tr><td><code>bool</code></td><td>1 byte</td><td>Masks produced by comparisons</td><td>Sums to an integer count, not a float</td></tr>
+    <tr><td><code>object</code></td><td>pointer</td><td>Mixed/arbitrary Python objects</td><td>Loses all speed benefits — usually a mistake</td></tr>
+  </tbody>
+</table>
+
+<pre><code>import numpy as np
+
+a = np.array([1, 2, 3])                 # inferred int64
+b = np.array([1.0, 2.0, 3.0])           # inferred float64
+c = np.array([1, 2, 3], dtype=np.float32)
+
+print(a.dtype, b.dtype, c.dtype)        # int64 float64 float32
+print(a.itemsize, a.nbytes)             # 8 24
+
+d = np.array([1, 2, 3])
+d[0] = 2.7          # silently truncated to 2 — the dtype wins
+print(d)            # [2 2 3]</code></pre>
+
+<p>That last example is a classic source of bugs: assigning a float into an integer array truncates without warning. If an array is going to hold learning rates, gradients, or normalised features, create it as floating point from the outset (<code>np.zeros(n)</code> and <code>np.ones(n)</code> default to <code>float64</code>; <code>np.zeros(n, dtype=int)</code> if you really want integers).</p>
+
+<p>The <strong>shape</strong> is a tuple giving the length along each dimension. The length of the tuple is the number of dimensions, available as <code>ndim</code>.</p>
+
+<pre><code>v = np.array([1.0, 2.0, 3.0])              # shape (3,)      — a vector,  ndim 1
+M = np.array([[1.0, 2.0], [3.0, 4.0],
+              [5.0, 6.0]])                 # shape (3, 2)    — a matrix,  ndim 2
+T = np.zeros((2, 3, 4))                    # shape (2, 3, 4) — a tensor,  ndim 3
+
+print(v.shape, M.shape, T.shape)
+print(M.size)      # 6 total elements
+print(len(M))      # 3 — len() gives only the FIRST dimension</code></pre>
+
+<p>In machine learning the overwhelming convention is that a feature matrix <code>X</code> has shape <code>(n_samples, n_features)</code>: one row per observation, one column per feature. The label vector <code>y</code> has shape <code>(n_samples,)</code>. Shape mismatches are the single most common runtime error in numerical code, so printing <code>X.shape</code> and <code>y.shape</code> immediately after loading data is a habit worth forming. Note also the distinction between <code>(3,)</code>, <code>(3, 1)</code> and <code>(1, 3)</code>: a 1-D vector, a column matrix, and a row matrix respectively. They contain the same numbers but behave differently under broadcasting, and scikit-learn will frequently complain if you pass one where it expects another.</p>
+
+<p>Several constructors create arrays without writing out literals:</p>
+
+<pre><code>np.zeros((2, 3))              # all zeros, float64
+np.ones(5)                    # [1. 1. 1. 1. 1.]
+np.full((2, 2), 7.0)          # every entry 7.0
+np.eye(3)                     # 3x3 identity matrix
+np.arange(0, 10, 2)           # [0 2 4 6 8] — like range(), but an array
+np.linspace(0, 1, 5)          # [0.   0.25 0.5  0.75 1.  ] — 5 points inclusive
+rng = np.random.default_rng(42)
+rng.normal(0, 1, size=(3, 4)) # reproducible Gaussian noise</code></pre>
+
+<p>Use <code>np.random.default_rng(seed)</code> rather than the older <code>np.random.seed</code> functions: a seeded generator object makes experiments reproducible and avoids hidden global state, which matters when you need a marker to reproduce your reported results.</p>
+
+<p><strong>Indexing and slicing</strong> follow Python's conventions, extended to multiple dimensions with a comma-separated tuple of slices. The crucial subtlety is that <em>basic slicing returns a view, not a copy</em>.</p>
+
+<pre><code>arr = np.arange(24).reshape(4, 6)
+# [[ 0  1  2  3  4  5]
+#  [ 6  7  8  9 10 11]
+#  [12 13 14 15 16 17]
+#  [18 19 20 21 22 23]]
+
+print(arr[1, 3])        # 9      — single element, row 1 col 3
+print(arr[2])           # [12 13 14 15 16 17] — whole row
+print(arr[:, 0])        # [ 0  6 12 18]       — whole column, shape (4,)
+print(arr[1:4, :2])     # rows 1-3, first 2 columns
+
+sub = arr[1:4, :2]
+sub[0, 0] = -99
+print(arr[1, 0])        # -99 — the edit propagated back to arr!</code></pre>
+
+<p>This is deliberate and valuable: slicing a 100 MB array to extract a training fold costs nothing because no data is copied. It is also a trap, because mutating a slice silently mutates the parent. The <code>.base</code> attribute tells you whether an array is a view (<code>sub.base is arr</code> evaluates true). When you genuinely need independent data, call <code>.copy()</code>:</p>
+
+<pre><code>safe = arr[1:4, :2].copy()
+safe[0, 0] = 0          # arr is untouched</code></pre>
+
+<p><strong>Reshaping</strong> operations exploit the same mechanism. Because the underlying buffer is one flat sequence of bytes, re-describing it with a different shape and stride pattern usually requires no data movement at all.</p>
+
+<pre><code>x = np.arange(12)            # shape (12,)
+A = x.reshape(3, 4)          # view: 3 rows of 4, C (row-major) order
+B = x.reshape(3, -1)         # -1 means "infer this dimension" -> (3, 4)
+C = A.T                      # transpose, shape (4, 3) — also a view
+f = A.flatten()              # always a COPY, shape (12,)
+r = A.ravel()                # a VIEW when possible, shape (12,)
+
+col = x.reshape(-1, 1)       # shape (12, 1) — common fix for sklearn
+row = x[np.newaxis, :]       # shape (1, 12); x[:, None] gives (12, 1)</code></pre>
+
+<p>Remember the distinction: <code>flatten()</code> guarantees a copy, <code>ravel()</code> gives a view where it can. Transpose does not move memory either — it merely swaps the stride values, which is why <code>A.T</code> on a huge matrix is instantaneous. (Some operations, such as reshaping a transposed array into an incompatible layout, do force a copy; NumPy handles this transparently.)</p>
+
+<p><strong>Boolean masking</strong> and <strong>fancy indexing</strong> are the workhorses of feature preprocessing. A comparison applied to an array returns a boolean array of the same shape, which can then be used as an index.</p>
+
+<pre><code>scores = np.array([0.9, -0.2, 0.4, -1.5, 0.7, 0.0])
+
+mask = scores &gt; 0               # [ True False  True False  True False]
+print(scores[mask])             # [0.9 0.4 0.7]  — only positive entries
+print(mask.sum())               # 3 — True counts as 1, a handy idiom
+print(np.where(mask)[0])        # [0 2 4] — the indices themselves
+
+scores[scores &lt; 0] = 0.0        # in-place ReLU / clipping
+print(scores)                   # [0.9 0.  0.4 0.  0.7 0. ]
+
+# Combine conditions with &amp; | ~ and PARENTHESES (not and/or/not)
+X = np.array([[1.0, 50.0], [2.0, 10.0], [3.0, 80.0], [4.0, 30.0]])
+keep = (X[:, 0] &gt; 1.5) &amp; (X[:, 1] &lt; 60.0)
+print(X[keep])                  # rows 1 and 3
+
+# Fancy indexing with an integer array: reorder or sample rows
+order = np.array([3, 0, 2])
+print(X[order])                 # rows 3, 0, 2 in that order — this IS a copy</code></pre>
+
+<p>Note the use of <code>&amp;</code>, <code>|</code> and <code>~</code> rather than <code>and</code>, <code>or</code> and <code>not</code>. Python's keyword operators try to reduce an array to a single truth value and raise <em>"The truth value of an array with more than one element is ambiguous"</em>. Note also that boolean and fancy indexing return <em>copies</em>, unlike basic slicing — a useful asymmetry to remember.</p>
+
+<p>A practical application: filtering out invalid rows and shuffling a dataset before splitting it.</p>
+
+<pre><code>rng = np.random.default_rng(0)
+X = rng.normal(size=(200, 4))
+y = rng.integers(0, 2, size=200)
+
+X[5, 2] = np.nan                        # simulate a corrupted entry
+valid = ~np.isnan(X).any(axis=1)        # True for rows with no NaN
+X, y = X[valid], y[valid]
+
+perm = rng.permutation(len(X))          # shuffled index array
+X, y = X[perm], y[perm]
+split = int(0.8 * len(X))
+X_train, X_test = X[:split], X[split:]
+y_train, y_test = y[:split], y[split:]
+print(X_train.shape, X_test.shape)      # (159, 4) (40, 4)</code></pre>
+
+<p><strong>Vectorized Operations and Broadcasting</strong></p>
+
+<p>A <em>vectorised</em> operation is one applied to a whole array in a single call, with the looping done in compiled code. NumPy's arithmetic operators and its library of <em>universal functions</em> (ufuncs) are all vectorised.</p>
+
+<pre><code>a = np.array([1.0, 2.0, 3.0, 4.0])
+b = np.array([10.0, 20.0, 30.0, 40.0])
+
+a + b          # [11. 22. 33. 44.]   element-wise addition
+a * b          # [10. 40. 90. 160.]  element-wise product (NOT dot product)
+b / a          # [10. 10. 10. 10.]
+a ** 2         # [ 1.  4.  9. 16.]
+a * 2          # [2. 4. 6. 8.]       scalar broadcast across the array
+
+np.exp(a)      # e**a, element-wise
+np.sqrt(a)
+np.log(a)
+np.maximum(a, 2.5)   # [2.5 2.5 3.  4. ] — element-wise max against a scalar
+np.abs(a - b)</code></pre>
+
+<p>An immediately useful AI example is the logistic (sigmoid) function, which appears in logistic regression and in neural network activations. Written with a loop it needs several lines; vectorised it is a one-liner that works on scalars, vectors, and matrices alike.</p>
+
+<pre><code>def sigmoid(z):
+    """Numerically stable-ish logistic function; works on any array shape."""
+    return 1.0 / (1.0 + np.exp(-z))
+
+z = np.array([[-2.0, 0.0], [1.0, 5.0]])
+print(sigmoid(z))
+# [[0.11920292 0.5       ]
+#  [0.73105858 0.99330715]]</code></pre>
+
+<p><strong>Broadcasting</strong> is the rule set that lets NumPy combine arrays of different shapes. Conceptually, the smaller array is "stretched" along the mismatched dimensions — but no stretched copy is ever materialised in memory, so broadcasting is free. The algorithm compares shapes element-wise from the <em>right</em>:</p>
+
+<ul>
+  <li>If the two arrays have different numbers of dimensions, the shorter shape is left-padded with 1s.</li>
+  <li>Two dimensions are compatible if they are equal, or if one of them is 1.</li>
+  <li>A dimension of size 1 is repeated to match the other.</li>
+  <li>If any pair of dimensions is incompatible, NumPy raises a <code>ValueError</code>.</li>
+</ul>
+
+<table>
+  <thead>
+    <tr><th>Shape A</th><th>Shape B</th><th>Result</th><th>Interpretation</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>(100, 3)</td><td>(3,)</td><td>(100, 3)</td><td>Add a bias/mean vector to every row</td></tr>
+    <tr><td>(100, 3)</td><td>(100, 1)</td><td>(100, 3)</td><td>Scale every row by its own factor</td></tr>
+    <tr><td>(100, 3)</td><td>scalar</td><td>(100, 3)</td><td>Multiply everything by a learning rate</td></tr>
+    <tr><td>(5, 1)</td><td>(1, 4)</td><td>(5, 4)</td><td>Outer-product-style pairwise grid</td></tr>
+    <tr><td>(100, 3)</td><td>(100,)</td><td><em>error</em></td><td>3 vs 100 on the last axis — incompatible</td></tr>
+  </tbody>
+</table>
+
+<pre><code>X = np.arange(12, dtype=float).reshape(4, 3)   # 4 samples, 3 features
+bias = np.array([0.5, -1.0, 2.0])              # shape (3,)
+print(X + bias)        # bias added to EVERY row, no loop needed
+
+weights = np.array([[1.0], [2.0], [0.5], [1.5]])   # shape (4, 1)
+print(X * weights)     # each row scaled by its own weight
+
+# The classic failure and its fix
+rowsum = X.sum(axis=1)                 # shape (4,)
+# X / rowsum          -> ValueError: operands could not be broadcast
+print(X / rowsum[:, np.newaxis])       # shape (4,1) -> works, row-normalised</code></pre>
+
+<p>Standardising features — subtracting the mean and dividing by the standard deviation of each column — is a textbook broadcasting application and a near-universal preprocessing step:</p>
+
+<pre><code>mu = X.mean(axis=0)      # shape (3,) — one mean per feature
+sd = X.std(axis=0)       # shape (3,)
+X_std = (X - mu) / sd    # (4,3) - (3,) -> broadcast over rows
+print(X_std.mean(axis=0).round(10))   # [0. 0. 0.]
+print(X_std.std(axis=0))              # [1. 1. 1.]</code></pre>
+
+<p><strong>Reductions</strong> collapse one or more axes. The <code>axis</code> argument is the axis that <em>disappears</em>, which is the clearest way to remember it: <code>axis=0</code> collapses rows, giving a per-column result; <code>axis=1</code> collapses columns, giving a per-row result; omitting <code>axis</code> reduces the whole array to a scalar.</p>
+
+<pre><code>M = np.array([[1.0, 2.0, 3.0],
+              [4.0, 5.0, 6.0]])
+
+M.sum()              # 21.0        everything
+M.sum(axis=0)        # [5. 7. 9.]  column sums, shape (3,)
+M.sum(axis=1)        # [ 6. 15.]   row sums,    shape (2,)
+M.mean(axis=0)       # [2.5 3.5 4.5]
+M.max(axis=1)        # [3. 6.]
+M.argmax(axis=1)     # [2 2]       INDEX of the max in each row
+M.min(), M.std(), M.var()
+np.median(M, axis=0)
+M.sum(axis=1, keepdims=True)   # shape (2,1) — handy for broadcasting back</code></pre>
+
+<p><code>argmax</code> deserves special attention in AI code: it is how you convert a matrix of class scores or probabilities into predicted labels. If <code>P</code> has shape <code>(n_samples, n_classes)</code>, then <code>P.argmax(axis=1)</code> is the predicted class for each sample, as a <code>(n_samples,)</code> integer vector — exactly the format scikit-learn uses for <code>y_pred</code>. Likewise <code>(y_pred == y_true).mean()</code> is accuracy in a single expression, because the boolean array averages as 1s and 0s.</p>
+
+<pre><code>P = np.array([[0.1, 0.7, 0.2],
+              [0.6, 0.3, 0.1],
+              [0.2, 0.2, 0.6]])
+y_pred = P.argmax(axis=1)        # [1 0 2]
+y_true = np.array([1, 0, 1])
+accuracy = (y_pred == y_true).mean()
+print(accuracy)                  # 0.666...</code></pre>
+
+<p><strong>Linear algebra</strong> routines cover the matrix mathematics that underpins regression, dimensionality reduction, and neural layers. The <code>@</code> operator (equivalently <code>np.matmul</code>, and <code>np.dot</code> for most cases) performs matrix multiplication; it is <em>not</em> the same as <code>*</code>, which is element-wise.</p>
+
+<pre><code>X = np.array([[1.0, 2.0],
+              [3.0, 4.0],
+              [5.0, 6.0]])        # (3, 2)
+w = np.array([0.5, -1.0])         # (2,)
+
+preds = X @ w                     # (3,2) @ (2,) -> (3,)  = [-1.5 -2.5 -3.5]
+
+u = np.array([1.0, 2.0, 3.0])
+v = np.array([4.0, 5.0, 6.0])
+u @ v                             # 32.0 — dot product of two vectors
+np.linalg.norm(u)                 # 3.7416... — Euclidean length
+np.linalg.norm(u - v)             # Euclidean distance between two points
+
+A = np.array([[2.0, 1.0], [1.0, 3.0]])
+b = np.array([5.0, 10.0])
+np.linalg.solve(A, b)             # solve Ax = b — preferred over inv(A) @ b
+np.linalg.inv(A)                  # explicit inverse (slower, less stable)
+np.linalg.det(A)
+np.linalg.eig(A)                  # eigenvalues/vectors — behind PCA</code></pre>
+
+<p>The closed-form solution to ordinary least squares, <code>w = (XᵀX)⁻¹Xᵀy</code>, translates almost character for character — and in practice should be solved rather than inverted:</p>
+
+<pre><code>def fit_linear_regression(X, y):
+    """Least-squares fit with an intercept column prepended."""
+    n = X.shape[0]
+    Xb = np.hstack([np.ones((n, 1)), X])     # add bias column -> (n, d+1)
+    # Solve the normal equations (X'X)w = X'y without forming an inverse
+    w = np.linalg.solve(Xb.T @ Xb, Xb.T @ y)
+    return w
+
+rng = np.random.default_rng(1)
+X = rng.normal(size=(100, 2))
+true_w = np.array([3.0, 1.5, -2.0])          # intercept, then two slopes
+y = true_w[0] + X @ true_w[1:] + rng.normal(0, 0.1, size=100)
+print(fit_linear_regression(X, y).round(2))  # ~[3.   1.5 -2.  ]</code></pre>
+
+<p>The payoff of vectorisation is clearest in an algorithm you will meet repeatedly: computing all pairwise distances between a query set and a reference set, as <em>k</em>-NN and <em>k</em>-means require. The triple-nested loop version is unreadable and slow; the broadcast version is three lines.</p>
+
+<pre><code>def pairwise_distances_loop(A, B):
+    n, m = A.shape[0], B.shape[0]
+    D = np.zeros((n, m))
+    for i in range(n):
+        for j in range(m):
+            total = 0.0
+            for k in range(A.shape[1]):
+                diff = A[i, k] - B[j, k]
+                total += diff * diff
+            D[i, j] = np.sqrt(total)
+    return D
+
+def pairwise_distances_vec(A, B):
+    # A[:, None, :] has shape (n, 1, d); B[None, :, :] has shape (1, m, d)
+    # Broadcasting gives (n, m, d); sum over the last axis -> (n, m)
+    diff = A[:, np.newaxis, :] - B[np.newaxis, :, :]
+    return np.sqrt((diff ** 2).sum(axis=-1))
+
+rng = np.random.default_rng(7)
+A = rng.normal(size=(300, 8))
+B = rng.normal(size=(400, 8))
+assert np.allclose(pairwise_distances_loop(A, B), pairwise_distances_vec(A, B))</code></pre>
+
+<p>On arrays of this size the loop version takes on the order of a second while the vectorised version takes a few milliseconds — and the gap widens quadratically with the number of points. (For very large inputs the three-dimensional intermediate becomes memory-hungry; the identity <code>‖a−b‖² = ‖a‖² − 2a·b + ‖b‖²</code> lets you compute the same result with a single matrix product, which is exactly what scikit-learn does internally.) The guiding heuristic for the rest of the course is simple: <em>if you find yourself writing a Python <code>for</code> loop over the rows of an array, pause and ask whether a vectorised expression exists.</em> Usually it does.</p>
+
+<p>A caution to balance the enthusiasm: vectorisation trades memory for speed, and some algorithms are inherently sequential. Gradient descent iterations, A* node expansions, and recursive tree construction cannot be collapsed into a single array operation — but the work <em>inside</em> each iteration almost always can be.</p>
+
+<p><strong>pandas for Data Loading and Inspection</strong></p>
+
+<p>NumPy is ideal once your data is a clean rectangle of numbers. Real datasets arrive as CSV files with headers, mixed types, missing entries, date strings, and categorical labels. <strong>pandas</strong> fills that gap. Its <code>DataFrame</code> is a two-dimensional table with labelled columns (each a <code>Series</code> backed by a NumPy array) and a labelled index for rows.</p>
+
+<pre><code>import pandas as pd
+
+df = pd.read_csv("students.csv")                       # local file
+df = pd.read_csv("https://example.com/data.csv")       # URL
+df = pd.read_csv("data.csv", sep=";", na_values=["?", "NA", ""])
+df = pd.read_excel("results.xlsx", sheet_name="run1")
+df = pd.read_json("records.json")
+# df = pd.read_sql("SELECT * FROM trials", connection)</code></pre>
+
+<p>Useful <code>read_csv</code> arguments include <code>sep</code> (delimiter), <code>header=None</code> when the file has no header row, <code>names=[...]</code> to supply column names, <code>index_col</code> to promote a column to the index, <code>usecols</code> to load only the columns you need, <code>nrows</code> to peek at a huge file, and <code>na_values</code> to declare the sentinel strings a dataset uses for "missing".</p>
+
+<p>Immediately after loading, run the standard four-step sanity check. Doing this <em>before</em> modelling catches the overwhelming majority of data problems.</p>
+
+<pre><code>print(df.shape)          # (rows, columns) — is it the size you expected?
+print(df.head())         # first 5 rows — did the header parse correctly?
+print(df.info())         # dtypes and non-null counts per column
+print(df.describe())     # count/mean/std/min/quartiles/max for numeric cols
+print(df["species"].value_counts())        # class balance
+print(df["species"].value_counts(normalize=True))   # as proportions
+print(df.columns.tolist())
+print(df.isna().sum())   # missing values per column</code></pre>
+
+<p>Each of these answers a specific question. <code>head()</code> reveals a mis-parsed delimiter or a header row read as data. <code>info()</code> exposes the common disaster of a numeric column arriving as <code>object</code> dtype because a stray <code>"N/A"</code> or thousands separator contaminated it. <code>describe()</code> shows implausible minima and maxima — an age of −1, a standardised feature with a standard deviation of 400 — and reveals features on wildly different scales that will need normalising. <code>value_counts()</code> exposes class imbalance, which determines whether accuracy is a meaningful metric at all.</p>
+
+<p>Consider a small worked dataset:</p>
+
+<pre><code>df = pd.DataFrame({
+    "height": [1.72, 1.65, 1.80, 1.58, None, 1.90],
+    "weight": [70.0, 58.0, 85.0, None, 62.0, 95.0],
+    "age":    [21, 35, 28, 40, 19, 52],
+    "group":  ["A", "B", "A", "B", "A", "B"],
+})
+print(df.info())
+# height  5 non-null  float64
+# weight  5 non-null  float64
+# age     6 non-null  int64
+# group   6 non-null  object</code></pre>
+
+<p><strong>Selection and indexing.</strong> A single bracket with a string gives a <code>Series</code> (one column); a list of strings gives a <code>DataFrame</code> (several columns). For row-and-column selection use <code>.loc</code> (label-based, inclusive of the end label) and <code>.iloc</code> (integer-position-based, exclusive of the end, exactly like NumPy).</p>
+
+<pre><code>df["height"]                     # Series, shape (6,)
+df[["height", "weight"]]         # DataFrame with 2 columns
+
+df.loc[0, "height"]              # 1.72 — by label
+df.loc[0:2, ["height", "age"]]   # rows labelled 0,1,2 INCLUSIVE
+df.iloc[0:2, 0:2]                # rows 0,1 and cols 0,1 — end EXCLUSIVE
+df.iloc[-1]                      # last row
+
+# Boolean filtering — same & | ~ rules as NumPy
+adults = df[df["age"] &gt;= 30]
+tall_A = df[(df["height"] &gt; 1.70) &amp; (df["group"] == "A")]
+df.loc[df["group"] == "B", "weight"]      # filter rows, pick one column
+
+# Derived columns
+df["bmi"] = df["weight"] / df["height"] ** 2     # vectorised, no loop
+df["is_adult"] = df["age"] &gt;= 18</code></pre>
+
+<p>Note that <code>df["bmi"] = ...</code> is itself a vectorised NumPy operation under the hood — pandas inherits the whole performance story of the previous section. Avoid <code>df.iterrows()</code> for arithmetic; it is roughly as slow as a pure-Python loop and loses dtype information.</p>
+
+<p><strong>Missing values.</strong> Most estimators refuse to accept <code>NaN</code>, raising <code>ValueError: Input contains NaN</code>. You must decide explicitly what to do.</p>
+
+<pre><code>df.isna()                       # boolean DataFrame, same shape
+df.isna().sum()                 # count per column
+df.isna().any(axis=1).sum()     # how many rows have ANY missing value
+
+df.dropna()                     # drop rows with any NaN
+df.dropna(subset=["weight"])    # drop only where weight is missing
+df.dropna(axis=1)               # drop offending COLUMNS instead
+
+df["weight"].fillna(df["weight"].mean())     # mean imputation
+df["height"].fillna(df["height"].median())   # median — robust to outliers
+df["group"].fillna("unknown")                # categorical placeholder
+df.fillna(0)                                 # blunt, rarely appropriate
+
+clean = df.copy()
+clean["height"] = clean["height"].fillna(clean["height"].median())
+clean["weight"] = clean["weight"].fillna(clean["weight"].median())
+print(clean.isna().sum().sum())              # 0</code></pre>
+
+<p>The choice matters. Dropping rows is safe when missingness is rare and random, but discards information and can bias the sample if missingness correlates with the target. Mean or median imputation preserves sample size but shrinks variance and invents data. A disciplined workflow computes imputation statistics on the <em>training</em> split only and applies them to the test split, so that test information never leaks into training — scikit-learn's <code>SimpleImputer</code> inside a <code>Pipeline</code> enforces this automatically.</p>
+
+<p><strong>groupby</strong> implements the split–apply–combine pattern: split rows into groups by the value of one or more keys, apply an aggregation to each group, and combine the results into a new table. It is how you summarise experimental results by class, by cross-validation fold, or by hyperparameter setting.</p>
+
+<pre><code>df.groupby("group")["bmi"].mean()
+df.groupby("group").agg({"bmi": ["mean", "std"], "age": "max"})
+df.groupby("group").size()                       # rows per group
+
+results = pd.DataFrame({
+    "model": ["knn", "knn", "knn", "tree", "tree", "tree"],
+    "fold":  [1, 2, 3, 1, 2, 3],
+    "accuracy": [0.91, 0.88, 0.90, 0.85, 0.87, 0.83],
+})
+summary = (results.groupby("model")["accuracy"]
+                  .agg(["mean", "std", "min", "max"])
+                  .sort_values("mean", ascending=False))
+print(summary)</code></pre>
+
+<table>
+  <thead>
+    <tr><th>model</th><th>mean</th><th>std</th><th>min</th><th>max</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>knn</td><td>0.8967</td><td>0.0153</td><td>0.88</td><td>0.91</td></tr>
+    <tr><td>tree</td><td>0.8500</td><td>0.0200</td><td>0.83</td><td>0.87</td></tr>
+  </tbody>
+</table>
+
+<p>A table like this — mean accuracy with a standard deviation across folds — is precisely what a report should present, rather than a single number from one lucky split.</p>
+
+<p><strong>Handhoff to NumPy.</strong> When the frame is clean, convert it to arrays for the estimator. Prefer <code>.to_numpy()</code> over the older <code>.values</code> attribute; both return a NumPy array, but <code>.to_numpy()</code> is the documented, explicit API and accepts a <code>dtype</code> argument.</p>
+
+<pre><code>feature_cols = ["height", "weight", "age"]
+X = clean[feature_cols].to_numpy(dtype=np.float64)   # (6, 3)
+y = (clean["group"] == "A").to_numpy().astype(int)   # (6,) labels 0/1
+print(X.shape, y.shape, X.dtype, y.dtype)</code></pre>
+
+<p>One warning: if any column is non-numeric, <code>to_numpy()</code> silently produces an <code>object</code>-dtype array and every speed advantage evaporates. Encode categorical columns first — with <code>pd.get_dummies(df, columns=["group"])</code> for one-hot encoding, or scikit-learn's <code>OrdinalEncoder</code>/<code>OneHotEncoder</code> when you need the transformation to be reusable at prediction time.</p>
+
+<p><strong>Matplotlib for Visualizing Data and Results</strong></p>
+
+<p>Numbers alone rarely tell you whether an algorithm is working. A learning curve that plateaus, an oscillating loss, a scatter plot showing two classes hopelessly intermixed — these diagnoses are instant visually and laborious numerically. Matplotlib's <code>pyplot</code> module provides the standard chart types.</p>
+
+<table>
+  <thead>
+    <tr><th>Function</th><th>Chart</th><th>Typical AI use</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>plt.plot</code></td><td>Line</td><td>Loss or accuracy versus epoch; convergence curves</td></tr>
+    <tr><td><code>plt.scatter</code></td><td>Scatter</td><td>Two features coloured by class; predicted vs actual</td></tr>
+    <tr><td><code>plt.bar</code></td><td>Bar</td><td>Feature importances; accuracy per model</td></tr>
+    <tr><td><code>plt.hist</code></td><td>Histogram</td><td>Feature distributions; residual distributions</td></tr>
+    <tr><td><code>plt.imshow</code></td><td>Image/heatmap</td><td>Confusion matrices; weight matrices; digit images</td></tr>
+  </tbody>
+</table>
+
+<p>A <strong>convergence plot</strong> is the first diagnostic you should produce for any iterative learner. Plotting the training cost against the iteration number answers three questions at once: is the algorithm converging at all, has it converged yet, and is the learning rate sensible? A curve that falls smoothly and flattens indicates success; one that oscillates or diverges upward indicates a learning rate that is too large; one that is still falling steeply at the last iteration indicates you stopped too early.</p>
+
+<pre><code>import numpy as np
+import matplotlib.pyplot as plt
+
+def gradient_descent(X, y, lr=0.1, n_iter=100):
+    """Least-squares gradient descent; returns weights and cost history."""
+    n, d = X.shape
+    w = np.zeros(d)
+    history = []
+    for _ in range(n_iter):
+        preds = X @ w                       # (n,)
+        errors = preds - y                  # (n,)
+        cost = (errors ** 2).mean()         # mean squared error
+        history.append(cost)
+        grad = 2.0 / n * (X.T @ errors)     # (d,) — fully vectorised
+        w = w - lr * grad
+    return w, np.array(history)
+
+rng = np.random.default_rng(0)
+X = rng.normal(size=(200, 3))
+y = X @ np.array([2.0, -1.0, 0.5]) + rng.normal(0, 0.2, size=200)
+
+plt.figure(figsize=(7, 4))
+for lr in (0.01, 0.05, 0.2):
+    _, hist = gradient_descent(X, y, lr=lr, n_iter=60)
+    plt.plot(hist, label=f"learning rate = {lr}")
+
+plt.xlabel("Iteration")
+plt.ylabel("Mean squared error")
+plt.title("Gradient descent convergence for three learning rates")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.savefig("convergence.png", dpi=150)
+plt.show()</code></pre>
+
+<p>A <strong>scatter plot with colour-coded labels</strong> shows whether the classes are separable in the feature space you have chosen. If the colours form distinct clusters, a simple linear model may suffice; if they are thoroughly mixed, you need better features, a non-linear model, or both.</p>
+
+<pre><code>rng = np.random.default_rng(3)
+class0 = rng.normal(loc=[0, 0], scale=0.7, size=(80, 2))
+class1 = rng.normal(loc=[2.5, 2.0], scale=0.7, size=(80, 2))
+X = np.vstack([class0, class1])
+y = np.r_[np.zeros(80, dtype=int), np.ones(80, dtype=int)]
+
+plt.figure(figsize=(6, 5))
+plt.scatter(X[y == 0, 0], X[y == 0, 1], c="tab:blue",   marker="o",
+            label="Class 0", alpha=0.7, edgecolor="k", linewidth=0.3)
+plt.scatter(X[y == 1, 0], X[y == 1, 1], c="tab:orange", marker="^",
+            label="Class 1", alpha=0.7, edgecolor="k", linewidth=0.3)
+plt.xlabel("Feature 1 (standardised)")
+plt.ylabel("Feature 2 (standardised)")
+plt.title("Class separability in the first two features")
+plt.legend(loc="upper left")
+plt.tight_layout()
+plt.show()</code></pre>
+
+<p>Note the boolean masking doing the work here: <code>X[y == 0, 0]</code> reads "the first column of every row whose label is 0". This is the NumPy material of the previous section used directly in service of plotting. Note too the use of both colour <em>and</em> marker shape to distinguish classes — a figure that relies on colour alone is unreadable when printed in greyscale or viewed by a colour-blind reader.</p>
+
+<p><strong>Labelling is not optional.</strong> An unlabelled figure in submitted work is close to worthless: the marker cannot tell what is being measured, in what units, or which line is which. Every figure you submit should have an x-axis label, a y-axis label, a descriptive title, and a legend whenever more than one series is drawn. Add units where they exist, keep the title informative ("Validation accuracy versus k for k-NN on the Iris dataset", not "Figure 1"), and save with <code>dpi=150</code> or higher so the image is legible in a report.</p>
+
+<p><strong>Subplots</strong> arrange several related views in one figure. <code>plt.subplots(nrows, ncols)</code> returns a <code>Figure</code> and an array of <code>Axes</code> objects; you then call plotting methods on each <code>Axes</code> rather than on <code>plt</code>. This object-oriented style is the recommended one for anything beyond a throwaway plot, because it makes explicit which chart you are drawing on.</p>
+
+<pre><code>fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+
+axes[0, 0].plot(hist)
+axes[0, 0].set_xlabel("Iteration")
+axes[0, 0].set_ylabel("MSE")
+axes[0, 0].set_title("Training loss")
+
+axes[0, 1].hist(X[:, 0], bins=20, color="tab:green", edgecolor="k")
+axes[0, 1].set_xlabel("Feature 1")
+axes[0, 1].set_ylabel("Count")
+axes[0, 1].set_title("Feature 1 distribution")
+
+axes[1, 0].scatter(X[:, 0], X[:, 1], c=y, cmap="coolwarm", s=18)
+axes[1, 0].set_xlabel("Feature 1")
+axes[1, 0].set_ylabel("Feature 2")
+axes[1, 0].set_title("Class structure")
+
+cm = np.array([[42, 3], [5, 50]])
+im = axes[1, 1].imshow(cm, cmap="Blues")
+axes[1, 1].set_xlabel("Predicted label")
+axes[1, 1].set_ylabel("True label")
+axes[1, 1].set_title("Confusion matrix")
+for i in range(cm.shape[0]):
+    for j in range(cm.shape[1]):
+        axes[1, 1].text(j, i, str(cm[i, j]), ha="center", va="center")
+fig.colorbar(im, ax=axes[1, 1])
+
+fig.suptitle("Diagnostic panel for the baseline model")
+fig.tight_layout()
+fig.savefig("diagnostics.png", dpi=150)</code></pre>
+
+<p>A few practical habits are worth adopting now. Call <code>plt.figure()</code> (or <code>plt.subplots()</code>) at the start of each distinct chart, otherwise successive plot calls accumulate on the same axes and you end up with everything superimposed. Call <code>tight_layout()</code> before saving to stop labels from being clipped. Use <code>savefig()</code> <em>before</em> <code>show()</code>, because in some backends <code>show()</code> clears the figure. In a Jupyter notebook figures render inline automatically; in a plain script you need <code>plt.show()</code> or a <code>savefig()</code> call or nothing appears at all. Finally, <code>imshow</code> treats its input as a 2-D grid of values, which makes it equally suitable for confusion matrices, correlation matrices, learned weight matrices, and raw image data such as the 8×8 handwritten digits in <code>sklearn.datasets.load_digits</code>.</p>
+
+<p><strong>Putting the Stack Together in an AI Workflow</strong></p>
+
+<p>The three libraries are designed to hand work to one another, and a well-structured experiment makes that hand-off explicit. The division of labour is:</p>
+
+<table>
+  <thead>
+    <tr><th>Stage</th><th>Library</th><th>Data form</th><th>Responsibility</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Load and clean</td><td>pandas</td><td><code>DataFrame</code></td><td>Read files, inspect types, handle missing values, encode categories</td></tr>
+    <tr><td>Prepare features</td><td>NumPy</td><td><code>ndarray</code></td><td>Numeric feature matrix <code>X</code> and label vector <code>y</code>, scaling, splitting</td></tr>
+    <tr><td>Model</td><td>scikit-learn</td><td><code>ndarray</code> in and out</td><td><code>fit</code> on training data, <code>predict</code> on unseen data, score</td></tr>
+    <tr><td>Report</td><td>Matplotlib</td><td><code>ndarray</code></td><td>Visualise data, predictions, errors, learning curves</td></tr>
+  </tbody>
+</table>
+
+<p>The <strong>import aliases</strong> are fixed by convention and you should use them in every piece of submitted code, because every tutorial, Stack Overflow answer, and marker expects them:</p>
+
+<pre><code>import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt</code></pre>
+
+<p>Do not invent your own (<code>import numpy as numpy_lib</code>) and do not use <code>from numpy import *</code>, which floods your namespace and makes it impossible to tell whether <code>sum</code> means Python's built-in or NumPy's. Keep imports at the top of the file, standard library first, then third-party packages.</p>
+
+<p>The second structural convention is to <strong>separate the stages into functions</strong>. A script written as one long top-to-bottom block has to be rerun in its entirety — including the slow data loading — every time you want to change a hyperparameter, and it cannot be tested or reused. Splitting it into <code>load_data</code>, <code>prepare_features</code>, <code>train_model</code>, <code>evaluate</code>, and <code>plot_results</code> lets you swap any one stage without touching the others, call the same pipeline in a loop over several settings, and import the functions into a notebook for interactive exploration.</p>
+
+<pre><code>import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+
+def load_data():
+    """Return the raw dataset as a pandas DataFrame."""
+    data = load_iris(as_frame=True)
+    df = data.frame                      # features + a 'target' column
+    return df
+
+
+def inspect(df):
+    """Print the standard sanity checks."""
+    print("shape:", df.shape)
+    print(df.head())
+    print(df.info())
+    print(df.describe().round(2))
+    print("missing per column:\n", df.isna().sum())
+    print("class balance:\n", df["target"].value_counts().sort_index())
+
+
+def prepare_features(df, feature_cols=None):
+    """Clean the frame and hand clean NumPy arrays to the modelling stage."""
+    df = df.dropna()
+    if feature_cols is None:
+        feature_cols = [c for c in df.columns if c != "target"]
+    X = df[feature_cols].to_numpy(dtype=np.float64)   # (n_samples, n_features)
+    y = df["target"].to_numpy()                       # (n_samples,)
+    return X, y, feature_cols
+
+
+def train_model(X_train, y_train, k=5):
+    """Fit a scaled k-NN classifier and return the fitted objects."""
+    scaler = StandardScaler().fit(X_train)            # stats from TRAIN only
+    model = KNeighborsClassifier(n_neighbors=k)
+    model.fit(scaler.transform(X_train), y_train)
+    return scaler, model
+
+
+def evaluate(scaler, model, X_test, y_test):
+    """Return predictions, accuracy, and the confusion matrix."""
+    y_pred = model.predict(scaler.transform(X_test))  # NumPy array out
+    return y_pred, accuracy_score(y_test, y_pred), confusion_matrix(y_test, y_pred)
+
+
+def plot_results(X, y, ks, accuracies, cm, feature_cols):
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
+
+    for label in np.unique(y):
+        axes[0].scatter(X[y == label, 0], X[y == label, 1],
+                        label=f"class {label}", alpha=0.75, s=25)
+    axes[0].set_xlabel(feature_cols[0])
+    axes[0].set_ylabel(feature_cols[1])
+    axes[0].set_title("Class separability in the first two features")
+    axes[0].legend()
+
+    axes[1].plot(ks, accuracies, marker="o")
+    axes[1].set_xlabel("k (number of neighbours)")
+    axes[1].set_ylabel("Test accuracy")
+    axes[1].set_title("Accuracy versus k")
+    axes[1].grid(True, alpha=0.3)
+
+    im = axes[2].imshow(cm, cmap="Blues")
+    axes[2].set_xlabel("Predicted label")
+    axes[2].set_ylabel("True label")
+    axes[2].set_title("Confusion matrix (best k)")
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            axes[2].text(j, i, str(cm[i, j]), ha="center", va="center")
+    fig.colorbar(im, ax=axes[2])
+
+    fig.tight_layout()
+    fig.savefig("iris_report.png", dpi=150)
+    plt.show()
+
+
+def main():
+    df = load_data()
+    inspect(df)
+
+    X, y, feature_cols = prepare_features(df)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=42, stratify=y)
+
+    ks = [1, 3, 5, 7, 9, 11, 15]
+    accuracies, best = [], (None, -1.0, None)
+    for k in ks:
+        scaler, model = train_model(X_train, y_train, k=k)
+        y_pred, acc, cm = evaluate(scaler, model, X_test, y_test)
+        accuracies.append(acc)
+        if acc &gt; best[1]:
+            best = (k, acc, cm)
+        print(f"k={k:2d}  accuracy={acc:.3f}")
+
+    print(f"best k = {best[0]} with accuracy {best[1]:.3f}")
+    plot_results(X, y, ks, accuracies, best[2], feature_cols)
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+
+<p>Trace the data through that script and every claim of this topic appears in concrete form. <code>load_data</code> produces a pandas <code>DataFrame</code>; <code>inspect</code> uses <code>head</code>, <code>info</code>, <code>describe</code>, <code>isna</code>, and <code>value_counts</code> to confirm the data is what you think it is. <code>prepare_features</code> handles missing values and calls <code>to_numpy()</code> to produce a <code>float64</code> matrix of shape <code>(n_samples, n_features)</code> and an integer label vector of shape <code>(n_samples,)</code>. <code>StandardScaler</code> performs exactly the broadcast subtraction-and-division shown earlier, fitted on the training split only so no test statistics leak backwards. The estimator follows the universal scikit-learn contract — construct with hyperparameters, <code>fit(X, y)</code>, then <code>predict(X)</code> returning a NumPy array — and the metrics functions consume those arrays directly. Matplotlib then draws from the same arrays, using boolean masks to split classes and <code>imshow</code> to render the confusion matrix.</p>
+
+<p>Because each stage is a function, changing the experiment is a one-line edit: swap <code>KNeighborsClassifier</code> for <code>DecisionTreeClassifier</code> inside <code>train_model</code> and nothing else needs to change; point <code>load_data</code> at a CSV instead of the bundled Iris data and the rest of the pipeline is untouched. The <code>if __name__ == "__main__":</code> guard means the module can also be imported from a notebook without the whole experiment running on import. Combine this structure with a pinned <code>requirements.txt</code> so that <code>numpy</code>, <code>pandas</code>, <code>matplotlib</code>, and <code>scikit-learn</code> are installed at known versions, a fixed <code>random_state</code> for every stochastic step, and a Git commit for each meaningful change, and your experiments become reproducible by someone else on a different machine — which is ultimately the standard all submitted work is judged against.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Supported indirectly. The topic does not teach virtual environment creation, but it identifies NumPy, pandas, Matplotlib, and scikit-learn as the course libraries that must be installed and version-pinned in the requirements file for this code to run reproducibly.</li>
+  <li><strong>MO2</strong> — Supported. The vectorised implementations of sigmoid, gradient descent, least-squares fitting, and pairwise distances show algorithm pseudocode being translated into Python functions and array expressions rather than nested loops.</li>
+  <li><strong>MO3</strong> — Minimally addressed. The topic contrasts Python lists with NumPy arrays on memory layout and arithmetic cost, but it does not cover sets, dictionaries, deques, or heapq priority queues for frontier and visited-state management; that comparison belongs to the data structures topic.</li>
+  <li><strong>MO4</strong> — Strongly supported. The closing workflow loads data with pandas, builds vectorised NumPy feature matrices, and trains a scikit-learn estimator through the fit/predict pattern, which is precisely the construction this outcome requires.</li>
+  <li><strong>MO5</strong> — Not addressed directly. Git commits, branches, merges, and remote pushes are outside this topic's scope, although the function-separated script structure and pinned dependencies make the resulting code easier to version and share through a repository.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Code examples assume NumPy ≥ 1.20 (for `np.random.default_rng`), pandas ≥ 1.0 (for `to_numpy`), and scikit-learn ≥ 0.23 (for `load_iris(as_frame=True)`). Printed timings and speedup figures are machine-dependent and should be presented as indicative only. The pairwise-distance example deliberately shows both the naive triple loop and the broadcast version so the runtime contrast can be demonstrated live; mention the `‖a−b‖&#178;` expansion if memory use becomes a question. The confusion-matrix numbers in the subplot example are illustrative placeholders, not output from the preceding code.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

@@ -1,0 +1,289 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Designing and Comparing Heuristics</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Heuristic Functions, Best-First Search, and A*</a></div>
+  <header>
+    <h1>Designing and Comparing Heuristics</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Designing and Comparing Heuristics</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Once you know how to run A* and how to check admissibility and consistency, the interesting engineering question becomes: <em>where do good heuristics come from, and how do you tell which of two candidates is actually better?</em> Two admissible heuristics can both be "correct" in the sense that neither overestimates, yet one may let A* solve a 15-puzzle in a fraction of a second while the other grinds for hours. This topic develops the theory and the practical methodology for that comparison: the partial order of <strong>dominance</strong>, the summary statistic of the <strong>effective branching factor</strong>, three systematic generators of heuristics (<strong>relaxed problems</strong>, <strong>pattern databases</strong>, <strong>subproblem decomposition</strong>), the rules for <strong>combining</strong> several heuristics into one, and a disciplined <strong>experimental protocol</strong> for comparing them on sliding-tile and grid-pathfinding benchmarks.</p>
+
+<p><strong>Heuristic dominance and why it matters</strong></p>
+
+<p>Let <code>h1</code> and <code>h2</code> both be admissible heuristics for the same problem. We say that <strong>h2 dominates h1</strong> when</p>
+
+<pre><code>h2(n) &gt;= h1(n)   for every node n in the state space</code></pre>
+
+<p>Dominance is a <em>pointwise</em> condition: it is not enough for <code>h2</code> to be larger on average or on the instances you happened to test. A single node where <code>h2(n) &lt; h1(n)</code> breaks the relation, and the two heuristics become incomparable (each may win on different instances). Because both heuristics are bounded above by the true remaining cost <code>h*(n)</code>, dominance says that <code>h2</code> sits closer to <code>h*</code> everywhere: it is uniformly better informed.</p>
+
+<p>The classic example is the 8-puzzle. Let <code>h1</code> = number of misplaced tiles (blank excluded) and <code>h2</code> = sum over tiles of the Manhattan distance from each tile's current square to its goal square. Every misplaced tile contributes at least 1 to the Manhattan sum, and tiles that are correctly placed contribute 0 to both, so <code>h2(n) &gt;= h1(n)</code> for all states <code>n</code>. Concretely, for the state</p>
+
+<pre><code>7 2 4            1 2 3
+5 _ 6    goal:   4 5 6
+8 3 1            7 8 _</code></pre>
+
+<p><code>h1 = 8</code> (every tile is out of place) while <code>h2 = 3+1+2+2+2+3+3+2 = 18</code>. The true optimal cost is 26, so Manhattan distance recovers far more of the remaining work.</p>
+
+<p>Why does a larger admissible value translate into less search? Recall the central fact about A* with an admissible heuristic: let <code>C*</code> be the optimal solution cost. A* <strong>must</strong> expand every node whose <code>f(n) = g(n) + h(n) &lt; C*</code> (such a node might lie on a cheaper solution and cannot be ruled out), it <strong>may</strong> expand some nodes with <code>f(n) = C*</code> depending on tie-breaking, and it <strong>never</strong> expands a node with <code>f(n) &gt; C*</code>. Now consider a node <code>n</code> that <code>h1</code> forces A* to expand, i.e. <code>g(n) + h1(n) &lt; C*</code>. If <code>h2</code> dominates <code>h1</code>, then either <code>g(n) + h2(n) &lt; C*</code> as well (A* with <code>h2</code> may also expand it) or <code>g(n) + h2(n) &gt;= C*</code>, in which case <code>h2</code> prunes it. The set of nodes <em>surely</em> expanded under <code>h2</code> is therefore a subset of the set surely expanded under <code>h1</code>. Up to the nodes with <code>f = C*</code> that tie-breaking decides, <strong>A* with a dominating heuristic never expands more nodes than A* with the dominated one</strong>. Larger admissible values push more of the frontier above the <code>C*</code> cut-off, and everything above that cut-off is pruned for free.</p>
+
+<p>Two cautions keep this result from being a licence to inflate heuristic values.</p>
+
+<ul>
+<li><strong>Dominance presupposes admissibility on both sides.</strong> If you simply multiply Manhattan distance by 3, you get bigger numbers and a much smaller search tree — and solutions that can be badly suboptimal, because the proof above relied on <code>h &lt;= h*</code> to guarantee that pruned nodes really cannot lie on an optimal path. An inadmissible "dominating" heuristic trades correctness for speed; that may be an acceptable trade, but it is a different trade, and it must be declared explicitly (for example as weighted A* with a bounded-suboptimality guarantee).</li>
+<li><strong>Accuracy costs cycles.</strong> Misplaced tiles costs a handful of comparisons per node; Manhattan distance costs a table lookup and addition per tile; a pattern-database heuristic costs an index computation plus a memory probe that may miss cache; a heuristic computed by solving a relaxed problem with its own search can cost milliseconds. The quantity you care about is <code>(nodes expanded) × (cost per node)</code>, not nodes alone. A heuristic that halves node expansions but triples per-node cost is a net loss. Always report wall-clock time next to node counts.</li>
+</ul>
+
+<p>There is also a diminishing-returns effect worth noting: incremental heuristics applied at the top of the tree save little, because near the root <code>g</code> is small and almost everything has <code>f &lt; C*</code> anyway. The savings come from pruning the exponentially wide layers deep in the tree.</p>
+
+<p><strong>Measuring heuristic quality: the effective branching factor</strong></p>
+
+<p>"Nodes expanded" is instance-specific and scales wildly with depth, which makes raw counts awkward to compare across problems. The <strong>effective branching factor</strong> <code>b*</code> normalises them. Suppose A* expands <code>N</code> nodes while finding a solution at depth <code>d</code>. Define <code>b*</code> as the branching factor that a <em>uniform</em> tree of depth <code>d</code> would need in order to contain <code>N + 1</code> nodes (the <code>+1</code> counts the root):</p>
+
+<pre><code>N + 1 = 1 + b* + (b*)^2 + ... + (b*)^d</code></pre>
+
+<p>The equation has a unique positive root greater than 1 (for <code>N &gt; d</code>), found numerically by bisection or Newton's method. Worked example: if A* expands <code>N = 24</code> nodes to reach a goal at depth <code>d = 4</code>, we need <code>1 + b + b² + b³ + b⁴ = 25</code>. Trying <code>b = 1.85</code> gives 24.3; <code>b = 1.90</code> gives 26.4; <code>b = 1.86</code> gives ≈24.6. So <code>b* ≈ 1.87</code>. Interpreting it: a <code>b*</code> close to 1 means the search was nearly a straight walk down to the goal — a highly informed heuristic; a <code>b*</code> close to the problem's real branching factor (about 2.8 for the 8-puzzle counting repeated states, 4 for a 4-connected grid) means the heuristic is providing almost no guidance and A* is degenerating towards uniform-cost search.</p>
+
+<p>A pleasant empirical property is that <code>b*</code> is reasonably <em>stable</em> across instances and across depths for a given heuristic and problem family, which is exactly what you want from a summary statistic: you can estimate it from a modest sample of randomly generated problems and use it to predict costs at depths you cannot afford to run. The table below shows the classic 8-puzzle measurements (nodes generated, averaged over 100 random solvable instances per depth) for iterative-deepening search and for A* with <code>h1</code> (misplaced tiles) and <code>h2</code> (Manhattan distance).</p>
+
+<table>
+<thead>
+<tr><th>Solution depth d</th><th>IDS nodes</th><th>A*(h1) nodes</th><th>A*(h2) nodes</th><th>b* for IDS</th><th>b* for h1</th><th>b* for h2</th></tr>
+</thead>
+<tbody>
+<tr><td>4</td><td>112</td><td>13</td><td>12</td><td>2.87</td><td>1.48</td><td>1.45</td></tr>
+<tr><td>8</td><td>6,384</td><td>39</td><td>25</td><td>2.80</td><td>1.33</td><td>1.24</td></tr>
+<tr><td>12</td><td>3,644,035</td><td>227</td><td>73</td><td>2.78</td><td>1.42</td><td>1.24</td></tr>
+<tr><td>16</td><td>—</td><td>1,301</td><td>211</td><td>—</td><td>1.45</td><td>1.25</td></tr>
+<tr><td>20</td><td>—</td><td>7,276</td><td>676</td><td>—</td><td>1.47</td><td>1.27</td></tr>
+<tr><td>24</td><td>—</td><td>39,135</td><td>1,641</td><td>—</td><td>1.48</td><td>1.26</td></tr>
+</tbody>
+</table>
+
+<p>Read the table in two ways. Horizontally, the dominance of <code>h2</code> over <code>h1</code> shows up as a uniformly smaller node count at every depth, with the ratio widening from roughly 1.1× at <code>d = 4</code> to about 24× at <code>d = 24</code> — the hallmark of a constant-factor difference in <code>b*</code> compounding exponentially with depth. Vertically, notice how steady each <code>b*</code> column is: about 2.8 for IDS, about 1.45 for <code>h1</code>, about 1.25 for <code>h2</code>. That stability is what licenses extrapolation.</p>
+
+<p>Two finer-grained accuracy measures complement <code>b*</code>, and both require knowing the true cost <code>h*(n)</code> (obtainable on small instances by running a complete optimal search, or by backward breadth-first search from the goal):</p>
+
+<ul>
+<li><strong>Absolute error</strong>: <code>Δ = h*(n) − h(n)</code>, the raw number of units of cost the heuristic fails to see. Averaged over sampled states, it tells you how much "work" is invisible to the heuristic.</li>
+<li><strong>Relative error</strong>: <code>ε = (h*(n) − h(n)) / h*(n)</code>, a scale-free version in [0, 1]. Theoretical analyses relate the number of nodes A* expands to roughly <code>b^(ε·d)</code>, which explains why small reductions in relative error buy exponential reductions in search.</li>
+</ul>
+
+<p>The practical rule: <strong>always report nodes expanded, nodes generated, <code>b*</code>, and wall-clock time together</strong>. Nodes and <code>b*</code> measure informedness; time captures the per-node price you paid for it. A pattern database may show <code>b* = 1.05</code> and still lose on time if the database does not fit in memory and every probe is a page fault.</p>
+
+<p><strong>Generating heuristics from relaxed problems</strong></p>
+
+<p>The most reliable way to invent an admissible heuristic is not to invent it at all, but to <em>derive</em> it. A <strong>relaxed problem</strong> is the original problem with some restrictions on the actions removed. Because every action of the original problem is still legal in the relaxation (and more besides), every solution to the original is also a solution to the relaxation. In graph terms, relaxation <em>adds edges</em> to the state space: the original graph is a subgraph of the relaxed graph. Adding edges can only shorten shortest paths, so</p>
+
+<pre><code>h_relaxed(n) = optimal cost from n to goal in the relaxed problem
+            &lt;= optimal cost from n to goal in the original problem = h*(n)</code></pre>
+
+<p>which is exactly admissibility, and it holds <em>by construction</em> — no case analysis required. Better still, such a heuristic is automatically <strong>consistent</strong>. Let <code>n'</code> be a successor of <code>n</code> via an action of cost <code>c(n, a, n')</code>. That action also exists in the relaxed problem, so an optimal relaxed solution from <code>n</code> can be obtained by (at worst) taking that action and then solving optimally from <code>n'</code>. Hence <code>h_relaxed(n) &lt;= c(n, a, n') + h_relaxed(n')</code>, the triangle inequality, which is the definition of consistency. So A* with a relaxed-problem heuristic keeps its graph-search optimality guarantee without needing to re-open closed nodes.</p>
+
+<p>The 8-puzzle makes the technique vivid. Write the legal-move rule formally:</p>
+
+<pre><code>A tile may move from square A to square B
+    if  (1) A is horizontally or vertically adjacent to B
+    and (2) B is blank.</code></pre>
+
+<p>Now delete conditions and read off the heuristics:</p>
+
+<ul>
+<li><strong>Delete (2) only</strong> — "a tile may move to any adjacent square, blank or not". Each tile can now walk independently to its goal square, so the optimal relaxed cost is the sum of the individual walking distances: <strong>Manhattan distance</strong>. Computable in O(number of tiles) with no search.</li>
+<li><strong>Delete (1) and (2)</strong> — "a tile may move anywhere, any time". Each misplaced tile needs exactly one move, so the relaxed optimum is the <strong>misplaced-tiles</strong> count. Even cheaper to compute, but much weaker.</li>
+<li><strong>Delete (1) only</strong> — "a tile may move into the blank square from anywhere" (adjacency dropped, but the destination must still be blank). The relaxed problem is a swap puzzle: repeatedly swap the blank with some tile. Its optimal solution cost — computable by a simple greedy loop (if the blank is on a square whose goal tile is not there, swap in that tile; otherwise swap in any misplaced tile) — is <strong>Gaschnig's heuristic</strong>. It is bounded below by misplaced tiles and is incomparable with Manhattan distance, so the two can usefully be combined with max.</li>
+</ul>
+
+<p>These three illustrate the essential constraint on the method: <strong>the relaxed problem must be solvable cheaply, ideally in closed form or by a trivial greedy procedure, with no search.</strong> If evaluating <code>h</code> requires running a search of its own, the heuristic may cost more than it saves — you have merely moved the exponential blow-up from the outer search to the inner one. (The classic exception is when the inner search results are precomputed once and cached, which is exactly the pattern-database idea below.) Automatic systems such as ABSOLVER have generated heuristics by mechanically relaxing problem descriptions written in a formal action language, discovering, among others, a then-novel heuristic for Rubik's Cube.</p>
+
+<p>Grid pathfinding is relaxed the same way: delete the constraint "the destination cell must not be a wall". Shortest paths in the obstacle-free grid are then available in closed form, and which formula you use depends on the movement model:</p>
+
+<table>
+<thead>
+<tr><th>Movement model</th><th>Relaxed-problem heuristic</th><th>Formula (dx = |x1−x2|, dy = |y1−y2|)</th></tr>
+</thead>
+<tbody>
+<tr><td>4-connected, unit cost</td><td>Manhattan distance</td><td><code>dx + dy</code></td></tr>
+<tr><td>8-connected, diagonals cost 1 (Chebyshev)</td><td>Chebyshev distance</td><td><code>max(dx, dy)</code></td></tr>
+<tr><td>8-connected, diagonals cost √2</td><td>Octile distance</td><td><code>max(dx,dy) + (√2 − 1)·min(dx,dy)</code></td></tr>
+<tr><td>Any-angle / continuous motion</td><td>Straight-line (Euclidean) distance</td><td><code>sqrt(dx² + dy²)</code></td></tr>
+</tbody>
+</table>
+
+<p>Each row is admissible <em>for its own row only</em>, and dominance runs down the table in the obvious direction: for an 8-connected grid with √2 diagonals, octile distance dominates both Chebyshev and Euclidean distance, and is therefore the heuristic of choice. Euclidean distance is always admissible on a grid (no path can be shorter than the straight line) but is loose when motion is constrained to axes, which is why it is a poor choice for 4-connected maps.</p>
+
+<p><strong>Pattern databases and subproblem decomposition</strong></p>
+
+<p>Relaxation weakens the <em>rules</em>; <strong>subproblem decomposition</strong> weakens the <em>goal</em>. Instead of asking "how many moves to solve the whole puzzle?", ask "how many moves to get tiles 1, 2, 3 and 4 into place, ignoring where every other tile ends up?" Any solution to the full puzzle also solves that subproblem, so the subproblem's optimal cost is a lower bound on the full cost — admissible, for exactly the same structural reason as before.</p>
+
+<p>A <strong>pattern</strong> is the abstracted state that results: the positions of the <em>pattern tiles</em> (say 1–4) plus the blank are recorded exactly, and every other tile is replaced by a "don't-care" marker, so all states that agree on the pattern tiles collapse into a single abstract state. For the 15-puzzle with pattern tiles {1,2,3,4}, the number of distinct patterns is 16·15·14·13·12 ≈ 524,160 — small enough to enumerate exhaustively, whereas the full state space has 16!/2 ≈ 10<sup>13</sup> states.</p>
+
+<p>The <strong>pattern database</strong> (PDB) is built once, offline, by a <strong>backward breadth-first search from the abstract goal</strong>:</p>
+
+<pre><code>queue &lt;- [abstract goal pattern], dist[goal] = 0
+while queue not empty:
+    p &lt;- pop(queue)
+    for each abstract predecessor p' of p:      # moves in the abstract space
+        if p' not yet visited:
+            dist[p'] = dist[p] + 1
+            push(p', queue)
+store dist[] in a flat array indexed by a perfect hash of the pattern</code></pre>
+
+<p>Because BFS from the goal in the abstract space labels every reachable pattern with its exact optimal abstract distance, the lookup at search time is a single array probe: compute the index of the current state's pattern, read the stored number, done. At runtime the PDB is just a very large, very accurate lookup table — the search it would have required was paid for once, in advance. Typical 15-puzzle PDBs reduce node expansions by two to three orders of magnitude compared with Manhattan distance.</p>
+
+<p>Three properties matter for correctness and strength:</p>
+
+<ul>
+<li><strong>Admissibility.</strong> The abstract problem is a relaxation (goal weakened, so additional states count as goals), hence <code>h_PDB(n) &lt;= h*(n)</code>. PDB heuristics built this way are also consistent, because abstract distance obeys the triangle inequality over the abstract moves induced by real moves.</li>
+<li><strong>Max over several databases.</strong> Build one PDB for tiles {1,2,3,4} and another for {5,6,7,8}. Each is admissible, so <code>h(n) = max(h_A(n), h_B(n))</code> is admissible and dominates both. This is free strength, at the price of one extra probe per node.</li>
+<li><strong>Disjoint (additive) databases.</strong> Max is wasteful: it throws away the information in the smaller value. You would like to <em>add</em> <code>h_A + h_B</code>, but naively that double-counts, because a single real move can advance a tile in A while shoving a tile from B out of the way, and both databases would charge for it. The fix is to count, during the backward BFS, <strong>only the moves of the tiles belonging to that pattern</strong>; moves of non-pattern tiles cost 0. Then the move budgets of disjoint patterns are genuinely disjoint, each real move is charged to at most one database, and the sum stays admissible. Korf and Felner's disjoint 7–8 partition of the 15-puzzle (one PDB over seven tiles, one over the remaining eight) yields a heuristic strong enough to solve random 15-puzzle instances optimally in milliseconds, and the same technique scaled to the 24-puzzle.</li>
+</ul>
+
+<p>The trade-off is resource consumption. A PDB over <code>k</code> tiles in an <code>m</code>-square puzzle has about <code>m!/(m−k−1)!</code> entries; each extra tile multiplies both the memory and the build time by roughly the number of remaining squares. Larger patterns give larger (better) values, but the build may take hours and the table may exceed RAM, at which point random probes thrash the cache and the per-node cost explodes. Practical guidance: choose the largest pattern whose table fits comfortably in physical memory, store one byte (or even a nibble) per entry, and measure whether the extra accuracy actually reduces <em>time</em> and not merely node counts.</p>
+
+<table>
+<thead>
+<tr><th>Heuristic for the 15-puzzle</th><th>Typical mean value at the start state</th><th>Memory</th><th>Per-node cost</th><th>Relative nodes expanded</th></tr>
+</thead>
+<tbody>
+<tr><td>Misplaced tiles</td><td>≈ 14</td><td>none</td><td>very low</td><td>enormous</td></tr>
+<tr><td>Manhattan distance</td><td>≈ 37</td><td>none (small table)</td><td>low</td><td>baseline 1×</td></tr>
+<tr><td>Manhattan + linear conflict</td><td>≈ 41</td><td>none</td><td>moderate</td><td>≈ 0.1×</td></tr>
+<tr><td>Single 6-tile PDB</td><td>≈ 35</td><td>tens of MB</td><td>one probe</td><td>≈ 0.05×</td></tr>
+<tr><td>Disjoint 7–8 PDBs (additive)</td><td>≈ 45</td><td>hundreds of MB</td><td>two probes</td><td>≈ 0.001×</td></tr>
+</tbody>
+</table>
+
+<p><strong>Combining multiple heuristics</strong></p>
+
+<p>Often you have several admissible heuristics and none dominates the others — Manhattan distance and Gaschnig's heuristic on the 8-puzzle, or two pattern databases over different tile sets. The safe combinator is the pointwise maximum:</p>
+
+<pre><code>h(n) = max( h1(n), h2(n), ..., hk(n) )</code></pre>
+
+<ul>
+<li><strong>Admissible.</strong> Each <code>hi(n) &lt;= h*(n)</code>, so their maximum is also <code>&lt;= h*(n)</code>. And since <code>h(n) &gt;= hi(n)</code> for every <code>i</code> by definition of max, <code>h</code> <strong>dominates every component</strong> — you get the best of all of them at every node, not merely the best on average.</li>
+<li><strong>Consistent.</strong> If every component is consistent, so is the max. Proof sketch: fix a node <code>n</code> and suppose the max is attained by <code>hj</code>. Then <code>h(n) = hj(n) &lt;= c(n,a,n') + hj(n') &lt;= c(n,a,n') + h(n')</code>, because <code>hj(n') &lt;= h(n')</code>. So A* with the max retains optimality under graph search with a closed list.</li>
+<li><strong>Sums are dangerous.</strong> <code>h1(n) + h2(n)</code> is generally <em>inadmissible</em>: if two heuristics both account for the same underlying moves, their sum can exceed <code>h*</code>. Adding misplaced tiles to Manhattan distance on the 8-puzzle state shown earlier gives 8 + 18 = 26, which happens to equal <code>h*</code> there but will overshoot on other states. Addition is legitimate only when the components <strong>account for disjoint costs</strong> — the disjoint-PDB construction above, or "Manhattan distance of the red tiles + Manhattan distance of the blue tiles", where every move is charged exactly once.</li>
+<li><strong>Weighted combinations.</strong> <code>f(n) = g(n) + w·h(n)</code> with <code>w &gt; 1</code> (weighted A*), or a convex blend <code>α·h1 + (1−α)·h2</code> scaled upward, deliberately inflates the heuristic to bias the search towards the goal. Node expansions can fall dramatically, but optimality is lost; what remains, if <code>h</code> is admissible, is the bounded guarantee that the returned solution costs at most <code>w · C*</code>. Use it when a good-enough-fast answer beats a perfect-slow one, and say so in your results.</li>
+<li><strong>Pay attention to the arithmetic cost.</strong> Computing <code>k</code> heuristics and taking their max costs roughly <code>k</code> times the per-node heuristic work. If <code>h2</code> rarely exceeds <code>h1</code>, that extra work buys almost nothing. A useful engineering trick is <em>lazy</em> evaluation: compute the cheap component first, and only compute the expensive one if the cheap value is not already enough to prune the node (for instance, if <code>g(n) + h1(n)</code> already exceeds the current bound in IDA*, skip <code>h2</code> entirely).</li>
+</ul>
+
+<p>A further refinement specific to the sliding-tile puzzle shows how to strengthen a heuristic without violating admissibility: the <strong>linear-conflict</strong> heuristic adds 2 to Manhattan distance for each pair of tiles that are both in their goal row (or column), in reversed order, with no third tile able to pass between them without leaving the line. Those two tiles must each leave and re-enter the line, which costs two moves that Manhattan distance does not count — and those moves are not counted anywhere else, so the addition remains admissible and dominates plain Manhattan distance.</p>
+
+<p><strong>Empirical comparison methodology</strong></p>
+
+<p>Theory tells you that a dominating admissible heuristic expands no more nodes; it does not tell you how much faster your program will be, which heuristic wins at which depth, or whether your PDB has a bug. For that you need a controlled experiment, and the discipline here matters as much as the algorithms.</p>
+
+<ul>
+<li><strong>Fix the benchmark set in advance.</strong> Generate a random but <em>fixed</em> collection of solvable instances — for the 8-puzzle, scramble the goal by a random walk of known length, or generate random permutations and discard those with the wrong parity (only half of the 9! permutations are reachable). Stratify by solution depth (e.g. 20 instances each at depths 4, 8, 12, 16, 20, 24) so you can plot trends, and store the instances in a file with a fixed random seed so every heuristic sees exactly the same problems.</li>
+<li><strong>Record a full vector of metrics per run</strong>, not just one number: nodes generated, nodes expanded, peak frontier (open-list) size, maximum closed-list size, solution cost, number of heuristic evaluations, and wall-clock time. Peak frontier size is the memory story; nodes expanded is the informedness story; wall-clock is the story your users care about.</li>
+<li><strong>Verify optimality as a sanity check.</strong> All admissible heuristics must return <em>the same solution cost</em> on the same instance (the paths may differ, the costs may not). A heuristic that returns a cheaper cost means another one is broken; a heuristic that returns a more expensive cost is inadmissible — almost always a bug in a PDB index, an additive decomposition that double-counts, or a mismatch between the heuristic and the movement model.</li>
+<li><strong>Hold tie-breaking constant.</strong> Many nodes share the same <code>f</code>, and the order in which they are popped can change node counts by an order of magnitude. Fix a single rule for all runs — the standard choice is "lowest <code>f</code>, break ties in favour of larger <code>g</code> (i.e. smaller <code>h</code>), break remaining ties by insertion order (FIFO)" — so that observed differences are attributable to the heuristic and not to queue accidents. Preferring larger <code>g</code> drives the search towards deeper, nearly-complete paths and typically reduces the number of <code>f = C*</code> nodes expanded.</li>
+<li><strong>Plot nodes expanded on a logarithmic vertical axis against solution depth.</strong> Exponential processes look like straight lines on a log scale, and two heuristics with different <code>b*</code> values appear as lines with different slopes. On a linear axis the weaker heuristic's curve simply swamps everything and you learn nothing. Report the median as well as the mean, because node counts are heavy-tailed and a single pathological instance can dominate an average.</li>
+<li><strong>Match the heuristic to the movement model.</strong> This is the single most common correctness bug in grid pathfinding. Manhattan distance is admissible for 4-connected movement, but if diagonal moves are allowed at cost 1 (or √2 ≈ 1.414), a diagonal step reduces the true distance by one diagonal while Manhattan distance drops by 2, so Manhattan <em>overestimates</em> — it is inadmissible, A* silently returns suboptimal paths, and the bug is invisible unless you compare costs against a reference uniform-cost search. Use octile distance for √2 diagonals, Chebyshev for unit-cost diagonals, and Euclidean only when motion is genuinely unconstrained. Likewise, if terrain cells have varying costs with a minimum cost <code>c_min</code> per step, every distance heuristic must be multiplied by <code>c_min</code> to stay admissible.</li>
+<li><strong>Control the environment.</strong> Same machine, same language and compiler flags, same data structures (a binary-heap open list and a hash-set closed list for every variant), warm-up runs before timing, and a stated node or time limit after which an instance is recorded as "unsolved" rather than quietly dropped — dropping failures biases averages in favour of the weakest heuristic.</li>
+</ul>
+
+<p>A typical results table from such a study, for A* on 100 random 8-puzzle instances at depth 20 with identical tie-breaking, might look like this:</p>
+
+<table>
+<thead>
+<tr><th>Heuristic</th><th>Mean nodes expanded</th><th>Peak frontier</th><th>b*</th><th>Mean time (ms)</th><th>All costs optimal?</th></tr>
+</thead>
+<tbody>
+<tr><td>h = 0 (uniform cost)</td><td>176,000</td><td>52,000</td><td>2.79</td><td>820</td><td>yes</td></tr>
+<tr><td>Misplaced tiles</td><td>7,276</td><td>3,100</td><td>1.47</td><td>41</td><td>yes</td></tr>
+<tr><td>Manhattan distance</td><td>676</td><td>390</td><td>1.27</td><td>5.1</td><td>yes</td></tr>
+<tr><td>max(Manhattan, Gaschnig)</td><td>610</td><td>355</td><td>1.26</td><td>6.4</td><td>yes</td></tr>
+<tr><td>Manhattan + linear conflict</td><td>310</td><td>190</td><td>1.22</td><td>3.3</td><td>yes</td></tr>
+<tr><td>1.5 × Manhattan (weighted)</td><td>96</td><td>70</td><td>1.14</td><td>0.9</td><td><strong>no</strong> — up to 1.5·C*</td></tr>
+</tbody>
+</table>
+
+<p>Notice what the table teaches that node counts alone would not. The max combination expands fewer nodes than Manhattan distance alone yet takes <em>more</em> time, because the extra Gaschnig evaluation at every node is not repaid — a textbook case of accuracy that costs more than it saves. Linear conflict wins on both axes. And the weighted variant is fastest of all, but its final column disqualifies it from any comparison that claims optimality. Reporting the whole vector of metrics, with optimality verified, is what turns a pile of timings into a defensible conclusion about which heuristic to ship.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+<li><strong>MO1</strong> — Supported directly: the relaxed-problem derivations show exactly how domain knowledge is encoded in <code>h(n)</code>, deriving misplaced tiles, Manhattan distance, Gaschnig's heuristic and straight-line/octile distance from explicit relaxations of the move rules.</li>
+<li><strong>MO2</strong> — Supported: the topic proves that relaxed-problem and pattern-database heuristics satisfy <code>0 &lt;= h(n) &lt;= h*(n)</code> by construction and satisfy <code>h(n) &lt;= c(n,a,n') + h(n')</code> via the triangle inequality, and it shows when sums, weights and model mismatches destroy admissibility.</li>
+<li><strong>MO3</strong> — Supported indirectly: the <code>f &lt; C*</code> pruning argument, the tie-breaking rules, and the open-list/closed-list metrics (peak frontier, nodes expanded) all concern the behaviour of the A* expansion loop, though the topic analyses rather than hand-traces individual expansions.</li>
+<li><strong>MO4</strong> — Partially supported: the empirical methodology and the weighted-heuristic discussion contrast optimality-preserving search with goal-biased search in terms of nodes, memory and time; the formal completeness/optimality comparison of greedy best-first search with A* is not re-derived here.</li>
+<li><strong>MO5</strong> — Supported as the core of the topic: relaxation, pattern databases, disjoint/additive decomposition and max-combination give students a complete toolkit for designing admissible heuristics for sliding-tile puzzles and grid pathfinding, together with the criteria for judging which design is best.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Numerical values in the 8-puzzle depth/node-count table follow the standard published figures (Russell &amp; Norvig, averaged over 100 random instances per depth); the depth-20 comparison table and the 15-puzzle resource table are illustrative, order-of-magnitude figures intended as a template for students' own measurements rather than exact reproducible benchmarks. The worked b* calculation (N=24, d=4, b*≈1.87) can be reused as a tutorial exercise. Suggested lab tasks: (1) implement misplaced-tiles, Manhattan, Gaschnig and linear-conflict heuristics and verify dominance empirically by checking h2(n) &gt;= h1(n) over sampled states; (2) build a 4-tile pattern database by backward BFS and confirm each stored value is &lt;= the true cost found by A*; (3) deliberately run Manhattan distance on an 8-connected grid to observe inadmissibility and suboptimal paths.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Once you know what admissibility and consistency mean, the practical question becomes: where do good heuristics come from, and how do you tell one apart from another? This topic answers both. A heuristic is only useful if it is both cheap to compute and close to the true remaining cost h*(n); the art lies in finding estimates that are as informed as possible while never overestimating. The standard recipe is relaxation — drop a constraint from the original problem, solve the easier version exactly, and use that exact cost as an estimate for the hard problem. Misplaced tiles and Manhattan distance both arise this way from the 8-puzzle, and the same idea generalizes to pattern databases, which precompute exact solution costs for a subproblem (say, the positions of tiles 1 through 4) and look them up during search.</p>
+<p>Comparison matters just as much as construction. If h2(n) is greater than or equal to h1(n) at every node and both are admissible, we say h2 dominates h1, and A* using h2 never expands more nodes than A* using h1 — a strong theoretical reason to prefer more informed heuristics. When dominance does not hold, or when you want a quantitative measure, the effective branching factor b* summarizes how bushy the search tree effectively was, and careful empirical comparison over many random instances tells you what actually happens in practice. You will also see how to combine several admissible heuristics safely by taking their maximum, and when subproblem costs can be added rather than maxed.</p>
+<p>As you watch, focus on the mechanics of relaxation: what constraint is being dropped, why the relaxed problem is easy to solve, and why its optimal cost can never exceed the original's. Try to restate each example in the formal language of admissibility you learned earlier, and keep asking whether a proposed heuristic is dominated by, or dominates, one you already know.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: L03 Design an Admissible Heuristic</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/XsFow0UPqZQ?cc_load_policy=1&amp;rel=0" title="Video: L03 Design an Admissible Heuristic (Alice Gao)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Alice Gao</strong> · 15:08 · 3,009 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=XsFow0UPqZQ" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>Alice Gao walks through the process of designing an admissible heuristic function for use with A*, building on an earlier video that introduced the algorithm itself. The video is expected to cover what makes a heuristic admissible, how to construct one deliberately rather than guess at it, and worked examples that demonstrate the reasoning step by step. Expect attention to the relaxation idea — simplifying or removing constraints from the original problem so that the easier problem's exact cost becomes a valid lower bound.</p>
+<h3>Why this video</h3>
+<p>This is the single most directly relevant subtopic skill in this unit: generating heuristics from relaxed problems, taught by a university instructor whose AI lecture series is known for careful, definition-grounded explanations. At roughly fifteen minutes it is focused enough to watch before attempting your own heuristic designs for the sliding-tile puzzle and grid pathfinding tasks.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>The selected video supports MO5 most directly, since designing an admissible heuristic from a relaxed problem is its central concern and is the foundational technique behind pattern databases and subproblem decomposition as well. It also reinforces MO2 by requiring you to verify admissibility against the definition 0 &lt;= h(n) &lt;= h*(n) for each candidate you construct, and it touches MO1 by showing concretely how domain knowledge is compressed into a cost estimate. The remaining elements of this topic — dominance arguments, effective branching factor, combining heuristics by maximum, and empirical comparison methodology — are developed in the readings, lecture material, and the programming exercise, where you will run your own heuristics on random puzzle instances and compare node-expansion counts.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

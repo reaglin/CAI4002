@@ -1,0 +1,1512 @@
+{
+  "ModuleFolderName": "Constraint_Satisfaction_Prob",
+  "CourseName": "CAI4002 - Intro to AI",
+  "GeneratedDate": "2026-10-14T20:06:17.0053171-04:00",
+  "ModifiedDate": "2026-10-14T20:09:00.2030085-04:00",
+  "Outcomes": [],
+  "Topics": [
+    {
+      "Id": "41779211-b363-40fa-8f98-20f4d8131ab4",
+      "Title": "Foundations of Constraint Satisfaction Problems",
+      "Summary": "Introduces the CSP formalism as a triple of variables, domains, and constraints, and contrasts it with general state-space search by exposing problem structure. Explains what constitutes a consistent, complete, and solution assignment.",
+      "SortOrder": 0,
+      "CreatedDate": "2026-10-14T20:06:17.0053171-04:00",
+      "ModifiedDate": "2026-10-14T20:06:17.0053171-04:00",
+      "Elements": [
+        {
+          "Id": "6de5e898-372e-4e71-ae93-4cabe0ff876f",
+          "TopicId": "41779211-b363-40fa-8f98-20f4d8131ab4",
+          "Title": "The CSP Triple: Variables, Domains, Constraints",
+          "BodyText": "A constraint satisfaction problem is defined formally as a triple (X, D, C) that captures what must be decided, what choices exist, and what combinations are legal.",
+          "Notes": "Example: in map coloring, X = {WA, NT, SA, Q, NSW, V, T}, each domain is {red, green, blue}, and constraints forbid equal colors on adjacent regions.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:06:34.7595997-04:00",
+          "ModifiedDate": "2026-10-14T20:06:34.7595997-04:00",
+          "Items": [
+            {
+              "Id": "422beffb-5da5-4682-b6a5-b0f6decb7fb0",
+              "Text": "X is a finite set of variables X1 through Xn, each representing one decision the solver must make.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0a9b9fad-9802-44a0-b14c-d3a17fef0ec2",
+              "Text": "D is a set of domains D1 through Dn, where Di lists the permitted values for variable Xi.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1c22bd3a-3dec-474e-a23e-b3d45a9f8ff3",
+              "Text": "C is a set of constraints, each specifying an allowable combination of values over a subset of variables.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "fd957a18-a287-4546-a41b-7333682ada11",
+              "Text": "A constraint is written as a pair (scope, relation): the scope lists the variables involved, and the relation defines which value tuples satisfy it.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "0e33a329-fbab-4de1-a4e4-91c9308a2a1c",
+              "Text": "Relations may be stated explicitly as a list of tuples or implicitly as a predicate such as X1 != X2.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "cb7a7575-f5be-410a-b6bd-b207895cde13",
+          "TopicId": "41779211-b363-40fa-8f98-20f4d8131ab4",
+          "Title": "Assignments: Partial, Complete, and Consistent",
+          "BodyText": "Solving a CSP means building an assignment of values to variables, and the vocabulary for describing assignments determines when search can stop.",
+          "Notes": "",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:06:34.7595997-04:00",
+          "ModifiedDate": "2026-10-14T20:06:34.7595997-04:00",
+          "Items": [
+            {
+              "Id": "8cefb293-4129-44d2-9011-6ee6eafef85f",
+              "Text": "An assignment maps some or all variables to values drawn from their domains.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6dabcae7-6ccd-44e8-89ba-0d50232fe0c2",
+              "Text": "A partial assignment leaves one or more variables unassigned, which is the normal state during search.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2fd75c97-623c-4092-b137-f70341f1fedb",
+              "Text": "A complete assignment gives every variable in X exactly one value.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "ff943e7d-a71e-463b-9c49-2b923258a471",
+              "Text": "A consistent (legal) assignment violates no constraint among the variables that have been assigned.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b7951a89-7d93-441f-9e4d-24f60ed43261",
+              "Text": "A solution is an assignment that is both complete and consistent.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "073c175b-4cd3-4e24-8d30-69f1ed9fa689",
+          "TopicId": "41779211-b363-40fa-8f98-20f4d8131ab4",
+          "Title": "CSPs Versus General State-Space Search",
+          "BodyText": "Classical search treats states as indivisible black boxes, whereas CSPs expose the internal structure of each state as a set of variable-value pairs.",
+          "Notes": "This is why CSPs are called a factored representation of state.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:06:34.7595997-04:00",
+          "ModifiedDate": "2026-10-14T20:06:34.7595997-04:00",
+          "Items": [
+            {
+              "Id": "b559c41a-d734-43cb-b7d3-1effff125270",
+              "Text": "In state-space search, the goal test is an arbitrary opaque function the algorithm cannot reason about.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "779ba68d-4bcf-4640-8520-f9990ce254f9",
+              "Text": "In a CSP, the goal test is simply the set of constraints, which the solver can inspect and exploit.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "102683fd-c990-4960-a0f1-adcae1fd550c",
+              "Text": "Structure lets a solver detect failure early rather than exploring a doomed subtree to its depth.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "39de4abf-17d3-4140-8981-524f16991d4b",
+              "Text": "Structure also enables generic heuristics that work across all CSPs without domain-specific knowledge.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a524f357-6f59-4ef4-ae5b-85c3560338c8",
+              "Text": "Entire regions of the search space can be pruned at once when a constraint rules out a partial assignment.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "063909c5-f035-4981-9a64-a5e635a3fc2f",
+          "TopicId": "41779211-b363-40fa-8f98-20f4d8131ab4",
+          "Title": "Why CSPs Are a Useful Formalism",
+          "BodyText": "The CSP formulation is attractive because a single general-purpose solver can handle many superficially different problems once they are expressed in the standard form.",
+          "Notes": "Typical domains include timetabling, resource allocation, circuit layout, transport scheduling, and configuration problems.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:06:34.7595997-04:00",
+          "ModifiedDate": "2026-10-14T20:06:34.7595997-04:00",
+          "Items": [
+            {
+              "Id": "cb0971bf-f5ea-4789-9d12-c5d52d79ad5d",
+              "Text": "Modelling effort shifts from writing bespoke algorithms to describing variables, domains, and constraints.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "fb990ca0-1ca5-4123-9b91-39d1862041a3",
+              "Text": "The same solver and heuristics apply to map coloring, Sudoku, cryptarithmetic, and scheduling alike.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7ab6cd6f-578c-412f-895f-c17c74e669a5",
+              "Text": "Constraints often shrink the effective search space far below the naive product of all domain sizes.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "0b6aec2e-239b-4976-8f9f-02cc237200a0",
+              "Text": "Failures are explained in terms of the specific constraint violated, which aids debugging and explanation.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "d89e1387-9992-4ca8-b6f8-da5b8ed3e446",
+          "TopicId": "41779211-b363-40fa-8f98-20f4d8131ab4",
+          "Title": "Domain Types and Their Impact",
+          "BodyText": "The nature of the variable domains shapes which solution methods are applicable to a given CSP.",
+          "Notes": "Example: a scheduling problem with integer start times has an infinite discrete domain unless an explicit horizon bounds it.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:06:34.7595997-04:00",
+          "ModifiedDate": "2026-10-14T20:06:34.7595997-04:00",
+          "Items": [
+            {
+              "Id": "8aaf7a38-8bd9-4381-8ffe-1d6113e7d382",
+              "Text": "Discrete finite domains, such as three colors or the digits 1 to 9, allow exhaustive enumeration in principle.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c1cd69a2-61cc-4099-aabc-5ec502f6b81c",
+              "Text": "A CSP with n variables and domain size d has at most d^n complete assignments.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d7c99a8f-7e99-4da5-95c6-32203ac36592",
+              "Text": "Discrete infinite domains, such as unbounded integers, cannot be enumerated and require a constraint language instead.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d438d002-ab01-4644-aae5-7c42d31f5683",
+              "Text": "Continuous domains, such as real-valued start times, are handled by linear or nonlinear programming techniques.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "8cdc47b9-d7c2-4d65-bbf7-3c532796c18c",
+              "Text": "This module focuses on finite discrete domains, where backtracking search is the standard approach.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "18917970-b395-4d94-93f3-d19aaef4e9a0",
+      "Title": "Constraint Types: Unary, Binary, and Global",
+      "Summary": "Distinguishes unary, binary, higher-order, and global constraints such as AllDiff, and shows how constraint graphs and hypergraphs represent them. Covers converting complex constraints into binary form and handling preference (soft) constraints.",
+      "SortOrder": 1,
+      "CreatedDate": "2026-10-14T20:06:17.0053171-04:00",
+      "ModifiedDate": "2026-10-14T20:06:17.0053171-04:00",
+      "Elements": [
+        {
+          "Id": "6d187448-7e45-49e1-8bbf-d83af6727231",
+          "TopicId": "18917970-b395-4d94-93f3-d19aaef4e9a0",
+          "Title": "Unary Constraints: Restricting a Single Variable",
+          "BodyText": "A unary constraint restricts the values of exactly one variable and is the simplest form of constraint in a CSP.",
+          "Notes": "Example: in map coloring, \u0027South Australia cannot be green\u0027 is written as SA \u2260 green. In Sudoku, the pre-filled clues are unary constraints fixing a cell to one value.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:06:58.5650157-04:00",
+          "ModifiedDate": "2026-10-14T20:06:58.5650157-04:00",
+          "Items": [
+            {
+              "Id": "921c3854-860c-48ff-af17-8316a15910ad",
+              "Text": "Unary constraints can be eliminated before search by pruning the offending values directly from the variable\u0027s domain.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "bb2fe213-ffe6-4dfa-91dd-ff9a4f5d0a1d",
+              "Text": "This preprocessing step is called node consistency, and a CSP is node-consistent when every variable satisfies its unary constraints.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "6e152b0e-564f-4835-b3a8-6582a032ba23",
+              "Text": "Because they are resolved up front, unary constraints never need to be rechecked during backtracking search.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "005d3364-ce01-40df-8ec2-88fda71445cf",
+              "Text": "Typical forms include equality (X = 3), inequality (X \u2260 red), and range restrictions (X \u003E 10).",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "1a79c850-b884-47cc-8e16-5a7a9f6eac7f",
+          "TopicId": "18917970-b395-4d94-93f3-d19aaef4e9a0",
+          "Title": "Binary Constraints and the Constraint Graph",
+          "BodyText": "A binary constraint relates exactly two variables, and a CSP in which all constraints are binary is called a binary CSP.",
+          "Notes": "Map coloring is the canonical binary CSP: each adjacency between regions becomes one edge labelled with the \u0027different colors\u0027 relation.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:06:58.5650157-04:00",
+          "ModifiedDate": "2026-10-14T20:06:58.5650157-04:00",
+          "Items": [
+            {
+              "Id": "6bc12ad9-f895-4813-ae68-2b3d14a5225d",
+              "Text": "A binary CSP is visualised as a constraint graph with one node per variable and one edge per binary constraint.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "83458b44-bc22-40c6-ab20-aaab1977c620",
+              "Text": "Graph structure drives algorithm choice: tree-structured constraint graphs can be solved in linear time, while dense graphs require full search.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "31a07e93-dc52-4a9f-a987-cd9a6de8270a",
+              "Text": "Examples include WA \u2260 NT in map coloring and \u0027Task A must finish before Task B\u0027 in scheduling.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "5adab928-064d-495a-a7fb-8fac4a49cd61",
+              "Text": "Most consistency-enforcement algorithms, such as AC-3, are defined over binary constraints, which is why binary form is the standard representation.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "fd75fce8-462d-4d8a-abf1-39c32182d100",
+          "TopicId": "18917970-b395-4d94-93f3-d19aaef4e9a0",
+          "Title": "Higher-Order and Global Constraints",
+          "BodyText": "Constraints involving three or more variables are higher-order (n-ary); a global constraint involves an arbitrary number of variables and has a specialised, efficient propagation algorithm.",
+          "Notes": "Example: a cryptarithmetic puzzle such as TWO \u002B TWO = FOUR uses ternary and higher-order column constraints with carry variables.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:06:58.5650157-04:00",
+          "ModifiedDate": "2026-10-14T20:06:58.5650157-04:00",
+          "Items": [
+            {
+              "Id": "a988ed27-8f6e-4d3d-84c4-db23afdccfe6",
+              "Text": "AllDiff(X1,...,Xn) requires every variable in the set to take a distinct value and appears in Sudoku rows, columns, and boxes.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "400b38b2-e6fa-4c0d-b7f9-4c391719fe0e",
+              "Text": "AllDiff supports a fast inconsistency test: if n variables share fewer than n values among their domains, the constraint cannot be satisfied.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9a50077b-25e4-4ed1-a25e-c665804980c6",
+              "Text": "Atmost (resource) constraints bound the total consumption of a shared resource, as in limiting total workers assigned across tasks.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c6cf25ea-a564-431b-9b35-7b4f603735f2",
+              "Text": "Global constraints are preferred over equivalent sets of binary constraints because their dedicated propagators prune far more aggressively.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "0cacf52d-cc45-4e00-bb6c-fc74a583332c",
+          "TopicId": "18917970-b395-4d94-93f3-d19aaef4e9a0",
+          "Title": "Hypergraph Representation of n-ary Constraints",
+          "BodyText": "When constraints involve more than two variables, the ordinary constraint graph is replaced by a constraint hypergraph.",
+          "Notes": "Drawing convention: variables are circles and constraints are squares, with lines connecting each constraint to the variables in its scope.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:06:58.5650157-04:00",
+          "ModifiedDate": "2026-10-14T20:06:58.5650157-04:00",
+          "Items": [
+            {
+              "Id": "496a3473-3d81-415a-aafb-e3adcf873906",
+              "Text": "A hypergraph contains ordinary variable nodes plus hypernodes that represent each n-ary constraint.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b81617c4-7ac3-45a4-a9ad-343e8f2b7601",
+              "Text": "Each hyperedge connects a constraint to all variables in its scope, so an AllDiff over nine Sudoku cells is one hypernode with nine links.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a30715b4-5112-4552-b2a8-366826c904aa",
+              "Text": "The hypergraph makes the scope and arity of every constraint explicit, which is hidden if n-ary constraints are decomposed.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "db3db994-7066-4b6e-8f43-975759b9d2bf",
+              "Text": "Binary constraint graphs are the special case of hypergraphs where every constraint has arity two.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "97cf8a9d-869e-4c07-af69-91c7a369628e",
+          "TopicId": "18917970-b395-4d94-93f3-d19aaef4e9a0",
+          "Title": "Converting Higher-Order Constraints to Binary Form",
+          "BodyText": "Any finite-domain constraint of arity greater than two can be mechanically transformed into an equivalent set of binary constraints, so binary CSP algorithms remain fully general.",
+          "Notes": "Example: the ternary constraint on a cryptarithmetic column becomes an auxiliary variable whose domain lists all satisfying triples, linked by binary projection constraints.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:06:58.5650157-04:00",
+          "ModifiedDate": "2026-10-14T20:06:58.5650157-04:00",
+          "Items": [
+            {
+              "Id": "3e5fb242-5bcf-4be0-8167-df4efdd2bcd8",
+              "Text": "The dual graph transformation creates a new variable for each original constraint, with domain equal to its tuples of allowed values.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f7a3a4d1-41e7-4443-b6cf-a555e83de2c7",
+              "Text": "Binary constraints then enforce that any two new variables agree on the original variables they share.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "51c105e8-1775-4256-bb53-52088a46b1ca",
+              "Text": "An alternative encoding introduces auxiliary variables, such as carry digits in arithmetic puzzles, to split one n-ary constraint into several smaller ones.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "1af6c7e6-7e06-444f-9829-4af161640462",
+              "Text": "The trade-off is larger domains and more variables, so solvers often keep global constraints intact and use specialised propagators instead.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "76c56007-29ee-4166-aa4e-e56a8bbd6ada",
+          "TopicId": "18917970-b395-4d94-93f3-d19aaef4e9a0",
+          "Title": "Preference (Soft) Constraints and Constrained Optimization",
+          "BodyText": "Absolute (hard) constraints must be satisfied for a solution to be legal, whereas preference or soft constraints express which solutions are more desirable.",
+          "Notes": "Example: in class scheduling, \u0027no professor teaches two classes at once\u0027 is hard, while \u0027Prof. R prefers morning teaching\u0027 is soft and carries a cost if violated.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:06:58.5650157-04:00",
+          "ModifiedDate": "2026-10-14T20:06:58.5650157-04:00",
+          "Items": [
+            {
+              "Id": "f6650501-eb96-4887-9202-77335b74125c",
+              "Text": "Soft constraints are typically encoded as costs or penalties attached to individual variable assignments.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b4d9f397-e3af-4020-9753-d3f74b30a564",
+              "Text": "The problem becomes a constraint optimization problem (COP): find an assignment satisfying all hard constraints while minimising total cost.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d28dbb06-4e41-40f7-8b4e-a6737e58111b",
+              "Text": "Solution quality is measured by an objective function rather than by the simple satisfied/unsatisfied test used for hard constraints.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "82086baf-a7ff-4868-b901-e533fd27b504",
+              "Text": "Constrained optimization is solved with techniques such as branch and bound, local search, or linear programming rather than plain backtracking.",
+              "SortOrder": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "f50561be-a736-4e34-8f8c-efb75b1fd829",
+      "Title": "Modeling Real Problems as CSPs",
+      "Summary": "Works through canonical formulations including map coloring, Sudoku, N-Queens, cryptarithmetic, and job-shop or timetable scheduling. Emphasizes choosing variables and domains well, since modeling decisions strongly affect solver performance.",
+      "SortOrder": 2,
+      "CreatedDate": "2026-10-14T20:06:17.0053171-04:00",
+      "ModifiedDate": "2026-10-14T20:06:17.0053171-04:00",
+      "Elements": [
+        {
+          "Id": "fa1e6b46-255a-4cfa-b0ca-850d3c61b0a1",
+          "TopicId": "f50561be-a736-4e34-8f8c-efb75b1fd829",
+          "Title": "The Modeling Process: From Problem Statement to CSP",
+          "BodyText": "Turning a real problem into a CSP means deciding what the unknowns are, what values they may take, and what rules relate them. The same problem can often be encoded in several ways, and the choice matters for solver efficiency.",
+          "Notes": "A useful discipline is to write the triple (X, D, C) explicitly before coding anything, then sanity-check that every requirement in the problem statement maps to at least one constraint.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:07:27.0733917-04:00",
+          "ModifiedDate": "2026-10-14T20:07:27.0733917-04:00",
+          "Items": [
+            {
+              "Id": "a448ce4b-7298-43ae-a37c-dd1ac93c7bd7",
+              "Text": "Step 1: identify the decisions to be made and make each one a variable.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "258c199a-1cc5-4445-91a4-d0213785176b",
+              "Text": "Step 2: enumerate the finite set of legal values for each variable as its domain.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1ff827ed-4e58-4f04-bc86-e217668f7589",
+              "Text": "Step 3: translate each requirement or restriction into a unary, binary, or global constraint.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "09f485af-cf2a-4962-affc-738ee497e94b",
+              "Text": "Step 4: verify that any complete assignment satisfying all constraints really is a valid solution.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ff879d49-7db7-461a-85e7-6a17c409ef9a",
+              "Text": "Watch for implicit constraints that the problem statement assumes but never states.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "febca258-eac0-495a-a3ee-c11ded4c04c7",
+          "TopicId": "f50561be-a736-4e34-8f8c-efb75b1fd829",
+          "Title": "Map Coloring: The Canonical Binary CSP",
+          "BodyText": "Map coloring assigns a color to each region so that no two adjacent regions share a color. It is the textbook example because its constraint graph is immediately visual.",
+          "Notes": "The Australia map coloring example uses seven territories and three colors; Tasmania is unconstrained because it shares no border.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:07:27.0733917-04:00",
+          "ModifiedDate": "2026-10-14T20:07:27.0733917-04:00",
+          "Items": [
+            {
+              "Id": "4a2885e3-8821-42c6-9158-9a15aa5ae5eb",
+              "Text": "Variables are the regions or territories on the map.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "cb47293f-1c97-4485-8738-23d8aaa1a4af",
+              "Text": "Each domain is the available palette, for example {red, green, blue}.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f0385792-b35a-4aa4-a1bb-c50f001f89ca",
+              "Text": "Constraints are binary disequalities of the form A \u2260 B for every pair of adjacent regions.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "468dca23-cae3-4556-b5b4-2180564f4f82",
+              "Text": "The constraint graph has one node per region and one edge per shared border.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a606a1bf-55da-4c92-a03f-51266d881e11",
+              "Text": "This formulation generalizes directly to register allocation, frequency assignment, and exam-slot assignment.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "f29814b0-7679-4558-adf2-5ebbafb23633",
+          "TopicId": "f50561be-a736-4e34-8f8c-efb75b1fd829",
+          "Title": "Sudoku: Global Constraints Over a Grid",
+          "BodyText": "Sudoku is naturally expressed with one variable per cell and alldifferent constraints over rows, columns, and boxes. It illustrates how global constraints compress many binary constraints into one compact statement.",
+          "Notes": "Pre-filled clues can be modeled either as unary constraints or, more efficiently, by shrinking the variable\u0027s domain to a single value before search begins.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:07:27.0733917-04:00",
+          "ModifiedDate": "2026-10-14T20:07:27.0733917-04:00",
+          "Items": [
+            {
+              "Id": "0cb1cf61-3b71-41d2-a313-c78a708f50d5",
+              "Text": "Variables are the 81 cells; domains are the digits 1 through 9.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "5859d4c0-aa97-4401-be07-8b518c3128e7",
+              "Text": "Twenty-seven alldifferent constraints cover 9 rows, 9 columns, and 9 three-by-three boxes.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d3b3b4d8-4dcd-45c3-9612-0639b31a04a3",
+              "Text": "Each alldifferent is equivalent to 36 pairwise \u2260 constraints but propagates far more strongly as a single global constraint.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b8d3b365-e056-4360-9f5e-a6509dcf6353",
+              "Text": "Given clues reduce domains to singletons, letting constraint propagation solve many easy puzzles without search.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "78e91aaf-14cb-47fb-ad31-b9abdac7d3ab",
+          "TopicId": "f50561be-a736-4e34-8f8c-efb75b1fd829",
+          "Title": "N-Queens: Choosing Variables to Shrink the Search Space",
+          "BodyText": "N-Queens asks for a placement of N queens on an N\u00D7N board with no two attacking each other. It is the classic demonstration that variable choice alone can eliminate huge swaths of the search space.",
+          "Notes": "On an 8\u00D78 board, the naive cell-based encoding has 2^64 raw assignments, the column-per-queen encoding has only 8^8.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:07:27.0733917-04:00",
+          "ModifiedDate": "2026-10-14T20:07:27.0733917-04:00",
+          "Items": [
+            {
+              "Id": "f0640496-1269-461a-af1a-420d70d32a3d",
+              "Text": "A naive encoding uses one Boolean variable per square, which is large and allows invalid queen counts.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "974dd745-f873-4088-b173-f188670fc40e",
+              "Text": "A better encoding uses one variable per column whose value is the queen\u0027s row, making column conflicts impossible by construction.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "6d4413d2-8e38-4c3b-b4a2-3c68632f9feb",
+              "Text": "Remaining constraints are row disequality (Qi \u2260 Qj) and diagonal checks (|Qi \u2212 Qj| \u2260 |i \u2212 j|).",
+              "SortOrder": 2
+            },
+            {
+              "Id": "dafeb65a-6bb4-4563-9e54-f4e14042ac2e",
+              "Text": "An alldifferent constraint can replace all pairwise row disequalities.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "9cc5b827-480c-497c-83c6-51a025c308a2",
+              "Text": "The lesson generalizes: fold structural requirements into the variable definition rather than stating them as constraints.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "5efa2674-a4cc-4faf-bd2b-4bae00ec4220",
+          "TopicId": "f50561be-a736-4e34-8f8c-efb75b1fd829",
+          "Title": "Cryptarithmetic: Auxiliary Variables and Higher-Arity Constraints",
+          "BodyText": "Puzzles like SEND \u002B MORE = MONEY assign a distinct digit to each letter so the arithmetic holds. They show how auxiliary variables can convert one unwieldy constraint into several manageable ones.",
+          "Notes": "Without carry variables the puzzle requires a single constraint over eight letters; with carries it becomes four column constraints of arity four or five each.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:07:27.0733917-04:00",
+          "ModifiedDate": "2026-10-14T20:07:27.0733917-04:00",
+          "Items": [
+            {
+              "Id": "bb7bfa61-572d-4a35-9421-cd11c43c5456",
+              "Text": "Variables are the distinct letters, with domains of digits 0 through 9.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "106995a9-d680-4f46-8c4e-5ef0df462e99",
+              "Text": "An alldifferent constraint enforces that no two letters map to the same digit.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "89d5c910-95dd-4525-a279-6ee5b3ca9c84",
+              "Text": "Unary constraints forbid a leading zero for any letter that begins a word.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "5468898f-5fe2-4c10-8866-0b2875708342",
+              "Text": "Introducing carry variables C1..C4 with domain {0,1} decomposes the sum into one constraint per column.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "351c2975-6e7a-4bc9-8528-27e6993195da",
+              "Text": "The decomposed model propagates better and is easier for a solver to prune.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "41c7963f-98c1-47f4-91e7-13a28c011f6e",
+          "TopicId": "f50561be-a736-4e34-8f8c-efb75b1fd829",
+          "Title": "Scheduling: Job-Shop and Timetabling Formulations",
+          "BodyText": "Scheduling problems assign start times or slots to tasks subject to precedence, resource, and availability rules. They are the most common industrial application of CSP technology.",
+          "Notes": "Resource contention is often handled with a specialized global constraint such as cumulative or disjunctive rather than exhaustive pairwise non-overlap constraints.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:07:27.0733917-04:00",
+          "ModifiedDate": "2026-10-14T20:07:27.0733917-04:00",
+          "Items": [
+            {
+              "Id": "f07e2697-ca6d-4d9a-8b1d-8263e2fea74d",
+              "Text": "In job-shop scheduling, variables are task start times and domains are the feasible time points within the horizon.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "5220bd34-d9b6-4df6-9b3d-efbd86852b6a",
+              "Text": "Precedence constraints take the form Start_B \u2265 Start_A \u002B Duration_A.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d4c5bcc7-8506-42c8-8461-6e2349aa73c7",
+              "Text": "Non-overlap constraints prevent two tasks from using the same machine simultaneously.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "4472cc6c-cece-4d43-903c-515bd0d69213",
+              "Text": "In timetabling, variables are course sections and values are (time slot, room, instructor) tuples.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "db3b7bd1-7c8d-41e6-8360-78a3bb1bedc5",
+              "Text": "Hard constraints such as room capacity and instructor availability are separated from soft preferences that are scored rather than enforced.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "550e8a69-d62e-43a9-acc1-2af7c228d3c9",
+          "TopicId": "f50561be-a736-4e34-8f8c-efb75b1fd829",
+          "Title": "Why Modeling Choices Drive Solver Performance",
+          "BodyText": "Two logically equivalent models of the same problem can differ by orders of magnitude in solving time. Good modeling reduces the raw search space and gives propagation more to work with.",
+          "Notes": "A practical habit is to prototype two encodings on small instances and measure node counts before committing to one for production.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T20:07:27.0733917-04:00",
+          "ModifiedDate": "2026-10-14T20:07:27.0733917-04:00",
+          "Items": [
+            {
+              "Id": "efb43469-1bf9-4867-9825-1ed286596336",
+              "Text": "Smaller domains and fewer variables shrink the combinatorial space before search even starts.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "1101440f-ef9f-418f-937f-e6278d8ed629",
+              "Text": "Global constraints prune more than the equivalent set of binary constraints because they reason about all variables at once.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "46dce87d-0f8d-47d4-8004-a51f44384972",
+              "Text": "Breaking symmetry \u2014 for example fixing the first queen\u0027s position or ordering identical machines \u2014 avoids re-exploring equivalent solutions.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f1ddb8a5-6ebd-4aaa-b53b-981b9caf17eb",
+              "Text": "Tight constraints that fail early are more valuable than loose ones that only detect failure at the end.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "8d0a957f-ffe6-406e-8e05-f94f45422054",
+              "Text": "Redundant (implied) constraints add no new solutions but can dramatically accelerate propagation.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "58ab0b33-a59b-4a13-907b-94e4e2082a26",
+      "Title": "Backtracking Search for CSPs",
+      "Summary": "Develops the depth-first backtracking algorithm that assigns one variable at a time and backs up when a constraint is violated. Analyzes why it outperforms naive generate-and-test and where its exponential worst case arises.",
+      "SortOrder": 3,
+      "CreatedDate": "2026-10-14T20:06:17.0053171-04:00",
+      "ModifiedDate": "2026-10-14T20:06:17.0053171-04:00",
+      "Elements": [
+        {
+          "Id": "9e819eff-3d43-47bc-b61f-74cdaafbac74",
+          "TopicId": "58ab0b33-a59b-4a13-907b-94e4e2082a26",
+          "Title": "From Generate-and-Test to Backtracking",
+          "BodyText": "Naive search for a CSP solution enumerates complete assignments and checks them afterwards, which is hopelessly wasteful. Backtracking search instead builds assignments incrementally and tests constraints as soon as possible.",
+          "Notes": "For n variables with domain size d, generate-and-test inspects d^n complete assignments; backtracking prunes whole subtrees as soon as a partial assignment becomes inconsistent.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:07:49.5381719-04:00",
+          "ModifiedDate": "2026-10-14T20:07:49.5381719-04:00",
+          "Items": [
+            {
+              "Id": "fdd38af6-b929-4414-89e8-d8884d11946a",
+              "Text": "Generate-and-test treats the CSP as a black box and only evaluates finished candidates.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "97cf3439-583f-442c-a4ce-2725d2e991f0",
+              "Text": "Backtracking exploits the fact that constraints apply to partial assignments too.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "28e64360-1405-413c-a439-07b0a474cbc5",
+              "Text": "A violated constraint at depth k eliminates every completion of that partial assignment at once.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9757c34a-ed2d-4759-a3d1-c2c3678a3481",
+              "Text": "Early detection of failure is the single biggest source of savings over blind enumeration.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "1c798176-af85-48c0-9eee-1caa67ffc795",
+              "Text": "Backtracking is still a complete, systematic search: it will find a solution if one exists.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "220db37f-2d0a-41e6-a05e-04415fae5153",
+          "TopicId": "58ab0b33-a59b-4a13-907b-94e4e2082a26",
+          "Title": "The Backtracking Algorithm",
+          "BodyText": "Backtracking search is depth-first search specialised to CSPs: it assigns one variable at a time and undoes assignments when it reaches a dead end.",
+          "Notes": "Pseudocode outline: BACKTRACK(assignment) \u2014 if assignment is complete return it; select an unassigned variable; for each value in its domain, if consistent, assign, recurse, and on failure un-assign; return failure.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:07:49.5381719-04:00",
+          "ModifiedDate": "2026-10-14T20:07:49.5381719-04:00",
+          "Items": [
+            {
+              "Id": "9dfe137a-d666-4667-bb30-c6b7e9f57cd7",
+              "Text": "Base case: if every variable has a value, the assignment is a solution.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "39975d17-bb4f-4d26-9666-40c3620032a8",
+              "Text": "Select one unassigned variable and iterate over the values in its domain.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f4068d53-54c7-4567-a633-805db01d8839",
+              "Text": "Test the candidate value only against constraints involving already-assigned variables.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "575475b7-ab7d-469c-bbc1-3f96c8978636",
+              "Text": "Recurse on the extended assignment; if the recursive call fails, remove the value and try the next.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "cd3a4ae8-4c70-4768-b8ac-ab82ec4486b1",
+              "Text": "If all values fail, return failure so the caller backtracks to the previous variable.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "001502d6-3721-464f-b9f2-25e33d07bdd9",
+          "TopicId": "58ab0b33-a59b-4a13-907b-94e4e2082a26",
+          "Title": "Consistency Checking of Partial Assignments",
+          "BodyText": "The consistency test is the heart of the algorithm: a value is acceptable only if it violates no constraint with the variables assigned so far.",
+          "Notes": "In map colouring, assigning Blue to a region is rejected immediately if any already-coloured neighbour is Blue.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:07:49.5381719-04:00",
+          "ModifiedDate": "2026-10-14T20:07:49.5381719-04:00",
+          "Items": [
+            {
+              "Id": "b24f3c52-d59c-4ddb-9adc-7deacec04659",
+              "Text": "Only constraints whose variables are all currently assigned need to be evaluated.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "7561f050-15f8-495d-9da4-727eb443527f",
+              "Text": "Unary constraints can be enforced once up front by pruning domains before search begins.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1dea5a4e-ce8b-4c53-99d6-281bd510fb43",
+              "Text": "A partial assignment that passes all applicable constraints is called consistent, not necessarily extendable.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "0f25316d-58d7-4a36-9801-5567f8c9332c",
+              "Text": "Checking incrementally costs little because each new assignment touches only its neighbouring constraints.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "4b692a39-2b40-489c-a218-9f6d2879e481",
+          "TopicId": "58ab0b33-a59b-4a13-907b-94e4e2082a26",
+          "Title": "Commutativity and the Search Tree",
+          "BodyText": "CSPs are commutative: the order in which variables are assigned does not change the resulting assignment. This property dramatically shrinks the search tree backtracking must explore.",
+          "Notes": "Without commutativity the tree would have n! * d^n leaves; exploiting it gives at most d^n leaves.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:07:49.5381719-04:00",
+          "ModifiedDate": "2026-10-14T20:07:49.5381719-04:00",
+          "Items": [
+            {
+              "Id": "75f3184d-0677-43cc-8e2f-6b58ff251aae",
+              "Text": "At each node, backtracking considers values for a single chosen variable rather than all variables.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "7d24f19a-9acf-4680-a4b6-bb6b05d1d2f6",
+              "Text": "Different orderings of the same set of assignments are never explored separately.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "03d242ea-96e0-4ef3-a24f-72c39e18d2b6",
+              "Text": "The tree has depth n, one level per variable, and branching factor at most d.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a37a7631-2594-4fc4-bc3f-ae14a605448b",
+              "Text": "This justifies committing to one variable per level without losing completeness.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "8bdb74ba-1374-44de-becf-d2420f7188a8",
+          "TopicId": "58ab0b33-a59b-4a13-907b-94e4e2082a26",
+          "Title": "Complexity and the Exponential Worst Case",
+          "BodyText": "Backtracking is far better than generate-and-test in practice, but its worst-case running time is still exponential in the number of variables.",
+          "Notes": "General CSP satisfiability is NP-complete, so no algorithm is expected to avoid exponential worst-case behaviour on all instances.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:07:49.5381719-04:00",
+          "ModifiedDate": "2026-10-14T20:07:49.5381719-04:00",
+          "Items": [
+            {
+              "Id": "a61ea14f-4a3a-4d24-9765-d2b4155bafab",
+              "Text": "Worst case explores O(d^n) nodes for n variables with domains of size d.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f2cc6579-08b6-4856-96be-5deaa7b88db5",
+              "Text": "Space is only O(n) because depth-first search stores a single path plus the current domains.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "966dcb25-080b-4d15-abe8-a2d119b51774",
+              "Text": "Hard instances force repeated deep failures caused by a bad choice made near the root.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "2e67b583-ef95-4b73-a6bf-b576bf977fdf",
+              "Text": "Thrashing occurs when the same conflict is rediscovered over and over in different subtrees.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "33740c9a-9404-4669-b366-654705375efb",
+              "Text": "Performance depends heavily on which variable and which value are chosen at each step.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "702875f8-442f-4e72-ab7e-8bb5c8b9f529",
+          "TopicId": "58ab0b33-a59b-4a13-907b-94e4e2082a26",
+          "Title": "Where Improvements Come From",
+          "BodyText": "The plain algorithm leaves three decision points open, and each is an opportunity to make search dramatically faster without sacrificing completeness.",
+          "Notes": "These hooks motivate variable-ordering heuristics such as minimum-remaining-values and degree, value ordering such as least-constraining-value, and inference techniques such as forward checking.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:07:49.5381719-04:00",
+          "ModifiedDate": "2026-10-14T20:07:49.5381719-04:00",
+          "Items": [
+            {
+              "Id": "ef5ed294-5d7e-4b96-8672-99e9d7379339",
+              "Text": "Which unassigned variable should be chosen next?",
+              "SortOrder": 0
+            },
+            {
+              "Id": "eb5c0ac0-4f7b-4524-9fdc-fca2dd679829",
+              "Text": "In what order should the values of that variable be tried?",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f2d860a7-19f1-4599-8bc4-cac317db5b77",
+              "Text": "Can failures be detected earlier by propagating constraints after each assignment?",
+              "SortOrder": 2
+            },
+            {
+              "Id": "8e0d2ebb-b5e1-4ac3-b499-a9a8dffa1443",
+              "Text": "Can the search learn from a failure to avoid repeating it elsewhere in the tree?",
+              "SortOrder": 3
+            },
+            {
+              "Id": "98154632-f5c9-4f0b-b97a-011abad40414",
+              "Text": "All such refinements preserve correctness and only change how fast solutions are reached.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "71c83795-4d57-4176-b570-0ba04afd535d",
+      "Title": "Variable Ordering Heuristics",
+      "Summary": "Presents minimum-remaining-values (most constrained variable) and degree heuristics for selecting which variable to assign next. Demonstrates how early detection of failure dramatically prunes the search tree.",
+      "SortOrder": 4,
+      "CreatedDate": "2026-10-14T20:06:17.0053171-04:00",
+      "ModifiedDate": "2026-10-14T20:06:17.0053171-04:00",
+      "Elements": [
+        {
+          "Id": "a5a75f07-ecea-4e35-b9bb-2e866f47560e",
+          "TopicId": "71c83795-4d57-4176-b570-0ba04afd535d",
+          "Title": "Why Variable Ordering Matters",
+          "BodyText": "In backtracking search, the solver is free to choose which unassigned variable to instantiate next, and this choice has no effect on correctness but an enormous effect on efficiency. Good ordering heuristics can reduce the explored search tree by orders of magnitude.",
+          "Notes": "A static ordering (e.g., always pick the next variable in a fixed list) ignores information revealed by earlier assignments; dynamic ordering re-evaluates after every assignment.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:08:08.8177699-04:00",
+          "ModifiedDate": "2026-10-14T20:08:08.8177699-04:00",
+          "Items": [
+            {
+              "Id": "d1dfe401-3a29-4cb5-9181-da8d85e7b560",
+              "Text": "Any complete ordering still finds a solution if one exists, so heuristics are purely about speed.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "1f0d5fba-2fb6-46f0-9efe-0eb0b5a5c917",
+              "Text": "Dynamic heuristics recompute the choice at each node using the current state of the domains.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d28f74a9-6301-4b10-b824-bf2c886694d6",
+              "Text": "The goal is to reach a contradiction as early as possible so that large subtrees are never generated.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "48941cd0-4636-4f7c-a397-ed6d9891c967",
+              "Text": "On map coloring and Sudoku, good ordering often turns an intractable search into a near-backtrack-free one.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "54057509-6481-4dc4-9d4a-b5d6fb7009e1",
+          "TopicId": "71c83795-4d57-4176-b570-0ba04afd535d",
+          "Title": "Minimum Remaining Values (MRV)",
+          "BodyText": "The minimum-remaining-values heuristic, also called most-constrained-variable or fail-first, selects the unassigned variable with the fewest legal values left in its current domain. It is the single most effective general-purpose variable ordering rule.",
+          "Notes": "MRV is typically paired with forward checking or arc consistency, which maintain the reduced domains it depends on.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:08:08.8177699-04:00",
+          "ModifiedDate": "2026-10-14T20:08:08.8177699-04:00",
+          "Items": [
+            {
+              "Id": "89560994-58be-4985-a191-185146e9be4d",
+              "Text": "Count the remaining legal values for each unassigned variable and pick the smallest count.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e1279ddc-ae9a-4c36-9448-debfaa45a383",
+              "Text": "A variable with one remaining value is effectively forced and should be assigned immediately.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7fd5cf92-e2fb-4a01-b4c1-a4d623d3f7f0",
+              "Text": "A variable with zero remaining values signals immediate failure, letting the solver backtrack without wasted work.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9443b157-dd7c-42ce-b37a-73a361e67f64",
+              "Text": "MRV reduces the branching factor near the top of the tree, where savings compound the most.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "254ac74a-1aa8-4fc7-9820-b11c69a5a07f",
+              "Text": "In Sudoku, MRV mimics the human tactic of filling the cell with only one possible digit.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "2d4ffd70-74a2-4449-863d-9125b24f9221",
+          "TopicId": "71c83795-4d57-4176-b570-0ba04afd535d",
+          "Title": "The Fail-First Principle",
+          "BodyText": "MRV embodies the fail-first principle: if some branch of the search is doomed, it is better to discover that at a shallow depth than after many additional assignments. Early detection of failure prunes exponentially large portions of the tree.",
+          "Notes": "Counterintuitively, deliberately attacking the hardest variable first makes the overall search easier.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:08:08.8177699-04:00",
+          "ModifiedDate": "2026-10-14T20:08:08.8177699-04:00",
+          "Items": [
+            {
+              "Id": "28e3a983-ad28-4792-adb6-a4c07e569c15",
+              "Text": "Postponing a constrained variable means its inevitable conflict is rediscovered in every sibling subtree.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "685218da-6f48-46c1-8bea-a7d197b5d683",
+              "Text": "Choosing the tightest variable first means a dead end is detected once, at a high level of the tree.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a85393eb-49a2-4cae-b93b-db3db17a4826",
+              "Text": "The number of nodes avoided grows multiplicatively with the depth at which the failure is caught.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "96f1969d-cf3f-41f6-a723-f33fc2c2443a",
+              "Text": "Fail-first does not help when a problem has many solutions scattered everywhere, but it rarely hurts.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "efbc71c0-8b34-43e0-b8d2-5f7aa3f89b35",
+          "TopicId": "71c83795-4d57-4176-b570-0ba04afd535d",
+          "Title": "The Degree Heuristic",
+          "BodyText": "The degree heuristic selects the variable involved in the largest number of constraints with other unassigned variables. It is most useful as a tie-breaker when several variables share the same minimum domain size.",
+          "Notes": "Degree is often also used as the initial variable choice, because at the start of search every domain is still full and MRV cannot discriminate.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:08:08.8177699-04:00",
+          "ModifiedDate": "2026-10-14T20:08:08.8177699-04:00",
+          "Items": [
+            {
+              "Id": "8b8f55cc-eda0-4352-8cc5-102c0c02d1ef",
+              "Text": "Compute each variable\u0027s degree by counting constraint edges to variables that are still unassigned.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0ae047d2-f032-4c52-b2ac-83a2813a56a5",
+              "Text": "Assigning a high-degree variable prunes the domains of the greatest number of neighbours.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ba24d190-b55e-4225-bba7-d15b2dd306d1",
+              "Text": "Degree is a static-structure measure, while MRV is dynamic and state-dependent.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c1d08c34-fe16-4e7e-875b-b2cd2a63d1ef",
+              "Text": "In map coloring, the degree heuristic picks the region bordering the most uncolored regions.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "e3e3a57f-410a-46c3-8fe6-59f3353462f5",
+          "TopicId": "71c83795-4d57-4176-b570-0ba04afd535d",
+          "Title": "Combining MRV and Degree in Practice",
+          "BodyText": "Practical solvers apply MRV as the primary criterion and the degree heuristic to break ties, producing a robust dynamic variable ordering. The combination is cheap to compute relative to the search effort it saves.",
+          "Notes": "Example: in Australia map coloring with MRV plus degree and forward checking, the three-coloring is found with essentially no backtracking.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:08:08.8177699-04:00",
+          "ModifiedDate": "2026-10-14T20:08:08.8177699-04:00",
+          "Items": [
+            {
+              "Id": "bb4459eb-514a-4d56-9b7d-13a9af3886df",
+              "Text": "Rank candidates by smallest remaining domain, then by highest degree among the tied variables.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "ddf69b5a-e7d6-4389-ad4c-3452d63df78e",
+              "Text": "Remaining ties can be broken arbitrarily or by a fixed index order for determinism.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8eff6ff7-308a-4546-a4c8-fd2898eeaf9b",
+              "Text": "Maintain domain-size counters incrementally so each selection costs little overhead.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f2dc3da0-400f-4ba1-81db-b92b3aabc93e",
+              "Text": "Pair the ordering with the least-constraining-value heuristic for value selection to maximise the benefit.",
+              "SortOrder": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "89790594-7658-4803-96b8-518afff4bf87",
+      "Title": "Value Ordering and Search Efficiency",
+      "Summary": "Covers the least-constraining-value heuristic for ordering domain values and how it complements variable ordering. Compares empirical node counts across heuristic combinations on benchmark problems such as N-Queens and map coloring.",
+      "SortOrder": 5,
+      "CreatedDate": "2026-10-14T20:06:17.0053171-04:00",
+      "ModifiedDate": "2026-10-14T20:06:17.0053171-04:00",
+      "Elements": [
+        {
+          "Id": "f8947942-0b7d-47d1-8bf9-9ce0a0ea5e9c",
+          "TopicId": "89790594-7658-4803-96b8-518afff4bf87",
+          "Title": "Why Value Ordering Matters",
+          "BodyText": "Once backtracking search selects a variable, it must decide the order in which to try that variable\u0027s remaining domain values. Unlike variable ordering, value ordering only affects how quickly a solution is found, not the size of the full search tree when all solutions are required.",
+          "Notes": "In map coloring, choosing Red before Blue for a region does not change whether a solution exists, but it can change how many dead ends are explored first.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:08:33.241258-04:00",
+          "ModifiedDate": "2026-10-14T20:08:33.241258-04:00",
+          "Items": [
+            {
+              "Id": "ed709827-9c28-4a05-a257-efec9b6fcc7a",
+              "Text": "Every value in the current domain must eventually be tried if the search needs to prove unsatisfiability.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "134e5957-32db-4d3a-b50a-c6541348e998",
+              "Text": "When only one solution is needed, a good value order can lead directly to a consistent assignment with few backtracks.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "bcfae430-64e0-4280-809c-b48859c98a40",
+              "Text": "Value ordering is applied after a variable has already been chosen by the variable-ordering heuristic.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "ce61282f-c110-4e15-989b-e80b9f4ceae3",
+              "Text": "Poor value ordering wastes effort exploring branches that are doomed by constraints on neighbouring variables.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "8da7096c-2c75-4eee-86a6-69b5c2ddd5bf",
+          "TopicId": "89790594-7658-4803-96b8-518afff4bf87",
+          "Title": "The Least-Constraining-Value Heuristic",
+          "BodyText": "The least-constraining-value (LCV) heuristic prefers the value that rules out the fewest choices for the neighbouring variables in the constraint graph. It is a \u0027fail-last\u0027 strategy that keeps the remaining search space as flexible as possible.",
+          "Notes": "LCV is the mirror image of the variable heuristics: variable ordering tries to fail fast, value ordering tries to succeed fast.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:08:33.241258-04:00",
+          "ModifiedDate": "2026-10-14T20:08:33.241258-04:00",
+          "Items": [
+            {
+              "Id": "863c51b0-8bbf-41ca-8af4-c2d11ee4ff75",
+              "Text": "For each candidate value, count how many values it eliminates from the domains of unassigned neighbours.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "eb584916-9d46-4f40-b8bd-119e588bd68f",
+              "Text": "Try the value with the smallest elimination count first.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "bf913122-303a-4727-9237-d5dab3abc900",
+              "Text": "The intuition is to leave the maximum number of options open for the rest of the assignment.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "49e39ddf-046f-412b-86a8-ffe240bac4dc",
+              "Text": "LCV requires a constraint propagation step (such as forward checking) to compute the elimination counts.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "2013397e-354b-4623-8606-95cc872b2800",
+              "Text": "If no solution exists, LCV gives no benefit because the entire subtree must still be explored.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "b6d2ec0d-772a-4701-97a7-de7103bb4b6b",
+          "TopicId": "89790594-7658-4803-96b8-518afff4bf87",
+          "Title": "Combining Variable and Value Ordering",
+          "BodyText": "Value ordering is most effective when paired with the minimum-remaining-values and degree heuristics for variable selection. The two kinds of heuristics address complementary questions: which variable to commit to next, and which commitment to make.",
+          "Notes": "A common production configuration is MRV with the degree heuristic as a tie-breaker, LCV for value order, and forward checking or MAC for propagation.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:08:33.241258-04:00",
+          "ModifiedDate": "2026-10-14T20:08:33.241258-04:00",
+          "Items": [
+            {
+              "Id": "83b096d5-72f6-402a-97d2-f021c4473830",
+              "Text": "MRV selects the variable most likely to fail soon, pruning the tree near the root.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "68820d8f-26cc-47ec-b523-6b496bc227e8",
+              "Text": "The degree heuristic breaks MRV ties by choosing the variable involved in the most constraints on unassigned variables.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8bdd9b1b-d83b-4340-9600-658901468c0a",
+              "Text": "LCV then orders that variable\u0027s values so the most promising branch is explored first.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "697e35e5-d36d-4467-8731-f3617404bfd3",
+              "Text": "Fail-first variable choice plus fail-last value choice balances pruning against solution-finding speed.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "66e59931-a439-4a37-b95e-7f03e31b27db",
+              "Text": "Both heuristic families rely on up-to-date domains, so they are typically combined with inference.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "2aa6b8ec-330c-428b-8d05-87cb4aac5430",
+          "TopicId": "89790594-7658-4803-96b8-518afff4bf87",
+          "Title": "Measuring Search Efficiency with Node Counts",
+          "BodyText": "Heuristic combinations are compared empirically by counting the number of search nodes expanded or consistency checks performed on benchmark instances. Node counts expose the practical gains that worst-case complexity analysis cannot capture.",
+          "Notes": "Runtime should also be reported, because heuristics such as LCV add per-node overhead that may offset node reductions on small problems.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:08:33.241258-04:00",
+          "ModifiedDate": "2026-10-14T20:08:33.241258-04:00",
+          "Items": [
+            {
+              "Id": "381c8e60-96e2-44e2-992d-58b698a174c9",
+              "Text": "Node counts measure how many partial assignments the search actually examines.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "fdcaf650-19fe-4e22-be97-0a64ac20d586",
+              "Text": "Averaging over many random instances smooths out variation from lucky or unlucky orderings.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "02893078-372c-4d3d-abde-5f2a4f5e8f07",
+              "Text": "Counting constraint checks captures the overhead of computing the heuristics themselves.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9f7803b3-cdbe-49fe-84b0-e2c411130ddb",
+              "Text": "Plain backtracking is used as the baseline against which heuristic variants are compared.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "30c1c642-5cd5-446c-9623-1cb6a3a595c6",
+          "TopicId": "89790594-7658-4803-96b8-518afff4bf87",
+          "Title": "Benchmark Results: N-Queens and Map Coloring",
+          "BodyText": "Classic CSP benchmarks such as N-Queens and map coloring show dramatic reductions in explored nodes as heuristics are layered on. Naive backtracking becomes impractical at modest problem sizes that heuristic search handles easily.",
+          "Notes": "In N-Queens, the variables are columns, the domains are rows, and the constraints forbid shared rows and diagonals; the structure makes it ideal for measuring heuristic impact.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:08:33.241258-04:00",
+          "ModifiedDate": "2026-10-14T20:08:33.241258-04:00",
+          "Items": [
+            {
+              "Id": "8b20efac-796e-4b74-ba14-0072e614612f",
+              "Text": "Plain backtracking on N-Queens explodes combinatorially as N grows past a few dozen.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "345d6fcf-0f1d-467c-b834-2eafdb474a24",
+              "Text": "Adding MRV and the degree heuristic cuts expanded nodes by orders of magnitude on the same instances.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "30e45557-8a6e-484b-8f4b-fb7eb3222198",
+              "Text": "Adding LCV and forward checking further reduces backtracks when a single solution is sought.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "1cfc19c8-269d-434e-9872-578d2fa9db56",
+              "Text": "Map coloring benchmarks show the degree heuristic helping most on graphs with highly connected regions.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "30d1cc81-2f7d-46bf-bdcb-eea1411a488a",
+              "Text": "Gains are largest on under-constrained and critically constrained instances rather than trivially easy ones.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "8780ffed-ee30-4178-a191-5a374e9367e8",
+          "TopicId": "89790594-7658-4803-96b8-518afff4bf87",
+          "Title": "Practical Guidance and Limitations",
+          "BodyText": "Heuristics are informed guesses, not guarantees, and their cost must be weighed against their pruning power. Knowing when LCV helps and when it does not is part of designing an efficient solver.",
+          "Notes": "",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:08:33.241258-04:00",
+          "ModifiedDate": "2026-10-14T20:08:33.241258-04:00",
+          "Items": [
+            {
+              "Id": "9579216c-af2d-4453-a7e4-f9d000eecc6b",
+              "Text": "LCV offers little benefit on unsatisfiable instances where the whole tree is searched anyway.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c2588632-546e-4e66-8ebe-5d24cd1a3625",
+              "Text": "Computing LCV scores at every node can dominate runtime on problems with large domains.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "57689c99-c5a7-43ee-b11b-354ac3e1d212",
+              "Text": "Random or static value ordering is sometimes sufficient for loosely constrained problems.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "ec17429c-efd8-4b11-9039-9dd9b02d8193",
+              "Text": "Always profile a specific problem class rather than assuming a heuristic combination transfers.",
+              "SortOrder": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "5edebf06-a57f-4d9d-a670-40e6dde72644",
+      "Title": "Applying and Evaluating CSP Solvers",
+      "Summary": "Guides learners in implementing a backtracking solver with pluggable heuristics and testing it on Sudoku and scheduling instances. Discusses performance measurement, debugging constraint models, and when CSP methods are the right tool.",
+      "SortOrder": 6,
+      "CreatedDate": "2026-10-14T20:06:17.0053171-04:00",
+      "ModifiedDate": "2026-10-14T20:06:17.0053171-04:00",
+      "Elements": [
+        {
+          "Id": "c85aeb8b-8403-4ce3-934b-79464ccdb34e",
+          "TopicId": "5edebf06-a57f-4d9d-a670-40e6dde72644",
+          "Title": "Building a Pluggable Backtracking Solver",
+          "BodyText": "A practical CSP solver separates the core search loop from the strategies it uses, so heuristics and inference can be swapped without rewriting the engine.",
+          "Notes": "A typical signature is solve(csp, select_variable, order_values, inference) returning an assignment or failure.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:09:00.2029188-04:00",
+          "ModifiedDate": "2026-10-14T20:09:00.2029188-04:00",
+          "Items": [
+            {
+              "Id": "b3128cc8-398e-48aa-89c9-ecd36fb6866f",
+              "Text": "Represent the CSP as variables, a domain map, and a constraint list with a scope and a satisfaction test.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "628a40bd-9b5c-48b7-8eca-70ff3841d4cd",
+              "Text": "The recursive core selects an unassigned variable, tries values in order, checks consistency, recurses, and undoes the assignment on failure.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a1d758a4-0dc4-4b1c-9c01-48c399d65dc8",
+              "Text": "Pass variable ordering (MRV, degree), value ordering (least-constraining-value), and inference (forward checking, AC-3) as interchangeable functions.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d0b3ca06-0cb5-43cb-aed0-aa3b8fd5cc42",
+              "Text": "Maintain a trail or copy-on-write domains so pruned values are restored exactly when the search backtracks.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "dfa313f8-f6a1-4eb5-bf93-b96f6e6865bf",
+              "Text": "Expose counters for nodes expanded, consistency checks, and backtracks to make every configuration measurable.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "ff8e0496-fe4d-4eca-98ea-c76ef19a3e60",
+          "TopicId": "5edebf06-a57f-4d9d-a670-40e6dde72644",
+          "Title": "Case Study: Solving Sudoku",
+          "BodyText": "Sudoku is an ideal first benchmark because its model is compact and the effect of heuristics is dramatic and easy to observe.",
+          "Notes": "Puzzles rated \u0027easy\u0027 often solve with constraint propagation alone; \u0027hard\u0027 and anti-backtracking puzzles separate good heuristics from weak ones.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:09:00.2029188-04:00",
+          "ModifiedDate": "2026-10-14T20:09:00.2029188-04:00",
+          "Items": [
+            {
+              "Id": "79f55ded-1e4a-47d5-894a-4c681b85d5b4",
+              "Text": "Model 81 variables with domains 1-9 and 27 all-different global constraints over rows, columns, and boxes.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c349d5e4-14b7-413d-8c78-f867d1e85f3b",
+              "Text": "Encode the given clues as unary constraints or as pre-reduced singleton domains before search begins.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5ee26e96-f7aa-4039-9c4c-329017df26a4",
+              "Text": "Plain chronological backtracking can explode on hard puzzles, while MRV plus forward checking usually solves them with few or no backtracks.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "0f7126ee-0c44-438b-961f-83d3d71e4c10",
+              "Text": "Verify the returned grid independently against all 27 constraints rather than trusting the solver\u0027s internal state.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "664ef458-2faf-4ef8-9604-3fc8da52957e",
+              "Text": "Test on a graded set of puzzles so you can see where each configuration starts to struggle.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "3a99aeb6-bfc3-4111-8a17-f44644e04f7d",
+          "TopicId": "5edebf06-a57f-4d9d-a670-40e6dde72644",
+          "Title": "Case Study: Scheduling Instances",
+          "BodyText": "Scheduling exercises the solver on messier, real-world structure where constraints are heterogeneous and solutions may not exist.",
+          "Notes": "Examples include exam timetabling, meeting rooms, and job-shop task sequencing.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:09:00.2029188-04:00",
+          "ModifiedDate": "2026-10-14T20:09:00.2029188-04:00",
+          "Items": [
+            {
+              "Id": "5158bf1e-1818-45d7-8ac0-f10aef32cfe5",
+              "Text": "Variables are tasks, meetings, or exams; domains are time slots or slot-resource pairs.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d6e408b3-104f-4c5a-be6b-fc9ca80e7e06",
+              "Text": "Combine binary non-overlap constraints, precedence constraints, and global resource capacity constraints in one model.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "565c7c45-0bfc-4953-afa9-259c05d025a6",
+              "Text": "Unlike Sudoku, many scheduling instances are over-constrained, so the solver must report infeasibility promptly rather than thrash.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "afcfaa0f-a102-401a-a02e-695936b3dfb1",
+              "Text": "Add slack by widening domains or relaxing soft preferences to turn an unsolvable instance into a solvable one.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "f3890073-03ac-4534-bf2e-cd68ad60fbcc",
+              "Text": "Degree and MRV heuristics matter most here because the constraint graph is irregular and some tasks are far more entangled than others.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "e3d723b2-f0f2-4dce-8c3a-d17369f30b79",
+          "TopicId": "5edebf06-a57f-4d9d-a670-40e6dde72644",
+          "Title": "Measuring Solver Performance",
+          "BodyText": "Comparing heuristic configurations requires metrics that are independent of machine speed as well as honest wall-clock timing.",
+          "Notes": "Report medians and failure counts, not just means, because CSP runtimes are heavy-tailed.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:09:00.2029188-04:00",
+          "ModifiedDate": "2026-10-14T20:09:00.2029188-04:00",
+          "Items": [
+            {
+              "Id": "77bde1e6-b283-4ac3-9a49-38eb0555db51",
+              "Text": "Track nodes expanded, backtracks, constraint checks, and values pruned as hardware-independent measures of search effort.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "cfa9bf70-57cd-498a-b000-91480a9e81e7",
+              "Text": "Also record wall-clock time, since cheap search nodes can be outweighed by expensive inference per node.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c4e632ea-cb63-4a95-a801-cb12716ce1ee",
+              "Text": "Run an ablation grid: no heuristics, MRV only, MRV plus LCV, and each combined with forward checking or AC-3.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b4084820-9eec-4046-bdf8-009bfd2dd4d8",
+              "Text": "Use a fixed timeout and report the number of instances solved within it rather than discarding timed-out runs.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "2cacb4af-fab0-404d-8237-d651cd8ecd7b",
+              "Text": "Average results over many randomized instances and random seeds so conclusions are not driven by one lucky puzzle.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "80091f0f-ec4f-470e-b742-67f28c9dc7dd",
+          "TopicId": "5edebf06-a57f-4d9d-a670-40e6dde72644",
+          "Title": "Debugging Constraint Models",
+          "BodyText": "Most CSP bugs are modeling errors rather than search errors, so debugging starts with the constraints themselves.",
+          "Notes": "A useful habit: write the verifier before the solver.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:09:00.2029188-04:00",
+          "ModifiedDate": "2026-10-14T20:09:00.2029188-04:00",
+          "Items": [
+            {
+              "Id": "ed719f19-7787-4c78-ac71-81545aa5f8a9",
+              "Text": "Write an independent checker that validates any complete assignment, and assert that every returned solution passes it.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "862f772f-e934-4dd5-87a1-172d72f903c8",
+              "Text": "If no solution is found when one should exist, suspect an over-tight or wrongly scoped constraint before suspecting the search.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "fce416f7-cef3-4ec1-9c31-9fe5703bc1ef",
+              "Text": "If invalid solutions are returned, a constraint is missing, has the wrong variable scope, or is never consulted during consistency checks.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "065e90d5-6748-4496-a335-c6e05cafe563",
+              "Text": "Test on tiny hand-solvable instances where you can enumerate the full search tree by hand.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "3620c599-c3e6-40cc-b99e-94941fb3f20d",
+              "Text": "Log the search path on failure and check that domain restoration after backtracking returns state exactly to its prior condition.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "10ea6a33-e16f-4b6b-85ad-6400c2c051b9",
+          "TopicId": "5edebf06-a57f-4d9d-a670-40e6dde72644",
+          "Title": "Knowing When CSP Methods Fit",
+          "BodyText": "Backtracking search is powerful for the right problem shape, but other paradigms dominate elsewhere.",
+          "Notes": "Many solvers combine approaches: constraint propagation to prune, then local search or an integer-programming relaxation for the remainder.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:09:00.2029188-04:00",
+          "ModifiedDate": "2026-10-14T20:09:00.2029188-04:00",
+          "Items": [
+            {
+              "Id": "a865d482-4a42-483c-b9d0-4264c8fdfb1f",
+              "Text": "CSP is a strong fit when variables have finite discrete domains, constraints are hard, and any feasible solution is acceptable.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "cdc5f160-bd5b-479c-905c-4d05c1ec843f",
+              "Text": "Prefer local search such as min-conflicts for very large instances where completeness matters less than speed.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8f26660c-4aad-4f29-94f2-0433ab922235",
+              "Text": "Prefer linear or integer programming when an objective function must be optimized over mostly numeric variables.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "7fdf5e0d-762a-4055-929c-5fecdb483e67",
+              "Text": "Continuous variables, uncertainty, or learned soft preferences usually point away from classical finite-domain CSP.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "e3eaee3f-8da8-4cc9-8c86-bd57749983bb",
+              "Text": "Problem size alone is not disqualifying: strong global constraints and propagation routinely handle thousands of variables.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "TotalElementCount": 41
+}

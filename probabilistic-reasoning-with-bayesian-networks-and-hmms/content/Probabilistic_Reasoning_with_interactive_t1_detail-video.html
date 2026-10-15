@@ -1,0 +1,371 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Probability Foundations for Reasoning Under Uncertainty</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Probabilistic Reasoning with Bayesian Networks and HMMs</a></div>
+  <header>
+    <h1>Probability Foundations for Reasoning Under Uncertainty</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Probability Foundations for Reasoning Under Uncertainty</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Almost every interesting agent — a robot navigating a corridor, a medical diagnosis system, a speech recogniser, a self-driving car — must act long before it knows everything relevant to its decision. Classical logic gives an agent a crisp way to say what <em>follows</em> from what it knows, but it offers no way to say that one unproven conclusion is far more plausible than another. Probability theory fills exactly that gap: it provides a calculus of <strong>degrees of belief</strong> that is as rigorous as logic, that degrades gracefully when information is missing, and that tells an agent precisely how to revise its beliefs when new evidence arrives. This topic lays down the vocabulary, notation and arithmetic that the rest of the module depends on — random variables, atomic events, the axioms, joint distributions, marginalization, conditioning, and the prior/posterior distinction.</p>
+
+<p><strong>Why agents must reason under uncertainty</strong></p>
+
+<p>Uncertainty is not a sign of a badly built agent; it is an unavoidable consequence of embedding an agent in a real environment. Four distinct sources are usually identified, and they compound one another:</p>
+
+<ul>
+  <li><strong>Partial observability.</strong> The agent's sensors see only a fragment of the world state. A taxi-driving agent cannot see whether the car two vehicles ahead is about to brake; a diagnostic agent cannot see the patient's arteries. The hidden part of the state is not unknowable in principle, merely unobserved right now.</li>
+  <li><strong>Noisy or unreliable sensors.</strong> Even what the agent <em>does</em> observe is corrupted. A sonar returns 2.7 m when the wall is at 2.9 m; a lab test for a disease has a 5% false-positive rate. The mapping from world state to percept is many-to-many, so a percept never pins down the state exactly.</li>
+  <li><strong>Nondeterministic action outcomes.</strong> Executing <code>Grasp(cup)</code> usually succeeds, but sometimes the cup slips. Executing <code>Drive(90 minutes to airport)</code> usually gets you there, but a burst water main may not care about your plan.</li>
+  <li><strong>Sheer complexity.</strong> Sometimes the world <em>is</em> effectively deterministic and observable, but modelling it exactly is hopeless. Whether a particular patient's toothache is caused by a cavity depends on bacterial colonies, enamel microstructure and immune response; no agent will ever write down that model. Probability acts as a summary of the detail we deliberately refuse to represent.</li>
+</ul>
+
+<p>Consider a logical agent trying to encode dental knowledge. The natural first rule is:</p>
+
+<pre><code>∀p  Toothache(p) ⇒ Cavity(p)</code></pre>
+
+<p>This is simply false: toothaches are also caused by gum disease, abscesses, impacted wisdom teeth, cracked fillings, or sinus infections. The logician's two repair strategies both fail:</p>
+
+<ul>
+  <li><strong>Commit anyway.</strong> Keep the rule and accept that the agent will sometimes assert a cavity that is not there. The knowledge base becomes unsound — it licenses conclusions that are not entailed by reality.</li>
+  <li><strong>Enumerate every cause.</strong> Write <code>∀p Toothache(p) ⇒ Cavity(p) ∨ GumDisease(p) ∨ Abscess(p) ∨ Sinusitis(p) ∨ …</code>. This is true but useless: the disjunction is unbounded (a <em>qualification problem</em>), it gives the agent no guidance about which disjunct to act on, and building the reverse causal rule <code>Cavity(p) ⇒ Toothache(p)</code> fails too because many cavities are painless.</li>
+</ul>
+
+<p>Probability lets the agent say something both true and useful: <code>P(Cavity | Toothache) = 0.6</code>. The number 0.6 is not a claim that the universe flips a biased coin when a tooth hurts. It is a claim about the <strong>agent's epistemic state</strong>: given everything this agent currently knows, in 60% of the worlds consistent with its evidence there is a cavity. A different agent, holding an X-ray, would legitimately assign a different number to the same patient. This is the Bayesian or subjectivist reading of probability, and it is the one used throughout AI. (The alternative <em>frequentist</em> reading, which grounds probability in long-run relative frequencies, gives the same mathematics; the axioms and all derived rules are identical.)</p>
+
+<p>Crucially, degrees of belief are <strong>dynamic</strong>. Before any examination, the agent may hold <code>P(Cavity) = 0.2</code>. On observing a toothache it revises to 0.6; on additionally observing that the dental probe catches in the tooth it may revise to 0.87; on seeing a clean X-ray it may drop back to 0.05. Because belief revision is just arithmetic on distributions, the same machinery that supports perception also supports learning: the agent's model parameters can themselves be treated as random variables and updated from data. This is why probability, rather than ad-hoc certainty factors or fuzzy degrees, became the standard foundation for modern AI, and why decision theory (probability + utility) gives the normative definition of rational action: choose the action with maximum expected utility.</p>
+
+<p><strong>Random variables and domains</strong></p>
+
+<p>The basic element of a probabilistic model is the <strong>random variable</strong>: a named feature of the world that can take one of a set of values. By convention, variable names are capitalised (<code>Cavity</code>, <code>Weather</code>, <code>Temperature</code>) and values are lower case (<code>true</code>, <code>rain</code>, <code>21.5</code>). The set of values a variable may take is its <strong>domain</strong>, and the domain must be exhaustive (some value always holds) and mutually exclusive (no two values hold at once).</p>
+
+<table>
+  <thead>
+    <tr><th>Kind of variable</th><th>Domain</th><th>Example</th><th>How belief is described</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Boolean</td><td>{true, false}</td><td><code>Cavity</code>, <code>Toothache</code>, <code>Alarm</code></td><td>A single number <code>P(cavity)</code>; the other follows by negation</td></tr>
+    <tr><td>Discrete (finite)</td><td>Any finite set</td><td><code>Weather ∈ {sunny, rain, cloud, snow}</code></td><td>A vector of probabilities summing to 1</td></tr>
+    <tr><td>Discrete (countably infinite)</td><td>e.g. the natural numbers</td><td><code>NumberOfMessages ∈ {0,1,2,…}</code></td><td>A probability mass function, e.g. Poisson</td></tr>
+    <tr><td>Continuous</td><td>An interval of ℝ</td><td><code>Temperature ∈ [−50, 60]</code></td><td>A probability density function (PDF)</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Boolean variables.</strong> These are so common that they get shorthand: for a Boolean variable <code>Cavity</code>, write <code>cavity</code> for the proposition <code>Cavity = true</code> and <code>¬cavity</code> for <code>Cavity = false</code>. Because the two values exhaust the domain, <code>P(cavity) + P(¬cavity) = 1</code>, so one number suffices.</p>
+
+<p><strong>Discrete variables.</strong> A discrete variable with <em>k</em> values needs <em>k</em> numbers, of which only <em>k</em> − 1 are free. We use bold <code>P</code> for the whole vector: <code>P(Weather) = ⟨0.6, 0.1, 0.29, 0.01⟩</code> for the ordering ⟨sunny, rain, cloud, snow⟩, while plain <code>P(Weather = rain) = 0.1</code> denotes a single number. This bold-vs-plain distinction is used constantly once we reach Bayesian networks, where a single equation such as <code>P(X | Y)</code> stands for an entire conditional probability table.</p>
+
+<p><strong>Continuous variables.</strong> If <code>X</code> can take any real value in an interval, then any individual value has probability zero — there are uncountably many of them, and they must share a total mass of 1. Instead we write a <strong>density</strong> <code>p(x)</code> with the property that probabilities come from integration:</p>
+
+<pre><code>P(a ≤ X ≤ b) = ∫[a,b] p(x) dx      and      ∫[−∞,∞] p(x) dx = 1</code></pre>
+
+<p>For example, if the temperature at noon is uniformly distributed on [18, 26] °C, then <code>p(x) = 1/8</code> per degree for x in that range and 0 elsewhere, so <code>P(20 ≤ X ≤ 22) = 2 × 1/8 = 0.25</code>. Note that a density may exceed 1 (here it would if the interval were narrower than one degree) — only the integral is constrained. The Gaussian density <code>p(x) = (1/(σ√(2π))) e^{−(x−μ)²/(2σ²)}</code> is the workhorse of continuous modelling because sums of many small independent effects tend toward it and because it is closed under the operations of linear-Gaussian inference. Everything else in this module — marginalization, conditioning, Bayes' rule — carries over to the continuous case with sums replaced by integrals.</p>
+
+<p><strong>Propositions.</strong> A <strong>proposition</strong> is an assertion that can be true or false in a given world. The simplest kind is an <em>atomic assertion</em> that a variable takes a value: <code>Cavity = true</code>, <code>Weather = rain</code>, <code>Temperature ≥ 22</code>. Propositions combine with the usual logical connectives, and probability is defined over the resulting sentences:</p>
+
+<ul>
+  <li><code>cavity ∧ ¬toothache</code> — a cavity with no pain</li>
+  <li><code>Weather = sunny ∨ Weather = cloud</code> — dry weather</li>
+  <li><code>¬(Alarm ∧ Burglary)</code></li>
+</ul>
+
+<p><strong>Atomic events.</strong> An <strong>atomic event</strong> (also called a <em>possible world</em> or <em>sample point</em>) is a complete specification of the state of the world: an assignment of a value to <em>every</em> variable in the model. If the model has variables <code>Cavity</code>, <code>Toothache</code> and <code>Catch</code> (the dentist's probe catches in the tooth), then there are 2 × 2 × 2 = 8 atomic events, one of which is <code>cavity ∧ ¬toothache ∧ catch</code>. Atomic events have three properties that make them the foundation of everything that follows:</p>
+
+<ul>
+  <li>They are <strong>mutually exclusive</strong>: at most one can be the actual world, since any two differ on the value of some variable.</li>
+  <li>They are <strong>exhaustive</strong>: at least one must hold, since every variable has some value.</li>
+  <li>Every proposition is <strong>logically equivalent to the disjunction of the atomic events that entail it</strong>. Hence the probability of any proposition is the sum of the probabilities of its atomic events: <code>P(a) = Σ_{ω ⊨ a} P(ω)</code>.</li>
+</ul>
+
+<p>That last property is the engine of the whole topic: once you have a number for each atomic event, every query is a sum.</p>
+
+<p><strong>The axioms of probability</strong></p>
+
+<p>Kolmogorov's axioms are startlingly few. Everything else — the negation rule, inclusion–exclusion, Bayes' rule, variable elimination, particle filters — is derived from them.</p>
+
+<table>
+  <thead>
+    <tr><th>Axiom / rule</th><th>Statement</th><th>Reading</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Range</td><td><code>0 ≤ P(a) ≤ 1</code></td><td>Belief is bounded; 0 is total disbelief, 1 is total certainty</td></tr>
+    <tr><td>Normalisation (validity)</td><td><code>P(true) = 1</code>, <code>P(false) = 0</code></td><td>A necessarily true proposition is fully believed; a contradiction is fully disbelieved</td></tr>
+    <tr><td>Inclusion–exclusion (additivity)</td><td><code>P(a ∨ b) = P(a) + P(b) − P(a ∧ b)</code></td><td>Adding the two probabilities double-counts the worlds where both hold, so subtract the overlap once</td></tr>
+    <tr><td>Negation (derived)</td><td><code>P(¬a) = 1 − P(a)</code></td><td>Belief in a proposition and its negation must total 1</td></tr>
+    <tr><td>Variable normalisation (derived)</td><td><code>Σ_{x ∈ dom(X)} P(X = x) = 1</code></td><td>Some value of every variable must hold</td></tr>
+  </tbody>
+</table>
+
+<p>The negation rule is a two-line consequence of the others. Since <code>a ∨ ¬a</code> is necessarily true and <code>a ∧ ¬a</code> is necessarily false:</p>
+
+<pre><code>P(a ∨ ¬a) = P(a) + P(¬a) − P(a ∧ ¬a)     (inclusion–exclusion)
+        1 = P(a) + P(¬a) − 0             (validity axiom)
+   P(¬a) = 1 − P(a)</code></pre>
+
+<p>The same argument generalises to any variable: the values of <code>Weather</code> are mutually exclusive, so all the <code>P(a ∧ b)</code> overlap terms vanish and the probabilities must sum to exactly 1. That is why <code>⟨0.6, 0.1, 0.29, 0.01⟩</code> is a legal belief about the weather but <code>⟨0.6, 0.1, 0.29, 0.1⟩</code> is not.</p>
+
+<p><em>A worked use of inclusion–exclusion.</em> Suppose a single card is drawn from a standard 52-card deck. Let <code>a</code> = "the card is a heart" and <code>b</code> = "the card is a face card (J, Q, K)". Then <code>P(a) = 13/52</code>, <code>P(b) = 12/52</code>, and <code>P(a ∧ b) = 3/52</code> (jack, queen, king of hearts). Therefore <code>P(a ∨ b) = 13/52 + 12/52 − 3/52 = 22/52 ≈ 0.423</code>. Naively adding would give 0.481 and would count the three red-hearted face cards twice.</p>
+
+<p>Why must a rational agent obey these axioms at all? The <strong>Dutch book</strong> argument (de Finetti) shows that an agent whose degrees of belief violate them will accept a combination of bets that loses money in every possible world. For instance, an agent believing <code>P(a) = 0.4</code> and <code>P(¬a) = 0.4</code> can be sold two bets that each look favourable to it yet guarantee a net loss whichever way the world turns out. Violating the axioms is thus not merely inelegant — it is demonstrably irrational.</p>
+
+<p><strong>Joint probability distributions</strong></p>
+
+<p>The <strong>full joint probability distribution</strong> assigns a probability to every atomic event. Because the atomic events are mutually exclusive and exhaustive, the entries are non-negative and sum to exactly 1, and — by the disjunction property above — the table answers <em>any</em> query about the domain. Here is the classic dentistry joint over <code>Toothache</code>, <code>Catch</code> and <code>Cavity</code>:</p>
+
+<table>
+  <thead>
+    <tr><th></th><th>toothache ∧ catch</th><th>toothache ∧ ¬catch</th><th>¬toothache ∧ catch</th><th>¬toothache ∧ ¬catch</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>cavity</strong></td><td>0.108</td><td>0.012</td><td>0.072</td><td>0.008</td></tr>
+    <tr><td><strong>¬cavity</strong></td><td>0.016</td><td>0.064</td><td>0.144</td><td>0.576</td></tr>
+  </tbody>
+</table>
+
+<p>Check normalisation: 0.108 + 0.012 + 0.072 + 0.008 + 0.016 + 0.064 + 0.144 + 0.576 = 1.000. Now any question is a sum of cells:</p>
+
+<ul>
+  <li><code>P(cavity) = 0.108 + 0.012 + 0.072 + 0.008 = 0.2</code></li>
+  <li><code>P(toothache) = 0.108 + 0.012 + 0.016 + 0.064 = 0.2</code></li>
+  <li><code>P(cavity ∨ toothache) = 0.2 + 0.2 − (0.108 + 0.012) = 0.28</code>, matching the six non-zero cells with at least one of the two true: 0.108 + 0.012 + 0.072 + 0.008 + 0.016 + 0.064 = 0.28.</li>
+</ul>
+
+<p>So why not simply store the full joint for every application? Because of <strong>exponential blow-up</strong>. With <em>n</em> Boolean variables the table has 2<sup>n</sup> entries, and because they must sum to 1 exactly 2<sup>n</sup> − 1 of them are independent numbers that someone must specify.</p>
+
+<table>
+  <thead>
+    <tr><th>Boolean variables n</th><th>Table entries 2<sup>n</sup></th><th>Independent numbers 2<sup>n</sup> − 1</th><th>Storage at 8 bytes/entry</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>3</td><td>8</td><td>7</td><td>64 B</td></tr>
+    <tr><td>10</td><td>1,024</td><td>1,023</td><td>8 KB</td></tr>
+    <tr><td>20</td><td>1,048,576</td><td>1,048,575</td><td>8 MB</td></tr>
+    <tr><td>30</td><td>1,073,741,824</td><td>≈ 1.07 × 10⁹</td><td>≈ 8.6 GB</td></tr>
+    <tr><td>100</td><td>≈ 1.27 × 10³⁰</td><td>≈ 1.27 × 10³⁰</td><td>Physically impossible</td></tr>
+  </tbody>
+</table>
+
+<p>Three separate problems follow, and all three matter:</p>
+
+<ul>
+  <li><strong>Storage.</strong> A realistic medical domain with a few hundred symptoms and diseases would need more table entries than there are atoms in the observable universe.</li>
+  <li><strong>Elicitation.</strong> Even if we could store it, no human expert can meaningfully state a billion numbers, and most of the required conjunctions (<code>P</code> of a precise combination of 30 symptoms) have no intuitive content at all.</li>
+  <li><strong>Learning.</strong> Estimating 2<sup>n</sup> − 1 parameters from data requires astronomically many examples; almost every cell would be estimated from zero observations.</li>
+</ul>
+
+<p>The way out is <strong>structure</strong>. Suppose <code>Weather</code> is genuinely unrelated to dental health. Then <code>P(Weather, Toothache, Catch, Cavity) = P(Weather) P(Toothache, Catch, Cavity)</code>, and instead of 32 entries we need 4 + 8 = 12 (and only 3 + 7 = 10 free numbers). That is <strong>absolute independence</strong>. It is powerful but rare — few variables in a real domain are totally unrelated. The far more common and more useful pattern is <strong>conditional independence</strong>: <code>Toothache</code> and <code>Catch</code> are not independent (both indicate a cavity), but once you <em>know</em> whether there is a cavity, learning that the probe caught tells you nothing further about pain:</p>
+
+<pre><code>P(Toothache, Catch | Cavity) = P(Toothache | Cavity) P(Catch | Cavity)</code></pre>
+
+<p>Check it against the table: <code>P(toothache | cavity) = 0.12/0.2 = 0.6</code>, <code>P(catch | cavity) = 0.18/0.2 = 0.9</code>, and their product 0.54 equals <code>P(toothache ∧ catch | cavity) = 0.108/0.2 = 0.54</code>. This single assumption lets us rebuild the whole 7-number joint from just 5 numbers: <code>P(cavity)</code>, <code>P(toothache | cavity)</code>, <code>P(toothache | ¬cavity)</code>, <code>P(catch | cavity)</code>, <code>P(catch | ¬cavity)</code>. Scaled up, this is exactly what a Bayesian network does, turning exponential tables into a network of small local ones — the central theme of the rest of the module.</p>
+
+<p><strong>Marginalization and conditioning</strong></p>
+
+<p>Two operations extract everything we want from a joint distribution. The first removes variables we do not care about; the second incorporates variables whose values we have observed.</p>
+
+<p><strong>Marginalization (summing out).</strong> If a joint distribution is defined over variables <strong>Y</strong> and <strong>Z</strong>, the distribution over <strong>Y</strong> alone is obtained by summing over every value of <strong>Z</strong>:</p>
+
+<pre><code>P(Y) = Σ_{z ∈ dom(Z)} P(Y, z)</code></pre>
+
+<p>The justification is simply the disjunction property of atomic events: the proposition <code>Y = y</code> is logically equivalent to the disjunction <code>(Y = y ∧ Z = z₁) ∨ (Y = y ∧ Z = z₂) ∨ …</code>, and since those disjuncts are mutually exclusive their probabilities add. The resulting <code>P(Y)</code> is called a <strong>marginal</strong> distribution — a name inherited from the practice of writing row and column totals in the margins of a printed table. For continuous variables the sum becomes an integral, <code>p(y) = ∫ p(y, z) dz</code>, but the meaning is identical.</p>
+
+<p>Applied to the dentistry table, summing the <code>cavity</code> row over all four combinations of <code>Toothache</code> and <code>Catch</code> gives the marginal <code>P(Cavity) = ⟨0.2, 0.8⟩</code>. Summing instead over <code>Cavity</code> and <code>Catch</code> gives <code>P(Toothache) = ⟨0.2, 0.8⟩</code>. Here are all the one- and two-variable marginals of the table laid out explicitly:</p>
+
+<table>
+  <thead>
+    <tr><th>Marginal query</th><th>Cells summed</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>P(cavity)</code></td><td>0.108 + 0.012 + 0.072 + 0.008</td><td>0.200</td></tr>
+    <tr><td><code>P(toothache)</code></td><td>0.108 + 0.012 + 0.016 + 0.064</td><td>0.200</td></tr>
+    <tr><td><code>P(catch)</code></td><td>0.108 + 0.072 + 0.016 + 0.144</td><td>0.340</td></tr>
+    <tr><td><code>P(cavity ∧ toothache)</code></td><td>0.108 + 0.012</td><td>0.120</td></tr>
+    <tr><td><code>P(cavity ∧ catch)</code></td><td>0.108 + 0.072</td><td>0.180</td></tr>
+    <tr><td><code>P(toothache ∧ catch)</code></td><td>0.108 + 0.016</td><td>0.124</td></tr>
+  </tbody>
+</table>
+
+<p>A closely related identity, obtained by applying the product rule inside the sum, is <strong>conditioning</strong> as a rule of total probability:</p>
+
+<pre><code>P(Y) = Σ_z P(Y | z) P(z)</code></pre>
+
+<p>This says that the belief in <code>Y</code> is a weighted average of the beliefs in <code>Y</code> under each possible value of <code>Z</code>, weighted by how likely each value of <code>Z</code> is. It is used constantly: for example, if <code>P(late | traffic) = 0.7</code>, <code>P(late | ¬traffic) = 0.1</code> and <code>P(traffic) = 0.3</code>, then <code>P(late) = 0.7(0.3) + 0.1(0.7) = 0.21 + 0.07 = 0.28</code>.</p>
+
+<p><strong>Conditional probability.</strong> The conditional probability of <code>a</code> given <code>b</code> is defined as</p>
+
+<pre><code>P(a | b) = P(a ∧ b) / P(b)      provided P(b) &gt; 0</code></pre>
+
+<p>Operationally this is a two-step procedure on the joint table: (1) <em>select</em> the rows consistent with the evidence <code>b</code>, discarding all others; (2) <em>renormalise</em> the survivors by dividing by their total, so that they once again sum to 1. Step 1 captures the logical content of the evidence (worlds inconsistent with what we observed are eliminated), and step 2 preserves the axioms. Note the division is undefined when <code>P(b) = 0</code>: one cannot condition on evidence the model considers impossible.</p>
+
+<p><em>Worked example.</em> Compute <code>P(Cavity | toothache)</code> from the dentistry table. The cells consistent with <code>toothache</code> are:</p>
+
+<table>
+  <thead>
+    <tr><th>Atomic event</th><th>Joint probability</th><th>After renormalising by P(toothache) = 0.2</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>cavity ∧ toothache ∧ catch</td><td>0.108</td><td>0.54</td></tr>
+    <tr><td>cavity ∧ toothache ∧ ¬catch</td><td>0.012</td><td>0.06</td></tr>
+    <tr><td>¬cavity ∧ toothache ∧ catch</td><td>0.016</td><td>0.08</td></tr>
+    <tr><td>¬cavity ∧ toothache ∧ ¬catch</td><td>0.064</td><td>0.32</td></tr>
+    <tr><td><strong>Total</strong></td><td><strong>0.200</strong></td><td><strong>1.00</strong></td></tr>
+  </tbody>
+</table>
+
+<p>Summing out <code>Catch</code> from the right-hand column gives <code>P(Cavity | toothache) = ⟨0.54 + 0.06, 0.08 + 0.32⟩ = ⟨0.6, 0.4⟩</code>. The agent's belief in a cavity has risen from the prior 0.2 to the posterior 0.6. Adding a second piece of evidence narrows it further: restricting to <code>toothache ∧ catch</code> leaves cells 0.108 and 0.016, totalling 0.124, so <code>P(Cavity | toothache ∧ catch) = ⟨0.108/0.124, 0.016/0.124⟩ ≈ ⟨0.871, 0.129⟩</code>. Conversely, evidence can push belief down: <code>P(Cavity | ¬toothache) = (0.072 + 0.008)/0.8 = 0.1</code>.</p>
+
+<p><strong>The product rule.</strong> Multiplying out the definition gives two equivalent forms of the same fact, since conjunction is commutative:</p>
+
+<pre><code>P(a ∧ b) = P(a | b) P(b) = P(b | a) P(a)</code></pre>
+
+<p>Equating the right-hand two expressions and dividing yields Bayes' rule, <code>P(a | b) = P(b | a) P(a) / P(b)</code> — the single most important consequence of this topic, and the mechanism by which diagnostic beliefs are computed from causal models. Chained over many variables, the product rule also gives the <strong>chain rule</strong>:</p>
+
+<pre><code>P(X₁, X₂, …, Xₙ) = P(X₁) P(X₂ | X₁) P(X₃ | X₁, X₂) ⋯ P(Xₙ | X₁, …, Xₙ₋₁)</code></pre>
+
+<p>which is exact for any distribution and any variable ordering. Bayesian networks are nothing more than the chain rule with the conditioning sets shrunk down to each variable's parents using conditional independence.</p>
+
+<p><strong>The normalisation constant α.</strong> Notice that in the calculation above the denominator <code>P(toothache)</code> did not depend on the query variable <code>Cavity</code>: it was the same divisor for both entries. It is therefore common to postpone the division, compute the unnormalised numbers, and fix them up at the end. The standard notation writes</p>
+
+<pre><code>P(Cavity | toothache) = α P(Cavity, toothache)
+                      = α ⟨0.108 + 0.012, 0.016 + 0.064⟩
+                      = α ⟨0.12, 0.08⟩
+                      = ⟨0.6, 0.4⟩          since α = 1/(0.12 + 0.08) = 5</code></pre>
+
+<p>Here <code>α</code> is simply "whatever constant makes the vector sum to 1". The convenience is substantial: the agent never needs to know <code>P(e)</code>, the probability of the evidence, which in a large network can be the most expensive quantity to compute. The same trick appears throughout the module — in the enumeration algorithm, in variable elimination, in likelihood weighting, and in the forward algorithm for HMMs, where the normalising step also keeps the numbers from underflowing to zero over long sequences.</p>
+
+<p>The general form of a probabilistic query combines all of these ideas. For a query variable <code>X</code>, observed evidence <strong>e</strong>, and hidden variables <strong>Y</strong>:</p>
+
+<pre><code>P(X | e) = α P(X, e) = α Σ_y P(X, e, y)</code></pre>
+
+<p>Read it right to left: sum out the hidden variables (marginalisation), keep only the entries consistent with the evidence (conditioning), then normalise. Every exact inference algorithm in this module is an attempt to perform this computation without actually building the exponentially large joint table.</p>
+
+<p><strong>Prior, posterior, and conditional beliefs</strong></p>
+
+<p>The vocabulary of belief states deserves to be made precise, because the distinction between prior and posterior drives the whole framework.</p>
+
+<table>
+  <thead>
+    <tr><th>Term</th><th>Notation</th><th>Meaning</th><th>Dentistry example</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Prior / unconditional probability</td><td><code>P(X)</code></td><td>Belief before any domain-specific evidence is obtained</td><td><code>P(cavity) = 0.2</code> for a randomly chosen patient</td></tr>
+    <tr><td>Posterior / conditional probability</td><td><code>P(X | e)</code></td><td>Belief after evidence <code>e</code> has been observed</td><td><code>P(cavity | toothache) = 0.6</code></td></tr>
+    <tr><td>Likelihood</td><td><code>P(e | X)</code></td><td>How probable the evidence would be under each hypothesis</td><td><code>P(toothache | cavity) = 0.6</code></td></tr>
+    <tr><td>Joint</td><td><code>P(X, e)</code></td><td>Belief in the conjunction</td><td><code>P(cavity ∧ toothache) = 0.12</code></td></tr>
+  </tbody>
+</table>
+
+<p>Several points are worth emphasising.</p>
+
+<p><strong>Priors are relative, not absolute.</strong> There is no such thing as a truly unconditional probability; <code>P(cavity) = 0.2</code> is really conditional on the agent's background knowledge — species, age distribution of the clinic's patients, era, diet. We call it a prior because it precedes the <em>particular</em> evidence under discussion. Today's posterior becomes tomorrow's prior: after observing a toothache, 0.6 is the belief the agent carries forward into the next observation.</p>
+
+<p><strong>Evidence updates rather than erases.</strong> A common misreading is that conditioning throws away prior knowledge. The opposite is true — the posterior is <em>built from</em> the prior. Bayes' rule makes this explicit: <code>P(X | e) = α P(e | X) P(X)</code>, in which the prior <code>P(X)</code> appears as a multiplicative factor. If the prior is tiny, even strong evidence may leave the posterior small; this is the base-rate effect. Suppose a disease has prevalence <code>P(d) = 0.0001</code> and a test with <code>P(+ | d) = 0.99</code> and <code>P(+ | ¬d) = 0.01</code>. Then</p>
+
+<pre><code>P(d | +) = α ⟨P(+|d)P(d), P(+|¬d)P(¬d)⟩
+         = α ⟨0.99 × 0.0001, 0.01 × 0.9999⟩
+         = α ⟨0.000099, 0.009999⟩
+         ≈ ⟨0.0098, 0.9902⟩</code></pre>
+
+<p>A positive result from a 99%-accurate test leaves the probability of disease under 1%, because the prior was 10,000 times smaller for disease than for health. An agent that ignored the prior — effectively setting it uniform — would report 99% and be catastrophically wrong.</p>
+
+<p><strong>A posterior is itself a distribution.</strong> <code>P(X | e)</code> obeys every axiom: its entries are between 0 and 1, and they sum to 1 over the values of <code>X</code> for any fixed <code>e</code>. That is why <code>α</code> is always well defined and why the posterior can be used as the prior in the next update, or as the input to a decision-theoretic calculation of expected utility. Note carefully that it is <em>not</em> normalised over the evidence: <code>P(cavity | toothache) + P(cavity | ¬toothache) = 0.6 + 0.1 = 0.7</code>, which is not 1 and should not be — these are beliefs in different conditioning contexts, not alternative values of a single variable.</p>
+
+<p><strong>Use all the evidence you have.</strong> The <strong>principle of total evidence</strong> (also discussed under the heading of maximum entropy when choosing priors) requires that the agent condition on the most specific information available to it. If the agent knows <code>toothache ∧ catch</code>, it must not compute with <code>P(Cavity | toothache) = 0.6</code> and discard the probe result; it must use <code>P(Cavity | toothache ∧ catch) ≈ 0.871</code>. Discarding evidence is the probabilistic analogue of ignoring a known fact in logic, and it can lead to demonstrably worse decisions. The corresponding caution in the other direction is that the agent should not <em>invent</em> structure it does not have: among all distributions consistent with its actual constraints, the maximum-entropy choice is the one that adds no unwarranted commitments — for example, assigning <code>⟨0.25, 0.25, 0.25, 0.25⟩</code> to <code>Weather</code> when nothing whatsoever is known about the climate.</p>
+
+<p>Putting it all together, the belief-update cycle of a probabilistic agent is: begin with a prior over the state, receive evidence, condition (select and renormalise), act, and treat the resulting posterior as the prior for the next step. The remainder of the module is devoted to performing this cycle efficiently when the joint distribution is far too large to write down — first by factoring it into a Bayesian network, then by reasoning about independence graphically, then by running exact and approximate inference algorithms over it, and finally by unrolling the cycle through time in Hidden Markov Models.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> Directly and substantially supported. The topic defines the full joint distribution, derives marginalization (<code>P(Y) = Σ_z P(Y, z)</code>), defines conditioning as selection plus renormalisation with the constant <code>α</code>, and derives the product rule and Bayes' rule, working each through numerically on the dentistry and medical-test examples.</li>
+  <li><strong>MO2:</strong> Supported indirectly as groundwork. The exponential-growth analysis of the full joint, the chain rule, and the worked check of conditional independence in the dentistry table supply the motivation and the factorisation identity that a Bayesian network's DAG and conditional probability tables encode, but the topic does not itself cover network construction.</li>
+  <li><strong>MO3:</strong> Partially supported. The topic defines absolute and conditional independence and demonstrates how they reduce the number of required parameters, which is the semantic content that d-separation detects graphically; the d-separation criterion itself is not addressed here.</li>
+  <li><strong>MO4:</strong> Supported indirectly. The general query form <code>P(X | e) = α Σ_y P(X, e, y)</code> and the 2<sup>n</sup> − 1 parameter count establish the computational problem whose cost exact and approximate inference methods are later compared on, but no inference algorithm is presented in this topic.</li>
+  <li><strong>MO5:</strong> Minimally addressed. The topic supplies the prior-to-posterior update cycle and the normalisation step that recur in the forward algorithm, but filtering, smoothing, Viterbi and Hidden Markov Models are not covered here.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Numerical values in the dentistry joint distribution are the standard Russell &amp; Norvig figures and are internally consistent (entries sum to 1.000); all derived quantities in the tables and worked examples were checked against them. The medical-test example uses prevalence 0.0001 with 99%/1% test rates, giving a posterior of approximately 0.0098. Instructors may wish to pair this topic with a short exercise asking students to recompute P(Cavity | catch) (= 0.180/0.340 ≈ 0.529) and to verify the conditional independence factorisation for the ¬cavity row, where P(toothache | ¬cavity) = 0.1, P(catch | ¬cavity) = 0.2 and P(toothache ∧ catch | ¬cavity) = 0.02. The Dutch book argument and the maximum-entropy remark are included as accurate, well-established context beyond the listed subtopic bullets.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Intelligent agents almost never have complete information about the world they act in. Sensors are noisy, actions sometimes fail, and the future is only partly predictable. Probability theory gives us a principled language for this situation: instead of asserting that a fact is true or false, an agent maintains a degree of belief, a number between 0 and 1, and updates it as evidence arrives. This topic sets up that language — random variables and their domains, the axioms of probability, joint distributions over several variables, and the operations of marginalization (summing out variables you do not care about) and conditioning (focusing on the worlds consistent with what you have observed).</p>
+<p>The vocabulary introduced here is used in every later part of the module. A Bayesian network is nothing more than a compact way of representing a joint distribution; d-separation is a statement about conditional independence; filtering in an HMM is repeated conditioning on new evidence. If the distinction between a prior P(X), a conditional P(X|e), and a posterior belief after evidence is clear to you now, the inference algorithms later will look like bookkeeping rather than magic.</p>
+<p>As you watch the videos below, keep three questions in mind. First, what exactly is the random variable, and what values can it take? Second, when a probability is written down, what is being conditioned on — what does the agent already know? Third, how does a new observation change the numbers? The first video gives the formal machinery of conditional distributions, the second shows the intuition behind belief revision, and the third is an optional look at continuous distributions for students curious about where Gaussians come from.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: W1_L3: Conditional distribution of one random variable given another</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/6eQxA6ElXOo?cc_load_policy=1&amp;rel=0" title="Video: W1_L3: Conditional distribution of one random variable given another (IIT Madras - B.S. Degree Programme)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IIT Madras - B.S. Degree Programme</strong> · 17:14 · 58,033 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=6eQxA6ElXOo" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A lecture from Prof. Andrew Thangaraj's "Statistics for Data Science - II" course at IIT Madras, covering the conditional distribution of one random variable given another. Based on its title and placement early in the course, it should develop conditional distributions directly from joint distributions, showing how fixing the value of one variable restricts and renormalizes the probabilities of the other. Expect worked notation of the form P(X|Y) alongside the joint P(X,Y).</p>
+<h3>Why this video</h3>
+<p>This is the most directly on-topic video for random variables, joint distributions, and conditioning, delivered as a formal university lecture with the notation you will reuse all module. It is the right place to slow down and make sure the mechanics of going from a joint table to a conditional distribution are solid.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: The power of Bayesian reasoning | BBC Ideas</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/1LzdESG6-2E?cc_load_policy=1&amp;rel=0" title="Video: The power of Bayesian reasoning | BBC Ideas (BBC Ideas)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>BBC Ideas</strong> · 4:56 · 672,120 views · 8mo ago · captions — <a href="https://www.youtube.com/watch?v=1LzdESG6-2E" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short BBC Ideas explainer in which Sir David Spiegelhalter, Emeritus Professor of Statistics at Cambridge, introduces Bayesian reasoning and Bayesian statistics. The description indicates it explains what Bayesian logic is and how the underlying theory works, likely using everyday examples rather than algebra. It is a conceptual piece about how beliefs should change in the light of evidence.</p>
+<h3>Why this video</h3>
+<p>It gives you the "why" behind prior, posterior, and belief updating in under five minutes, from a highly credible statistician, which is exactly the intuition this topic needs before the formal rules arrive. Watch it first if the idea of treating probability as a degree of belief is new to you.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: A pretty reason why Gaussian + Gaussian = Gaussian</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/d_qvLDhkg00?cc_load_policy=1&amp;rel=0" title="Video: A pretty reason why Gaussian + Gaussian = Gaussian (3Blue1Brown)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>3Blue1Brown</strong> · 13:16 · 959,858 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=d_qvLDhkg00" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A 3Blue1Brown video presenting a visual argument for why the sum of two normally distributed random variables is again normally distributed. It works with continuous distributions and their densities, using geometric intuition rather than heavy symbolic manipulation. The focus is on a particular property of the Gaussian family rather than on general probability axioms.</p>
+<h3>Why this video</h3>
+<p>It extends the idea of a random variable beyond the finite-domain, table-based case you will mostly use in this module, and 3Blue1Brown's visual style makes distributions feel concrete. Treat it as optional enrichment that is useful background if you later meet continuous state spaces or Kalman-style filtering.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos build the foundation MO1 rests on: the IIT Madras lecture supplies the formal link between joint distributions, marginalization, and conditioning that you need to compute a posterior, while the BBC Ideas piece gives the conceptual framing of priors and posteriors that makes Bayes' rule meaningful rather than mechanical. Because a Bayesian network is a factored representation of a joint distribution and d-separation is a claim about conditional independence, fluency with P(X,Y), P(X|Y), and marginal sums is a prerequisite for MO2 and MO3; the same conditioning operation, applied repeatedly over time, is what the forward and forward-backward algorithms in MO5 perform. The 3Blue1Brown video is supporting enrichment, broadening your sense of what a probability distribution can be rather than targeting a specific outcome.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

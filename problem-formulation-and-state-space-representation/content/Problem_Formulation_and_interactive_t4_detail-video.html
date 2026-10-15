@@ -1,0 +1,282 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulating Classic Example Problems</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Problem Formulation and State Space Representation</a></div>
+  <header>
+    <h1>Formulating Classic Example Problems</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Formulating Classic Example Problems</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Once the five standard components of a search problem — state space, initial state, actions, transition model, goal test and path cost — have been defined in the abstract, the only way to gain real fluency is to apply them repeatedly to concrete tasks. This topic works through four classic examples that have become the standard vocabulary of the field: the <strong>8-puzzle</strong>, the <strong>vacuum world</strong>, the <strong>8-queens problem</strong>, and <strong>route-finding and touring problems</strong>. Each example is chosen because it stresses a different aspect of formulation. The 8-puzzle shows how a careful choice of action set collapses the branching factor; the vacuum world is small enough that the entire state graph can be drawn on a page; 8-queens shows that the <em>same</em> goal can be reached from radically different formulations with state spaces differing by eleven orders of magnitude; and route-finding shows how real-world messiness is tamed by abstraction, and how a single extra piece of bookkeeping in the state can blow the space up exponentially.</p>
+
+<p>A useful distinction running through all four examples is that between a <strong>toy problem</strong> and a <strong>real-world problem</strong>. Toy problems have a crisp, concise description and are used to compare algorithms; real-world problems are those people actually care about, and their formulations are usually contested because no single description is agreed upon. The 8-puzzle, vacuum world and 8-queens are toy problems; route finding, touring and the travelling salesperson problem are real-world problems with industrial applications in logistics, circuit-board drilling and vehicle routing. The formulation skills are identical; only the stakes and the messiness differ.</p>
+
+<p><strong>The 8-Puzzle as a Search Problem</strong></p>
+
+<p>The 8-puzzle consists of a 3×3 frame holding eight numbered tiles and one blank square. A tile adjacent to the blank can be slid into it. The object is to reach a specified goal configuration. A typical instance looks like this:</p>
+
+<pre><code>  Initial state            Goal state
+  +---+---+---+          +---+---+---+
+  | 7 | 2 | 4 |          |   | 1 | 2 |
+  +---+---+---+          +---+---+---+
+  | 5 |   | 6 |          | 3 | 4 | 5 |
+  +---+---+---+          +---+---+---+
+  | 8 | 3 | 1 |          | 6 | 7 | 8 |
+  +---+---+---+          +---+---+---+
+</code></pre>
+
+<p>The formulation is as follows.</p>
+
+<table>
+  <thead>
+    <tr><th>Component</th><th>Definition for the 8-puzzle</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>States</td><td>A specification of which tile occupies each of the nine squares, including the position of the blank. Concretely, a 9-element array or tuple such as <code>(7,2,4,5,0,6,8,3,1)</code> where <code>0</code> denotes the blank.</td></tr>
+    <tr><td>Initial state</td><td>Any given legal configuration — the puzzle as handed to the agent.</td></tr>
+    <tr><td>Actions</td><td>Movements of the <em>blank</em>: <code>Left</code>, <code>Right</code>, <code>Up</code>, <code>Down</code>. The applicable subset depends on where the blank is: 2 actions in a corner, 3 on an edge, 4 in the centre.</td></tr>
+    <tr><td>Transition model</td><td>Returns the configuration obtained by swapping the blank with the adjacent tile indicated by the action. <code>Result((7,2,4,5,0,6,8,3,1), Up) = (7,0,4,5,2,6,8,3,1)</code>.</td></tr>
+    <tr><td>Goal test</td><td>Checks whether the current state equals the target ordered configuration. (The goal may also be given as a set of acceptable configurations, but here it is a single state.)</td></tr>
+    <tr><td>Path cost</td><td>1 per move, so the cost of a solution equals the number of moves made.</td></tr>
+  </tbody>
+</table>
+
+<p>The single most instructive design decision here is the choice to describe actions as <strong>movements of the blank</strong> rather than movements of individual tiles. Both descriptions generate exactly the same set of reachable states and exactly the same solutions, so they are equally correct — but they are not equally economical. If actions were "slide tile 5 right", "slide tile 2 down", and so on, the action set would nominally contain eight tiles × four directions = 32 named actions, and the formulation would have to carry preconditions stating that a tile may move only if the blank is adjacent in that direction. With blank-moves the action set has exactly four members, the preconditions reduce to a simple boundary check, and the <strong>branching factor is at most four</strong> (averaging roughly three over the whole space). Since the cost of search grows roughly as <em>b<sup>d</sup></em>, shaving the branching factor is worth far more than any micro-optimisation of the search loop.</p>
+
+<p>The state space contains 9! = 362,880 arrangements of the nine symbols. However, <strong>only half of them — 181,440 — are reachable from any given state</strong>. The reason is a parity invariant. Define the number of <em>inversions</em> in a configuration as the number of pairs of tiles (ignoring the blank) that appear in the wrong relative order when the board is read row by row. Any blank move left or right leaves the reading order of the tiles unchanged, so inversions are unchanged. Any blank move up or down jumps a tile past exactly two others, so the inversion count changes by 0 or ±2 — always an even amount. The parity of the inversion count is therefore invariant under every legal move. Two configurations with different inversion parity lie in different connected components of the state graph, and no sequence of moves connects them. This has a very practical consequence for formulation: <strong>the goal test can be unsatisfiable for a given initial state</strong>, and an uninformed search would grind through 181,440 states before reporting failure. A well-engineered formulation performs the parity check as a preliminary solvability test rather than delegating it to the search algorithm.</p>
+
+<p>The 8-puzzle generalises to the 15-puzzle (16!/2 ≈ 1.3 × 10<sup>13</sup> reachable states) and the 24-puzzle (≈ 10<sup>25</sup> states). These larger versions are the standard testbeds for heuristic search, because the state space explodes faster than the solution depth: optimal 8-puzzle solutions average about 22 moves, while optimal 15-puzzle solutions run to around 53. Finding optimal solutions to the general <em>n</em>-puzzle is NP-hard, which is a reminder that a tidy formulation does not imply a tractable problem.</p>
+
+<p><strong>The Vacuum World</strong></p>
+
+<p>The vacuum world is deliberately minuscule so that every state and every transition can be written down and inspected. In the classic two-square version, a cleaning agent occupies one of two squares, <code>A</code> (left) and <code>B</code> (right), and each square is either clean or dirty.</p>
+
+<table>
+  <thead>
+    <tr><th>Component</th><th>Definition for the two-square vacuum world</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>States</td><td>The agent's location combined with the dirt status of each square: 2 locations × 2 dirt-states for A × 2 dirt-states for B = <strong>8 states</strong>. Written as, e.g., <code>(AgentIn=A, A=Dirty, B=Dirty)</code>.</td></tr>
+    <tr><td>Initial state</td><td>Any of the eight states; the canonical starting point is "agent in A, both squares dirty".</td></tr>
+    <tr><td>Actions</td><td><code>Left</code>, <code>Right</code>, <code>Suck</code>. (Richer versions add <code>NoOp</code> for switching off.)</td></tr>
+    <tr><td>Transition model</td><td><code>Left</code>/<code>Right</code> change the agent's location; <code>Suck</code> removes dirt from the agent's current square. Moving into a wall leaves the state unchanged.</td></tr>
+    <tr><td>Goal test</td><td>No square contains dirt. The agent's final location is irrelevant, so there are <strong>two</strong> goal states, not one.</td></tr>
+    <tr><td>Path cost</td><td>1 unit per action, so the optimal solution is the shortest action sequence.</td></tr>
+  </tbody>
+</table>
+
+<p>Three features of this formulation deserve emphasis. First, the <strong>goal test is a predicate over a property of the state, not an equality check against a single stored state</strong>. "All squares clean" picks out two of the eight states. Beginners often write the goal test as "state equals (AgentIn=A, A=Clean, B=Clean)", which silently makes the problem harder by forcing the agent to return to A and may force an unnecessary extra move into the optimal path. Whenever the task description contains the phrase "regardless of" or "it doesn't matter where", the goal test should be a property, not a state comparison.</p>
+
+<p>Second, <strong>bumping into a wall is modelled as a no-op</strong> that leaves the state unchanged. This is a modelling convention with consequences. A self-loop in the state graph means the search tree can contain a child identical to its parent, which an algorithm without a repeated-state check will expand forever. The alternative convention — making <code>Left</code> simply inapplicable when the agent is in A — removes the self-loop and is usually cleaner. Either is defensible, but the choice must be made explicitly and the search algorithm must be compatible with it. The same applies to <code>Suck</code> in an already-clean square: it is either a no-op or an inapplicable action.</p>
+
+<p>Third, the state space is small enough that the <strong>entire state graph can be drawn</strong>, which makes it an unrivalled teaching device. With eight nodes and at most three outgoing edges per node, one can trace breadth-first search, depth-first search and uniform-cost search by hand and watch the frontier and explored set evolve step by step. From the canonical start state (agent in A, both dirty), an optimal solution is <code>[Suck, Right, Suck]</code> with cost 3; the alternative <code>[Right, Suck, Left, Suck]</code> reaches a goal at cost 4 and is therefore complete but not optimal.</p>
+
+<p>Scaling up exposes the combinatorics: with <em>n</em> squares in a line, the state space has <strong><em>n</em> × 2<sup><em>n</em></sup></strong> states — the agent's location times the dirt status of every square. Ten squares give 10,240 states; thirty squares give over 32 billion. The vacuum world is also the standard vehicle for introducing harder agent settings: if the agent cannot perceive its location or the dirt, the problem becomes a <em>sensorless</em> (conformant) problem whose states are <em>belief states</em> — sets of physical states — and whose state space has 2<sup>8</sup> = 256 members for the two-square case. A plan such as <code>[Right, Suck, Left, Suck]</code> then works from <em>every</em> possible starting state, which illustrates how changing what the agent knows changes what the state must represent.</p>
+
+<p><strong>The 8-Queens Problem and Alternative Formulations</strong></p>
+
+<p>The 8-queens problem asks for a placement of eight queens on a chessboard such that no queen attacks another; queens attack along rows, columns and both diagonals. There are 92 solutions, reducing to 12 under rotation and reflection. The problem is famous in this context not because it is hard, but because it admits several completely different formulations whose state spaces differ enormously — a perfect demonstration that representation, not algorithm, is often the decisive choice.</p>
+
+<p><em>Naive incremental formulation.</em> States are any arrangement of 0 to 8 queens on the board; the initial state is the empty board; actions add a queen to any empty square; the goal test checks for 8 queens with no attacks. This is correct but catastrophic. The number of sequences is 64 × 63 × 62 × … × 57 ≈ <strong>1.8 × 10<sup>14</sup></strong>. Worse, the formulation wastes effort on hopeless lines: it will happily place all eight queens on the first rank and only discover the failure at the goal test, because nothing in the action definition forbids an attacked square.</p>
+
+<p><em>Restricted incremental formulation.</em> Keep the incremental idea but build the constraints into the action generator. States are arrangements of <em>k</em> queens, one in each of the leftmost <em>k</em> columns, with no queen attacking another. Actions add a queen to any square in the leftmost empty column such that she is not attacked by any queen already placed. The initial state, transition model and goal test are unchanged in spirit. This formulation has roughly <strong>2,057 states</strong> — a reduction by a factor of about 10<sup>11</sup>. Two separate ideas produce this gain: the <em>column restriction</em> removes the pointless permutations of the order in which columns are filled and guarantees no two queens share a column; the <em>non-attack precondition</em> prunes dead branches at generation time rather than at test time. The 8-queens problem is now trivially solvable by depth-first search with backtracking, and the same idea scales to 100 queens.</p>
+
+<p><em>Complete-state formulation.</em> Every state has all eight queens already on the board, one per column; a state is just a vector such as <code>(3,1,6,2,5,7,4,0)</code> giving each queen's row. Actions move a single queen to another square in her own column. The state space is 8<sup>8</sup> = <strong>16,777,216</strong> states — larger than the restricted incremental space, but every state is a complete candidate solution that can be scored by the number of attacking pairs. That makes the formulation ideal for <strong>local search</strong> methods such as hill climbing, simulated annealing and genetic algorithms, which wander the space of complete states looking for one with zero conflicts. Min-conflicts hill climbing with random restarts solves the <em>n</em>-queens problem for <em>n</em> in the millions in a few seconds.</p>
+
+<table>
+  <thead>
+    <tr><th>Formulation</th><th>What a state is</th><th>Action</th><th>Approximate size</th><th>Suited to</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Naive incremental</td><td>0–8 queens anywhere</td><td>Add a queen to any empty square</td><td>1.8 × 10<sup>14</sup> sequences</td><td>Nothing — a cautionary example</td></tr>
+    <tr><td>Restricted incremental</td><td>k non-attacking queens in leftmost k columns</td><td>Add a non-attacked queen to the leftmost empty column</td><td>≈ 2,057 states</td><td>Depth-first search with backtracking</td></tr>
+    <tr><td>Complete-state</td><td>8 queens, one per column</td><td>Move one queen within her column</td><td>8<sup>8</sup> = 16,777,216 states</td><td>Local search (hill climbing, simulated annealing)</td></tr>
+  </tbody>
+</table>
+
+<p>Two points unify the three formulations. First, the <strong>goal test is identical in all of them</strong>: eight queens on the board, no two attacking each other. The goal is a property of the world, not an artefact of the representation, and it should be written the same way whichever formulation is chosen. Second, <strong>the path is irrelevant</strong>. Nobody cares in what order the queens were placed or how many times a queen was moved; only the final configuration matters. Problems of this kind are sometimes called <em>configuration</em> or <em>design</em> problems, as opposed to <em>planning</em> problems where the action sequence <em>is</em> the answer. Because the path carries no meaning, path cost can be dropped (or set uniformly to zero/one and ignored), and "optimality" in the classical sense of least-cost path does not apply — which in turn is precisely why local search, which discards paths entirely, is legitimate here but would be nonsense for the 8-puzzle, where the sequence of moves is the whole point of the exercise.</p>
+
+<p><strong>Route Finding and Touring Problems</strong></p>
+
+<p>Route finding is the archetypal real-world search problem: it runs in every satnav, every map website, every airline reservation system and every router on the internet. The basic formulation is reassuringly simple.</p>
+
+<ul>
+  <li><strong>States.</strong> Locations — cities, road junctions, airports, network nodes. In richer versions the state is augmented with extra variables: the current <em>time</em> (because flight departures and traffic conditions are time-dependent), <em>fare class</em> or ticket type, remaining <em>fuel</em> or battery charge, driver <em>hours worked</em> under rest regulations, or the set of seats still available. Each augmentation multiplies the size of the state space.</li>
+  <li><strong>Initial state.</strong> The traveller's starting location, together with values for any augmenting variables (the departure time, a full tank, and so on).</li>
+  <li><strong>Actions.</strong> Take one of the links leaving the current location: traverse a road segment, board a particular flight, forward a packet on a given interface. In airline problems the action must name the specific flight, not merely the destination, because different flights to the same airport differ in time and price.</li>
+  <li><strong>Transition model.</strong> Returns the location reached, plus the updated time, fuel, fare class and so on. For a flight, the new state has the arrival airport and the arrival time; for a road segment, the new junction and the time advanced by the segment's travel time.</li>
+  <li><strong>Goal test.</strong> Usually "am I at the destination?", but in practice it can be richer: "am I at the destination before 18:00 with at least 45 minutes of connection slack?".</li>
+  <li><strong>Path cost.</strong> Distance in kilometres, travel time in minutes, fuel or energy consumed, monetary fare, tolls, number of transfers, driver comfort, or — most commonly in deployed systems — a <em>weighted combination</em> of several of these. The weights encode the user's preferences, and choosing them is part of the formulation, not an afterthought.</li>
+</ul>
+
+<table>
+  <thead>
+    <tr><th>Cost function</th><th>Typical use</th><th>Consequence for the chosen route</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Distance</td><td>Hiking, simple map applications</td><td>Shortest mileage, possibly via slow minor roads</td></tr>
+    <tr><td>Travel time</td><td>Satnav default</td><td>Favours motorways even if longer in kilometres</td></tr>
+    <tr><td>Fuel / energy</td><td>Freight, electric vehicles</td><td>Penalises gradients, stop–start urban routes</td></tr>
+    <tr><td>Money</td><td>Airline and rail booking</td><td>Accepts long layovers to secure a cheap fare</td></tr>
+    <tr><td>Weighted combination</td><td>Production routing engines</td><td>Balances time against tolls, transfers and comfort</td></tr>
+  </tbody>
+</table>
+
+<p>A critical constraint on any of these cost functions is <strong>consistency and non-negativity</strong>. Step costs must be non-negative, or uniform-cost search and A* lose their guarantees (a negative-cost cycle makes "cheapest path" meaningless, since the cost can be driven to minus infinity by looping). The cost function must also be a function of the step taken, not of the search algorithm's internal state; mixing units — adding minutes to pounds without an explicit exchange rate — produces an incoherent objective and hence an incoherent notion of optimality.</p>
+
+<p><em>Touring problems</em> look superficially like route finding but are fundamentally different. The task "visit every city in Romania at least once, starting and ending in Bucharest" cannot be formulated with the current city as the state. If the state were just <code>In(Vaslui)</code>, the agent would have no way to tell whether it still owed a visit to Craiova, and the goal test would be impossible to write. <strong>The state must include the set of cities already visited</strong>, for example <code>In(Vaslui), Visited({Bucharest, Urziceni, Vaslui})</code>. The goal test becomes "current city is Bucharest and the visited set contains every city". The transition model adds the newly reached city to the visited set.</p>
+
+<p>The cost of this extra bookkeeping is severe. A map with <em>n</em> cities supports <em>n</em> states in the plain route-finding formulation, but <strong><em>n</em> × 2<sup><em>n</em></sup></strong> states once the visited set is part of the state — one for each combination of current city and subset of visited cities. For 20 cities that is 20 × 1,048,576 ≈ 2.1 × 10<sup>7</sup>; for 50 cities it is about 5.6 × 10<sup>16</sup>. The exponential term comes directly from the power set of cities.</p>
+
+<table>
+  <thead>
+    <tr><th>Problem</th><th>State</th><th>Goal test</th><th>State space size</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Route finding</td><td>Current city</td><td>Current city = destination</td><td><em>n</em></td></tr>
+    <tr><td>Touring</td><td>Current city + set of visited cities</td><td>At start city and all cities visited</td><td>≈ <em>n</em> × 2<sup><em>n</em></sup></td></tr>
+    <tr><td>Travelling salesperson</td><td>Current city + set of visited cities</td><td>All cities visited exactly once, returned to start, minimum total cost</td><td>≈ <em>n</em> × 2<sup><em>n</em></sup>; (<em>n</em>−1)!/2 distinct tours</td></tr>
+  </tbody>
+</table>
+
+<p>The <strong>travelling salesperson problem (TSP)</strong> tightens the touring problem by requiring that each city be visited <em>exactly</em> once and that the total cost of the closed tour be minimal. It is NP-hard, so no known algorithm finds optimal tours in time polynomial in <em>n</em>; the number of distinct tours is (<em>n</em>−1)!/2 for a symmetric complete graph, which is about 6 × 10<sup>16</sup> for twenty cities. Exact dynamic programming over the <code>(current city, visited set)</code> state space — the Held–Karp algorithm — runs in O(<em>n</em><sup>2</sup>2<sup><em>n</em></sup>) time, which is exponential but vastly better than brute-force enumeration, and it is nothing more than systematic search over precisely the state space defined above. In practice, large instances are attacked with heuristic search (A* with a minimum-spanning-tree heuristic) or with local search over complete tours (2-opt, Lin–Kernighan), the latter being the touring analogue of the complete-state 8-queens formulation. TSP formulations underlie real tasks well beyond travel: drilling holes in printed circuit boards, scheduling a robotic arm's movements, routing delivery vans, and sequencing genome fragments.</p>
+
+<p>It is worth noticing how small a change to the task description forces a large change to the state. "Go from Arad to Bucharest" needs one variable. "Go from Arad to Bucharest visiting Sibiu and Craiova on the way" needs a two-bit flag. "Visit all twenty cities" needs twenty bits. The state must contain exactly the information needed to (a) determine which actions are applicable, (b) compute the successor, and (c) evaluate the goal test — no less, or the problem is unsolvable; no more, or the space is needlessly large.</p>
+
+<p><strong>Comparing Formulations: Abstraction and State Space Size</strong></p>
+
+<p><strong>Abstraction</strong> is the process of removing detail from a representation. Every formulation above is an abstraction of a messy reality. A real journey from Arad to Bucharest involves travelling companions, the radio station playing, the weather, the road surface, the scenery, the state of the driver's patience and several million other facts. The state <code>In(Arad)</code> discards all of it. Even the actions are abstractions: the single action "drive from Arad to Sibiu" stands in for hundreds of thousands of steering corrections, gear changes and glances in the mirror. Abstraction is not sloppiness; it is the only thing that makes the problem solvable at all, because an agent reasoning over the full detail of the real world would never finish enumerating even one state.</p>
+
+<p>Several distinct abstraction techniques appeared in the examples, and it is worth separating them:</p>
+
+<ul>
+  <li><strong>Dropping irrelevant state variables.</strong> Weather, road surface, fellow passengers and scenery are omitted from the route-finding state because they do not affect which roads exist, where they lead, or (under the chosen cost function) how much a journey costs. If the cost function changed to "expected journey time in winter", the weather would stop being irrelevant and would have to be reinstated — relevance is defined relative to the actions, transitions, goal test and costs, not absolutely.</li>
+  <li><strong>Choosing a coarser action vocabulary.</strong> Describing 8-puzzle actions as moves of the blank rather than moves of tiles reduces the branching factor from a nominal set of up to 32 named tile-moves to at most four. Similarly, "drive from Arad to Sibiu" abstracts away the continuous control problem beneath it. The benefit is immediate: search cost scales as <em>b<sup>d</sup></em>, so dividing <em>b</em> by a constant divides the work by that constant raised to the power of the solution depth.</li>
+  <li><strong>Building constraints into the generator.</strong> The restricted 8-queens formulation prunes illegal and hopeless states before search ever sees them, by refusing to generate a queen in an attacked square or in a column other than the leftmost empty one. This is the difference between <em>generate-and-test</em> and <em>constrained generation</em>, and it accounts for the drop from 1.8 × 10<sup>14</sup> sequences to about 2,057 states. The same idea reappears as constraint propagation in constraint-satisfaction solvers and as parity checking in the 8-puzzle.</li>
+  <li><strong>Collapsing many concrete states into one abstract state.</strong> Two real journeys that differ only in the colour of the car map to the same abstract state. This many-to-one mapping is what shrinks the space; it is also what must be justified.</li>
+</ul>
+
+<p>Working in the opposite direction, extra bookkeeping in the state makes the space grow combinatorially rather than additively. The table below collects the growth patterns seen in this topic.</p>
+
+<table>
+  <thead>
+    <tr><th>Representation choice</th><th>Effect on state space / branching</th><th>Example</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Move the blank, not the tiles</td><td>Branching factor falls to ≤ 4 (average ≈ 3)</td><td>8-puzzle</td></tr>
+    <tr><td>Exploit a parity invariant</td><td>Reachable space halved: 9!/2 = 181,440</td><td>8-puzzle solvability test</td></tr>
+    <tr><td>Goal as a property, not a fixed state</td><td>Two goal states rather than one; shorter optimal plans</td><td>Vacuum world</td></tr>
+    <tr><td>Add dirt status for each of <em>n</em> squares</td><td><em>n</em> × 2<sup><em>n</em></sup> states</td><td>Vacuum world scaled up</td></tr>
+    <tr><td>Constrain the queen generator</td><td>1.8 × 10<sup>14</sup> sequences → ≈ 2,057 states</td><td>8-queens</td></tr>
+    <tr><td>Use complete states instead of partial ones</td><td>16.7 million states, but every state is a candidate answer</td><td>8-queens for local search</td></tr>
+    <tr><td>Add a visited set to the state</td><td><em>n</em> → <em>n</em> × 2<sup><em>n</em></sup> states</td><td>Touring problems, TSP</td></tr>
+    <tr><td>Add time, fuel and fare class</td><td>Multiplies the space by the size of each added variable's domain</td><td>Airline itinerary search</td></tr>
+  </tbody>
+</table>
+
+<p>Abstraction is cheap and powerful, but it is not free of obligations. A valid abstraction must <strong>preserve solvability</strong>: every abstract solution must correspond to a solution in the more detailed world. Formally, for each abstract action there must exist a sequence of concrete actions that realises it, and the realisation must be achievable "no matter what" — the abstract plan must not depend on detail that was thrown away. The abstraction <code>In(Arad) → In(Sibiu)</code> is valid because any driver in Arad can in fact get to Sibiu. It would become invalid if the road were closed, if the car had insufficient fuel to reach Sibiu, or if the journey could only be made in daylight and the abstraction had discarded the time of day. Two characteristic failure modes are therefore worth naming:</p>
+
+<ul>
+  <li><strong>Over-abstraction</strong> throws away detail that the solution depends on, producing abstract plans that cannot be executed (a flight itinerary with a four-minute connection, because the abstraction ignored terminal transfer times) or making a solvable problem look unsolvable. The touring problem without a visited set is the cleanest example: the goal test simply cannot be written.</li>
+  <li><strong>Over-rich states</strong> retain detail that is irrelevant to actions, transitions, goal test and cost. The problem remains correct but the state space is inflated, duplicate-detection stops working (two states that are identical for all practical purposes are treated as different because they differ in some irrelevant field), and search slows by orders of magnitude. Recording the weather, or the order in which queens were placed, or the full move history inside the 8-puzzle state, are all over-rich.</li>
+</ul>
+
+<p>A useful working test for whether a variable belongs in the state is to ask three questions: does it change which actions are applicable; does it change the result of any action; does it appear in the goal test or in the cost function? If the answer to all three is no, the variable can be abstracted away. If the answer to any is yes, it must stay. Applying the test to the touring problem immediately shows that the visited set must stay (it appears in the goal test), while the order of visits can go (it appears nowhere).</p>
+
+<p>The final lesson from comparing these examples is a strategic one. The restricted 8-queens formulation makes the problem solvable by the simplest possible algorithm — depth-first search with backtracking — while the naive formulation defeats sophisticated algorithms. The touring formulation without a visited set is unsolvable by <em>any</em> algorithm. Describing 8-puzzle actions as blank moves buys a speed-up that no amount of code tuning could match. In short, <strong>choosing the representation is a design decision that frequently matters more than the choice of search algorithm</strong>. The formulation determines the shape and size of the space; the algorithm only determines the order in which that space is explored. Practitioners therefore spend their effort first on what a state is, what the actions are and what the costs mean, and only afterwards on which search strategy to run over the result.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> Each worked example is set out component by component — states, initial state, actions, transition model, goal test and path cost — in explicit tables, giving repeated, concrete practice in naming all the standard components for a given task description.</li>
+  <li><strong>MO2:</strong> The final section defines abstraction, distinguishes dropping irrelevant variables from coarsening the action vocabulary, and states and illustrates the requirement that an abstraction preserve solvability, including the failure mode of over-abstraction.</li>
+  <li><strong>MO3:</strong> The topic consists precisely of formal formulations of the 8-puzzle, the vacuum world, 8-queens (in three variants) and route-finding, touring and travelling-salesperson problems.</li>
+  <li><strong>MO4:</strong> The topic supports this outcome only indirectly: it defines the state spaces and state graphs over which search trees are built, and notes where self-loops and repeated states force a search algorithm to maintain an explored set, but it does not itself develop node attributes, the frontier or the explored set in detail.</li>
+  <li><strong>MO5:</strong> The comparisons of alternative formulations supply explicit critique criteria — state space size, branching factor, completeness and optimality implications of the goal test and cost function — and name common errors such as over-rich states, goal tests written as equality against a single state, incoherent or negative cost functions, and states too impoverished to support the goal test.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Figures worth adding if the platform allows images: (1) the complete eight-node vacuum-world state graph with Left/Right/Suck edges; (2) a partial 8-puzzle search tree from a given start state showing the ≤4 branching; (3) a restricted-incremental 8-queens backtracking tree for the first three columns. Numeric claims used: 9! = 362,880 with 181,440 reachable; 8-queens naive ≈ 1.8 × 10^14 sequences, restricted ≈ 2,057 states, complete-state 8^8 = 16,777,216; 92 solutions (12 up to symmetry); touring/TSP state space ≈ n × 2^n with (n−1)!/2 symmetric tours and Held–Karp at O(n^2 2^n). These follow the standard Russell &amp; Norvig treatment and can be cited to AIMA Chapter 3.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Once you know the five components of a search problem — state space, initial state, actions, transition model, goal test, and path cost — the next step is to practise writing them down for real tasks. This topic works through the classic examples that recur throughout AI: the 8-puzzle, the vacuum world, 8-queens, and route finding or touring problems. Each one is small enough to reason about by hand, but each illustrates a different formulation issue, from the size of a permutation state space to the difference between incremental and complete-state formulations.</p>
+<p>The deeper lesson is that the same task can be formulated in more than one way, and the choice matters enormously. For 8-queens, an incremental formulation that places any queen on any square yields roughly 1.8 x 10^14 sequences, while restricting placements to one queen per column with no attacks cuts the space to around 2,057 states. Abstraction is the tool behind this: we drop detail that does not affect solvability (the colour of the tiles, the weather on the route) and keep what does.</p>
+<p>As you watch the videos below, keep a notepad with five headings and try to fill them in for whatever problem is on screen, even when the presenter does not use that vocabulary. Ask yourself: what exactly counts as a state here, how many are there, what does one action change, and how would I know a goal when I see one? Also notice when a video is discussing the state space itself versus the search tree built over it — the two are easy to conflate and the distinction is tested later in the module.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: 8-puzzle problem using A* search algorithm</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/z9G_XkL3dAk?cc_load_policy=1&amp;rel=0" title="Video: 8-puzzle problem using A* search algorithm (Ahmed Hashim - احمد هاشم)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Ahmed Hashim - احمد هاشم</strong> · 13:59 · 17,523 views · 2y ago · captions — <a href="https://www.youtube.com/watch?v=z9G_XkL3dAk" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>Part of an optimization algorithms series, this episode walks through the 8-puzzle and solves it with A* search. From the title and description you can expect a statement of the puzzle, a representation of board configurations and moves of the blank tile, a heuristic such as misplaced tiles or Manhattan distance, and a traced expansion of nodes toward the goal configuration. The roughly fourteen-minute length suggests a worked example rather than a quick overview.</p>
+<h3>Why this video</h3>
+<p>The 8-puzzle is the canonical sliding-tile formulation in this topic, and seeing it driven by an actual search algorithm makes the abstract components — states as tile arrangements, actions as blank moves, unit path cost — concrete and checkable.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: The 4 Queens Problem, AI &amp; CSPs</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/X6m0DXt95bs?cc_load_policy=1&amp;rel=0" title="Video: The 4 Queens Problem, AI &amp; CSPs (a bit of intelligence)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>a bit of intelligence</strong> · 5:51 · 15,056 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=X6m0DXt95bs" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This short explainer introduces the n-queens puzzle, noting its origin with Max Bezzel in 1848, and uses the smaller 4-queens version to make the reasoning easier to follow. It frames the puzzle in the language of constraint satisfaction problems, so expect discussion of variables, domains, and the constraints that forbid queens from sharing a row, column, or diagonal.</p>
+<h3>Why this video</h3>
+<p>It directly supports the 8-queens subtopic and the comparison of formulations, since the CSP framing is exactly the kind of alternative representation that shrinks the state space relative to a naive incremental placement.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: The Monkey and the Banana: A Prolog Tale</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/fnDkA5OVafU?cc_load_policy=1&amp;rel=0" title="Video: The Monkey and the Banana: A Prolog Tale (Computer Science  with Dr. Himani Mittal)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Computer Science  with Dr. Himani Mittal</strong> · 13:27 · 2,831 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=fnDkA5OVafU" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>From a computer science teaching channel, this video presents the classic monkey-and-banana problem and its encoding in Prolog, alongside a series of other Prolog programs. Expect the problem to be described as a set of states (monkey position, box position, whether the monkey is on the box, whether the banana is held) with actions such as walking, pushing, climbing, and grasping, and rules that define legal transitions.</p>
+<h3>Why this video</h3>
+<p>It extends the worked-example set beyond the textbook four and shows a state represented as a tuple of relevant facts, which is a clear illustration of abstraction: only the attributes that affect reaching the banana are kept in the state.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos give you repeated practice at the core skill of MO3 — turning an informal puzzle description into a formal search problem — across sliding tiles, queens, and a planning-style scenario. Each presentation implicitly commits to a state representation, an action set, and a goal condition, so you can reverse-engineer the five components of MO1 and judge whether anything irrelevant has been carried into the state, which is the abstraction question in MO2. The A* treatment of the 8-puzzle lets you watch nodes being generated and expanded, supporting the search-tree versus state-space-graph distinction in MO4, while contrasting the CSP framing of queens with a generate-and-test approach gives you material for the critique of formulations and their complexity demanded by MO5.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

@@ -1,0 +1,318 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case Study Analysis: Ethical Risk Review of an AI Deployment</title>
+<style>
+  body { font-family: Georgia, "Times New Roman", serif; line-height: 1.6; max-width: 55em; margin: 2em auto; padding: 0 1.25em; color: #1a1a1a; background: #fff; }
+  h1 { font-size: 1.9em; border-bottom: 3px solid #33475b; padding-bottom: .3em; }
+  h2 { font-size: 1.4em; margin-top: 1.8em; border-bottom: 1px solid #c8c8c8; padding-bottom: .2em; }
+  h3 { font-size: 1.12em; margin-top: 1.3em; }
+  table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .94em; }
+  th, td { border: 1px solid #7a7a7a; padding: .55em .65em; vertical-align: top; text-align: left; }
+  thead th { background: #e8ecf1; }
+  caption { caption-side: top; text-align: left; font-style: italic; margin-bottom: .5em; }
+  .box { border-left: 5px solid #33475b; background: #f4f6f9; padding: .8em 1.1em; margin: 1.2em 0; }
+  ul, ol { margin-top: .4em; }
+  code { background: #eee; padding: 0 .25em; }
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ History and Foundations of Artificial Intelligence</a></div>
+<div class="pm-injected-nav"><a href="index.html">← Back to Assignments</a><span class="sep">|</span><a href="../index.html">↑ Back to Module</a></div>
+<div class="pm-injected-spacer"></div>
+
+<h1>Case Study Analysis: Ethical Risk Review of an AI Deployment</h1>
+
+<p><strong>Module:</strong> History and Foundations &nbsp;|&nbsp; <strong>Topic:</strong> Ethical Considerations in AI Practice<br>
+<strong>Estimated time on task:</strong> 2–4 hours &nbsp;|&nbsp; <strong>Weight:</strong> 100 points</p>
+
+<div class="box">
+<p><strong>In one sentence:</strong> You will read a short case describing a proposed real-world AI system, identify and evaluate its most serious ethical risks, and recommend specific, governance-grounded changes that a responsible development team should make before launch.</p>
+</div>
+
+<h2>Learning Outcomes for This Assignment</h2>
+<p>By successfully completing this assignment, you will be able to:</p>
+<ol>
+  <li><strong>Analyze</strong> a proposed AI deployment to identify where bias, opacity, privacy loss, accountability gaps, or workforce disruption arise, and trace each risk to a specific decision in the system's data, model, or deployment design.</li>
+  <li><strong>Evaluate</strong> the severity of the identified risks using stated criteria (likelihood, magnitude of harm, reversibility, and distribution of harm across affected groups).</li>
+  <li><strong>Apply</strong> at least one published responsible-AI governance framework or principle set to the case, mapping concrete case facts to specific framework requirements.</li>
+  <li><strong>Construct</strong> a prioritized set of mitigation recommendations, each justified by evidence from the case and at least one credible external source.</li>
+</ol>
+
+<h2>Purpose: Why This Assignment Matters</h2>
+<p>The history of artificial intelligence is not only a history of technical breakthroughs and funding cycles — it is also a history of systems released into the world before anyone asked who could be harmed by them. Hiring screeners that penalized women's résumés, facial recognition tools with sharply unequal error rates across skin tones, credit models that could not explain their own decisions, and automation programs that reshaped entire job categories all reached deployment because ethical review happened late, informally, or not at all.</p>
+
+<p>Practitioners today are increasingly expected to perform this review <em>as part of ordinary engineering and product work</em>. Whether you become a data scientist, product manager, policy analyst, clinician, auditor, or informed citizen commenting on a public procurement, you will be asked some version of the question this assignment rehearses: <em>What could go wrong with this system, for whom, and what should we do about it before we ship?</em></p>
+
+<p>The deliverable you produce here — a short structured ethical risk review — mirrors an artifact used in real organizations (variously called an algorithmic impact assessment, model card annex, or responsible-AI review memo). Practicing it on a low-stakes case builds the habit of looking past accuracy metrics to ask about fairness, transparency, privacy, accountability, and human consequences.</p>
+
+<h2>Key Terms (use these definitions)</h2>
+<dl>
+  <dt><strong>Bias (in an AI system)</strong></dt>
+  <dd>Systematic error or disparate performance that produces worse outcomes for some groups than others. Sources include unrepresentative training data, proxy variables that encode protected characteristics, historical patterns of discrimination captured in labels, and mismatch between the deployment population and the development population.</dd>
+
+  <dt><strong>Fairness</strong></dt>
+  <dd>A normative standard for how outcomes should be distributed across individuals or groups. Note that multiple formal definitions exist (e.g., equal error rates across groups versus equal treatment of similar individuals), and they can conflict — part of your task is to state which notion you are applying and why.</dd>
+
+  <dt><strong>Transparency</strong></dt>
+  <dd>The degree to which a system's purpose, data, logic, limitations, and performance are disclosed and intelligible to the people affected by it and to those overseeing it. Includes <em>explainability</em> (can an individual decision be accounted for?) and <em>disclosure</em> (do people know an AI system is being used at all?).</dd>
+
+  <dt><strong>Privacy</strong></dt>
+  <dd>Control over the collection, use, retention, inference, and sharing of personal information. Includes risks from data the system <em>infers</em> about people, not only data it was given.</dd>
+
+  <dt><strong>Accountability</strong></dt>
+  <dd>The assignment of identifiable responsibility for a system's outcomes, plus the mechanisms — logging, audit, appeal, redress, human review — that make that responsibility actionable when something goes wrong.</dd>
+
+  <dt><strong>Workforce impact</strong></dt>
+  <dd>Effects of the deployment on the people who do, supervise, or lose the work being automated or augmented: task displacement, deskilling, intensified monitoring, shifted liability, or changed job quality.</dd>
+
+  <dt><strong>Governance framework</strong></dt>
+  <dd>A published, structured set of principles, requirements, or processes for developing and operating AI responsibly. Examples you may use include the NIST AI Risk Management Framework, the OECD AI Principles, the EU AI Act's risk-tier approach, UNESCO's Recommendation on the Ethics of AI, IEEE Ethically Aligned Design, or a documented organizational responsible-AI policy.</dd>
+</dl>
+
+<h3>Verbs defined for this assignment</h3>
+<ul>
+  <li><strong>Analyze</strong> = break the case into its components (data, model, decision, users, affected parties, oversight) and show how a specific component <em>produces</em> a specific risk. A list of worries is not an analysis; a causal chain from design choice to harm is.</li>
+  <li><strong>Evaluate</strong> = judge severity against stated criteria and defend the judgment. Say <em>how bad</em>, <em>for whom</em>, and <em>on what basis</em>.</li>
+  <li><strong>Apply a framework</strong> = quote or paraphrase a specific provision of a named framework and connect it to a specific fact in the case. Naming the framework is not applying it.</li>
+  <li><strong>Recommend</strong> = propose a concrete, implementable change (who does what, at which stage), not a general aspiration such as "be more transparent."</li>
+</ul>
+
+<h2>The Case</h2>
+<p>Read the case below carefully. All details are fictional but are composites of documented real deployments.</p>
+
+<div class="box">
+<h3>Case: "TriageAssist" at Northvale Regional Health Network</h3>
+
+<p>Northvale Regional Health Network operates eleven clinics and two hospitals serving a mixed urban and rural population of roughly 600,000 people. Emergency department wait times have risen sharply, and the network's board has approved a pilot of <strong>TriageAssist</strong>, a machine-learning system purchased from an external vendor, Callis Analytics.</p>
+
+<p><strong>What the system does.</strong> When a patient checks in at the emergency department, TriageAssist produces an "acuity score" from 1 (most urgent) to 5 (least urgent). The score is displayed to the triage nurse alongside the nurse's own assessment. Patients are then placed in the queue according to the final acuity level recorded by the nurse. Northvale's operations director has set a performance target: nurses should agree with the TriageAssist score in at least 85% of cases, and disagreements must be documented in a free-text field.</p>
+
+<p><strong>How it was built.</strong> Callis Analytics trained the model on 4.2 million historical emergency visits from a consortium of eighteen hospital systems, predominantly large urban academic medical centers in three states. The training label is <em>"resource intensity"</em> — a composite of total billed charges, number of diagnostic tests ordered, and length of stay — used as a proxy for how sick the patient was. Input features include age, vital signs, chief complaint text, prior visit count within the network, insurance type, home ZIP code, and preferred language.</p>
+
+<p><strong>What is known about performance.</strong> Callis reports an overall AUC of 0.88 on a held-out test set. The vendor's documentation does not report performance broken out by patient race, ethnicity, language, insurance status, or rural/urban residence, and Callis considers the feature weights and model architecture proprietary trade secrets. When Northvale's data team asked for subgroup performance figures, Callis offered to run an internal analysis under a non-disclosure agreement but declined to release the underlying results to the hospital's clinical quality committee.</p>
+
+<p><strong>Data handling.</strong> Under the contract, de-identified patient records from Northvale flow back to Callis monthly to support "continuous model improvement," and Callis retains the right to use aggregated insights in products sold to other clients. Patients are not separately informed that an algorithmic tool contributes to their triage; the network's general notice of privacy practices, posted in the waiting area and on the website, mentions "quality improvement technologies."</p>
+
+<p><strong>Staffing plan.</strong> Northvale's finance office has projected that TriageAssist will let the network reduce triage nursing hours by 15% across the pilot sites within eighteen months. The nurses' union has not been consulted. Several senior triage nurses have told their manager privately that they worry about being blamed if they override a score and the patient deteriorates, and that they are unsure whether their documented disagreements will be used in performance evaluations.</p>
+
+<p><strong>Oversight.</strong> The pilot is sponsored by the Chief Operating Officer. No clinical governance body has been assigned formal responsibility for monitoring TriageAssist outcomes. There is currently no process for a patient to learn that the tool was involved in their care, to contest a triage outcome, or to request human-only review.</p>
+</div>
+
+<h2>The Task</h2>
+<p>Produce a <strong>structured ethical risk review</strong> of TriageAssist addressed to Northvale's Chief Operating Officer and clinical quality committee. Your review must contain the six sections below, in order, with the given headings.</p>
+
+<h3>Section 1 — Case Summary and Scope (about 150 words)</h3>
+<p>In your own words, state what the system does, who makes the final decision, who is affected, and which one or two decision points in the workflow carry the greatest ethical weight. Do not restate the whole case; identify what matters.</p>
+
+<h3>Section 2 — Risk Identification (table)</h3>
+<p>Produce a table identifying <strong>at least four distinct ethical risks</strong>, drawn from at least three of the six concern areas (bias, fairness, transparency, privacy, accountability, workforce impact). For each risk, give:</p>
+<ol>
+  <li>A short risk name.</li>
+  <li>The concern area it belongs to.</li>
+  <li><strong>The specific case fact that causes it</strong> (quote or cite the detail from the case).</li>
+  <li>Who is harmed, and how.</li>
+</ol>
+<p><em>Hint:</em> Strong responses look hard at the training label, the training population, the 85% agreement target, the proprietary-model clause, the monthly data flow, and the absence of an appeal route.</p>
+
+<h3>Section 3 — Risk Evaluation and Prioritization (about 500–650 words)</h3>
+<p>Choose your <strong>three most serious risks</strong> from Section 2 and evaluate each against these four criteria:</p>
+<ul>
+  <li><strong>Likelihood</strong> — how probable is the harm given the design as described?</li>
+  <li><strong>Magnitude</strong> — how severe is the harm to an affected individual?</li>
+  <li><strong>Reversibility</strong> — can the harm be detected and undone?</li>
+  <li><strong>Distribution</strong> — is the harm concentrated on a group that is already disadvantaged?</li>
+</ul>
+<p>Rank the three risks and defend the ranking. Where evidence in the case is incomplete, say explicitly what you are assuming and what information you would need to confirm it. Acknowledge at least one genuine tension or tradeoff (for example, between throughput gains and equity, or between vendor trade-secret protection and auditability).</p>
+
+<h3>Section 4 — Governance Framework Application (about 300–400 words)</h3>
+<p>Select <strong>one</strong> published governance framework or principle set. Identify <strong>three specific provisions, functions, or principles</strong> from it and map each to a concrete fact in the TriageAssist case, stating whether the deployment currently meets, partially meets, or fails that provision. Cite the framework properly.</p>
+
+<h3>Section 5 — Recommendations (about 350–450 words)</h3>
+<p>Give <strong>four to six prioritized recommendations</strong>. Each must specify:</p>
+<ul>
+  <li>The action, stated concretely enough that someone could schedule it;</li>
+  <li>Who is responsible (Northvale, Callis, the clinical quality committee, the union, a regulator);</li>
+  <li>When it must happen (before pilot launch / during pilot / ongoing);</li>
+  <li>The risk from Section 3 it addresses;</li>
+  <li>One anticipated obstacle or cost.</li>
+</ul>
+<p>At least one recommendation must address contractual or procurement terms, and at least one must address the people who do the work.</p>
+
+<h3>Section 6 — Reflection (about 200–250 words)</h3>
+<p>Answer in the first person:</p>
+<ul>
+  <li>How did you decide which risks were most serious? What did you notice first, and what did you only see on a second reading?</li>
+  <li>Where did you find the case genuinely ambiguous, and how did you resolve it?</li>
+  <li>What would change your mind about your top-ranked risk?</li>
+  <li>What was the hardest part of this analysis for you, and what would you do differently next time?</li>
+</ul>
+
+<h2>Parameters and Constraints</h2>
+<ul>
+  <li><strong>Length:</strong> 1,400–1,900 words total for the prose sections (Sections 1, 3, 4, 5, 6). The Section 2 table is excluded from the word count, as are the reference list and headings.</li>
+  <li><strong>Sources:</strong> Cite a minimum of <strong>three credible external sources</strong>, at least one of which must be the governance framework used in Section 4, and at least one of which must be peer-reviewed or an authoritative institutional publication. Course readings count toward the total. Blogs and vendor marketing pages do not count toward the minimum, though they may be cited additionally.</li>
+  <li><strong>Citation style:</strong> APA 7th edition, in-text citations plus a reference list. Consistent use of another discipline-standard style (IEEE, Chicago) is acceptable if you note your choice at the top.</li>
+  <li><strong>Headings:</strong> Use the six section headings exactly as given.</li>
+  <li><strong>Voice:</strong> Professional memo register. You may use first person in Section 6 and where you state assumptions elsewhere.</li>
+  <li><strong>Outside research on the case:</strong> Northvale and Callis are fictional; do not invent additional facts about them. You may and should bring in real-world evidence about analogous systems (for example, published findings on healthcare cost proxies or clinical risk scores).</li>
+  <li><strong>Submission:</strong> Submit through the course site. Your instructor or the learning management system will specify the accepted file format — follow that instruction.</li>
+</ul>
+
+<h2>Suggested Schedule and Checkpoints</h2>
+<table>
+  <caption>Suggested pacing for a 2–4 hour assignment</caption>
+  <thead>
+    <tr><th scope="col">Phase</th><th scope="col">Activity</th><th scope="col">Suggested time</th><th scope="col">Self-check before moving on</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1. Read and annotate</td>
+      <td>Read the case twice. On the second pass, mark every design decision (data, label, threshold, contract term, oversight gap).</td>
+      <td>25–35 min</td>
+      <td>Can I name at least six distinct design decisions?</td>
+    </tr>
+    <tr>
+      <td>2. Build the risk table</td>
+      <td>Draft Section 2. Force yourself to tie each risk to a quoted case fact.</td>
+      <td>25–35 min</td>
+      <td>Does every row have a cause, not just a worry?</td>
+    </tr>
+    <tr>
+      <td>3. Source and framework</td>
+      <td>Locate your governance framework and two supporting sources. Skim for the three provisions you will apply.</td>
+      <td>30–40 min</td>
+      <td>Can I quote three provisions with page or section numbers?</td>
+    </tr>
+    <tr>
+      <td>4. Draft</td>
+      <td>Write Sections 1, 3, 4, and 5.</td>
+      <td>60–80 min</td>
+      <td>Is every recommendation assigned to a named party with a timeframe?</td>
+    </tr>
+    <tr>
+      <td>5. Reflect and polish</td>
+      <td>Write Section 6, check word count, verify citations, run an accessibility check.</td>
+      <td>25–35 min</td>
+      <td>Would a busy COO find my top three risks in under a minute?</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Optional ungraded checkpoint:</strong> Post your Section 2 risk table to the module discussion board at least 48 hours before the deadline and respond to one peer's table by naming a risk they missed or challenging one of their causal claims. This is voluntary, receives instructor feedback, and does not affect your grade.</p>
+
+<h2>Evaluation Criteria (Rubric)</h2>
+<p>Total: 100 points.</p>
+
+<table>
+  <caption>Grading rubric for the Ethical Risk Review</caption>
+  <thead>
+    <tr>
+      <th scope="col">Criterion</th>
+      <th scope="col">Exemplary</th>
+      <th scope="col">Proficient</th>
+      <th scope="col">Developing</th>
+      <th scope="col">Beginning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Risk identification and analysis<br>(30 pts)</th>
+      <td><strong>27–30:</strong> Four or more distinct risks across three or more concern areas. Each is traced by a clear causal chain from a specific, accurately quoted design decision to a named harm. Identifies at least one non-obvious risk (e.g., the resource-intensity label, the 85% agreement target, or the feedback-loop effect of monthly data return).</td>
+      <td><strong>23–26:</strong> Four risks across three areas, each tied to a correct case fact. Causal reasoning is sound but occasionally stated rather than shown. Risks are the expected ones.</td>
+      <td><strong>18–22:</strong> Three or four risks, but some are generic AI concerns loosely attached to the case, or several collapse into the same underlying issue. Case facts sometimes misread.</td>
+      <td><strong>0–17:</strong> Fewer than three distinct risks, or risks asserted without reference to case detail. Significant misreading of the case.</td>
+    </tr>
+    <tr>
+      <th scope="row">Evaluation and prioritization<br>(25 pts)</th>
+      <td><strong>23–25:</strong> All four criteria applied rigorously to three risks. Ranking is defended with reasoning a skeptical reader could follow. Assumptions and evidence gaps named explicitly. Engages a real tradeoff honestly rather than dismissing it.</td>
+      <td><strong>19–22:</strong> All four criteria applied to three risks; ranking defended adequately. Some assumptions stated. A tradeoff is acknowledged, if briefly.</td>
+      <td><strong>15–18:</strong> Criteria applied unevenly or to fewer than three risks. Ranking asserted more than argued. Assumptions largely implicit; tradeoffs missing or waved away.</td>
+      <td><strong>0–14:</strong> Severity described in general terms without the criteria; no meaningful prioritization.</td>
+    </tr>
+    <tr>
+      <th scope="row">Governance framework application<br>(20 pts)</th>
+      <td><strong>18–20:</strong> One framework used precisely. Three provisions quoted or accurately paraphrased with locators, each mapped to a specific case fact with a clear met / partially met / fails judgment. Shows awareness of the framework's scope or limits.</td>
+      <td><strong>15–17:</strong> Three provisions correctly identified and mapped to case facts with compliance judgments. Mapping is correct but somewhat mechanical.</td>
+      <td><strong>11–14:</strong> Framework named and summarized, but fewer than three provisions are genuinely applied, or mapping to case facts is vague.</td>
+      <td><strong>0–10:</strong> Framework mentioned only in passing, misattributed, or not applied to the case.</td>
+    </tr>
+    <tr>
+      <th scope="row">Recommendations<br>(15 pts)</th>
+      <td><strong>14–15:</strong> Four to six recommendations, all concrete, prioritized, and complete (action, owner, timing, risk addressed, obstacle). Contract/procurement and workforce recommendations are substantive and realistic.</td>
+      <td><strong>11–13:</strong> Four to six recommendations, mostly concrete with required elements present. Required contract and workforce items included.</td>
+      <td><strong>8–10:</strong> Recommendations present but several are aspirational ("increase transparency") or missing owners, timing, or linkage to identified risks.</td>
+      <td><strong>0–7:</strong> Fewer than four recommendations, or recommendations unconnected to the analysis.</td>
+    </tr>
+    <tr>
+      <th scope="row">Reflection<br>(5 pts)</th>
+      <td><strong>5:</strong> Candid, specific account of the reasoning process, including a shift in thinking, a named ambiguity, and a falsification condition for the top-ranked risk.</td>
+      <td><strong>4:</strong> Addresses all prompts with some specificity about process and difficulty.</td>
+      <td><strong>3:</strong> Answers prompts briefly or generically; more summary than reflection.</td>
+      <td><strong>0–2:</strong> Missing or purely procedural ("I read the case and wrote the paper").</td>
+    </tr>
+    <tr>
+      <th scope="row">Professional communication, sourcing, and format<br>(5 pts)</th>
+      <td><strong>5:</strong> Within word limits; required headings used; three or more qualifying sources cited accurately in a consistent style; clear, concise memo prose; accessible formatting.</td>
+      <td><strong>4:</strong> Minor style or formatting lapses; sourcing requirements met; prose clear throughout.</td>
+      <td><strong>3:</strong> Word count or heading structure off; citations incomplete or inconsistent; prose sometimes unclear.</td>
+      <td><strong>0–2:</strong> Requirements substantially unmet; sourcing minimum not reached; difficult to follow.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Policy on Generative AI Use</h2>
+<p><strong>Permitted with disclosure.</strong> You may use generative AI tools (ChatGPT, Claude, Copilot, Gemini, and similar) for the following purposes:</p>
+<ul>
+  <li>Clarifying unfamiliar terms or concepts from the module;</li>
+  <li>Brainstorming an initial list of risks <em>before</em> you build your own;</li>
+  <li>Locating candidate governance frameworks to then read and verify yourself;</li>
+  <li>Proofreading, grammar, and tightening sentences you wrote.</li>
+</ul>
+
+<p><strong>Not permitted:</strong></p>
+<ul>
+  <li>Generating your risk evaluation, ranking, framework mapping, or recommendations and submitting them as your analysis;</li>
+  <li>Producing the Section 6 reflection, which must be your own account of your own process;</li>
+  <li>Using AI-produced citations without independently locating and reading the source. Fabricated or unverified references will be treated as a sourcing failure and, if extensive, as an academic-integrity matter.</li>
+</ul>
+
+<p><strong>Disclosure requirement.</strong> If you use any AI tool, add a short "AI Use Statement" (two to four sentences) at the end of your submission naming the tool, what you used it for, and how you verified or changed its output. Honest disclosure carries no grade penalty. Undisclosed substantive use is handled under the institution's academic integrity policy.</p>
+
+<p>A note on why: the skill being assessed here is <em>your</em> judgment about harm — which risk matters most, for whom, and what to do about it. That judgment is exactly what a general-purpose model cannot supply for a specific organization, and exactly what employers and review boards will expect from you.</p>
+
+<h2>Accessibility</h2>
+<ul>
+  <li>Write in plain language. Short sentences and defined terms are rewarded, not penalized.</li>
+  <li>Use real heading styles rather than bold text so screen readers can navigate your document.</li>
+  <li>Build the Section 2 risk table as an actual table with a header row. If you prefer, you may present Section 2 as a clearly labeled list instead — this is fully acceptable and will not affect your grade.</li>
+  <li>Provide alternative text for any image, chart, or diagram you include.</li>
+  <li>Ensure adequate color contrast and do not rely on color alone to convey meaning (for example, label priority levels in words, not just red/yellow/green).</li>
+  <li>If you have an approved accommodation — including extended time, an alternative deliverable such as a recorded audio or video review with a transcript, or assistive-technology use — contact the instructor at least 72 hours before the deadline and it will be arranged. You do not need to disclose details of your circumstances.</li>
+</ul>
+
+<h2>Where to Get Help</h2>
+<ul>
+  <li><strong>Module readings:</strong> Review the topic materials on bias, fairness, transparency, privacy, accountability, workforce impact, and governance frameworks before you begin. The concern-area definitions above match the module vocabulary.</li>
+  <li><strong>Governance frameworks (primary sources, freely available):</strong> NIST <em>AI Risk Management Framework 1.0</em>; OECD <em>AI Principles</em>; UNESCO <em>Recommendation on the Ethics of Artificial Intelligence</em>; the EU <em>Artificial Intelligence Act</em> risk-tier structure; IEEE <em>Ethically Aligned Design</em>.</li>
+  <li><strong>Library databases:</strong> Use the library portal to search IEEE Xplore, ACM Digital Library, PubMed, Scopus, and Web of Science. Useful search strings: <code>algorithmic bias AND clinical decision support</code>; <code>label proxy bias health care</code>; <code>automation bias AND triage</code>; <code>algorithmic impact assessment</code>.</li>
+  <li><strong>Research librarian:</strong> Book a 20-minute consultation through the library site if you are unsure how to evaluate source credibility or locate subgroup-performance literature.</li>
+  <li><strong>Writing center:</strong> Appointments are available for memo structure, concision, and APA formatting. Book early in the week; bring a draft rather than an outline.</li>
+  <li><strong>Instructor:</strong> Office hours and the module Q&amp;A discussion board. Post questions about the case publicly where possible so all students benefit.</li>
+</ul>
+
+<h2>Alignment with Learning Outcomes</h2>
+<ul>
+  <li><strong>MO1</strong> (comparing the four classic approaches to defining AI along the thinking/acting and human-performance/rationality axes): <em>Not directly addressed.</em> This assignment concerns ethical practice rather than definitional frameworks, though it does require students to reason about what an AI system is designed to <em>act</em> on versus what it actually optimizes.</li>
+  <li><strong>MO2</strong> (explaining the procedure of Turing's imitation game): <em>Not addressed.</em> The assignment does not engage the imitation game or operational tests of machine intelligence.</li>
+  <li><strong>MO3</strong> (classifying AI systems as weak/narrow or strong/general): <em>Indirectly supported.</em> Analyzing TriageAssist requires students to recognize it as a narrow, single-task predictive system whose limits — including its inability to reason outside its training distribution — are a source of ethical risk, reinforcing the narrow-AI capability criteria without formally assessing the classification.</li>
+  <li><strong>MO4</strong> (analyzing technical and economic factors behind the AI winters of 1974–1980 and 1987–1993): <em>Not addressed.</em> The assignment is contemporary in focus, although its attention to overpromised performance and unexamined deployment claims echoes the pattern of expectation-driven setbacks studied elsewhere in the module.</li>
+  <li><strong>MO5</strong> (evaluating ethical risks of bias, transparency, privacy, or accountability in a proposed AI deployment within a specific application domain): <em>Directly and fully addressed.</em> The entire assignment is an evaluation of bias, transparency, privacy, accountability, and workforce risk in a proposed deployment within the healthcare domain, with explicit severity criteria and a governance framework applied to support the evaluative judgment.</li>
+</ul>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

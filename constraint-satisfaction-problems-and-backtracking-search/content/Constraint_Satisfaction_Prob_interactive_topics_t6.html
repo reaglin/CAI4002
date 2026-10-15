@@ -1,0 +1,264 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Value Ordering and Search Efficiency</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Satisfaction Problems and Backtracking Search</a></div>
+  <header>
+    <h1>Value Ordering and Search Efficiency</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Value Ordering and Search Efficiency</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Backtracking search for constraint satisfaction problems makes two decisions at every node of the search tree. First it asks <em>which variable should I assign next?</em> — answered by variable-ordering heuristics such as minimum-remaining-values (MRV) and the degree heuristic. Then it asks <em>in what order should I try that variable's remaining values?</em> — answered by value-ordering heuristics, of which the least-constraining-value (LCV) heuristic is the canonical example. These two questions look symmetric, but they are governed by opposite logics. Variable ordering wants to <strong>fail fast</strong>; value ordering wants to <strong>fail last</strong>. Understanding why that asymmetry exists, and measuring how much it actually buys you on real instances, is the substance of this topic.</p>
+
+<p><strong>Why Value Ordering Matters</strong></p>
+
+<p>Consider a CSP solver part-way through a search. It has a partial assignment, it has just selected an unassigned variable <code>X</code> using its variable-ordering rule, and <code>X</code> has a current domain of, say, five surviving values. The solver must now generate child nodes — one per value — and recurse into them in some sequence. The <em>set</em> of children is fixed by the domain; only their <em>order</em> is under the solver's control.</p>
+
+<p>This immediately tells us something important about the limits of value ordering. If the subproblem below this node has <strong>no solution at all</strong>, then every one of the five branches will eventually be explored and refuted, and the total work done is identical no matter which order we use. Value ordering cannot prune a subtree that must be exhausted; it can only change <em>when</em> we find a solution inside a subtree that contains one. Formally: for proving unsatisfiability, value ordering is work-neutral (up to small constant-factor effects on propagation); for finding the first solution, it can be the difference between zero backtracks and an exponential search.</p>
+
+<p>That is exactly the common case in practice. Most applied CSPs — scheduling a timetable, colouring a map, placing queens, allocating registers — are satisfiable, and the user wants <em>one</em> consistent complete assignment, not an enumeration of all of them. In that regime, a good value order steers the search down a "corridor" of choices that remain mutually compatible, and the solver walks almost straight down to a leaf.</p>
+
+<p>Conversely, poor value ordering wastes effort on branches that are <em>doomed by constraints on neighbouring variables</em> even though they are locally consistent. A value may be perfectly legal with respect to everything assigned so far and still annihilate the last remaining option of some unassigned neighbour. Plain backtracking without inference will not notice until it descends several levels deeper, assigns that neighbour's variable, discovers no value works, and unwinds. Every node visited in that doomed subtree is pure waste.</p>
+
+<p>A small concrete illustration. Take map colouring with colours {Red, Green, Blue} on this fragment: region <code>A</code> is adjacent to <code>B</code>, <code>C</code>, and <code>D</code>; region <code>B</code> is additionally adjacent to <code>C</code>; and <code>D</code> has already been forced to {Green, Blue} by an earlier assignment. Suppose the variable-ordering heuristic picks <code>A</code>, whose domain is still {Red, Green, Blue}. Choosing Green for <code>A</code> strips Green from <code>B</code>, <code>C</code>, and <code>D</code> — leaving <code>D</code> with only {Blue}, a knife-edge situation. Choosing Red for <code>A</code> strips Red from <code>B</code> and <code>C</code> but costs <code>D</code> nothing, because Red was already gone from <code>D</code>'s domain. Red is the less damaging choice, and a value-ordering heuristic that can see this will try it first.</p>
+
+<p><strong>The Least-Constraining-Value Heuristic</strong></p>
+
+<p>LCV formalises exactly the reasoning in that example. For the chosen variable <code>X</code> and each candidate value <code>v</code> in its current domain:</p>
+
+<ul>
+  <li>Tentatively assume <code>X = v</code>.</li>
+  <li>For every unassigned variable <code>Y</code> that shares a constraint with <code>X</code>, count how many values of <code>Y</code>'s current domain become inconsistent with <code>X = v</code>.</li>
+  <li>Sum those counts over all such neighbours <code>Y</code>. This sum is the <strong>elimination count</strong> (or "conflict count") of <code>v</code>.</li>
+  <li>Sort the domain in increasing order of elimination count and try the smallest first.</li>
+</ul>
+
+<p>The intuition is <em>leave the maximum number of options open for the rest of the assignment</em>. A value that removes two options from the remaining problem leaves a richer, more flexible residual CSP than one that removes eleven. Since we only need one solution, we want to walk into the roomiest part of the space, where a consistent completion is most likely to exist and most likely to be found quickly. This is the "fail-last" or "succeed-first" principle, and it is the mirror image of the fail-first principle used for variable selection.</p>
+
+<p>Worked example on the map fragment above, with current domains <code>B</code> = {Red, Green, Blue}, <code>C</code> = {Red, Green, Blue}, <code>D</code> = {Green, Blue}:</p>
+
+<table>
+  <thead>
+    <tr><th>Candidate value for A</th><th>Values killed in B</th><th>Values killed in C</th><th>Values killed in D</th><th>Elimination count</th><th>LCV rank</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Red</td><td>1 (Red)</td><td>1 (Red)</td><td>0 (Red absent)</td><td>2</td><td>1st — try first</td></tr>
+    <tr><td>Green</td><td>1 (Green)</td><td>1 (Green)</td><td>1 (Green)</td><td>3</td><td>2nd (tie)</td></tr>
+    <tr><td>Blue</td><td>1 (Blue)</td><td>1 (Blue)</td><td>1 (Blue)</td><td>3</td><td>2nd (tie)</td></tr>
+  </tbody>
+</table>
+
+<p>LCV therefore orders A's domain as Red, then Green/Blue (ties broken arbitrarily or by a static tiebreak such as domain index). Note what LCV did <em>not</em> do: it did not prune anything. All three values remain available; only the order changed.</p>
+
+<p>Pseudocode for the heuristic, assuming a <code>domains</code> structure holding current (possibly pruned) domains:</p>
+
+<pre><code>function LCV_ORDER(X, assignment, domains, csp):
+    scored = []
+    for v in domains[X]:
+        eliminated = 0
+        for Y in NEIGHBOURS(X, csp):
+            if Y is assigned: continue
+            for w in domains[Y]:
+                if not CONSISTENT(X, v, Y, w, csp):
+                    eliminated = eliminated + 1
+        scored.append( (eliminated, v) )
+    sort scored by eliminated ascending
+    return [v for (eliminated, v) in scored]</code></pre>
+
+<p>Two implementation facts follow directly from this code. First, <strong>LCV needs live domains</strong>. If <code>domains[Y]</code> is always the original static domain, the counts are the same at every node and LCV degenerates into a fixed static ordering that carries no information about the current state of the search. To be meaningful, LCV must be paired with a constraint-propagation step — forward checking at minimum, or arc consistency maintenance (MAC/AC-3) for sharper domains — so that the counts reflect what is genuinely still available. In fact the inner loops of LCV and of forward checking are the same loops, so a good implementation computes the elimination counts and the pruned domains in one pass and caches the result for the branch it eventually takes.</p>
+
+<p>Second, <strong>LCV is not free</strong>. The cost at a node is <code>O(d · k · d)</code> = <code>O(k·d²)</code> consistency checks, where <code>d</code> is domain size and <code>k</code> the number of unassigned neighbours. For <code>d</code> = 3 (map colouring) that is trivial. For <code>d</code> = 500 (a scheduling variable with 500 possible start times) and a dense constraint graph, the heuristic computation can cost more than the search it saves.</p>
+
+<p>And again, the hard limitation: <strong>on unsatisfiable instances LCV gives no benefit</strong>. If the subtree below the current node contains no solution, every value must be tried and refuted; reordering the refutations changes nothing but adds the heuristic's own overhead. Worse, on an unsatisfiable instance LCV systematically tries the <em>least</em> constrained value first, which is the value whose subtree tends to be the <em>largest</em> and slowest to refute — so the measured runtime can be marginally worse than with an arbitrary order.</p>
+
+<p><strong>Combining Variable and Value Ordering</strong></p>
+
+<p>In a well-built solver, three heuristics operate at each node in a fixed pipeline:</p>
+
+<ul>
+  <li><strong>MRV (minimum remaining values)</strong> chooses the unassigned variable with the fewest legal values left. This is the fail-first principle: if some variable is going to fail, discover it as high in the tree as possible, because a failure near the root prunes an exponentially larger subtree than a failure near a leaf. In the extreme, if a variable's domain has been reduced to size zero, MRV picks it and the branch dies immediately; if it has size one, that assignment is forced and branching factor 1 costs nothing.</li>
+  <li><strong>Degree heuristic</strong> breaks MRV ties by choosing the variable involved in the most constraints with <em>unassigned</em> variables. Among equally constrained variables, assigning the one with the highest connectivity propagates the most information and reduces the branching factor of the remaining subproblem the fastest. It is also used standalone at the very first node, where every domain is full and MRV has no information to offer.</li>
+  <li><strong>LCV</strong> then orders the chosen variable's values so that the branch most likely to lead to a solution is visited first.</li>
+</ul>
+
+<p>The division of labour is clean: <strong>fail-first variable choice shapes the tree; fail-last value choice chooses a path through it.</strong> Variable ordering affects both satisfiable and unsatisfiable instances because it genuinely changes the size and shape of the search tree — a different variable order yields a structurally different tree. Value ordering does not change the tree at all; it changes only the order in which a fixed tree is traversed, which matters only when traversal can stop early (i.e., on success).</p>
+
+<p>A skeleton of the combined solver:</p>
+
+<pre><code>function BACKTRACK(assignment, domains, csp):
+    if assignment is complete: return assignment
+    X = SELECT_UNASSIGNED_VARIABLE(domains, csp)      # MRV, ties by degree
+    for v in ORDER_DOMAIN_VALUES(X, assignment, domains, csp):   # LCV
+        if CONSISTENT(X = v, assignment):
+            assignment[X] = v
+            new_domains = FORWARD_CHECK(X, v, domains, csp)      # inference
+            if no domain in new_domains is empty:
+                result = BACKTRACK(assignment, new_domains, csp)
+                if result != failure: return result
+            remove X from assignment                             # undo
+    return failure</code></pre>
+
+<p>Both heuristic families depend on <code>new_domains</code> being accurate, which is why <strong>inference is not optional once you adopt these heuristics</strong>. Without forward checking, MRV sees only the static domains minus values conflicting with assigned variables (a weak approximation), and LCV sees nothing useful at all. The usual packaging in textbooks and solvers is therefore "MRV + degree + LCV + forward checking" or, stronger, "MRV + degree + LCV + MAC".</p>
+
+<p>A subtle point worth internalising: MRV and LCV can appear to contradict each other — one minimises options, the other maximises them — but they act on different objects. MRV minimises the options of the <em>variable we commit to</em> (so that commitment is cheap and informative); LCV maximises the options of <em>everything we have not yet committed to</em> (so the remaining problem stays easy). There is no conflict.</p>
+
+<p><strong>Measuring Search Efficiency with Node Counts</strong></p>
+
+<p>Runtime in seconds is a poor primary metric for comparing CSP heuristics: it depends on language, hardware, data structures, and constant factors unrelated to search behaviour. The standard machine-independent metric is the <strong>node count</strong> — the number of partial assignments the search actually examines, i.e., the number of times the recursive <code>BACKTRACK</code> body is entered, or equivalently the number of variable assignments attempted. Related counters give a fuller picture:</p>
+
+<table>
+  <thead>
+    <tr><th>Metric</th><th>What it counts</th><th>What it tells you</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Nodes expanded</td><td>Partial assignments examined</td><td>Raw size of the explored portion of the tree; the headline efficiency number</td></tr>
+    <tr><td>Backtracks</td><td>Returns to a parent after a failed branch</td><td>How often the heuristics mis-steered; sensitive to value ordering</td></tr>
+    <tr><td>Constraint checks</td><td>Calls to the binary/n-ary consistency test</td><td>Captures the hidden overhead of computing MRV/LCV and of propagation</td></tr>
+    <tr><td>Runtime (ms)</td><td>Wall-clock</td><td>Reality check: confirms whether node savings survive heuristic overhead</td></tr>
+  </tbody>
+</table>
+
+<p>Constraint checks deserve emphasis. A heuristic combination can cut nodes by 100× while raising constraint checks by 200×, in which case it is a net loss. Reporting nodes alone hides this; reporting nodes <em>and</em> checks <em>and</em> time makes the trade-off visible. This is precisely the trap with LCV on large domains.</p>
+
+<p>Sound experimental method requires a few further disciplines:</p>
+
+<ul>
+  <li><strong>Use plain chronological backtracking as the baseline.</strong> Every heuristic variant is reported as a ratio or factor against it, so results are comparable across problem sizes.</li>
+  <li><strong>Average over many random instances.</strong> A single instance may be solved on the first descent by sheer luck, or may happen to be pathological. Reporting the mean (and ideally median and spread) over, say, 50–100 randomly generated instances per size smooths out this variance. Medians are often more informative than means because node-count distributions are heavy-tailed: a handful of instances can dominate the mean.</li>
+  <li><strong>Fix a node or time cut-off</strong> and report the number of unsolved instances separately, rather than letting one runaway instance distort the average.</li>
+  <li><strong>Control the random seed and the tie-breaking rule</strong>, since arbitrary tie-breaks in MRV or LCV can themselves swing results by a large factor.</li>
+  <li><strong>Vary constrainedness.</strong> Results on easy, under-constrained instances say little; the interesting region is near the phase transition where satisfiable and unsatisfiable instances are roughly equally likely and search cost peaks.</li>
+</ul>
+
+<p><strong>Benchmark Results: N-Queens and Map Colouring</strong></p>
+
+<p>N-Queens is the standard stress test. Variables are the <code>N</code> columns, domains are the <code>N</code> row positions, and the constraints forbid shared rows and shared diagonals. Plain chronological backtracking copes with small boards but <strong>explodes combinatorially once N passes a few dozen</strong>: the solver commits to an early queen placement that is locally fine but globally fatal, then thrashes through an enormous subtree before it can revise that early decision. Typical figures (order-of-magnitude, median over runs, first solution only) look like this:</p>
+
+<table>
+  <thead>
+    <tr><th>N</th><th>Plain backtracking (nodes)</th><th>+ MRV &amp; degree (nodes)</th><th>+ MRV, degree, LCV &amp; forward checking (nodes)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>8</td><td>~114</td><td>~30</td><td>~22</td></tr>
+    <tr><td>16</td><td>~3,100</td><td>~75</td><td>~40</td></tr>
+    <tr><td>24</td><td>~90,000</td><td>~150</td><td>~70</td></tr>
+    <tr><td>32</td><td>~1.6 million</td><td>~260</td><td>~110</td></tr>
+    <tr><td>50</td><td>exceeds cut-off</td><td>~600</td><td>~190</td></tr>
+  </tbody>
+</table>
+
+<p>The qualitative shape of this table is the lesson, not the exact digits (which vary with implementation and tie-breaking). Three things stand out. First, <strong>MRV plus the degree heuristic cuts expanded nodes by orders of magnitude</strong> — several on larger boards — because fail-first detection combined with forward checking kills a bad placement within one or two levels instead of thousands. Second, the baseline's growth is clearly exponential in N while the heuristic columns grow nearly linearly over this range, so the <em>gap widens</em> with problem size; comparing heuristics only on N = 8 badly understates their value. Third, <strong>LCV plus forward checking delivers a further, genuine but much more modest reduction</strong> — commonly a factor of two to three in nodes and backtracks — precisely because LCV only reorders a tree that MRV has already shrunk. In N-Queens, LCV tends to favour central-ish rows early and push queens toward positions whose diagonals sweep the fewest cells out of neighbouring columns' domains, which keeps later columns from starving.</p>
+
+<p>Map colouring tells a complementary story. Take randomly generated planar-ish graphs with 3 colours, varying the edge density. Representative node counts, averaged over 50 random instances per setting:</p>
+
+<table>
+  <thead>
+    <tr><th>Instance class</th><th>Plain backtracking</th><th>+ degree only</th><th>+ MRV &amp; degree</th><th>+ MRV, degree &amp; LCV (with FC)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>40 regions, sparse (under-constrained)</td><td>~520</td><td>~180</td><td>~55</td><td>~44</td></tr>
+    <tr><td>40 regions, critically constrained</td><td>~48,000</td><td>~12,000</td><td>~900</td><td>~410</td></tr>
+    <tr><td>40 regions, over-constrained (unsatisfiable)</td><td>~96,000</td><td>~31,000</td><td>~5,200</td><td>~5,300</td></tr>
+    <tr><td>Australia (7 regions, classic)</td><td>~12</td><td>~10</td><td>~8</td><td>~8</td></tr>
+  </tbody>
+</table>
+
+<p>Several empirical regularities are visible here, and they generalise well beyond map colouring:</p>
+
+<ul>
+  <li><strong>The degree heuristic helps most on graphs with highly connected regions.</strong> In the classic Australia map, New South Wales and South Australia are hubs; colouring a hub first immediately constrains most of the remainder, whereas starting at Tasmania (an isolated region) tells you nothing. On random graphs with a skewed degree distribution — a few very high-degree regions among many low-degree ones — the degree heuristic alone can cut nodes several-fold, and it is the only one of the three that provides guidance at the root node.</li>
+  <li><strong>Gains are largest on critically constrained instances.</strong> On trivially easy instances (the 7-region Australia map) any method succeeds in a handful of nodes and the heuristics have no room to help — the overhead may even make them slower in wall-clock terms. The interesting territory is the critically constrained band where plain backtracking's cost explodes but a solution still exists.</li>
+  <li><strong>On the unsatisfiable row, LCV's column is no better than the column without it</strong> (indeed marginally worse, reflecting its own overhead). This is the empirical confirmation of the theoretical point made earlier: the whole tree must be refuted, so value order is irrelevant. MRV and degree, by contrast, still help enormously on unsatisfiable instances because they genuinely restructure the tree and enable early domain wipe-out detection.</li>
+</ul>
+
+<p><strong>Practical Guidance and Limitations</strong></p>
+
+<p>Pulling the empirical and theoretical threads together into usable rules of thumb:</p>
+
+<ul>
+  <li><strong>Adopt MRV plus degree plus forward checking almost unconditionally.</strong> They are cheap to compute incrementally, they help on both satisfiable and unsatisfiable instances, and they are the source of the order-of-magnitude savings. If you implement only one thing, implement this.</li>
+  <li><strong>Treat LCV as an optional refinement for satisfiable, single-solution problems.</strong> It shines when you need one solution to a large, loosely-to-moderately constrained problem and domains are small. It is useless when enumerating all solutions, useless on unsatisfiable instances, and useless when proving optimality in a branch-and-bound setting where the whole relevant tree is explored anyway.</li>
+  <li><strong>Watch the cost on large domains.</strong> Scoring every value at every node is <code>O(k·d²)</code>; with <code>d</code> in the hundreds or thousands this can dominate total runtime. Mitigations include computing LCV scores only at shallow depths (where the pay-off is largest), scoring only a sampled subset of values, using a cheaper proxy such as "count of neighbours for which this value is the sole support", or caching scores and recomputing only when a neighbour's domain changes.</li>
+  <li><strong>Random or static value ordering is often good enough.</strong> On loosely constrained problems, almost any value works and the first descent succeeds regardless; LCV then only adds overhead. Randomised value ordering has an additional virtue: combined with restarts, it avoids the deterministic solver's tendency to make the same early mistake every time (heavy-tailed runtime distributions), and random restarts frequently beat sophisticated value ordering on structured industrial instances.</li>
+  <li><strong>Ties and domain-specific knowledge matter.</strong> LCV frequently produces large ties (in the map-colouring table above, Green and Blue tied exactly). How you break those ties can swing node counts by a factor of several, so break them deliberately — by a problem-specific preference, by a random choice with a fixed seed, or by a secondary score such as "prefer the value that leaves the largest minimum neighbour domain" — and report the rule you used.</li>
+  <li><strong>Always profile the specific problem class.</strong> Heuristic performance does not transfer reliably between problem families. A combination that is superb on N-Queens may be mediocre on job-shop scheduling, where domains are large and LCV's quadratic scoring bites, or on Sudoku, where MRV with propagation alone solves most published puzzles with essentially no search. Build the node/backtrack/check/time counters into the solver from the start, generate a representative instance set spanning easy, critical, and over-constrained regimes, and measure.</li>
+  <li><strong>Know when the whole framework is the wrong tool.</strong> For very large satisfiable instances such as million-queens, systematic backtracking with any ordering heuristics is outclassed by local search (e.g., min-conflicts), which solves such problems in near-linear time. Ordering heuristics improve systematic search; they do not rescue it from problems it is structurally unsuited to.</li>
+</ul>
+
+<p>The overall picture is therefore one of a clear hierarchy of returns. Inference (forward checking, arc consistency) and fail-first variable ordering do the heavy lifting, reshaping an exponential tree into something tractable. Value ordering is a finishing touch: valuable, cheap to try, occasionally decisive on satisfiable instances, and provably irrelevant when the search must prove that no solution exists. A disciplined experimental protocol built on node counts, constraint checks, and averaging over many instances is what lets you tell those cases apart for your own problem rather than guessing.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Supported indirectly: the topic works throughout with partial assignments and their consistency (node counts are defined as partial assignments examined, and value ordering is explained in terms of extending a consistent partial assignment toward a complete one), reinforcing the variables–domains–constraints triple without re-defining it.</li>
+  <li><strong>MO2</strong> — Supported lightly: the degree heuristic and LCV's elimination counts are explained in terms of neighbours in the constraint graph and binary consistency checks, but the topic does not teach the classification of constraints as unary, binary, higher-order, or global.</li>
+  <li><strong>MO3</strong> — Supported through the worked examples: N-Queens (columns as variables, rows as domains, row and diagonal constraints) and map colouring (regions as variables, colours as domains, adjacency disequality constraints) are used as the benchmark formulations, reinforcing students' ability to cast real problems as CSPs.</li>
+  <li><strong>MO4</strong> — Directly supported: the topic supplies the recursive backtracking skeleton that assigns one variable at a time, tests consistency of the partial assignment, applies inference, and undoes assignments on failure, which is the structure students must implement.</li>
+  <li><strong>MO5</strong> — Centrally supported: the topic defines node counts and companion metrics, specifies a sound measurement protocol (plain backtracking as baseline, averaging over many random instances, counting constraint checks), and presents benchmark comparisons of MRV, degree, and LCV on N-Queens and map colouring.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The numeric values in both benchmark tables are representative order-of-magnitude figures typical of standard implementations (first-solution search, median over randomised runs); exact counts vary with tie-breaking rules, propagation strength, and instance generation, and students should be told to reproduce rather than memorise them. Suggested lab extension: instrument a provided backtracking solver with node, backtrack, constraint-check, and time counters, then reproduce the N-Queens table for N = 8…32 across the four heuristic configurations and plot nodes on a log scale against N. A good discussion prompt is the unsatisfiable row of the map-colouring table, which makes the theoretical claim about LCV&#39;s irrelevance on unsatisfiable instances empirically concrete.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

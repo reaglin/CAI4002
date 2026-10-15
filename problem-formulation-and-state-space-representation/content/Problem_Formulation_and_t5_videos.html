@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search Trees, Nodes, and Expansion</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Problem Formulation and State Space Representation</a></div>
+<h1>Search Trees, Nodes, and Expansion</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: L-4.15: BFS &amp; DFS | Breadth First Search | Depth First Search | Graph Traversing | DAA</a>
+<a href="#sec3">Video 2: Breadth-first search in 4 minutes</a>
+<a href="#sec4">Video 3: Depth-first search in 4 minutes</a>
+<a href="#sec5">How These Videos Support the Learning Outcomes</a>
+<a href="#sec6">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>Once a problem has been formulated with a state space, initial state, actions, transition model, goal test, and path cost, we need machinery to actually explore it. That machinery is the search tree: a structure that a search algorithm builds as it considers sequences of actions. The crucial idea in this topic is that the search tree is not the same thing as the state space graph. The graph is a fixed description of the world — states connected by actions — while the tree is a record of the paths the algorithm has chosen to examine. A single state in the graph can appear many times in the tree, once for each distinct path that reaches it.</p>
+<p>To make this precise, we define a search node as a small bundle of data: the state it represents, a pointer to its parent node, the action that produced it, the cost of the path from the root, and its depth. Expanding a node means applying the applicable actions to its state and generating child nodes for the resulting successors. The nodes generated but not yet expanded form the frontier (sometimes called the open list); the states already expanded are kept in the explored set (closed list). Without an explored set, repeated states produce redundant paths and, in graphs with cycles, infinite loops. Finally, because every node stores a parent pointer, the solution is recovered by walking backwards from the goal node to the root and reversing the sequence of actions.</p>
+<p>The videos below demonstrate breadth-first and depth-first traversal on graphs. As you watch, deliberately translate what you see into search-tree vocabulary: the queue or stack being maintained is the frontier, the set of visited nodes is the explored set, and each time a vertex&#39;s neighbors are listed the algorithm is performing expansion and successor generation. Pay particular attention to why the visited check is necessary — that single line of code is what prevents repeated states from becoming loops.</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: L-4.15: BFS &amp; DFS | Breadth First Search | Depth First Search | Graph Traversing | DAA</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/N2P7w22tN9c?cc_load_policy=1&amp;rel=0" title="Video: L-4.15: BFS &amp; DFS | Breadth First Search | Depth First Search | Graph Traversing | DAA (Gate Smashers)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Gate Smashers</strong> · 11:16 · 2,530,911 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=N2P7w22tN9c" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A lecture-style walkthrough of the two most basic graph traversal strategies, breadth-first search and depth-first search, worked by hand on example graphs. Expect to see the queue used by BFS and the stack (or recursion) used by DFS, along with the bookkeeping that tracks which vertices have already been visited. The treatment is algorithmic and exam-oriented, in the style of an algorithms (DAA) course.</p>
+<h3>Why this video</h3>
+<p>Because it covers both strategies side by side at a deliberate pace, it is a good place to see expansion and successor generation made concrete, and the queue/stack and visited list map directly onto the frontier and explored set we define in this topic.</p>
+</section>
+<section class="item" id="sec3">
+<h2>Video 2: Breadth-first search in 4 minutes</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/HZ5YTanv5QE?cc_load_policy=1&amp;rel=0" title="Video: Breadth-first search in 4 minutes (Michael Sambol)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Michael Sambol</strong> · 3:59 · 608,315 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=HZ5YTanv5QE" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A compact, four-minute explanation of breadth-first search, tracing the algorithm level by level over a graph. It shows the FIFO queue that determines which node is expanded next and the marking of nodes so they are not processed twice; accompanying Python code is linked in the description.</p>
+<h3>Why this video</h3>
+<p>Michael Sambol&#39;s visual, step-by-step animation makes the frontier-as-queue idea unmistakable, and the explicit visited marking is a clean illustration of how an explored set eliminates repeated states and redundant paths.</p>
+</section>
+<section class="item" id="sec4">
+<h2>Video 3: Depth-first search in 4 minutes</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Urx87-NMm6c?cc_load_policy=1&amp;rel=0" title="Video: Depth-first search in 4 minutes (Michael Sambol)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Michael Sambol</strong> · 4:01 · 554,087 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=Urx87-NMm6c" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>The companion four-minute video on depth-first search, following a single branch as deep as possible before backtracking to the most recent unexplored alternative. It demonstrates the LIFO stack or recursive call structure and the visited bookkeeping, with linked code for reference.</p>
+<h3>Why this video</h3>
+<p>Watching DFS immediately after BFS highlights that the two differ only in how the frontier is ordered, and the backtracking behavior is a natural lead-in to parent pointers, node depth, and recovering the solution path.</p>
+</section>
+<section class="item" id="sec5">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>These videos chiefly serve MO4: by watching BFS and DFS executed step by step, you can see directly how a search procedure builds a tree of explored paths over a fixed underlying graph, how the queue or stack functions as the frontier, how the visited set functions as the explored set, and why omitting that set allows repeated states and loops. The traversals also reinforce MO1 and MO3 by showing the transition model in action — each neighbor listing is the application of actions to a state — and they give you concrete behavior to reason about when assessing completeness, optimality, and space usage under MO5. Note that the videos use data-structures terminology rather than AI search terminology, so part of your work is the translation exercise described above; the course material on node attributes, path cost, and abstraction (MO2) must come from the readings and lecture rather than from these clips.</p>
+</section>
+<section class="item" id="sec6">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

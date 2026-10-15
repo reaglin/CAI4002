@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iterative Deepening Search</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Depth-Limited, Iterative Deepening, and Bidirectional Search</a></div>
+<h1>Iterative Deepening Search</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: IDS | Iterative Deepening | AI | Algorithms | Simple Python Tutorials</a>
+<a href="#sec3">Video 2: Iterative Deepening Search in Tamil||Bidirectional Search in Tamil||Artificial Intelligence||AI</a>
+<a href="#sec4">Video 3: AI | Uninformed Algorithms | Simple Python Tutorial</a>
+<a href="#sec5">How These Videos Support the Learning Outcomes</a>
+<a href="#sec6">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>Iterative deepening search (IDS) is the standard answer to a practical dilemma in uninformed search: breadth-first search finds the shallowest goal but stores an exponential number of nodes, while depth-first search uses very little memory but can wander down a deep or infinite branch and miss a nearby solution. IDS resolves this by running depth-limited search over and over, with the limit set to 0, then 1, then 2, and so on, until a goal is found. Each pass behaves like DFS in memory terms, but the sequence of passes explores the tree in order of increasing depth, like BFS.</p>
+<p>This matters in the course because IDS is usually the default choice when the search space is large, the branching factor is finite, and you have no heuristic information. It is complete, it is optimal when every step costs the same, and it needs only O(bd) space. The surprising part — and the part worth understanding carefully — is that regenerating the shallow nodes on every pass is cheap: because the number of nodes in a tree grows geometrically with depth, the deepest level dominates the total count, so the repeated work adds only a constant-factor overhead.</p>
+<p>As you watch, keep three things in view. First, trace the order in which nodes are generated across successive limits so you can reproduce it on an exam tree. Second, watch how the depth-limited routine is implemented and how its cutoff is handled, since IDS is just a loop around that routine. Third, note the complexity claims — b^d time, O(bd) space — and check that the reasoning given for the small regeneration cost matches the geometric-growth argument above.</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: IDS | Iterative Deepening | AI | Algorithms | Simple Python Tutorials</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/54QiEjyonZk?cc_load_policy=1&amp;rel=0" title="Video: IDS | Iterative Deepening | AI | Algorithms | Simple Python Tutorials (Dr Codie)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Dr Codie</strong> · 10:39 · 1,432 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=54QiEjyonZk" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A focused tutorial on iterative deepening that starts with the algorithm itself, works through a hand-traced example on a search tree, poses a challenge problem, and then implements depth-limited search and IDS in Python. The timestamps show the progression from the conceptual algorithm to running code, so you see both the trace and the implementation of the depth cutoff.</p>
+<h3>Why this video</h3>
+<p>It directly covers the two subtopics students most often stumble on — step-by-step mechanics and the DLS-inside-a-loop structure — and the worked example plus code gives you a way to check your own traces.</p>
+</section>
+<section class="item" id="sec3">
+<h2>Video 2: Iterative Deepening Search in Tamil||Bidirectional Search in Tamil||Artificial Intelligence||AI</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/40v0Vz1u54k?cc_load_policy=1&amp;rel=0" title="Video: Iterative Deepening Search in Tamil||Bidirectional Search in Tamil||Artificial Intelligence||AI (CSDesk)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>CSDesk</strong> · 6:58 · 1,227 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=40v0Vz1u54k" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A Tamil-language lecture covering iterative deepening search alongside bidirectional search as part of a series on uninformed searching strategies in AI. In under seven minutes it introduces IDS as a problem-solving-agent search strategy and places it next to the other blind-search methods.</p>
+<h3>Why this video</h3>
+<p>It pairs IDS with bidirectional search exactly as this module does, which helps you see where each strategy fits, and it offers the material in Tamil for students who prefer that language.</p>
+</section>
+<section class="item" id="sec4">
+<h2>Video 3: AI | Uninformed Algorithms | Simple Python Tutorial</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/I7Lvc021OCQ?cc_load_policy=1&amp;rel=0" title="Video: AI | Uninformed Algorithms | Simple Python Tutorial (Dr Codie)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Dr Codie</strong> · 13:17 · 401 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=I7Lvc021OCQ" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A survey of the uninformed search algorithms — depth-limited, iterative deepening, uniform cost, breadth-first and depth-first — with short timestamped segments for each and Python examples. Iterative deepening appears right after depth-limited search, reflecting how the two are built on one another.</p>
+<h3>Why this video</h3>
+<p>Seeing IDS in context with its siblings is the fastest way to internalise the completeness, optimality, time and space trade-offs that justify choosing it, and it comes from the same channel as the dedicated IDS tutorial so the notation stays consistent.</p>
+</section>
+<section class="item" id="sec5">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>The Dr Codie tutorials give you the depth-limited routine and its cutoff behaviour (MO1) and a hand-traced IDS example across successive depth limits that you can replicate on your own trees (MO2), while their Python implementations make the loop structure and the regeneration of earlier levels concrete enough to reason about the overhead claim (MO3). The uninformed-algorithms survey sets IDS beside breadth-first, depth-first and uniform-cost search so you can compare completeness, optimality and complexity when recommending a strategy (MO5). The CSDesk video pairs IDS with bidirectional search, introducing the second half of the module and the conditions under which searching from both ends is viable (MO4); supplement it with the course readings for the formal complexity arguments.</p>
+</section>
+<section class="item" id="sec6">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

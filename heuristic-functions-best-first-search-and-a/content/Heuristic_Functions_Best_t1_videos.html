@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heuristic Evaluation Functions</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Heuristic Functions, Best-First Search, and A*</a></div>
+<h1>Heuristic Evaluation Functions</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: L03 Design an Admissible Heuristic</a>
+<a href="#sec3">Video 2: The Secret to Finding the Perfect Path | A* Algorithm</a>
+<a href="#sec4">Video 3: Manhattan | Algorithm | Simple Python Tutorial</a>
+<a href="#sec5">How These Videos Support the Learning Outcomes</a>
+<a href="#sec6">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>A heuristic function, written h(n), is an estimate of the cost of the cheapest path from a state n to a goal state. It is the place where human knowledge about a problem domain enters an otherwise blind search: instead of expanding nodes in an arbitrary order, a search algorithm can use h(n) to prefer states that look closer to a solution. Good heuristics are cheap to compute and informative enough to cut the number of nodes expanded dramatically.</p>
+<p>This topic introduces the standard examples you will reuse for the rest of the module. For grid or map pathfinding, straight-line (Euclidean) distance estimates the remaining travel cost, and Manhattan distance does the same when movement is restricted to horizontal and vertical steps. For the 8-puzzle, the number of misplaced tiles and the sum of each tile&#39;s Manhattan distance to its goal position are the two classic heuristics, and both can be derived by relaxing the rules of the puzzle. Once you have more than one candidate heuristic, you need a way to compare them: a heuristic that dominates another (gives larger but still admissible estimates) generally expands fewer nodes.</p>
+<p>As you watch the videos, keep three questions in mind. First, what simplified or relaxed version of the problem does each heuristic solve exactly? Second, can this estimate ever exceed the true remaining cost — that is, is it admissible? Third, how do two heuristics for the same problem compare, and what happens when you take the maximum of several admissible heuristics? These questions set up the admissibility, consistency, and A* material that follows.</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: L03 Design an Admissible Heuristic</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/XsFow0UPqZQ?cc_load_policy=1&amp;rel=0" title="Video: L03 Design an Admissible Heuristic (Alice Gao)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Alice Gao</strong> · 15:08 · 3,009 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=XsFow0UPqZQ" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A lecture segment that derives two heuristics for the 8-puzzle — the misplaced-tile count and the Manhattan distance — and then asks which of the two is the better heuristic. Based on its title and description, it focuses on where these estimates come from (designing an admissible heuristic rather than guessing one) and on comparing their quality.</p>
+<h3>Why this video</h3>
+<p>It maps directly onto the puzzle-heuristic and comparison subtopics, and because it is a university lecture recording the terminology and definitions should match the course&#39;s treatment of admissibility and heuristic design.</p>
+</section>
+<section class="item" id="sec3">
+<h2>Video 2: The Secret to Finding the Perfect Path | A* Algorithm</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/6H26aOQsVNA?cc_load_policy=1&amp;rel=0" title="Video: The Secret to Finding the Perfect Path | A* Algorithm (Oliver Johnson)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Oliver Johnson</strong> · 18:15 · 2,492 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=6H26aOQsVNA" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>An explainer on the A* algorithm as a method for computing a path, presented in the context of AI pathfinding. Expect it to show how a heuristic estimate of the distance to the goal is combined with the cost already paid, which is the natural setting for straight-line and grid-distance heuristics.</p>
+<h3>Why this video</h3>
+<p>It places heuristic functions in the pathfinding domain where straight-line distance is the standard estimate, giving you a concrete picture of how h(n) is actually used by a search algorithm.</p>
+</section>
+<section class="item" id="sec4">
+<h2>Video 3: Manhattan | Algorithm | Simple Python Tutorial</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/pbDAmrVdJlY?cc_load_policy=1&amp;rel=0" title="Video: Manhattan | Algorithm | Simple Python Tutorial (Dr Codie)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Dr Codie</strong> · 11:05 · 1,031 views · 2y ago · captions — <a href="https://www.youtube.com/watch?v=pbDAmrVdJlY" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short, chaptered Python tutorial on Manhattan distance: what the distance is, how it relates to legal moves, how to compute the distance from a state to the goal, and how it is used as a heuristic. The timestamps indicate a build-up from the raw distance measure to its role as a search heuristic, with code.</p>
+<h3>Why this video</h3>
+<p>It gives the hands-on, implementation-level view of the Manhattan distance heuristic, which complements the conceptual lecture and helps if you need to code a heuristic for an assignment.</p>
+</section>
+<section class="item" id="sec5">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>Together these videos cover the core of MO1: each one shows a heuristic as domain knowledge turned into an estimate of remaining cost, with the 8-puzzle videos covering misplaced tiles and Manhattan distance and the A* video covering distance-based estimates for pathfinding. The 8-puzzle lecture on designing an admissible heuristic previews MO2 and MO5 by connecting heuristics to relaxed problems and to the admissibility test, while the comparison of the two puzzle heuristics gives you the dominance argument you will need when choosing between heuristics. The A* video supports MO3 and MO4 by showing h(n) in use inside a search loop, which is the bridge from this topic to the best-first search and A* material that follows.</p>
+</section>
+<section class="item" id="sec6">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

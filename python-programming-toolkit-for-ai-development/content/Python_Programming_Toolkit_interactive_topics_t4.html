@@ -1,0 +1,557 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Structures for Search and State Representation</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Python Programming Toolkit for AI Development</a></div>
+  <header>
+    <h1>Data Structures for Search and State Representation</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Data Structures for Search and State Representation</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Search algorithms — breadth-first search, depth-first search, uniform-cost search, A*, bidirectional search, and the planning algorithms built on top of them — are deceptively simple on paper. A textbook pseudocode listing for A* is perhaps fifteen lines long. What separates an implementation that solves an 8-puzzle instance in 40 milliseconds from one that takes four minutes on the same instance is almost never the algorithm: it is the choice of container used for the frontier, the container used for the visited set, and the representation chosen for a state. Python gives you a small, well-engineered family of built-in collections whose asymptotic behaviour is documented and predictable. Learning which one to reach for, and why, is one of the highest-leverage skills in practical AI programming.</p>
+
+<p>This topic works through that toolkit systematically. We begin with the four core built-in collections and the comprehension syntax that builds them, move to the stack and queue abstractions that determine whether a graph search behaves as DFS or BFS, then to <code>heapq</code> for informed search, then to the critical question of how to encode a state so that Python can hash and compare it, then to the extra containers in the <code>collections</code> module, and finally to a consolidated discussion of the performance trade-offs that actually show up in search code.</p>
+
+<p><strong>Core built-in collections: lists, tuples, sets, and dictionaries</strong></p>
+
+<p>A <em>list</em> is an ordered, mutable sequence backed by a dynamic array of pointers. Indexing is O(1), appending is amortised O(1), and the order of elements is exactly the order you put them in. In search code, lists are the natural representation for anything that is intrinsically sequential: the path from the root to a node, the sequence of actions in a plan, the list of successors returned by an expansion function, and — when you only ever push and pop at the right-hand end — a depth-first frontier.</p>
+
+<pre><code>path = ['Start']
+path.append('A')
+path.append('B')
+print(path)          # ['Start', 'A', 'B']
+print(path.pop())    # 'B'  -- O(1) from the end
+</code></pre>
+
+<p>A <em>tuple</em> is the immutable sibling of the list. Because it cannot change after construction, Python can compute a hash for it (provided every element is itself hashable), which means a tuple can be an element of a set or a key in a dictionary. This single property makes the tuple the default encoding for a state. A position on a grid is <code>(row, col)</code>; a state in a vacuum world is <code>('A', 'clean', 'dirty')</code>; a complete 8-puzzle board is a flat nine-element tuple. Tuples also compare lexicographically element by element, which we will exploit when building priority-queue entries.</p>
+
+<pre><code>state = (2, 3)
+visited = set()
+visited.add(state)
+print((2, 3) in visited)   # True -- value equality, not identity
+
+grid = [[1, 2], [3, 4]]
+# grid cannot be hashed:
+# visited.add(grid)  -> TypeError: unhashable type: 'list'
+visited.add(tuple(tuple(row) for row in grid))   # fine
+</code></pre>
+
+<p>A <em>set</em> is an unordered collection of unique hashable items implemented as a hash table. Membership testing, insertion, and deletion are all O(1) on average. This is precisely the operation a graph search performs most often: "have I already expanded this state?" A visited (or <em>closed</em>) set must therefore be a set or a dictionary, never a list. Sets also support the algebraic operations — union, intersection, difference — which are useful when comparing the explored regions of two concurrent searches, or when checking in a planning problem whether a set of goal literals is a subset of the current state.</p>
+
+<pre><code>explored = set()
+explored.add((0, 0))
+explored |= {(0, 1), (1, 0)}          # union-update
+frontier_states = {(1, 0), (2, 2)}
+new_states = frontier_states - explored   # {(2, 2)}
+</code></pre>
+
+<p>A <em>dictionary</em> maps hashable keys to arbitrary values, again with average O(1) lookup, insertion, and deletion. Dictionaries carry three distinct responsibilities in search code:</p>
+
+<ul>
+  <li><strong>Cost tables.</strong> <code>g_score[state]</code> stores the cheapest known cost from the start to a state, so that uniform-cost search and A* can decide whether a newly discovered path is an improvement.</li>
+  <li><strong>Parent pointers.</strong> <code>came_from[child] = parent</code> lets you reconstruct the solution path by walking backwards from the goal, which avoids storing a full path list in every frontier node and therefore saves a great deal of memory.</li>
+  <li><strong>Adjacency lists.</strong> <code>graph[node] = [neighbour, ...]</code> is the standard representation of a sparse graph; it uses O(V + E) memory instead of the O(V²) of an adjacency matrix.</li>
+</ul>
+
+<pre><code>graph = {
+    'Arad':      ['Zerind', 'Sibiu', 'Timisoara'],
+    'Zerind':    ['Arad', 'Oradea'],
+    'Sibiu':     ['Arad', 'Oradea', 'Fagaras', 'Rimnicu'],
+}
+
+def reconstruct(came_from, goal):
+    path = [goal]
+    while path[-1] in came_from:
+        path.append(came_from[path[-1]])
+    path.reverse()
+    return path
+</code></pre>
+
+<p>A dictionary can also serve as a visited set with extra information attached: <code>explored[state] = best_cost</code> gives you membership testing <em>and</em> the stored cost in one lookup, which is why A* implementations usually keep a <code>g_score</code> dict rather than a separate closed set.</p>
+
+<p><em>Comprehensions</em> provide a compact, fast way to build all four of these containers. A list comprehension generates successors; a dict comprehension builds a lookup table; a set comprehension deduplicates in one pass. Comprehensions run in a dedicated bytecode loop and are typically faster than an equivalent explicit loop with <code>.append()</code>, and — more importantly for readability — they state the construction rule declaratively.</p>
+
+<pre><code>def successors(pos, walls, width, height):
+    r, c = pos
+    moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    return [(r + dr, c + dc) for dr, dc in moves
+            if 0 &lt;= r + dr &lt; height
+            and 0 &lt;= c + dc &lt; width
+            and (r + dr, c + dc) not in walls]
+
+# dict comprehension: straight-line heuristic for every city
+h = {city: euclidean(coords[city], coords['Bucharest']) for city in coords}
+
+# set comprehension: all states reachable in one step from any frontier node
+fringe_next = {s for node in frontier for s in successors(node, walls, w, hgt)}
+</code></pre>
+
+<p><strong>Stacks and queues for frontier management</strong></p>
+
+<p>The single structural difference between depth-first and breadth-first search is the discipline used to remove nodes from the frontier. The rest of the algorithm — expand a node, generate successors, skip those already seen — is identical. This is worth stating explicitly, because it means you can write one generic <code>graph_search(problem, frontier)</code> routine and obtain different algorithms purely by passing a different container.</p>
+
+<p>A <em>stack</em> is last-in-first-out. The most recently discovered node is the next one expanded, so the search plunges as deep as it can before backtracking: that is depth-first search. A plain Python list is an excellent stack, because <code>append()</code> and <code>pop()</code> both operate at the end of the underlying array in amortised O(1) time.</p>
+
+<pre><code>def dfs(start, goal, succ):
+    frontier = [start]            # list used as a LIFO stack
+    explored = set()
+    came_from = {}
+    while frontier:
+        node = frontier.pop()     # O(1): removes the last element
+        if node == goal:
+            return reconstruct(came_from, goal)
+        if node in explored:
+            continue
+        explored.add(node)
+        for child in succ(node):
+            if child not in explored:
+                came_from.setdefault(child, node)
+                frontier.append(child)
+    return None
+</code></pre>
+
+<p>A <em>queue</em> is first-in-first-out. The oldest node is expanded next, so the search sweeps outward layer by layer and finds the shallowest goal: that is breadth-first search, which is complete and, for unit step costs, optimal. The temptation is to reuse a list and write <code>frontier.pop(0)</code>. Resist it. Removing the first element of a list requires shifting every remaining element one position to the left, which is O(n) per operation. A BFS that expands 100 000 nodes therefore performs on the order of 10<sup>10</sup> pointer moves in the worst case purely on queue maintenance — the algorithm is correct but unusably slow, and the slowdown grows quadratically rather than showing up on small test cases.</p>
+
+<p>The correct container is <code>collections.deque</code>, a doubly linked list of fixed-size blocks. Appends and pops at <em>both</em> ends are O(1), so it serves equally well as a queue (<code>append</code> / <code>popleft</code>) or as a stack (<code>append</code> / <code>pop</code>).</p>
+
+<pre><code>from collections import deque
+
+def bfs(start, goal, succ):
+    frontier = deque([start])     # FIFO queue
+    explored = {start}            # mark on generation, not on expansion
+    came_from = {}
+    while frontier:
+        node = frontier.popleft() # O(1)
+        if node == goal:
+            return reconstruct(came_from, goal)
+        for child in succ(node):
+            if child not in explored:
+                explored.add(child)
+                came_from[child] = node
+                frontier.append(child)
+    return None
+</code></pre>
+
+<p>Note the small but important detail in the BFS above: children are added to <code>explored</code> at the moment they are generated, not when they are expanded. For BFS this is safe (the first time a state is reached is via a shortest path) and it prevents the frontier from filling with duplicates.</p>
+
+<p><em>Bidirectional search</em> exploits the fact that a breadth-first tree of depth <em>d</em> with branching factor <em>b</em> contains roughly b<sup>d</sup> nodes, whereas two trees of depth <em>d</em>/2 contain only 2·b<sup>d/2</sup> — an enormous saving. It is implemented with two deques and two parent dictionaries, one pair expanding forwards from the start and one pair expanding backwards from the goal, alternating one layer at a time and stopping when the two explored sets intersect.</p>
+
+<pre><code>def bidirectional_bfs(start, goal, succ, pred):
+    if start == goal:
+        return [start]
+    f_frontier, b_frontier = deque([start]), deque([goal])
+    f_parent, b_parent = {start: None}, {goal: None}
+    while f_frontier and b_frontier:
+        # expand the smaller frontier to keep the two trees balanced
+        if len(f_frontier) &lt;= len(b_frontier):
+            node = f_frontier.popleft()
+            for child in succ(node):
+                if child in b_parent:
+                    return join(f_parent, b_parent, node, child)
+                if child not in f_parent:
+                    f_parent[child] = node
+                    f_frontier.append(child)
+        else:
+            node = b_frontier.popleft()
+            for parent_state in pred(node):
+                if parent_state in f_parent:
+                    return join(f_parent, b_parent, parent_state, node)
+                if parent_state not in b_parent:
+                    b_parent[parent_state] = node
+                    b_frontier.append(parent_state)
+    return None
+</code></pre>
+
+<p><strong>Priority queues with heapq for informed search</strong></p>
+
+<p>Uniform-cost search, greedy best-first search, and A* all require the frontier to deliver the node with the <em>smallest</em> priority value — path cost <em>g</em>, heuristic <em>h</em>, or their sum <em>f</em> = <em>g</em> + <em>h</em>. Scanning a list for the minimum is O(n) per pop; a binary min-heap does it in O(log n). Python's <code>heapq</code> module implements such a heap directly on top of an ordinary list, maintaining the invariant <code>heap[k] &lt;= heap[2*k+1]</code> and <code>heap[k] &lt;= heap[2*k+2]</code>. The smallest element is therefore always at <code>heap[0]</code>, readable in O(1), while <code>heappush</code> and <code>heappop</code> each cost O(log n).</p>
+
+<pre><code>import heapq
+
+frontier = []
+heapq.heappush(frontier, (7.5, 'Sibiu'))
+heapq.heappush(frontier, (3.0, 'Arad'))
+heapq.heappush(frontier, (9.1, 'Fagaras'))
+print(frontier[0])            # (3.0, 'Arad') -- peek, O(1)
+print(heapq.heappop(frontier))# (3.0, 'Arad') -- O(log n)
+</code></pre>
+
+<p>Entries are normally tuples whose first element is the priority, because tuples compare lexicographically: Python compares the first elements, and only if they are equal does it move on to the second. That gives you the right ordering for free — but it also creates a trap. If two nodes have identical <em>f</em>-values, Python will try to compare the second elements, and if those are custom state objects without an ordering defined, you get <code>TypeError: '&lt;' not supported between instances of 'Node' and 'Node'</code>. The idiomatic fix is to insert a monotonically increasing counter as a tie-breaker, so the comparison never reaches the payload:</p>
+
+<pre><code>import heapq
+from itertools import count
+
+counter = count()             # 0, 1, 2, ... never repeats
+
+def push(frontier, priority, node):
+    heapq.heappush(frontier, (priority, next(counter), node))
+
+frontier = []
+push(frontier, 12.0, node_a)
+push(frontier, 12.0, node_b)  # same f-value: tie broken by counter, FIFO order
+priority, _, node = heapq.heappop(frontier)
+</code></pre>
+
+<p>A side benefit is determinism: with the counter in place, ties are broken in insertion order, so repeated runs expand nodes in the same sequence and your unit tests are reproducible. Some implementations prefer a tie-break on <em>higher g</em> (push <code>-g</code> as the second element) so that, among equal <em>f</em>-values, deeper nodes nearer the goal are preferred.</p>
+
+<p><code>heapq</code> deliberately omits a <em>decrease-key</em> operation. If A* later discovers a cheaper route to a state already in the frontier, there is no supported way to locate and lower that entry's priority — the heap does not index its contents. Two workarounds exist; the standard one is <strong>lazy deletion</strong>: push a second, better entry for the same state, and on popping, discard any entry whose recorded cost is worse than the best currently known.</p>
+
+<pre><code>def astar(start, goal_test, succ, h):
+    counter = count()
+    g = {start: 0}
+    came_from = {}
+    frontier = [(h(start), next(counter), start)]
+    closed = set()
+    while frontier:
+        f, _, node = heapq.heappop(frontier)
+        if node in closed:          # stale duplicate -- skip it
+            continue
+        if goal_test(node):
+            return reconstruct(came_from, node), g[node]
+        closed.add(node)
+        for child, step_cost in succ(node):
+            tentative = g[node] + step_cost
+            if tentative &lt; g.get(child, float('inf')):
+                g[child] = tentative
+                came_from[child] = node
+                heapq.heappush(frontier, (tentative + h(child), next(counter), child))
+    return None, float('inf')
+</code></pre>
+
+<p>Lazy deletion lets the heap grow larger than the number of distinct frontier states, but each stale entry costs only O(log n) to push and O(1) to recognise and skip on pop, and the memory overhead is usually far smaller than the cost of maintaining an index-into-heap dictionary. The alternative — an explicit <code>entry_finder</code> dict that marks superseded entries as <code>REMOVED</code> — is documented in the <code>heapq</code> module itself and is worth knowing, but lazy deletion is simpler and adequate for coursework-scale problems.</p>
+
+<p>Finally, avoid <code>queue.PriorityQueue</code> in single-threaded search code. It is a thin wrapper around <code>heapq</code> that adds a mutex and condition variables so that multiple threads can share the queue safely. Every <code>put</code> and <code>get</code> acquires and releases locks you do not need, typically costing a factor of two or more in throughput, and its blocking <code>get()</code> semantics can hang a search that has emptied its frontier. Use <code>heapq</code> on a plain list.</p>
+
+<p><strong>Encoding states so they can be hashed and compared</strong></p>
+
+<p>Everything above depends on one requirement: a state must be <em>hashable</em> to live in a set or serve as a dictionary key, and hashability in Python requires immutability (more precisely, it requires that the object's hash never changes and that equal objects hash equally). Only immutable built-ins qualify out of the box: numbers, strings, <code>bytes</code>, tuples of hashable elements, and <code>frozenset</code>. Lists, dictionaries, sets, and ordinary mutable class instances with a custom <code>__eq__</code> do not.</p>
+
+<p>The practical consequence is that mutable working representations must be converted before storage. A grid held as a list of lists becomes a tuple of tuples; or, more compactly, it is flattened into a single tuple or encoded as a string.</p>
+
+<pre><code>board = [[1, 2, 3],
+         [4, 0, 5],
+         [6, 7, 8]]
+
+key_nested = tuple(tuple(row) for row in board)   # ((1,2,3),(4,0,5),(6,7,8))
+key_flat   = tuple(x for row in board for x in row)  # (1,2,3,4,0,5,6,7,8)
+key_string = ''.join(str(x) for row in board for x in row)  # '123405678'
+</code></pre>
+
+<p>All three are hashable. The flat tuple is usually the best compromise: it is compact, fast to hash, and trivially convertible back to a grid with slicing. The string form is the most memory-efficient of all for small alphabets and is attractive when you must store tens of millions of states, at the cost of slightly clumsier successor generation.</p>
+
+<p>When the state is genuinely an <em>unordered</em> collection — the set of propositions true in a STRIPS planning state, the set of goals already satisfied, the set of nodes visited in a tour where order is irrelevant — use <code>frozenset</code>. It hashes in a way that ignores insertion order, so <code>frozenset({'a','b'}) == frozenset({'b','a'})</code> and the two share a hash value, which is exactly the semantics you want.</p>
+
+<pre><code>state = frozenset({'at(robot, room1)', 'holding(key)'})
+goal  = frozenset({'holding(key)'})
+achieved = goal &lt;= state      # subset test, True
+new_state = (state - {'at(robot, room1)'}) | {'at(robot, room2)'}  # still a frozenset
+</code></pre>
+
+<p><em>Canonicalisation</em> goes one step further. Two different encodings may describe the same situation; if you do not normalise them, the search will treat them as distinct and expand the same configuration repeatedly, inflating the search tree. The remedy is to map every equivalence class to one chosen representative — typically by sorting, or by taking the lexicographically smallest image under the problem's symmetry group.</p>
+
+<pre><code>def canonical_assignment(assignment: dict) -&gt; tuple:
+    # order of variable assignment is irrelevant to the state
+    return tuple(sorted(assignment.items()))
+
+def canonical_board(board: tuple) -&gt; tuple:
+    # an N-queens / grid puzzle invariant under reflection
+    return min(board, reflect(board))
+</code></pre>
+
+<p>In the missionaries-and-cannibals problem the individuals are interchangeable, so a state is just counts; in a graph-colouring problem the colour names are interchangeable, so renaming colours to first-use order collapses a factorial number of duplicates. The saving can be dramatic — often an order of magnitude fewer expansions.</p>
+
+<p>If you prefer a class to a bare tuple, you must make the class behave like an immutable value. Define <code>__eq__</code> and <code>__hash__</code> together and consistently: objects that compare equal <em>must</em> have equal hashes, or they will be stored twice in the same set and your visited check will silently fail. Note also that defining <code>__eq__</code> on a class sets <code>__hash__</code> to <code>None</code> unless you define it explicitly. The least error-prone routes are a frozen dataclass or a <code>NamedTuple</code>, both of which generate correct <code>__eq__</code> and <code>__hash__</code> for you.</p>
+
+<pre><code>from dataclasses import dataclass
+from typing import NamedTuple
+
+@dataclass(frozen=True, order=True)
+class GridState:
+    row: int
+    col: int
+    carrying: bool = False
+
+class PuzzleState(NamedTuple):
+    tiles: tuple
+    blank: int
+
+a = GridState(2, 3)
+b = GridState(2, 3)
+print(a == b, hash(a) == hash(b), {a, b})   # True True {GridState(row=2, col=3, carrying=False)}
+</code></pre>
+
+<p>Writing it by hand is perfectly acceptable provided the two methods agree, and it is worth doing once to understand what the decorators generate:</p>
+
+<pre><code>class State:
+    __slots__ = ('tiles',)          # saves memory: no per-instance __dict__
+    def __init__(self, tiles):
+        object.__setattr__(self, 'tiles', tuple(tiles))
+    def __eq__(self, other):
+        return isinstance(other, State) and self.tiles == other.tiles
+    def __hash__(self):
+        return hash(self.tiles)     # derived from the same data as __eq__
+</code></pre>
+
+<p><strong>The collections module toolkit</strong></p>
+
+<p>The standard library's <code>collections</code> module supplies specialised containers that remove boilerplate and, in several cases, change the asymptotic cost of an operation.</p>
+
+<p><code>deque</code> has already appeared as the BFS frontier. Its second use is the fixed-length history buffer: constructing it with <code>maxlen</code> makes it a sliding window that discards from the opposite end automatically. That is useful for cycle detection over the last <em>k</em> moves in local search, for tracking a rolling window of heuristic values in simulated annealing, or for keeping the most recent episodes in a reinforcement-learning replay buffer.</p>
+
+<pre><code>from collections import deque
+
+history = deque(maxlen=3)
+for move in ['up', 'left', 'down', 'right']:
+    history.append(move)
+print(history)      # deque(['left', 'down', 'right'], maxlen=3)
+
+# cheap tabu check: have we just undone our last move?
+if history and history[-1] == opposite(candidate):
+    continue
+</code></pre>
+
+<p><code>defaultdict</code> takes a zero-argument factory and calls it automatically whenever a missing key is read, which removes the repetitive "check whether the key exists, create an empty container if not" idiom that clutters graph-building code. <code>defaultdict(list)</code> builds adjacency lists; <code>defaultdict(set)</code> builds adjacency sets with automatic deduplication; <code>defaultdict(int)</code> gives a counter; <code>defaultdict(lambda: float('inf'))</code> gives a cost table whose default is "unreachable", which is exactly what uniform-cost search and A* want.</p>
+
+<pre><code>from collections import defaultdict
+
+edges = [('Arad', 'Zerind', 75), ('Arad', 'Sibiu', 140), ('Zerind', 'Oradea', 71)]
+
+graph = defaultdict(list)
+for u, v, cost in edges:
+    graph[u].append((v, cost))      # no 'if u not in graph' needed
+    graph[v].append((u, cost))      # undirected
+
+g_score = defaultdict(lambda: float('inf'))
+g_score[start] = 0
+if tentative &lt; g_score[child]:       # no KeyError, no .get() with a default
+    g_score[child] = tentative
+</code></pre>
+
+<p>One caution: because reading a missing key <em>inserts</em> it, a <code>defaultdict</code> silently grows when you merely test it. If you need a pure membership test on a <code>defaultdict</code>, use <code>key in d</code> rather than <code>d[key]</code>.</p>
+
+<p><code>Counter</code> is a dictionary subclass specialised for tallying. It accepts any iterable and counts its elements, returns <code>0</code> rather than raising for missing keys, and supports <code>most_common(n)</code>, addition, and subtraction. In AI code it appears in three recurring roles: computing frequency features for naive Bayes or bag-of-words models; collecting diagnostics such as how many nodes were expanded at each depth or how many times each action was selected; and implementing the misplaced-tile family of heuristics or any comparison of multisets.</p>
+
+<pre><code>from collections import Counter
+
+expansions_by_depth = Counter()
+expansions_by_depth[depth] += 1          # no initialisation required
+print(expansions_by_depth.most_common(3))
+
+words = Counter("the cat sat on the mat".split())
+print(words['the'], words['dog'])        # 2 0  -- missing keys are 0, not an error
+
+# multiset difference: which tiles are still misplaced?
+remaining = Counter(current_hand) - Counter(required_hand)
+</code></pre>
+
+<p><code>namedtuple</code> (and its typed sibling <code>typing.NamedTuple</code>) creates a lightweight immutable record class. Instances are real tuples: they are hashable, comparable, unpackable, and consume essentially the same memory as a plain tuple, yet their fields can be read by name. The canonical search node is exactly this shape.</p>
+
+<pre><code>from collections import namedtuple
+
+Node = namedtuple('Node', ['state', 'parent', 'action', 'path_cost'])
+
+root  = Node(state=(0, 0), parent=None, action=None, path_cost=0)
+child = Node(state=(0, 1), parent=root, action='right', path_cost=1)
+
+print(child.action, child.path_cost)     # right 1
+print(child[0])                          # (0, 1) -- still indexable
+deeper = child._replace(path_cost=2)     # returns a new node; originals unchanged
+</code></pre>
+
+<p>Because <code>Node</code> is a tuple, two nodes compare field by field — which is why you should still use an explicit counter in heap entries rather than relying on nodes to break ties, and why a <code>parent</code> chain of nodes should normally be keyed in dictionaries by <code>node.state</code>, not by the node itself.</p>
+
+<p><code>OrderedDict</code> preserves insertion order and, unlike a plain dict, treats order as significant in equality comparisons; it also offers <code>move_to_end()</code> and a <code>popitem(last=False)</code> that make a textbook LRU cache a few lines long — handy for memoising expensive heuristic evaluations. Since Python 3.7 ordinary dictionaries also guarantee insertion order, so most code no longer needs <code>OrderedDict</code>; what matters for us is the guarantee itself. Deterministic iteration order means that a search which iterates over <code>graph[node]</code> or over a dict of successors will expand nodes in the same sequence on every run, so expansion counts and returned paths are reproducible and can be asserted in unit tests. Sets, by contrast, iterate in an order determined by hash values, and string hashing is randomised per process unless <code>PYTHONHASHSEED</code> is fixed — so never iterate a set when deterministic output matters; sort it or iterate a dict instead.</p>
+
+<pre><code>from collections import OrderedDict
+
+class HeuristicCache:
+    def __init__(self, capacity=100_000):
+        self.capacity = capacity
+        self.data = OrderedDict()
+    def get(self, state, compute):
+        if state in self.data:
+            self.data.move_to_end(state)        # mark as recently used
+            return self.data[state]
+        value = compute(state)
+        self.data[state] = value
+        if len(self.data) &gt; self.capacity:
+            self.data.popitem(last=False)       # evict least recently used
+        return value
+
+# deterministic expansion order
+for child in sorted(successors(node)):
+    ...
+</code></pre>
+
+<p><strong>Performance trade-offs that matter in search</strong></p>
+
+<p>The decisions above are only worth making because the costs differ by orders of magnitude at the scales search algorithms reach. The table below summarises the operations that dominate a typical graph search.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Operation</th>
+      <th>list</th>
+      <th>deque</th>
+      <th>set / dict</th>
+      <th>heapq on a list</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Membership test (<code>x in c</code>)</td>
+      <td>O(n)</td>
+      <td>O(n)</td>
+      <td>O(1) average</td>
+      <td>O(n)</td>
+    </tr>
+    <tr>
+      <td>Append / push at the right end</td>
+      <td>O(1) amortised</td>
+      <td>O(1)</td>
+      <td>O(1) average (add)</td>
+      <td>O(log n)</td>
+    </tr>
+    <tr>
+      <td>Pop from the right end</td>
+      <td>O(1)</td>
+      <td>O(1)</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>Insert / pop at the left end</td>
+      <td>O(n)</td>
+      <td>O(1)</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>Extract minimum</td>
+      <td>O(n) scan</td>
+      <td>O(n) scan</td>
+      <td>O(n) scan</td>
+      <td>O(log n)</td>
+    </tr>
+    <tr>
+      <td>Peek at minimum</td>
+      <td>O(n)</td>
+      <td>O(n)</td>
+      <td>O(n)</td>
+      <td>O(1)</td>
+    </tr>
+    <tr>
+      <td>Indexing by position</td>
+      <td>O(1)</td>
+      <td>O(n) in the middle</td>
+      <td>—</td>
+      <td>O(1)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Three practical rules follow. First, <strong>closed sets must be sets or dictionaries</strong>. A list-based visited check turns an O(N) search into an O(N²) one: with 200 000 expansions, the list version performs about 2·10<sup>10</sup> comparisons against roughly 2·10<sup>5</sup> hash lookups for the set version. This is the single most common performance bug in student search code, and it is invisible on a 10-node test graph.</p>
+
+<p>Second, <strong>use the right end of the right container</strong>. Lists are optimised for the tail; <code>append</code> and <code>pop()</code> are amortised O(1) because the underlying array over-allocates, but <code>insert(0, x)</code> and <code>pop(0)</code> must memmove every remaining pointer. A deque pays a slightly higher constant factor per operation and loses O(1) random access in the middle, but it never degrades at the ends. Use a list for a DFS stack and a path, a deque for a BFS queue or a sliding window.</p>
+
+<p>Third, <strong>do not use a heap where a dictionary will do</strong>. Heap operations are O(log n) with a non-trivial constant: each push and pop performs up to log<sub>2</sub> n tuple comparisons, and tuple comparison is itself several interpreter operations. That is a fine price for ordered extraction from the frontier, but it is far more expensive than the O(1) dictionary lookup used to read or update <code>g_score</code>. Keep the two jobs separate: the heap orders the frontier, the dictionary remembers the costs.</p>
+
+<p>Memory is the other half of the story, and in search it is often the binding constraint — breadth-first search on a problem with branching factor 10 and depth 8 must hold 10<sup>8</sup> states. Compactness therefore matters enormously. A tuple of three small integers occupies roughly 70–80 bytes plus the (usually shared and cached) integers themselves; the equivalent list occupies more because it over-allocates its array and carries a mutable header; a plain class instance adds a per-instance <code>__dict__</code> of several hundred bytes unless you declare <code>__slots__</code>. Across ten million states the difference between a flat tuple and an ordinary object is measured in gigabytes.</p>
+
+<pre><code>import sys
+print(sys.getsizeof((1, 2, 3)))        # ~64-80 bytes
+print(sys.getsizeof([1, 2, 3]))        # larger, and over-allocates on append
+print(sys.getsizeof('123405678'))      # compact for small alphabets
+</code></pre>
+
+<p>Practical memory tactics: store parent pointers in a dictionary instead of carrying a full path list inside every frontier node; store state keys (tuples or strings) rather than rich objects in the closed set; use <code>__slots__</code> on node classes; and consider <code>array</code>, <code>bytes</code>, or NumPy arrays when states are large fixed-size numeric vectors.</p>
+
+<p>Finally, <strong>measure before optimising</strong>. Asymptotic analysis tells you which container cannot work; it does not tell you where the time actually goes. In a great many search programs the dominant cost is not the frontier at all but successor generation — the legality checks, the tuple rebuilding, and above all the heuristic function, which may be called once per generated node. Use <code>timeit</code> for micro-comparisons of container operations and <code>cProfile</code> for whole-program attribution.</p>
+
+<pre><code>import timeit
+setup = "from collections import deque; d = deque(range(100000)); l = list(range(100000))"
+print(timeit.timeit("d.popleft(); d.append(0)", setup=setup, number=100000))
+print(timeit.timeit("l.pop(0);   l.append(0)", setup=setup, number=100000))
+
+import cProfile, pstats
+cProfile.run('astar(start, goal_test, successors, manhattan)', 'stats.out')
+pstats.Stats('stats.out').sort_stats('cumulative').print_stats(10)
+</code></pre>
+
+<p>A typical profile of an 8-puzzle A* implementation shows something like 45% of the time in the heuristic, 25% in successor generation, 15% in hashing tuples for set and dict operations, and under 10% in <code>heappush</code>/<code>heappop</code>. That tells you to memoise or simplify the heuristic before you start hand-tuning the heap — which is precisely the lesson: choose containers with the right asymptotics as a matter of routine, then let the profiler decide where further effort goes.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> Not addressed directly. All containers discussed here are part of the Python standard library and need no third-party packages, though the code is intended to be run inside the pinned virtual environment created for the module.</li>
+  <li><strong>MO2:</strong> Strongly supported. The topic turns search pseudocode into working Python, using functions (<code>bfs</code>, <code>astar</code>, <code>reconstruct</code>), classes and frozen dataclasses/namedtuples for state records, and list, set, and dict comprehensions for successor generation and lookup tables.</li>
+  <li><strong>MO3:</strong> This is the topic's central concern. It compares lists, sets, dictionaries, deques, and <code>heapq</code>-based priority queues operation by operation, with a complexity table and profiling guidance, and shows exactly how each is used for frontier management and visited-state tracking.</li>
+  <li><strong>MO4:</strong> Supported only indirectly. <code>Counter</code>-based frequency features, dictionary lookup tables, and the memory discussion of compact numeric state encodings connect to the data-handling stage of a machine learning workflow, but pandas, NumPy, and scikit-learn are covered elsewhere.</li>
+  <li><strong>MO5:</strong> Not addressed. The topic contains no version-control material, although the deterministic-iteration discussion supports writing reproducible tests that can be committed with confidence.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Suggested lab exercise: give students one generic &lt;code&gt;graph_search(problem, frontier)&lt;/code&gt; skeleton and have them obtain DFS, BFS, UCS, and A* purely by swapping the frontier container; then have them re-run BFS with &lt;code&gt;list.pop(0)&lt;/code&gt; and plot wall-clock time against node count to see the quadratic blow-up first-hand. A second exercise: implement the 8-puzzle with (a) a list-of-lists state and a list closed set, and (b) a flat-tuple state and a set closed set, and compare both runtime and peak memory with &lt;code&gt;tracemalloc&lt;/code&gt;. Common misconceptions to pre-empt: that &lt;code&gt;list.pop(0)&lt;/code&gt; is cheap; that defining &lt;code&gt;__eq__&lt;/code&gt; alone keeps a class hashable (it sets &lt;code&gt;__hash__&lt;/code&gt; to &lt;code&gt;None&lt;/code&gt;); that &lt;code&gt;queue.PriorityQueue&lt;/code&gt; is the &quot;proper&quot; priority queue; and that reading a missing key from a &lt;code&gt;defaultdict&lt;/code&gt; is side-effect free.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

@@ -1,0 +1,262 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparative Analysis and Strategy Selection</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Uninformed Search: BFS, DFS, and Uniform Cost</a></div>
+  <header>
+    <h1>Comparative Analysis and Strategy Selection</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Comparative Analysis and Strategy Selection</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Once breadth-first search, depth-first search, uniform-cost search and their depth-limited variants have been implemented, the practical question is no longer "how does each one work?" but "which one should I run, and what will it cost me?" Answering that requires a common vocabulary for measuring algorithms, a set of symbols that let very different search behaviours be written down in the same notation, and a feel for how the asymptotic formulas translate into real node counts and real memory consumption. This topic assembles that comparative picture: the four standard evaluation criteria, the side-by-side complexity table they produce, the reason memory rather than time is usually the binding constraint, concrete measurements on benchmark problems, a decision procedure for selecting a strategy, and finally an honest account of what every uninformed method has in common — blindness.</p>
+
+<p><strong>The four evaluation criteria</strong></p>
+
+<p>Every search strategy in the uninformed family is judged on the same four questions. They are deliberately coarse — they ignore constant factors, implementation language and cache behaviour — but they capture the differences that matter when the state space grows large.</p>
+
+<ul>
+<li><strong>Completeness.</strong> Is the algorithm <em>guaranteed</em> to find a solution whenever at least one exists, and to report failure in finite time when none does? Completeness is a guarantee, not a tendency. An algorithm that finds the goal "almost always" is not complete. The usual ways to lose completeness are infinite branches (a state space with unbounded depth, such as a robot that can keep moving east forever), infinite branching factors, and cycles that trap the search in a loop.</li>
+<li><strong>Optimality.</strong> If a solution is returned, is it guaranteed to be a <em>cheapest</em> solution under the problem's path-cost function? Note the careful wording: in a unit-cost problem "cheapest" collapses into "shallowest", which is why BFS appears optimal in grid and puzzle domains but loses that property the moment edges acquire different weights. An algorithm can be complete without being optimal (DFS is the standard example) and can in principle be optimal without being complete (an algorithm that only sometimes terminates, but returns the best path when it does).</li>
+<li><strong>Time complexity.</strong> How many nodes are <em>generated</em> (or, in some textbook conventions, <em>expanded</em>) before the algorithm halts? In search analysis we count nodes rather than seconds because node generation is the dominant repeated operation and because node counts are machine-independent. The two conventions differ by a factor of roughly <code>b</code>, which is irrelevant asymptotically but worth stating explicitly when you report empirical numbers.</li>
+<li><strong>Space complexity.</strong> What is the maximum number of nodes held in memory simultaneously — frontier plus explored set plus whatever bookkeeping the implementation needs? This is a peak measurement, not a total: a node that is generated, expanded and discarded still contributes to time but may not contribute to the peak space.</li>
+</ul>
+
+<p>To compare algorithms on equal footing, all four criteria are expressed in terms of a small set of parameters of the <em>problem</em>, not of the algorithm:</p>
+
+<table>
+<thead>
+<tr><th>Symbol</th><th>Meaning</th><th>Typical interpretation</th></tr>
+</thead>
+<tbody>
+<tr><td><code>b</code></td><td>Branching factor — maximum (or average) number of successors of any node</td><td>8-puzzle ≈ 2.67 effective; chess ≈ 35; Rubik's cube ≈ 13.3 after pruning inverse moves</td></tr>
+<tr><td><code>d</code></td><td>Depth of the shallowest goal node</td><td>Number of moves in the shortest solution</td></tr>
+<tr><td><code>m</code></td><td>Maximum depth of the state space (possibly infinite)</td><td>Longest path the search could follow before running out of successors</td></tr>
+<tr><td><code>C*</code></td><td>Cost of the optimal solution</td><td>Shortest driving distance; total fuel; total time</td></tr>
+<tr><td><code>ε</code></td><td>Smallest positive action cost in the problem</td><td>Shortest road segment; minimum time step</td></tr>
+</tbody>
+</table>
+
+<p>Two relations between these parameters are worth internalising. First, <code>d ≤ m</code> always, and in hard problems <code>m</code> can be enormously larger than <code>d</code> — that gap is precisely the risk DFS takes. Second, <code>⌊C*/ε⌋ ≥ d</code> whenever all costs are at least <code>ε</code>, because the optimal path of cost <code>C*</code> can contain at most <code>C*/ε</code> edges. This is why UCS's exponent is never smaller than BFS's, and can be much larger when the cheapest action is tiny relative to the solution cost.</p>
+
+<p><strong>The side-by-side complexity table</strong></p>
+
+<p>With the parameters fixed, the classical results can be laid out in one table. Assume a graph-search implementation with an explored set unless noted otherwise.</p>
+
+<table>
+<thead>
+<tr><th>Strategy</th><th>Frontier structure</th><th>Complete?</th><th>Optimal?</th><th>Time</th><th>Space</th></tr>
+</thead>
+<tbody>
+<tr><td>Breadth-first search</td><td>FIFO queue</td><td>Yes, if <code>b</code> is finite</td><td>Only when all step costs are equal</td><td>O(b<sup>d</sup>)</td><td>O(b<sup>d</sup>)</td></tr>
+<tr><td>Uniform-cost search</td><td>Priority queue on <code>g(n)</code></td><td>Yes, if every step cost ≥ ε &gt; 0</td><td>Yes, always</td><td>O(b<sup>1+⌊C*/ε⌋</sup>)</td><td>O(b<sup>1+⌊C*/ε⌋</sup>)</td></tr>
+<tr><td>Depth-first search</td><td>LIFO stack</td><td>Only in finite spaces with cycle checking; no for infinite-depth spaces</td><td>No</td><td>O(b<sup>m</sup>)</td><td>O(bm) for tree search; O(|V|) if an explored set is kept</td></tr>
+<tr><td>Depth-limited search (limit <code>ℓ</code>)</td><td>LIFO stack with cutoff</td><td>Only if <code>ℓ ≥ d</code></td><td>No</td><td>O(b<sup>ℓ</sup>)</td><td>O(bℓ)</td></tr>
+<tr><td>Iterative-deepening DFS</td><td>LIFO stack, repeated with increasing limit</td><td>Yes, if <code>b</code> is finite</td><td>Only when all step costs are equal</td><td>O(b<sup>d</sup>)</td><td>O(bd)</td></tr>
+</tbody>
+</table>
+
+<p>Several entries deserve unpacking.</p>
+
+<ul>
+<li><strong>Why BFS is optimal only for equal step costs.</strong> BFS returns the <em>shallowest</em> goal. Shallowest equals cheapest exactly when every edge contributes the same amount to the path cost. Give one edge a cost of 100 and a four-edge path may beat a two-edge path, at which point BFS's answer is merely "fewest actions", not "least cost".</li>
+<li><strong>Why UCS needs ε &gt; 0.</strong> If arbitrarily small positive costs are allowed, an infinite branch whose edge costs are 1/2, 1/4, 1/8, … has finite total cost, and UCS can march down it forever without ever reaching a cost at which the goal would be popped. A positive lower bound ε forbids that pathology, because then any infinite path has infinite cost.</li>
+<li><strong>Why UCS's exponent is <code>1+⌊C*/ε⌋</code> rather than <code>d</code>.</strong> UCS must expand every node whose path cost is strictly less than <code>C*</code> before it can pop the goal. The number of such nodes is governed by how many <em>cost steps</em> of size ε fit inside <code>C*</code>, not by how many <em>edges</em> fit inside <code>d</code>. If ε is small — say, road segments as short as 10 m on a route whose optimal length is 50 km — that exponent dwarfs <code>d</code>.</li>
+<li><strong>Why DFS is never optimal.</strong> DFS returns the first goal it stumbles on, which depends entirely on the order in which successors happen to be generated. Nothing in the algorithm compares that goal against any alternative.</li>
+<li><strong>Why DFS space is O(bm), not O(b<sup>m</sup>).</strong> At any instant a tree-search DFS holds only the nodes on the current root-to-leaf path (at most <code>m</code> of them) together with the as-yet-unexpanded siblings at each of those levels (at most <code>b−1</code> each). That is a <em>linear</em> quantity. A recursive implementation makes this especially visible: the stack frames are the path. Note the caveat in the table — the moment you add a full explored set to make DFS complete on a graph, the space advantage is sacrificed, because the explored set can grow to the size of the reachable state space. A common compromise is to check only for repeated states along the current path, which costs O(m) extra and prevents infinite loops on cycles without storing the whole graph.</li>
+</ul>
+
+<p><strong>UCS as a generalisation of BFS.</strong> If every edge has identical cost <code>c</code>, then path cost is simply <code>c</code> × depth, so ordering the frontier by <code>g(n)</code> is the same as ordering it by depth: UCS expands nodes in exactly the layered order BFS does, and <code>⌊C*/ε⌋ = d</code>, so the complexity formula collapses to O(b<sup>d+1</sup>). The only residual differences are implementation details — UCS pays a logarithmic factor for heap operations, and it performs its goal test on <em>popping</em> rather than on <em>generating</em>, which is what gives it its optimality guarantee in the weighted case and costs it one extra layer of expansion in the unit-cost case. It is entirely correct to describe BFS as the special case of UCS for unit costs, and to describe UCS as "BFS with a priority queue".</p>
+
+<p><strong>The decisive BFS-versus-DFS difference.</strong> Both have exponential worst-case <em>time</em>, and in practice a time-bound search can simply be stopped. The gap that cannot be papered over is space: O(b<sup>d</sup>) versus O(bm). A search with <code>b = 10</code> at depth 12 holds on the order of 10<sup>12</sup> nodes in a BFS frontier; the same search in DFS holds roughly 10 × 12 = 120 nodes on its stack. That is the difference between an impossible program and a trivial one.</p>
+
+<p><strong>Memory as the binding constraint</strong></p>
+
+<p>It is tempting to read O(b<sup>d</sup>) for time and O(b<sup>d</sup>) for space as "equally bad". They are not, because computers consume time and memory at wildly different rates. Suppose a well-tuned implementation generates 10<sup>6</sup> nodes per second and each node occupies 100 bytes (state, parent pointer, action, path cost). Then:</p>
+
+<table>
+<thead>
+<tr><th>Depth <code>d</code> (with <code>b</code> = 10)</th><th>Nodes ≈ 10<sup>d</sup></th><th>Time at 10<sup>6</sup> nodes/s</th><th>BFS memory at 100 B/node</th></tr>
+</thead>
+<tbody>
+<tr><td>4</td><td>10<sup>4</sup></td><td>0.01 s</td><td>1 MB</td></tr>
+<tr><td>6</td><td>10<sup>6</sup></td><td>1 s</td><td>100 MB</td></tr>
+<tr><td>8</td><td>10<sup>8</sup></td><td>2 minutes</td><td>10 GB</td></tr>
+<tr><td>10</td><td>10<sup>10</sup></td><td>3 hours</td><td>1 TB</td></tr>
+<tr><td>12</td><td>10<sup>12</sup></td><td>13 days</td><td>100 TB</td></tr>
+</tbody>
+</table>
+
+<p>Read the table across each row. At depth 8 the CPU is still perfectly happy — two minutes is a coffee break — but 10 GB of frontier already strains a laptop. At depth 10 the three-hour runtime is tolerable for an overnight batch job, but 1 TB of RAM simply does not exist on ordinary hardware. <em>The machine runs out of memory long before it runs out of patience.</em> That asymmetry is the single most important practical fact about uninformed search, and it is why memory-bounded variants exist at all.</p>
+
+<p>DFS sits at the opposite extreme. Its stack holds the current path plus the untried siblings hanging off it, so at <code>b = 10, m = 20</code> the peak is about 200 nodes — twenty kilobytes. DFS can be run for days without memory pressure. What it cannot do is guarantee a good answer: it may plunge down a 10 000-step branch that contains no goal, or find a wildly suboptimal one.</p>
+
+<p><strong>Depth-limited search</strong> is the first repair. Impose a cutoff <code>ℓ</code> and refuse to expand beyond it. Space becomes O(bℓ) and the algorithm always terminates, but you now need to know <code>ℓ</code>: set it below <code>d</code> and the search returns <em>cutoff</em> having found nothing; set it far above <code>d</code> and you reintroduce wasted effort. Sometimes the domain supplies the bound — on a map of 20 cities any simple route has at most 19 edges, so <code>ℓ = 19</code> is sound.</p>
+
+<p><strong>Iterative-deepening DFS (IDDFS)</strong> removes the guesswork by running depth-limited search for <code>ℓ = 0, 1, 2, …</code> until a goal is found:</p>
+
+<pre><code>function IDDFS(problem):
+    for limit = 0 to infinity:
+        result = DEPTH-LIMITED-SEARCH(problem, limit)
+        if result != cutoff:
+            return result</code></pre>
+
+<p>The result is remarkable: IDDFS is complete (for finite <code>b</code>), optimal for unit step costs, runs in O(b<sup>d</sup>) time — the same order as BFS — and uses only O(bd) memory. The obvious objection is that it regenerates the shallow levels over and over. The objection is answered by arithmetic. In a tree with branching factor <code>b</code>, level <code>k</code> contains <code>b<sup>k</sup></code> nodes, and because the levels grow geometrically the <em>deepest</em> level contains more nodes than all shallower levels combined (for <code>b ≥ 2</code>). Counting the generations:</p>
+
+<pre><code>IDDFS total generations = (d+1)·b^0 + d·b^1 + (d-1)·b^2 + ... + 1·b^d
+BFS   total generations =       b^0 +   b^1 +         b^2 + ... +   b^d
+
+b = 10, d = 5:  BFS = 111,111    IDDFS = 123,456    (ratio 1.11)
+b = 2,  d = 5:  BFS = 63         IDDFS = 120        (ratio 1.90)</code></pre>
+
+<p>For <code>b = 10</code> the repeated work costs about 11% extra; asymptotically the overhead factor tends to <code>b/(b−1)</code>, which is small for any realistic branching factor and only becomes significant for near-unary trees. Paying 11% more time to cut memory from 10 GB to 20 KB is one of the best trades in algorithm design, which is why IDDFS is the default uninformed strategy for large unit-cost spaces. (The cost-sensitive analogue, iterative lengthening — repeating a cost-limited search with increasing cost bounds — exists but is rarely used, because cost thresholds do not increase in convenient integer steps and the overhead is far less predictable.)</p>
+
+<p><strong>Empirical node counts on benchmark problems</strong></p>
+
+<p>Asymptotics describe trends; benchmarks make them concrete. The 8-puzzle (3×3 sliding tile) has 9!/2 = 181 440 reachable states from any given start, an effective branching factor around 2.67 once the move that undoes the previous move is excluded, and an average optimal solution depth of about 22 moves. Typical measured behaviour on an instance solvable in 12 moves:</p>
+
+<table>
+<thead>
+<tr><th>Algorithm</th><th>Nodes generated</th><th>Peak nodes in memory</th><th>Solution length returned</th><th>Optimal?</th></tr>
+</thead>
+<tbody>
+<tr><td>BFS (graph search)</td><td>≈ 10<sup>4</sup>–10<sup>5</sup></td><td>≈ 10<sup>4</sup> (frontier) + explored set</td><td>12</td><td>Yes</td></tr>
+<tr><td>IDDFS</td><td>≈ 10<sup>4</sup>–10<sup>5</sup> (≈ 1.6× BFS at b ≈ 2.67)</td><td>≈ 30 nodes</td><td>12</td><td>Yes</td></tr>
+<tr><td>DFS (path-only cycle check)</td><td>Highly variable, often &gt; 10<sup>5</sup></td><td>≈ depth reached × b</td><td>Often 100–50 000+</td><td>No</td></tr>
+</tbody>
+</table>
+
+<p>The qualitative lessons are stable even if your exact figures differ with tie-breaking order. BFS <em>expands tens of thousands of nodes to find a solution only a dozen moves deep</em>, because exhaustively sweeping every state within 12 moves is simply a large set. DFS, by contrast, dives: it will happily shuffle tiles for hundreds or thousands of moves, eventually tripping over a goal state, and the "solution" it returns is a meandering sequence that no human would accept. If you run DFS on the 8-puzzle without any repeated-state check at all, it typically never terminates, because sliding a tile left and then right returns you to a state you already visited and the search cycles.</p>
+
+<p>Now switch domains to a <strong>weighted road map</strong>, where states are towns and edge costs are driving distances. Consider a small network:</p>
+
+<pre><code>A --2-- B --2-- C --2-- D --2-- E --2-- G      (five hops, total cost 10)
+A ------------- 12 ------------------- G      (one hop,  total cost 12)</code></pre>
+
+<p>BFS, which counts <em>segments</em>, pops the goal via the single 12-unit edge after exploring depth 1 and reports "A → G, 1 road segment". UCS, which counts <em>distance</em>, expands outward in order of increasing <code>g</code>: A(0), B(2), C(4), D(6), E(8), G(10) — and only then would it ever consider the 12-unit direct edge, which it discards because G has already been popped at cost 10. The returned path is the five-hop route. This is the everyday experience of a satellite navigation system: the route with the fewest turns is frequently not the fastest, and a navigator that minimised segment count would send you down a long rural road rather than three short motorway links.</p>
+
+<p>The outward sweep of UCS has a useful geometric reading: it expands nodes in order of increasing distance from the start, so at any moment the explored set is everything inside a <em>cost contour</em> of radius <code>g</code>, and the frontier is the contour itself. The contours spread like ripples on a pond, uniformly in all directions, until one of them touches the goal. That image makes two things obvious at once: UCS is guaranteed to find the cheapest route (the ripple reaches the goal at exactly radius <code>C*</code>), and it is wasteful (it also reaches every irrelevant town at distance less than <code>C*</code>, including those in precisely the wrong direction). Instrumenting the solver to print <code>len(frontier)</code> at each iteration confirms the theory directly: BFS and UCS frontier sizes climb roughly geometrically and then collapse when the goal is found, while DFS frontier size oscillates within a narrow band bounded by <code>b·m</code>. Recording peak frontier size is the cheapest possible experiment that distinguishes exponential from linear memory, and it is worth adding to any implementation.</p>
+
+<p><strong>Choosing a strategy for a given problem</strong></p>
+
+<p>Strategy selection is a short decision procedure driven by four properties of the problem: edge costs, expected solution depth, memory budget, and state-space structure.</p>
+
+<ul>
+<li><strong>All actions cost the same and the goal is expected to be shallow → BFS.</strong> Unit costs make BFS optimal, shallowness keeps b<sup>d</sup> affordable, and the FIFO implementation is the simplest correct thing you can write. Typical cases: word-ladder puzzles, shortest path in an unweighted grid, social-network degrees of separation, state spaces whose diameter is small.</li>
+<li><strong>Edge costs vary and you genuinely need the cheapest solution → UCS.</strong> Nothing simpler will do: BFS answers a different question, and DFS answers no question at all. Typical cases: routing with distances or tolls, scheduling with task durations, any problem where "cost" is a real resource. Before committing, check the ratio <code>C*/ε</code>; if the smallest edge cost is minuscule, the search may expand astronomically many near-zero-cost nodes, and rescaling or quantising costs can help.</li>
+<li><strong>Memory is tight, solutions are plentiful and deep, or the space is a finite tree → DFS.</strong> DFS shines when you need <em>a</em> solution rather than the best one and when goals are abundant at depth, so the first dive is likely to succeed. Constraint-satisfaction backtracking, topological ordering, maze generation, exhaustive enumeration of permutations, and connected-component labelling are all DFS applications. A finite tree is the ideal case because there are no cycles to guard against and <code>m</code> is bounded.</li>
+<li><strong>You need BFS guarantees but cannot afford BFS memory → iterative deepening.</strong> This is the default for large unit-cost spaces such as the 15-puzzle or Rubik's cube: complete, optimal, linear memory, and only a constant-factor time penalty. If you additionally have a reliable upper bound on depth, a single depth-limited search with that bound avoids even the repeated work.</li>
+<li><strong>Always add cycle detection in graph spaces.</strong> Any state space in which two different action sequences can reach the same state — which is to say almost every realistic one — needs duplicate handling. Without it DFS can loop forever between two mutually reachable states, and BFS, while still correct, re-expands the same states along many redundant paths and inflates its node count from O(b<sup>d</sup>) towards the far larger number of distinct <em>paths</em>. The standard mechanism is an explored set (a hash set of visited states) plus a membership test against the frontier; for DFS under a strict memory budget, checking only the states on the current path is a lighter-weight compromise that still eliminates infinite loops.</li>
+</ul>
+
+<p>Two further selection heuristics are worth keeping in mind. First, if the state space is <em>known in advance and small enough to enumerate</em>, classical shortest-path algorithms (Dijkstra, which is UCS over an explicit graph, or Bellman–Ford for negative edges) may be preferable to on-the-fly search, because they can exploit the full adjacency structure. Second, if forward branching is large but backward branching is small — as in puzzles with a single known goal state — <em>bidirectional search</em> running BFS from both ends meets in the middle at cost roughly O(b<sup>d/2</sup>), a dramatic saving, at the price of needing an invertible transition model and a frontier-intersection test.</p>
+
+<p>A compact summary of the decision:</p>
+
+<table>
+<thead>
+<tr><th>Problem characteristics</th><th>Recommended strategy</th><th>Rationale</th></tr>
+</thead>
+<tbody>
+<tr><td>Unit costs, shallow goal, memory available</td><td>BFS</td><td>Optimal, complete, simplest implementation</td></tr>
+<tr><td>Unit costs, deep goal, memory scarce</td><td>Iterative deepening</td><td>Same guarantees as BFS at O(bd) memory, ~b/(b−1) time overhead</td></tr>
+<tr><td>Varying positive edge costs, cheapest path required</td><td>Uniform-cost search</td><td>Only strategy here that is optimal under general costs</td></tr>
+<tr><td>Any solution acceptable, goals deep and plentiful, finite tree</td><td>DFS</td><td>O(bm) memory, often finds a goal quickly</td></tr>
+<tr><td>Known depth bound, no cycles, memory scarce</td><td>Depth-limited search</td><td>Guaranteed termination without repeated iterations</td></tr>
+<tr><td>Single known goal state, invertible actions</td><td>Bidirectional BFS</td><td>Roughly O(b<sup>d/2</sup>) instead of O(b<sup>d</sup>)</td></tr>
+</tbody>
+</table>
+
+<p><strong>Limitations shared by all uninformed methods</strong></p>
+
+<p>Having compared the strategies, it is important to see what they have in common, because that shared weakness motivates everything that follows in the study of search.</p>
+
+<p><strong>They are blind.</strong> Every algorithm in this family chooses the next node to expand using a fixed structural rule — oldest first, newest first, cheapest-so-far first — and none of them has any notion of whether a node is <em>close to the goal</em>. UCS's rule, "expand the node with the smallest <code>g(n)</code>", looks backwards at the cost already incurred; it says nothing about the cost still to come. A UCS exploring a road map from Arad towards Bucharest will cheerfully expand towns to the west, away from the destination, simply because they are nearby. The only information these algorithms use is the problem definition itself: initial state, actions, transition model, goal test, and path cost. The goal test is a yes/no oracle, not a measure of proximity, so there is no signal to steer by.</p>
+
+<p><strong>They are exponential.</strong> The growth in <code>b<sup>d</sup></code> is not a defect of any one implementation but a property of the search tree. Doubling the solution depth squares the work. No reordering of a blind frontier can change that: whichever order you choose, if you must guarantee optimality you must examine essentially every node cheaper than the optimum, and there are exponentially many of them. A faster machine buys you an <em>additive</em> increase in reachable depth — roughly <code>log<sub>b</sub>(speedup)</code> extra levels — not a multiplicative one. A thousand-fold hardware speedup at <code>b = 10</code> buys three extra levels of depth. This is why "wait for better hardware" has never been a viable answer to combinatorial explosion, and why the 15-puzzle (about 10<sup>13</sup> states) was already out of reach for pure BFS decades ago and remains so.</p>
+
+<p><strong>Where the real gains come from.</strong> Within the uninformed framework, the levers that genuinely help are not algorithmic swaps but changes to the problem and its representation:</p>
+
+<ul>
+<li><strong>Better problem formulation.</strong> Choosing a coarser or more abstract state representation can shrink the space by orders of magnitude. Representing the 8-queens problem as "place one queen per column" rather than "place any queen on any square" reduces the space from about 3 × 10<sup>14</sup> sequences to 2 057 nodes. The algorithm did not change; the problem did.</li>
+<li><strong>Smaller branching factors.</strong> Pruning obviously useless actions — never undoing the previous move in a sliding puzzle, never rotating the same cube face twice in a row, enforcing a canonical ordering on commutative actions — reduces <code>b</code>, and because <code>b</code> is the base of the exponent, even a modest reduction compounds enormously over depth. Dropping <code>b</code> from 4 to 2.67 in the 8-puzzle shrinks the depth-20 tree by a factor of over a thousand.</li>
+<li><strong>Duplicate elimination.</strong> Replacing tree search with graph search converts the cost from "number of distinct paths" to "number of distinct states", which in a densely connected space is a difference between astronomically large and merely large. In a 2-D grid, the number of paths of length <code>d</code> grows exponentially while the number of reachable cells grows only quadratically.</li>
+<li><strong>Memory-bounded variants.</strong> Iterative deepening and bidirectional search squeeze real improvements out of the same blind framework by trading recomputation for space, or by splitting the exponent in half.</li>
+</ul>
+
+<p><strong>The next lever.</strong> After formulation, pruning and duplicate elimination have been applied, the remaining source of leverage is <em>domain knowledge</em>: information about the problem that is not contained in the bare five-part specification. Encoded as a <em>heuristic function</em> <code>h(n)</code> — an estimate of the cost from <code>n</code> to the nearest goal — this knowledge lets the frontier be ordered by where the search is <em>going</em> rather than only by where it has <em>been</em>. Straight-line distance for route finding, or the number of misplaced tiles for a sliding puzzle, are cheap to compute and dramatically reduce the number of nodes expanded; combining <code>g(n)</code> with <code>h(n)</code> yields A*, which retains UCS's optimality guarantee when the heuristic never overestimates. Everything established here — the four criteria, the parameters <code>b, d, m, C*, ε</code>, the frontier data structures, the explored set — carries over unchanged into that informed setting. Uninformed search is not a dead end; it is the chassis onto which heuristics are bolted.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+<li><strong>MO1:</strong> Supported indirectly. The topic repeatedly returns to the five-part specification — noting that uninformed strategies use nothing beyond initial state, actions, transition model, goal test and path cost — and shows through the 8-queens and action-pruning examples how formulation choices determine <code>b</code>, <code>d</code> and the size of the resulting search problem.</li>
+<li><strong>MO2:</strong> Supported. The weighted-road-map example traces the order in which UCS expands nodes (A, B, C, D, E, G by increasing <code>g</code>) against BFS's layer-by-layer order, and the discussion of frontier-size measurement describes how frontier contents evolve for each strategy.</li>
+<li><strong>MO3:</strong> Partially supported. The topic does not present full solver code, but it ties each strategy to its frontier data structure (FIFO queue, LIFO stack, priority queue), explains the role of the explored set in completeness and duplicate elimination, and gives pseudocode for iterative deepening, all of which informs implementation decisions.</li>
+<li><strong>MO4:</strong> Directly and centrally supported. The four evaluation criteria are defined, the parameters <code>b, d, m, C*, ε</code> are introduced, and a side-by-side table states completeness, optimality, time and space for BFS, DFS, depth-limited, iterative-deepening and UCS, with justifications for each entry.</li>
+<li><strong>MO5:</strong> Directly supported. The strategy-selection section provides an explicit decision procedure keyed to edge costs, expected solution depth, memory budget and state-space structure, supported by concrete memory/time figures and empirical node counts that justify each recommendation.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Numerical figures (node counts for the 8-puzzle, memory/time table, IDDFS overhead ratios) are order-of-magnitude illustrations consistent with standard textbook treatments (Russell &amp; Norvig, *Artificial Intelligence: A Modern Approach*); exact values will vary with tie-breaking, successor ordering and whether generated or expanded nodes are counted. The bidirectional-search and iterative-lengthening material goes beyond the listed subtopics and may be trimmed if the module covers them elsewhere.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

@@ -1,0 +1,427 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The AIMA Python Code Base</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Python Programming Toolkit for AI Development</a></div>
+  <header>
+    <h1>The AIMA Python Code Base</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>The AIMA Python Code Base</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>The <em>Artificial Intelligence: A Modern Approach</em> (AIMA) textbook by Russell and Norvig presents its algorithms as boxed pseudocode figures — compact, language-neutral descriptions such as <code>GRAPH-SEARCH(problem, frontier)</code> or <code>DPLL-SATISFIABLE?(s)</code>. Those figures are excellent for reasoning about an algorithm, but they are not runnable, and the gap between "I understand the pseudocode" and "I have working code" is exactly where most learners stumble. The AIMA Python repository closes that gap. It is a community-maintained, open-source collection of Python modules that implement essentially every algorithm in the book, together with Jupyter notebooks, test suites, sample data, and visualisation helpers. For this module it serves three purposes at once: a <strong>reference implementation</strong> you can read when your own code misbehaves, a <strong>library</strong> you can import and extend for assignments, and a <strong>worked example of idiomatic Python</strong> showing how classes, generators, comprehensions and the standard-library data structures are used in real AI code.</p>
+
+<p><strong>What the AIMA Python Repository Is</strong></p>
+
+<p>At its heart, the repository is a faithful translation layer. Each boxed figure in the book becomes a Python function or class with the same name (converted to Python naming conventions) and the same parameters. Consider the book's <code>BEST-FIRST-SEARCH(problem, f)</code>: in <code>search.py</code> you will find <code>best_first_graph_search(problem, f, display=False)</code>, whose body follows the pseudocode step by step — initialise a node from the initial state, push it onto a priority frontier ordered by <em>f</em>, maintain an <code>explored</code> set, pop the best node, test for the goal, expand, and relax improved frontier entries. Reading the two side by side is the fastest way to internalise what the pseudocode actually means operationally.</p>
+
+<p>Every core module is paired with a Jupyter notebook of the same stem — <code>search.py</code> with <code>search.ipynb</code>, <code>logic.py</code> with <code>logic.ipynb</code>, and so on. The notebooks are not API documentation; they are guided tours. They set up a concrete problem (the Romania road map, an eight-queens board, a wumpus cave), call the algorithm, and then render the result, often with an animation showing which nodes were expanded in which order. Because a notebook interleaves narrative, code and output, it is the ideal place to experiment: change the heuristic, re-run the cell, and watch the explored set shrink or grow.</p>
+
+<p>A deliberate design choice runs through the whole repository: <strong>clarity beats speed</strong>. The code is pedagogical, not production-hardened. You will see list comprehensions where a hand-rolled loop would be faster, `str` keys where an integer encoding would be leaner, and full copies of states where in-place mutation with undo would save memory. Error handling is minimal and the code generally assumes you pass sensible arguments. That is a feature, not a bug — the implementations are meant to be read in a single sitting and mapped onto the textbook. If you later need performance, you will know exactly which lines to optimise.</p>
+
+<p>The <code>tests/</code> directory contains pytest suites such as <code>tests/test_search.py</code> and <code>tests/test_logic.py</code>. These serve double duty. They verify the implementations, and because each test constructs a small problem and asserts an expected answer, they are also the most concise usage examples in the project. If you are unsure how to instantiate <code>GraphProblem</code> or what <code>astar_search</code> returns, grep the tests before reading the source:</p>
+
+<pre><code># excerpt in the spirit of tests/test_search.py
+romania_problem = GraphProblem('Arad', 'Bucharest', romania_map)
+
+def test_astar_search():
+    assert astar_search(romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
+    assert astar_search(eight_puzzle).solution() == ['LEFT', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'RIGHT']
+</code></pre>
+
+<p>Finally, the practical payoff: cloning the repository and installing its <code>requirements.txt</code> gives you a complete, self-contained AI sandbox. NumPy, pandas, scikit-learn-era numerics, matplotlib, ipython/jupyter, networkx and sortedcontainers come along for the ride, so you can go from a bare virtual environment to running A* on a map of Romania in about two minutes.</p>
+
+<p><strong>Repository Layout and Navigation</strong></p>
+
+<p>The project is intentionally flat. Nearly all the algorithm code lives in top-level <code>.py</code> files in the repository root, each corresponding to one or more chapters of the book. There is no deep package hierarchy to learn and no <code>src/aima/...</code> nesting, which is why a plain <code>from search import astar_search</code> works when your script sits in the same directory.</p>
+
+<table>
+  <thead>
+    <tr><th>Path</th><th>Contents</th><th>Typical use</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>agents.py</code>, <code>search.py</code>, <code>logic.py</code>, <code>learning.py</code>, …</td><td>Algorithm modules, one or more per textbook chapter</td><td>Import classes and functions into your own code</td></tr>
+    <tr><td><code>utils.py</code></td><td>Shared helpers used by every other module</td><td>Queues, distances, vector maths, memoisation, argmax</td></tr>
+    <tr><td><code>*.ipynb</code></td><td>Jupyter notebooks mirroring the modules</td><td>Interactive walkthroughs and visualisations</td></tr>
+    <tr><td><code>tests/</code></td><td>pytest suites, one file per module</td><td>Verify the install; read as usage examples</td></tr>
+    <tr><td><code>images/</code></td><td>Maps, diagrams, sprite assets for notebooks</td><td>Rendered inside notebook output</td></tr>
+    <tr><td><code>aima-data/</code> (data submodule)</td><td>Datasets such as iris, zoo, restaurant; puzzle instances</td><td>Loaded by <code>DataSet</code> in <code>learning.py</code></td></tr>
+    <tr><td><code>requirements.txt</code></td><td>Pinned third-party dependencies</td><td>Reproducible environment setup</td></tr>
+  </tbody>
+</table>
+
+<p><code>utils.py</code> deserves special attention because it is the common substrate. It supplies the queue abstractions used by search (<code>PriorityQueue</code>, built on <code>heapq</code>, plus the use of <code>collections.deque</code> for FIFO frontiers), geometric helpers (<code>distance</code>, <code>euclidean_distance</code>, <code>manhattan_distance</code>), small vector and matrix routines (<code>vector_add</code>, <code>dot_product</code>, <code>matrix_multiplication</code>), probability utilities (<code>normalize</code>, <code>weighted_sample_with_replacement</code>), and decision helpers (<code>argmax_random_tie</code>, <code>probability</code>). It also provides <code>memoize</code>, a caching decorator used heavily to avoid recomputing heuristics:</p>
+
+<pre><code>from utils import memoize
+
+def best_first_graph_search(problem, f, display=False):
+    f = memoize(f, 'f')          # cache f(node) on the node object itself
+    node = Node(problem.initial)
+    frontier = PriorityQueue('min', f)
+    frontier.append(node)
+    explored = set()
+    while frontier:
+        node = frontier.pop()
+        if problem.goal_test(node.state):
+            return node
+        explored.add(node.state)
+        for child in node.expand(problem):
+            if child.state not in explored and child not in frontier:
+                frontier.append(child)
+            elif child in frontier and f(child) &lt; frontier[child]:
+                del frontier[child]
+                frontier.append(child)
+    return None
+</code></pre>
+
+<p>Navigation tip: the <strong>module docstring at the top of every file lists the pseudocode figures it implements</strong>, usually as a plain-text index of names and figure numbers. Opening <code>search.py</code> and reading the first thirty lines tells you immediately that the file covers tree and graph search, uniform-cost, depth-limited, iterative deepening, bidirectional, greedy best-first, A*, recursive best-first, hill climbing, simulated annealing, genetic algorithms and online search. Combine that with Python's introspection to explore without leaving the interpreter:</p>
+
+<pre><code>import search, inspect
+print(search.__doc__[:400])            # the figure index
+print([n for n, o in inspect.getmembers(search, inspect.isfunction)][:12])
+print(inspect.getsource(search.depth_first_graph_search))
+</code></pre>
+
+<p><strong>Key Modules: Agents, Search, Logic, and Learning</strong></p>
+
+<p><code>agents.py</code> implements the agent/environment framework of the book's opening chapters. The base vocabulary is small and worth memorising. A <code>Thing</code> is anything that can occupy a location in a world. An <code>Agent</code> is a <code>Thing</code> that carries a <code>program</code>: a callable mapping a percept to an action. An <code>Environment</code> holds a list of things and agents and drives the simulation loop in its <code>step()</code> and <code>run(steps)</code> methods, calling <code>percept(agent)</code> to deliver sensory input and <code>execute_action(agent, action)</code> to apply the chosen action. Concrete worlds built on this base include <code>TrivialVacuumEnvironment</code>, the two-dimensional <code>VacuumEnvironment</code>, <code>WumpusEnvironment</code>, and the agent programs <code>TableDrivenAgentProgram</code>, <code>ReflexVacuumAgent</code>, <code>ModelBasedVacuumAgent</code> and <code>RandomAgentProgram</code>. The module also supplies <code>compare_agents</code> and <code>test_agent</code> for measuring average performance scores across randomised worlds.</p>
+
+<pre><code>from agents import TrivialVacuumEnvironment, ReflexVacuumAgent
+
+env = TrivialVacuumEnvironment()
+agent = ReflexVacuumAgent()
+env.add_thing(agent)
+env.run(steps=10)
+print(env.status, agent.performance)
+</code></pre>
+
+<p><code>search.py</code> is the module you will use most. It defines two abstractions that everything else hangs off. <code>Problem</code> is the formal statement of a search problem: an initial state, a goal, and the methods <code>actions(state)</code>, <code>result(state, action)</code>, <code>goal_test(state)</code>, <code>path_cost(c, state1, action, state2)</code> and optionally <code>value(state)</code> for local search. <code>Node</code> is a node in the search tree, holding <code>state</code>, <code>parent</code>, <code>action</code>, <code>path_cost</code> and <code>depth</code>, and providing <code>expand(problem)</code>, <code>child_node(problem, action)</code>, <code>solution()</code> (the action sequence) and <code>path()</code> (the node sequence). On top of these sit the uninformed algorithms (<code>breadth_first_graph_search</code>, <code>depth_first_graph_search</code>, <code>uniform_cost_search</code>, <code>iterative_deepening_search</code>, <code>bidirectional_search</code>), the informed ones (<code>greedy_best_first_graph_search</code>, <code>astar_search</code>, <code>recursive_best_first_search</code>), and local search (<code>hill_climbing</code>, <code>simulated_annealing</code>, <code>genetic_algorithm</code>). Ready-made problems include <code>GraphProblem</code> with the <code>romania_map</code>, <code>EightPuzzle</code> and <code>NQueensProblem</code>.</p>
+
+<p><code>logic.py</code> covers both propositional and first-order logic. Its central data type is <code>Expr</code>, a symbolic expression object that overloads Python operators so that logical formulas can be written almost as in the book: <code>&amp;</code> for conjunction, <code>|</code> for disjunction, <code>~</code> for negation, and the special infix <code>|'==&gt;'|</code> idiom for implication. The helper <code>expr('(A &amp; B) ==&gt; C')</code> parses a string into the same structure. Knowledge bases are represented by <code>KB</code>, <code>PropKB</code> and <code>FolKB</code>, each supporting <code>tell</code>, <code>ask</code> and <code>retract</code>. Inference procedures include <code>tt_entails</code> (truth-table enumeration), <code>pl_resolution</code>, <code>dpll_satisfiable</code>, <code>WalkSAT</code>, forward and backward chaining for definite clauses, and <code>unify</code> plus <code>subst</code> for first-order substitution. A <code>PlanRoute</code>/<code>WumpusKB</code> layer shows logic driving an agent.</p>
+
+<pre><code>from logic import expr, PropKB, dpll_satisfiable
+
+kb = PropKB()
+kb.tell(expr('Rain ==&gt; WetGrass'))
+kb.tell(expr('Rain'))
+print(kb.ask_if_true(expr('WetGrass')))      # True
+print(dpll_satisfiable(expr('(A | B) &amp; ~A &amp; ~B')))  # False
+</code></pre>
+
+<p><code>learning.py</code> is the machine-learning chapter in code. The <code>DataSet</code> class loads a comma-separated file from the data directory, tracks attribute names, the target index, the set of possible values per attribute, and offers <code>split_values</code>, <code>sanitize</code> (strip the target for prediction) and <code>remove_examples</code>. Learners follow a uniform convention: a learner function takes a <code>DataSet</code> and returns a <em>predictor function</em> that maps an example vector to a predicted class. The family includes <code>PluralityLearner</code>, <code>NaiveBayesLearner</code>, <code>NearestNeighborLearner(dataset, k)</code>, <code>DecisionTreeLearner</code>, <code>DecisionListLearner</code>, <code>PerceptronLearner</code> and <code>NeuralNetLearner</code>, together with evaluation utilities <code>err_ratio</code>, <code>train_test_split</code>, <code>cross_validation</code> and <code>learning_curve</code>.</p>
+
+<pre><code>from learning import DataSet, DecisionTreeLearner, err_ratio
+
+iris = DataSet(name='iris')
+tree = DecisionTreeLearner(iris)
+print(tree([5.1, 3.5, 1.4, 0.2]))      # 'setosa'
+print(err_ratio(tree, iris))
+</code></pre>
+
+<p>Beyond these four, the supporting modules fill out the rest of the book. <code>csp.py</code> gives <code>CSP</code>, backtracking search with MRV/degree heuristics, forward checking, AC-3 and min-conflicts, plus ready-made instances such as map colouring, Sudoku and Zebra. <code>mdp.py</code> provides <code>MDP</code>, <code>GridMDP</code>, <code>value_iteration</code> and <code>policy_iteration</code>. <code>games.py</code> covers adversarial search with <code>Game</code>, <code>minimax_decision</code>, <code>alpha_beta_search</code>, <code>monte_carlo_tree_search</code> and example games like TicTacToe and ConnectFour. Others include <code>probability.py</code> (Bayesian networks, enumeration, elimination, sampling, particle filtering), <code>planning.py</code>, <code>nlp.py</code> and <code>text.py</code>.</p>
+
+<table>
+  <thead>
+    <tr><th>Module</th><th>Core abstractions</th><th>Representative algorithms</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>agents.py</code></td><td><code>Thing</code>, <code>Agent</code>, <code>Environment</code></td><td>Reflex, model-based and goal-based agent programs</td></tr>
+    <tr><td><code>search.py</code></td><td><code>Problem</code>, <code>Node</code></td><td>BFS, DFS, UCS, IDS, A*, RBFS, hill climbing, simulated annealing, GA</td></tr>
+    <tr><td><code>logic.py</code></td><td><code>Expr</code>, <code>PropKB</code>, <code>FolKB</code></td><td>Truth-table entailment, resolution, DPLL, WalkSAT, unification</td></tr>
+    <tr><td><code>learning.py</code></td><td><code>DataSet</code>, learner factories</td><td>Decision trees, naive Bayes, k-NN, perceptron, neural nets</td></tr>
+    <tr><td><code>csp.py</code></td><td><code>CSP</code></td><td>Backtracking, AC-3, forward checking, min-conflicts</td></tr>
+    <tr><td><code>mdp.py</code></td><td><code>MDP</code>, <code>GridMDP</code></td><td>Value iteration, policy iteration</td></tr>
+    <tr><td><code>games.py</code></td><td><code>Game</code>, <code>GameState</code></td><td>Minimax, alpha–beta pruning, MCTS</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Importing and Running AIMA Code</strong></p>
+
+<p>The setup sequence is short but every step matters. First clone the repository (use <code>--recursive</code> if the data lives in a submodule), then create an isolated virtual environment so the AIMA dependency versions cannot collide with anything else on your machine, then install the pinned requirements:</p>
+
+<pre><code>git clone --recursive https://github.com/aimacode/aima-python.git
+cd aima-python
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install --upgrade pip
+pip install -r requirements.txt
+</code></pre>
+
+<p>Because the modules sit at the repository root and are imported by bare name, Python must be able to find that directory on its import path. The simplest reliable approach is to <strong>place your own scripts in the repository root</strong>; Python automatically puts the directory containing the script at the front of <code>sys.path</code>, so <code>from search import astar_search</code> resolves immediately.</p>
+
+<pre><code># my_assignment.py, saved inside aima-python/
+from search import astar_search, GraphProblem
+from search import romania_map
+
+problem = GraphProblem('Arad', 'Bucharest', romania_map)
+goal = astar_search(problem)
+print(goal.solution(), goal.path_cost)
+</code></pre>
+
+<p>If you prefer to keep your coursework in its own folder or Git repository, extend the path explicitly instead. Either append it at runtime:</p>
+
+<pre><code>import sys, pathlib
+sys.path.append(str(pathlib.Path.home() / 'code' / 'aima-python'))
+from search import astar_search
+</code></pre>
+
+<p>or set the environment variable before launching Python, which keeps the path manipulation out of your source files:</p>
+
+<pre><code>export PYTHONPATH=$HOME/code/aima-python     # Windows: set PYTHONPATH=C:\code\aima-python
+python my_assignment.py
+</code></pre>
+
+<p>A word on import style. The notebooks commonly begin with <code>from agents import *</code> because at the console you want every class and demo world within reach, and a notebook is throwaway exploratory code. In assignment code, prefer <strong>explicit imports</strong>: <code>from search import Problem, Node, astar_search</code>. Explicit imports document your dependencies, prevent a wildcard from silently shadowing one of your own names (<code>Node</code>, <code>distance</code> and <code>Problem</code> are common collisions), and let linters and IDEs resolve symbols correctly. Note also that some modules import heavy third-party libraries at the top, so a wildcard import can pull in more than you expect.</p>
+
+<p>Before you build anything, prove the installation works by running the test suite. A clean run tells you the dependencies resolved and the data files are present:</p>
+
+<pre><code>pip install pytest
+pytest tests/                       # whole suite
+pytest tests/test_search.py -q      # one module, quiet output
+pytest tests/test_search.py::test_astar_search -v   # one test
+</code></pre>
+
+<p>If a few tests fail in modules you are not using (notebooks, NLP corpora, optional dependencies), that is usually harmless; if <code>test_search.py</code> or <code>test_utils.py</code> fail, stop and fix the environment first. A frequent cause of failure is a missing data directory — the <code>DataSet</code> loader looks for files such as <code>iris.csv</code> under <code>aima-data/</code>, which is only populated if you cloned recursively or ran <code>git submodule update --init</code>.</p>
+
+<p><strong>Mapping Pseudocode to Reference Implementations</strong></p>
+
+<p>The translation from book to code follows a small set of consistent rules, and once you know them you can predict where to look for anything in the text.</p>
+
+<ul>
+  <li><strong>Names.</strong> <code>SMALL-CAPS-WITH-HYPHENS</code> becomes <code>snake_case</code>. <code>UNIFORM-COST-SEARCH</code> → <code>uniform_cost_search</code>; <code>AC-3</code> → <code>AC3</code>; <code>DPLL-SATISFIABLE?</code> → <code>dpll_satisfiable</code> (the predicate question mark is simply dropped). Parameters keep their order and meaning, so a figure's <code>(problem, limit)</code> is the function's <code>(problem, limit)</code>.</li>
+  <li><strong>Abstract data types become classes.</strong> The book's <em>problem</em> with its <code>INITIAL-STATE</code>, <code>ACTIONS</code>, <code>RESULT</code>, <code>GOAL-TEST</code> and <code>PATH-COST</code> components becomes the <code>Problem</code> class with attribute <code>initial</code> and methods <code>actions</code>, <code>result</code>, <code>goal_test</code> and <code>path_cost</code>. A <em>node</em> with its <code>STATE</code>, <code>PARENT</code>, <code>ACTION</code> and <code>PATH-COST</code> fields becomes the <code>Node</code> class with exactly those attributes plus <code>depth</code>. Similarly <code>CSP</code>, <code>MDP</code>, <code>KB</code> and <code>Game</code> each become a class whose methods are the pseudocode's accessor functions.</li>
+  <li><strong>Control flow is near-literal.</strong> A pseudocode <code>loop do … if … then return …</code> becomes a Python <code>while</code> with the same guard and the same early return, and variable names survive the trip: <code>frontier</code>, <code>explored</code>, <code>node</code>, <code>child</code>, <code>result</code>, <code>f-limit</code> → <code>flimit</code>.</li>
+  <li><strong>Concrete data structures are chosen where the book is silent.</strong> The pseudocode says "a FIFO queue", "a priority queue ordered by <em>f</em>", "a set"; the code says <code>collections.deque</code>, <code>utils.PriorityQueue</code> (a thin wrapper over <code>heapq</code>), and the built-in <code>set</code>. These choices are exactly the performance trade-offs you will reason about elsewhere in this module.</li>
+</ul>
+
+<p>The following table makes the correspondence explicit for a handful of frequently used figures.</p>
+
+<table>
+  <thead>
+    <tr><th>Book pseudocode</th><th>AIMA Python</th><th>Module</th><th>Notable concrete choices</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>BREADTH-FIRST-SEARCH(problem)</code></td><td><code>breadth_first_graph_search(problem)</code></td><td><code>search.py</code></td><td><code>deque</code> frontier, <code>set</code> of explored states, goal test at generation time</td></tr>
+    <tr><td><code>UNIFORM-COST-SEARCH(problem)</code></td><td><code>uniform_cost_search(problem)</code></td><td><code>search.py</code></td><td>Delegates to <code>best_first_graph_search</code> with <code>f = node.path_cost</code></td></tr>
+    <tr><td><code>A*-SEARCH(problem)</code></td><td><code>astar_search(problem, h=None)</code></td><td><code>search.py</code></td><td><code>f = g + h</code>, memoised <code>h</code>, <code>heapq</code>-backed <code>PriorityQueue</code></td></tr>
+    <tr><td><code>RECURSIVE-BEST-FIRST-SEARCH(problem)</code></td><td><code>recursive_best_first_search(problem, h=None)</code></td><td><code>search.py</code></td><td>Inner <code>RBFS</code> helper, <code>np.inf</code> as the infinite f-limit</td></tr>
+    <tr><td><code>SIMULATED-ANNEALING(problem, schedule)</code></td><td><code>simulated_annealing(problem, schedule=exp_schedule())</code></td><td><code>search.py</code></td><td>Schedule is a closure returning temperature for time <em>t</em></td></tr>
+    <tr><td><code>AC-3(csp)</code></td><td><code>AC3(csp, queue=None, removals=None)</code></td><td><code>csp.py</code></td><td>Arc queue as a <code>deque</code>, revision bookkeeping list for backtracking</td></tr>
+    <tr><td><code>DPLL(clauses, symbols, model)</code></td><td><code>dpll(clauses, symbols, model, branching_heuristic=...)</code></td><td><code>logic.py</code></td><td>Model is a <code>dict</code> from <code>Expr</code> to bool</td></tr>
+    <tr><td><code>VALUE-ITERATION(mdp, ε)</code></td><td><code>value_iteration(mdp, epsilon=0.001)</code></td><td><code>mdp.py</code></td><td>Utilities as a <code>dict</code> keyed by state; <code>max</code> over actions with a generator expression</td></tr>
+    <tr><td><code>MINIMAX-DECISION(state, game)</code></td><td><code>minimax_decision(state, game)</code></td><td><code>games.py</code></td><td>Nested <code>max_value</code>/<code>min_value</code> helpers, <code>argmax</code> from <code>utils</code></td></tr>
+  </tbody>
+</table>
+
+<p>A concrete side-by-side makes the fidelity obvious. The book's depth-limited search reads roughly: <em>recursive-DLS(node, problem, limit): if GOAL-TEST(node.STATE) then return SOLUTION(node); else if limit = 0 then return cutoff; else for each action in ACTIONS(node.STATE) do child ← CHILD-NODE(...); result ← recursive-DLS(child, problem, limit−1); if result = cutoff then cutoff_occurred? ← true; else if result ≠ failure then return result; return cutoff if cutoff_occurred? else failure.</em> The Python is almost a transcription:</p>
+
+<pre><code>def depth_limited_search(problem, limit=50):
+    def recursive_dls(node, problem, limit):
+        if problem.goal_test(node.state):
+            return node
+        elif limit == 0:
+            return 'cutoff'
+        else:
+            cutoff_occurred = False
+            for child in node.expand(problem):
+                result = recursive_dls(child, problem, limit - 1)
+                if result == 'cutoff':
+                    cutoff_occurred = True
+                elif result is not None:
+                    return result
+            return 'cutoff' if cutoff_occurred else None
+    return recursive_dls(Node(problem.initial), problem, limit)
+</code></pre>
+
+<p>Notice the three small engineering decisions the book leaves open: <em>failure</em> is represented by <code>None</code>, <em>cutoff</em> by the sentinel string <code>'cutoff'</code>, and <code>SOLUTION(node)</code> is deferred — the function returns the goal <code>Node</code> and you call <code>.solution()</code> yourself. Knowing those conventions lets you read any AIMA function at a glance.</p>
+
+<p>This correspondence is also the most efficient debugging tool available to you. When your own from-scratch A* returns a suboptimal path, run the AIMA version on the identical problem instance, print both frontiers after each pop, and find the first step where they diverge. Common discoveries: you tested the goal when generating rather than when expanding (or vice versa), you forgot to update a frontier entry when a cheaper path to the same state appeared, your <code>__eq__</code>/<code>__hash__</code> on states is inconsistent so the <code>explored</code> set never matches, or your heuristic is inadmissible. Instrumenting the reference implementation costs one line:</p>
+
+<pre><code>goal = astar_search(problem, h=my_heuristic, display=True)   # prints paths/states explored
+print(len(goal.path()), goal.path_cost)
+</code></pre>
+
+<p><strong>Extending AIMA Classes for Assignments</strong></p>
+
+<p>The real payoff of a well-factored reference library is that you rarely write an algorithm twice: you write a <em>problem</em> and reuse every algorithm. The contract is simple. Subclass <code>Problem</code>, call <code>super().__init__(initial, goal)</code>, and override four methods: <code>actions(state)</code> returning an iterable of legal actions, <code>result(state, action)</code> returning the successor state, <code>goal_test(state)</code> returning a boolean, and <code>path_cost(c, state1, action, state2)</code> returning the cumulative cost (the default adds 1 per step). States must be <strong>hashable and immutable</strong> — use tuples, frozensets or strings, never lists or dicts — because they are stored in <code>set</code>s and used as dictionary keys.</p>
+
+<pre><code>from search import Problem, astar_search, breadth_first_graph_search
+
+class JugProblem(Problem):
+    """Two jugs of capacity 4 and 3; measure exactly 2 litres."""
+
+    def __init__(self, initial=(0, 0), capacities=(4, 3), target=2):
+        self.capacities = capacities
+        self.target = target
+        super().__init__(initial)
+
+    def actions(self, state):
+        a, b = state
+        cap_a, cap_b = self.capacities
+        acts = []
+        if a &lt; cap_a: acts.append('fill A')
+        if b &lt; cap_b: acts.append('fill B')
+        if a &gt; 0:     acts.extend(['empty A', 'pour A-&gt;B'])
+        if b &gt; 0:     acts.extend(['empty B', 'pour B-&gt;A'])
+        return acts
+
+    def result(self, state, action):
+        a, b = state
+        cap_a, cap_b = self.capacities
+        if action == 'fill A':   return (cap_a, b)
+        if action == 'fill B':   return (a, cap_b)
+        if action == 'empty A':  return (0, b)
+        if action == 'empty B':  return (a, 0)
+        if action == 'pour A-&gt;B':
+            amount = min(a, cap_b - b)
+            return (a - amount, b + amount)
+        if action == 'pour B-&gt;A':
+            amount = min(b, cap_a - a)
+            return (a + amount, b - amount)
+        raise ValueError(action)
+
+    def goal_test(self, state):
+        return self.target in state
+
+    def h(self, node):
+        """Admissible: at least one more action unless we are already done."""
+        return 0 if self.goal_test(node.state) else 1
+
+print(breadth_first_graph_search(JugProblem()).solution())
+print(astar_search(JugProblem()).solution())
+</code></pre>
+
+<p>Adding a heuristic is deliberately lightweight: define a method <code>h(self, node)</code> on your <code>Problem</code> subclass and <code>astar_search(problem)</code> will pick it up automatically, because its default is <code>h = memoize(h or problem.h, 'h')</code>. Note the signature — <code>h</code> receives the <strong>node</strong>, not the state, so you write <code>node.state</code> inside. For a sliding-tile puzzle, misplaced tiles and the sum of Manhattan distances are both admissible, and the second dominates the first:</p>
+
+<pre><code>from utils import manhattan_distance
+
+class MyEightPuzzle(Problem):
+    goal_positions = {v: divmod(i, 3) for i, v in enumerate((1,2,3,4,5,6,7,8,0))}
+
+    def h(self, node):
+        return sum(manhattan_distance(divmod(i, 3), self.goal_positions[tile])
+                   for i, tile in enumerate(node.state) if tile != 0)
+</code></pre>
+
+<p>Because admissibility (never overestimating the true remaining cost) is what guarantees A* optimality, it is worth sanity-checking a new heuristic against uniform-cost search on small instances: if A* ever returns a more expensive solution than UCS, the heuristic is inadmissible.</p>
+
+<p>Agents follow the same subclass-and-override pattern. An <code>Agent</code> is constructed with a <code>program</code> — any callable taking a percept and returning an action — so the simplest custom agent is a function wrapped in <code>Agent(...)</code>; for agents with internal state, subclass <code>Agent</code> and attach a closure or a bound method:</p>
+
+<pre><code>from agents import Agent, Environment, Thing
+
+class CleaningAgent(Agent):
+    def __init__(self):
+        self.visited = set()
+        super().__init__(self.program)
+
+    def program(self, percept):
+        location, status = percept
+        self.visited.add(location)
+        if status == 'Dirty':
+            return 'Suck'
+        return 'Right' if location == (0, 0) else 'Left'
+</code></pre>
+
+<p>New worlds are built by subclassing <code>Environment</code> and overriding three hooks: <code>percept(agent)</code>, which packages whatever the agent is allowed to sense; <code>execute_action(agent, action)</code>, which mutates the world and updates <code>agent.performance</code>; and <code>is_done()</code>, which stops the simulation (the default stops when no agent is alive). Optionally override <code>thing_classes()</code> and <code>default_location(thing)</code>.</p>
+
+<pre><code>class TwoCellWorld(Environment):
+    def __init__(self):
+        super().__init__()
+        self.status = {(0, 0): 'Dirty', (1, 0): 'Dirty'}
+
+    def percept(self, agent):
+        return (agent.location, self.status[agent.location])
+
+    def execute_action(self, agent, action):
+        if action == 'Suck':
+            if self.status[agent.location] == 'Dirty':
+                agent.performance += 10
+            self.status[agent.location] = 'Clean'
+        elif action in ('Left', 'Right'):
+            agent.location = (0, 0) if action == 'Left' else (1, 0)
+            agent.performance -= 1
+
+    def is_done(self):
+        return all(v == 'Clean' for v in self.status.values())
+
+env = TwoCellWorld()
+env.add_thing(CleaningAgent(), location=(0, 0))
+env.run(steps=20)
+</code></pre>
+
+<p>The same philosophy applies across the library: implement <code>CSP</code>'s variables, domains, neighbours and a constraint function and you inherit backtracking, AC-3 and min-conflicts; implement <code>Game</code>'s <code>actions</code>, <code>result</code>, <code>utility</code> and <code>terminal_test</code> and you inherit minimax, alpha–beta and MCTS; build a <code>DataSet</code> with the right attribute metadata and every learner in <code>learning.py</code> will train on it. The rule to internalise is that <strong>the algorithms are written against an interface, not against a specific problem</strong> — so as long as your subclass honours the expected method names, signatures, return types and the hashability of states, you can reuse the whole library unchanged. When something fails, the cause is almost always an interface violation: returning a list where a tuple (hashable state) was expected, forgetting to call <code>super().__init__()</code>, defining <code>h(self, state)</code> instead of <code>h(self, node)</code>, or mutating a state in place inside <code>result</code> rather than returning a fresh copy.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> Directly supported — the setup workflow for the repository (clone, <code>python3 -m venv</code>, activate, <code>pip install -r requirements.txt</code>, verify with <code>pytest</code>) is exactly the isolated, pinned environment the outcome describes, and it establishes the sandbox in which all later course libraries are installed.</li>
+  <li><strong>MO2:</strong> Strongly supported — the topic shows how boxed pseudocode becomes Python functions and classes (<code>Problem</code>, <code>Node</code>, <code>Agent</code>, <code>Environment</code>), including recursive implementations such as <code>recursive_dls</code>, generator-based <code>expand</code>, comprehensions in heuristics, and the subclassing patterns learners imitate when implementing algorithms themselves.</li>
+  <li><strong>MO3:</strong> Supported — the discussion of where the book is silent on data structures highlights AIMA's concrete choices (<code>collections.deque</code> for FIFO frontiers, a <code>heapq</code>-backed <code>PriorityQueue</code> for best-first search, <code>set</code> for the explored/visited collection, <code>dict</code> for models and utilities), giving learners concrete reference points for comparing their performance trade-offs.</li>
+  <li><strong>MO4:</strong> Partially supported — <code>learning.py</code>'s <code>DataSet</code> loader and learner-returns-predictor convention introduce the data-loading and train-then-predict workflow, and <code>requirements.txt</code> brings in NumPy and pandas; however, scikit-learn's specific <code>fit</code>/<code>predict</code> API is not taught here and is developed in the machine-learning topics of the module.</li>
+  <li><strong>MO5:</strong> Lightly supported — the topic uses <code>git clone</code> (including <code>--recursive</code> and <code>git submodule update --init</code>) and discusses keeping coursework in its own repository separate from the AIMA checkout, but commits, branches, merges and pushing to GitHub are not covered here and belong to the version-control topic.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Code excerpts follow the structure and naming of the aimacode/aima-python repository (Python 3, master branch) but are written for teaching clarity; exact signatures and the presence of optional parameters such as &lt;code&gt;display&lt;/code&gt; or &lt;code&gt;branching_heuristic&lt;/code&gt; vary between revisions, so learners should confirm against the source they clone. The data directory may be &lt;code&gt;aima-data/&lt;/code&gt; as a Git submodule — if &lt;code&gt;DataSet(name=&#39;iris&#39;)&lt;/code&gt; raises a file-not-found error, run &lt;code&gt;git submodule update --init&lt;/code&gt;. Solution paths shown (e.g. the Romania and eight-puzzle examples) depend on tie-breaking and should be treated as illustrative. Suggested lab sequence: (1) clone and set up the environment, (2) run &lt;code&gt;pytest tests/test_search.py&lt;/code&gt;, (3) read &lt;code&gt;best_first_graph_search&lt;/code&gt; next to the book figure, (4) implement &lt;code&gt;JugProblem&lt;/code&gt; or similar and run three different search algorithms over it unchanged.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

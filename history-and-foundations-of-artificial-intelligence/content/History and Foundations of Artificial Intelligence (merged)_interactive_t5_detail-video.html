@@ -1,0 +1,273 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Winters and Cycles of Progress</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ History and Foundations of Artificial Intelligence</a></div>
+  <header>
+    <h1>AI Winters and Cycles of Progress</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>AI Winters and Cycles of Progress</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>The history of artificial intelligence is not a smooth upward curve. It is a sequence of surges and collapses in which periods of extraordinary optimism, lavish funding and confident public prediction have repeatedly given way to disappointment, budget cuts and professional embarrassment. The term <strong>AI winter</strong> was coined in the mid-1980s by researchers who had lived through the first collapse and could see the conditions for a second one forming. It was borrowed deliberately from <em>nuclear winter</em>: the image is of a sudden darkening, a long cold period in which little grows above ground, and a slow recovery driven by whatever survived underneath. Understanding these cycles matters for more than historical interest. The pattern is structural — it arises from the way research funding, commercial expectation and genuine technical difficulty interact — and the same dynamics are visible in the present debate over large language models, autonomous vehicles and generative systems.</p>
+
+<p><strong>The boom-and-bust pattern in AI history.</strong> Each cycle follows a recognisable sequence, and recognising the sequence makes it possible to locate any given moment within it. The pattern has five stages.</p>
+
+<ul>
+  <li><strong>A genuine technical breakthrough.</strong> Something real happens: a program proves theorems, a system diagnoses infections as well as a specialist, a network classifies images far better than the previous state of the art. The achievement is authentic and verifiable on the problem it was built for.</li>
+  <li><strong>Ambitious public prediction.</strong> The breakthrough is extrapolated. Researchers, eager for support, and journalists, eager for a story, convert a specific result into a general claim. Herbert Simon's 1965 statement that "machines will be capable, within twenty years, of doing any work a man can do" and Marvin Minsky's 1970 remark that a machine with "the general intelligence of an average human being" was three to eight years away are the canonical examples.</li>
+  <li><strong>A funding surge.</strong> Governments, defence agencies and later venture capital commit large sums on the strength of the prediction rather than the demonstration. Money arrives faster than the field can absorb it productively.</li>
+  <li><strong>Failure to scale.</strong> The systems work on the demonstration problem and break on the real one. The gap between a controlled toy domain and an open, noisy, adversarial world turns out to be not a matter of degree but of kind.</li>
+  <li><strong>Sharp withdrawal.</strong> Confidence collapses faster than it grew. Funding bodies cut programmes, companies fold, graduate students move to adjacent fields, and the very word "AI" becomes a liability in a grant application.</li>
+</ul>
+
+<p>What is often missed is the sixth stage: the quiet period. Winters are not dormancy. They are periods in which unglamorous, incremental, methodologically careful work continues at lower cost and with lower expectations — and that work is almost always the seedbed of the next spring. Backpropagation was refined and popularised during the first winter's aftermath; convolutional networks, support vector machines and probabilistic graphical models were developed through the second. Two major winters are conventionally identified: approximately <strong>1974–1980</strong> and approximately <strong>1987–1993</strong>. The dates are approximate and contested, because funding collapsed at different times in different countries and sub-fields, but the two troughs are clear in retrospective funding data and in the publication record.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Phase</th>
+      <th>Approximate period</th>
+      <th>Dominant technical paradigm</th>
+      <th>Principal funders</th>
+      <th>Trigger for the next transition</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>First boom</td>
+      <td>1956–1973</td>
+      <td>Symbolic search, logic, heuristic problem solving</td>
+      <td>DARPA/ARPA, ONR, UK research councils</td>
+      <td>Combinatorial explosion; Lighthill Report</td>
+    </tr>
+    <tr>
+      <td>First winter</td>
+      <td>1974–1980</td>
+      <td>Low-profile work on knowledge representation, planning</td>
+      <td>Reduced, mission-tied defence funding</td>
+      <td>Commercial success of early expert systems</td>
+    </tr>
+    <tr>
+      <td>Second boom</td>
+      <td>1980–1987</td>
+      <td>Rule-based expert systems; LISP machines</td>
+      <td>Japan's FGCS, DARPA SCI, UK Alvey, EU ESPRIT, corporate buyers</td>
+      <td>Brittleness, maintenance cost, hardware market collapse</td>
+    </tr>
+    <tr>
+      <td>Second winter</td>
+      <td>1987–1993</td>
+      <td>Statistical methods, machine learning, robotics subfields</td>
+      <td>Sparse; rebranded programmes</td>
+      <td>Data, compute and statistical learning maturing</td>
+    </tr>
+    <tr>
+      <td>Renewal</td>
+      <td>1994–present</td>
+      <td>Statistical learning, deep networks, transformers</td>
+      <td>Private sector dominant; public funding secondary</td>
+      <td>Open question</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>The first wave of optimism (1956–1973).</strong> The Dartmouth Summer Research Project of 1956 proposed that "every aspect of learning or any other feature of intelligence can in principle be so precisely described that a machine can be made to simulate it," and set out to make substantial progress over a single summer with roughly ten participants. The confidence was not unfounded in the short term, because the first results were genuinely startling.</p>
+
+<ul>
+  <li><strong>The Logic Theorist</strong> (Newell, Shaw and Simon, 1956) proved 38 of the first 52 theorems in Chapter 2 of Whitehead and Russell's <em>Principia Mathematica</em>, and for Theorem 2.85 produced a proof shorter and more elegant than the published one. It was the first program plausibly described as doing work that required intelligence in humans.</li>
+  <li><strong>The General Problem Solver</strong> (1957 onward) generalised the approach through <em>means–ends analysis</em>: represent the current state and the goal state, measure the difference, and select an operator known to reduce that kind of difference. It solved the Tower of Hanoi, missionaries-and-cannibals, cryptarithmetic puzzles and symbolic integration problems.</li>
+  <li><strong>SAINT, ANALOGY, STUDENT and SHRDLU</strong> extended the approach to calculus, geometric analogy problems, algebra word problems and natural-language instruction of a robot arm in a simulated world of coloured blocks.</li>
+</ul>
+
+<p>The critical and under-appreciated feature of all of these systems is that they operated in <strong>micro-worlds</strong>: closed domains with a small number of object types, fully observable state, deterministic actions and no ambiguity. SHRDLU could parse "Find a block which is taller than the one you are holding and put it into the box" because the blocks world contained perhaps a dozen objects and four predicates. The implicit assumption of the era was that the blocks world was a scale model of reality and that scaling up was an engineering matter. It was not.</p>
+
+<p>Funding reflected the optimism. From 1963 ARPA (later DARPA) gave MIT's Project MAC an initial grant of around $2.2 million per year and funded groups at Stanford and Carnegie Mellon on similar terms, under J. C. R. Licklider's stated philosophy of <em>funding people, not projects</em>. Grants carried few specific deliverables; principal investigators could spend money on whatever they judged promising. This produced time-sharing, computer graphics and networking as side effects, but it also meant there was no agreed yardstick by which progress could later be demonstrated — a fatal weakness when sceptical auditors arrived.</p>
+
+<p>Three technical misjudgements undermined the wave:</p>
+
+<ul>
+  <li><strong>Combinatorial explosion.</strong> Search-based methods expand a tree of possibilities whose size grows exponentially with depth. If each state has a branching factor <em>b</em> and the solution lies at depth <em>d</em>, exhaustive search examines on the order of <em>b<sup>d</sup></em> nodes. Toy problems have small <em>b</em> and <em>d</em>; real ones do not.</li>
+</ul>
+
+<pre><code>Branching factor b = 10, solution depth d:
+  d =  4   -&gt;          10,000 states   (trivial)
+  d =  8   -&gt;     100,000,000 states   (seconds on 1970s hardware? no - hours)
+  d = 12   -&gt; 1,000,000,000,000 states (infeasible then; expensive now)
+  d = 16   -&gt; 10,000,000,000,000,000   (infeasible on any hardware)
+
+Doubling computer speed buys you roughly 0.3 extra levels of depth.
+It does not buy you a solution to an exponential problem.</code></pre>
+
+<ul>
+  <li><strong>Machine translation without semantics.</strong> After the 1954 Georgetown–IBM demonstration translated 60 Russian sentences into English, substantial US funding flowed into mechanical translation on the expectation of automated handling of Soviet scientific literature. Systems based on bilingual dictionaries and syntactic rearrangement could not resolve meaning. The sentence "The spirit is willing but the flesh is weak" has no syntactic feature indicating which sense of each word is intended; disambiguation requires knowledge of the world. The 1966 <strong>ALPAC report</strong> concluded that machine translation was slower, less accurate and more expensive than human translation, and US funding for the field was effectively terminated — a rehearsal in miniature of the winter to come.</li>
+  <li><strong>The perceptron setback.</strong> Rosenblatt's perceptron (1957) learned linear decision boundaries and was promoted with considerable fanfare. Minsky and Papert's <em>Perceptrons</em> (1969) proved rigorously that a single-layer perceptron cannot compute XOR or any other non-linearly-separable function, and expressed pessimism about multi-layer extensions in the absence of a learning rule for hidden units. The mathematics was correct; the reading of it as a verdict on the whole connectionist programme was not. Nevertheless neural network funding largely dried up for roughly fifteen years, until backpropagation provided exactly the hidden-unit learning rule whose absence had been the sticking point.</li>
+</ul>
+
+<p><strong>The first AI winter (1974–1980).</strong> The precipitating document in the UK was the 1973 report <em>Artificial Intelligence: A General Survey</em> by the applied mathematician Sir James Lighthill, commissioned by the Science Research Council. Lighthill divided the field into category A (advanced automation), category B (bridge activity — building robots and computer-based central nervous system research) and category C (computer-based CNS research), and argued that A and C had delivered real results while B, the bridging category that justified AI as a unified discipline, had not. His central charge was precisely combinatorial explosion: techniques that worked on demonstration problems degraded catastrophically on realistic ones, and there was no evidence that this would change. The report, debated on BBC television with Donald Michie, John McCarthy and Richard Gregory, led the SRC to withdraw support from AI at all but two or three UK universities.</p>
+
+<p>In the United States the mechanism was different but the effect was similar. The Mansfield Amendment (1969, reinforced subsequently) required defence funding to support <em>mission-oriented</em> research with direct military relevance. DARPA's open-ended, person-centred grants were replaced by contracts with specified deliverables and milestones. The agency's Speech Understanding Research programme, which had set a target of understanding continuous speech from a 1,000-word vocabulary, was cancelled in 1976 after a reviewer judged that Carnegie Mellon's HARPY system had met the letter of the specification in a way that did not meet its spirit. The message was unmistakable: the era of trusting researchers to find their own way was over.</p>
+
+<p>Two infrastructural constraints compounded the funding problem, and they are worth emphasising because they recur:</p>
+
+<ul>
+  <li><strong>Compute and memory.</strong> A DEC PDP-10, the workhorse of 1970s AI, offered on the order of a megaword of memory and well under a MIPS of throughput, shared among dozens of users. Many systems of the period were not slow but literally unrunnable at realistic scale. Hans Moravec later observed that researchers of the era were attempting to build intelligence on hardware roughly a millionth as capable as what the problem required.</li>
+  <li><strong>Absence of data.</strong> There were no large digital corpora. No labelled image sets, no multi-million-word annotated text collections, no transaction logs. This foreclosed the entire data-driven alternative. Statistical learning was not rejected in the 1970s so much as unavailable: there was nothing to learn from. The hand-coded rule was not a preference but a necessity.</li>
+</ul>
+
+<p>A revealing survival strategy emerged. Researchers whose work was substantively unchanged began describing it under other names to avoid the contaminated label — <em>informatics</em>, <em>knowledge-based systems</em>, <em>machine learning</em>, <em>pattern recognition</em>, <em>cognitive systems</em>, <em>computational intelligence</em>, <em>decision support</em>. This terminological migration is one of the most reliable diagnostic signs of a winter, and it recurred in the early 1990s. It also illustrates a structural point: the underlying research agenda persists across winters even when its public identity does not.</p>
+
+<p><strong>The expert systems boom and the second winter (1980–1993).</strong> The recovery began with a shift in strategy, articulated by Edward Feigenbaum as the move from power-based to <em>knowledge-based</em> systems: general reasoning engines were weak, but a narrow engine loaded with a great deal of domain-specific knowledge could be strong. The demonstrations were persuasive. DENDRAL inferred molecular structures from mass spectrometry data. MYCIN diagnosed bacterial infections of the blood and recommended antibiotic regimens, and in a blinded evaluation its recommendations were judged acceptable about 65% of the time, comparable to or better than the human infectious-disease specialists tested alongside it. Most influentially, Digital Equipment Corporation's <strong>XCON</strong> (originally R1) configured VAX computer orders; by the mid-1980s it embodied several thousand rules, processed tens of thousands of orders a year, and was credited with saving DEC on the order of $25–40 million annually. Here, at last, was AI with a balance-sheet justification.</p>
+
+<p>Geopolitics supplied the accelerant. In 1982 Japan's Ministry of International Trade and Industry launched the <strong>Fifth Generation Computer Systems</strong> project, a ten-year, roughly ¥57 billion programme to build massively parallel logic-programming machines capable of natural-language interaction and automated reasoning. Coming after Japanese dominance in automobiles and consumer electronics, this was read in the West as a strategic challenge. The responses were immediate: the UK's <strong>Alvey</strong> programme (about £350 million), the European Community's <strong>ESPRIT</strong>, the US industry consortium <strong>MCC</strong>, and DARPA's <strong>Strategic Computing Initiative</strong> (roughly $1 billion over a decade, targeting autonomous land vehicles, a pilot's associate and a battle-management system). The market for expert-system software, tools and hardware reached an estimated several billion dollars by 1987.</p>
+
+<p>The collapse had four interlocking causes.</p>
+
+<ul>
+  <li><strong>Brittleness.</strong> A rule base covers the cases its authors anticipated. Just outside that envelope, performance does not degrade gracefully — it fails, often confidently and without warning. A medical system with no rule concerning pregnancy will happily recommend a contraindicated drug; it has no representation of the fact that it does not know. Human experts possess a broad substrate of common-sense knowledge that lets them recognise an unfamiliar case as unfamiliar. Rule bases have no such substrate, which is precisely what motivated Douglas Lenat's Cyc project to hand-encode millions of common-sense assertions — an undertaking that has run for four decades.</li>
+  <li><strong>The knowledge acquisition bottleneck.</strong> Knowledge engineers had to interview domain experts, often over months, and convert tacit judgement into explicit <code>IF–THEN</code> rules. Experts are notoriously poor at introspecting on their own expertise; much of what they know is pattern recognition they cannot articulate. Typical productivity was a handful of validated rules per expert-day, so a serious system represented several person-years before it ran at all.</li>
+  <li><strong>Maintenance cost.</strong> A rule base is not a one-off capital expense. Tax law changes, drug formularies are revised, product lines are discontinued, manufacturing tolerances are tightened. Each change requires locating every affected rule — and in a base of several thousand interacting rules, modifications produce unintended interactions that must be found by regression testing. Many organisations discovered that annual maintenance exceeded the cost of original development, and that the system's usefulness decayed sharply once the original knowledge engineers left.</li>
+  <li><strong>The LISP machine crash of 1987.</strong> Symbolics, Lisp Machines Inc. and Xerox had built a specialist hardware industry around workstations with microcoded support for LISP, selling for roughly $50,000–100,000 each. Then general-purpose RISC workstations from Sun and sufficiently good LISP compilers for conventional architectures arrived at a fraction of the price and comparable or better performance. The specialist hardware market — several hundred million dollars annually — essentially evaporated within a year. Because the hardware vendors were the most visible commercial face of AI, their failure was widely read as the failure of AI itself.</li>
+</ul>
+
+<p>DARPA's new leadership, reviewing the Strategic Computing Initiative, concluded that AI was "not the next wave" and cut funding sharply. Japan's Fifth Generation project ended in 1992 without achieving its headline goals, in part because its bet on parallel logic programming was overtaken by commodity microprocessors and, later, by statistical methods. By the early 1990s the word "AI" was again avoided in proposals, and the rebranding cycle repeated.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Dimension</th>
+      <th>First winter (1974–1980)</th>
+      <th>Second winter (1987–1993)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Technical cause</td>
+      <td>Combinatorial explosion; no semantics; no learning rule for multi-layer nets</td>
+      <td>Brittleness at domain edges; knowledge acquisition bottleneck</td>
+    </tr>
+    <tr>
+      <td>Economic cause</td>
+      <td>Shift to mission-oriented defence contracting; no commercial market existed</td>
+      <td>Maintenance costs exceeded value; LISP hardware undercut by commodity workstations</td>
+    </tr>
+    <tr>
+      <td>Triggering event</td>
+      <td>Lighthill Report (1973); ALPAC precedent (1966)</td>
+      <td>LISP machine market collapse (1987); SCI and FGCS reviews</td>
+    </tr>
+    <tr>
+      <td>Who lost money</td>
+      <td>Mainly government research budgets</td>
+      <td>Government programmes and private companies and investors</td>
+    </tr>
+    <tr>
+      <td>What survived underneath</td>
+      <td>Knowledge representation, planning, backpropagation development</td>
+      <td>Statistical ML, SVMs, Bayesian networks, convolutional nets, reinforcement learning</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Renewal through data, compute and learning.</strong> The recovery after 1993 was not a return of the old programme with better public relations. It rested on a genuine change in method — from encoding knowledge by hand to inducing it from data — and that change was made possible by infrastructure that had simply not existed before.</p>
+
+<ul>
+  <li><strong>Data.</strong> The web, digitised corporate records, scanned archives and later smartphones and sensors created corpora of a size that made statistical estimation viable. The Penn Treebank (early 1990s) transformed computational linguistics; the Canadian and European parliamentary proceedings gave machine translation millions of aligned sentence pairs, enabling statistical MT to overtake rule-based systems; ImageNet (2009), with over 14 million labelled images organised by WordNet categories, created the benchmark on which deep learning proved itself. The lesson of the first winter — that there was nothing to learn from — had been reversed.</li>
+  <li><strong>Compute.</strong> Several decades of Moore's-law scaling were followed by a qualitative change: the realisation around 2009–2012 that graphics processors, designed for the dense parallel arithmetic of rendering, were nearly ideal for the matrix multiplications at the heart of neural network training. A single GPU could deliver one to two orders of magnitude more throughput per dollar than a CPU for this workload. Later, purpose-built accelerators (TPUs and similar) extended the gain. Training runs that would have been century-long propositions in 1990 became week-long propositions.</li>
+  <li><strong>Algorithms.</strong> Backpropagation, popularised by Rumelhart, Hinton and Williams in 1986, supplied the missing hidden-unit learning rule. It was then refined over two decades by a long series of unglamorous improvements: better weight initialisation, rectified linear activations in place of saturating sigmoids, dropout and batch normalisation as regularisers, adaptive optimisers such as Adam, residual connections permitting networks hundreds of layers deep, and in 2017 the <em>transformer</em> architecture, whose self-attention mechanism replaced sequential recurrence with a parallelisable operation that scales efficiently on modern hardware. None of these individually constitutes a conceptual revolution; collectively they turned an unworkable idea into a workable one.</li>
+  <li><strong>Methodological discipline.</strong> Perhaps the most important change was cultural. The modern field organises itself around shared benchmarks, held-out test sets, published baselines, ablation studies and reported error bars. Claims take the form "97.2% top-5 accuracy on ImageNet, versus 94.0% for the previous best" rather than "general intelligence within a decade." A falsifiable, measurable claim can disappoint without discrediting the field; an unfalsifiable promise can only ever be exposed.<p></p>
+  </li><li><strong>Commercial self-funding.</strong> The decisive economic difference from earlier booms is that modern AI pays for itself out of ordinary business revenue. Web search ranking, spam filtering, advertisement targeting, product recommendation, fraud detection, speech recognition and machine translation all generate measurable commercial value at enormous scale. Because the funding base is operational revenue rather than discretionary grants or speculative government programmes, it is far less vulnerable to the abrupt political reassessment that ended the previous two booms. A defence agency can cancel a programme in a single budget cycle; a company does not switch off the system that ranks its search results.</li>
+</ul>
+
+<p>It is worth noting how much of what is now called deep learning was developed <em>during</em> the second winter and the lean years that followed. LeCun's convolutional networks for handwritten digit recognition were deployed by US banks for cheque reading in the 1990s. Hochreiter and Schmidhuber introduced LSTMs in 1997. Vapnik's support vector machines, Pearl's Bayesian networks and Sutton and Barto's reinforcement learning all matured in this period. The winter suppressed funding and attention; it did not suppress the research that would end it.</p>
+
+<p><strong>Lessons from the cycles.</strong> The history is not merely a cautionary tale about exaggeration. It yields a set of analytical habits that are directly usable when assessing any current claim.</p>
+
+<ul>
+  <li><strong>Separate demonstrated capability from claimed capability.</strong> A benchmark result is a measurement on a specific distribution of inputs under specific conditions. SHRDLU genuinely understood its blocks world; it understood nothing else. A model achieving superhuman accuracy on a curated medical imaging dataset has demonstrated performance on that dataset, not on the messier distribution of a working radiology department with different scanners, patient populations and prevalence rates. The correct question is always: what exactly was measured, on what data, against what baseline, and how closely does that resemble the deployment setting?</li>
+  <li><strong>Do not extrapolate early progress linearly.</strong> Early progress on a hard problem is usually fast because the easy fraction of the problem is tackled first. The remaining fraction is not merely more of the same. Minsky and Simon's forecasts failed not through carelessness but because the problems solved in 1960 and the problems unsolved in 1960 differed in kind, not degree. The same reasoning applies to the familiar modern pattern of a system achieving 90% of a task quickly and then taking a decade over the last 10% — the history of autonomous driving since 2015 is the clearest contemporary instance.</li>
+  <li><strong>Infrastructure determines the possible.</strong> Backpropagation existed in usable form in 1986 and did not transform the field until roughly 2012. The idea was not the bottleneck; labelled data and affordable parallel arithmetic were. When assessing why an approach failed, ask whether it was conceptually wrong or merely premature — and when assessing a current approach, ask what happens to it if data acquisition, energy prices or chip supply change materially.</li>
+  <li><strong>Narrow and well-scoped beats open-ended.</strong> The commercially durable systems in every cycle have been the modest ones: XCON configuring VAX orders, postal code readers, spam filters, speech transcription, translation. The projects that consumed the most money with the least return were those defined by ambition rather than specification — the Fifth Generation project's machine that would reason in natural language, the Strategic Computing Initiative's autonomous battlefield vehicle. Scope discipline is not timidity; it is the condition for measurable success.</li>
+  <li><strong>A winter is not a failure of the field.</strong> Productive research continued throughout both winters, and in both cases the technology that ended the winter was developed inside it. Reduced hype is often a sign of a field maturing into normal science rather than collapsing. Equally, the inverse holds: intense enthusiasm is not evidence of progress.</li>
+  <li><strong>Current debates echo the old ones.</strong> Arguments over whether large language models genuinely reason or sophisticatedly interpolate; whether scaling parameters and data will continue to yield proportionate capability or has begun to show diminishing returns; whether benchmark saturation reflects competence or contamination of training data by test items; whether hallucination is a fixable engineering defect or an intrinsic property of the method — all of these are recognisably structural analogues of the combinatorial-explosion and brittleness debates of 1973 and 1987. Prediction of a third winter is not warranted by the analogy alone, because the commercial revenue base is genuinely different from anything present in 1973 or 1987. But the discipline of asking what has actually been measured, what has merely been promised, and what infrastructural assumption the promise depends on, is exactly the discipline the earlier cycles teach.</li>
+</ul>
+
+<p><strong>Alignment with Learning Outcomes.</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Not directly addressed. The topic covers funding and capability cycles rather than the four definitional approaches, though it supplies historical context for why the field's definitional ambitions were repeatedly contested.</li>
+  <li><strong>MO2</strong> — Not addressed. Turing's imitation game is not part of this topic's content.</li>
+  <li><strong>MO3</strong> — Partially supported. The repeated failure of micro-world and expert systems to generalise beyond their narrow domains illustrates concretely why historical and contemporary systems are classified as narrow rather than general intelligence.</li>
+  <li><strong>MO4</strong> — Directly and fully supported. The topic analyses the technical causes (combinatorial explosion, lack of semantics, brittleness, the knowledge acquisition bottleneck) and economic causes (the shift to mission-oriented defence contracting, maintenance costs, the LISP machine market collapse) of both the 1974–1980 and 1987–1993 winters.</li>
+  <li><strong>MO5</strong> — Not addressed directly. Ethical risks of bias, transparency, privacy and accountability are outside this topic's scope, although the lesson on distinguishing demonstrated from claimed capability underpins responsible evaluation of deployment claims.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Figures given (DARPA Project MAC funding, FGCS budget, Alvey budget, XCON savings, MYCIN acceptability rate, LISP machine prices, ImageNet size) are the commonly cited approximations in the standard literature (Russell &amp; Norvig; Crevier, &lt;em&gt;AI: The Tumultuous History&lt;/em&gt;; McCorduck, &lt;em&gt;Machines Who Think&lt;/em&gt;). Winter start/end dates are conventional rather than precise and vary by country and sub-field — worth flagging to students. The branching-factor code block is illustrative arithmetic, not a benchmark. Possible discussion prompt: ask students to locate the current moment in the five-stage cycle and defend their placement with evidence about funding sources and benchmark-versus-deployment performance.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Artificial intelligence has never advanced at a steady pace. Its history is better described as a series of cycles: a breakthrough or a bold demonstration generates excitement, funding and press coverage inflate expectations far beyond what the technology can deliver, and when the promised results fail to arrive, money and credibility drain away. The periods of retreat that followed the booms of the 1960s and the 1980s are known as the AI winters, and they reshaped which research directions survived and which were abandoned.</p>
+<p>This topic traces that pattern through four phases: the first wave of optimism after the 1956 Dartmouth workshop, the first winter of roughly 1974 to 1980, the expert systems boom and the second collapse of the late 1980s and early 1990s, and the renewal driven by cheap compute, large datasets and statistical learning. In each case there are both technical causes (combinatorial explosion, brittle knowledge bases, limits on hardware and data) and economic or political causes (funding reviews, defense priorities, collapsing hardware markets) that are worth separating in your own notes.</p>
+<p>As you watch, pay attention to who made the promises, who paid for the research, and what specific evidence triggered the loss of confidence. Try to identify at least two technical limitations and two economic or institutional factors for each downturn, and ask yourself which of today's claims about AI capability would sound familiar to a researcher in 1973 or 1988.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: The First AI Winter: When the Money Ran Out and the Hype Collapsed | Origins to Now – Ep. 06</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Vbfs8IGqwZY?cc_load_policy=1&amp;rel=0" title="Video: The First AI Winter: When the Money Ran Out and the Hype Collapsed | Origins to Now – Ep. 06 (Plain Machine)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Plain Machine</strong> · 18:13 · 46 views · 3mo ago · captions — <a href="https://www.youtube.com/watch?v=Vbfs8IGqwZY" target="_blank" rel="noopener">Watch on YouTube</a></p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

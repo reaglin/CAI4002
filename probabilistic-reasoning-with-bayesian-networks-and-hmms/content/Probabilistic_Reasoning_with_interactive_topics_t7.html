@@ -1,0 +1,329 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decision Theory and Utility</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Probabilistic Reasoning with Bayesian Networks and HMMs</a></div>
+  <header>
+    <h1>Decision Theory and Utility</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Decision Theory and Utility</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Probabilistic inference tells an agent <em>what the world is likely to be like</em>; it says nothing about <em>what the agent should do</em>. An agent that has computed a beautifully calibrated posterior distribution over the state of a patient, a market, or a robot's surroundings is still paralysed until it is given a second ingredient: a statement of what it <strong>wants</strong>. Decision theory is the formal bridge between these two ingredients. In its slogan form, <strong>decision theory = probability theory + utility theory</strong>, and its central prescription is that a rational agent should select the action that maximises its expected utility. This topic develops that prescription carefully: how a decision problem is specified, what a utility function is and what parts of it carry meaning, which axioms of preference force the existence of a utility function in the first place, how attitudes toward risk show up in the shape of a utility curve, how utilities are elicited from real people over outcomes with many attributes, and finally how to put a price on information itself.</p>
+
+<p><strong>From probability to decisions.</strong> A <strong>decision problem</strong> is specified by four components. First, a set of <strong>available actions</strong> <code>A = {a₁, a₂, …}</code> that the agent can actually execute. Second, a set of possible <strong>outcomes</strong> or result states <code>S = {s₁, s₂, …}</code>, described in enough detail that the agent's preferences over them are well defined. Third, a <strong>probability model</strong> <code>P(s | a, e)</code> giving the chance of each outcome if action <code>a</code> is taken, conditioned on everything the agent has observed (its evidence <code>e</code>). Fourth, the agent's <strong>preferences</strong>, summarised by a <strong>utility function</strong> <code>U(s)</code> that maps each outcome to a real number. Nothing else is needed: once these four components are fixed, the "right" action is determined.</p>
+
+<p>Where do these components come from in a practical AI system? The probabilities come from exactly the inference machinery studied earlier in the module. A Bayesian network over medical variables, conditioned on observed symptoms and test results, yields <code>P(Disease | Symptoms)</code>; a hidden Markov model, filtered over a stream of sensor readings, yields a belief state <code>P(X_t | e_{1:t})</code> over the current location of a robot. In both cases, the output of inference is precisely the probability distribution over the states that matter for the decision. The preferences, by contrast, do <em>not</em> come from inference — they are supplied by the designer, the user, or the organisation on whose behalf the agent acts. A robot's sensor model is a factual matter that can be measured; whether it is worse to collide with a wall or to arrive ten seconds late is a value judgement that must be stated.</p>
+
+<p>The two ingredients combine through the <strong>expected utility</strong> of an action:</p>
+
+<pre><code>EU(a | e) = Σ_s  P(Result(a) = s | a, e) · U(s)</code></pre>
+
+<p>and the agent's prescription, the principle of <strong>maximum expected utility (MEU)</strong>, is</p>
+
+<pre><code>action = argmax_a  EU(a | e)</code></pre>
+
+<p>Consider a tiny but complete example. You are leaving the house and must decide whether to carry an umbrella. Inference over a weather model, conditioned on this morning's forecast, gives <code>P(Rain) = 0.3</code>. Your preferences over the four joint outcomes, measured on an arbitrary 0–100 scale, are:</p>
+
+<table>
+<thead>
+<tr><th>Action</th><th>Outcome if Rain (P = 0.3)</th><th>Utility</th><th>Outcome if No Rain (P = 0.7)</th><th>Utility</th><th>Expected Utility</th></tr>
+</thead>
+<tbody>
+<tr><td>Take umbrella</td><td>Dry, slightly encumbered</td><td>70</td><td>Dry, carrying dead weight</td><td>60</td><td>0.3(70) + 0.7(60) = <strong>63</strong></td></tr>
+<tr><td>Leave umbrella</td><td>Soaked, ruined clothes</td><td>0</td><td>Unencumbered and dry</td><td>100</td><td>0.3(0) + 0.7(100) = <strong>70</strong></td></tr>
+</tbody>
+</table>
+
+<p>MEU recommends leaving the umbrella, because 70 &gt; 63. Note how sensitive this is to the probability: if the forecast had instead supported <code>P(Rain) = 0.5</code>, the expected utilities would be 65 and 50, and the recommendation would flip. The decision depends jointly on beliefs and preferences, and changing either can change the answer. Note also that the recommendation can be wrong in hindsight — it rains 30% of the time, and on those days you get soaked. MEU is a rule for acting well under uncertainty, not a guarantee of good outcomes.</p>
+
+<p><strong>Influence diagrams (decision networks).</strong> Real decision problems involve many random variables, and writing out a flat table of outcomes becomes impossible. An <strong>influence diagram</strong>, or decision network, extends a Bayesian network with two new node types so that a decision problem can be represented compactly and exploited by the same factorisation ideas:</p>
+
+<ul>
+<li><strong>Chance nodes</strong> (conventionally drawn as ovals) are ordinary random variables with conditional probability tables, exactly as in a Bayesian network.</li>
+<li><strong>Decision nodes</strong> (rectangles) represent points at which the agent chooses a value. They have no CPT; their value is selected by the agent, not sampled from nature. Arcs <em>into</em> a decision node are <strong>information links</strong>: they indicate what the agent will know at the moment it decides.</li>
+<li><strong>Utility nodes</strong> (diamonds) represent the agent's utility function. Their parents are the variables the utility depends on, and the node is annotated with a table or function giving <code>U</code> for each combination of parent values.</li>
+</ul>
+
+<p>For the umbrella problem, the network has a chance node <code>Weather</code>, a chance node <code>Forecast</code> with parent <code>Weather</code>, a decision node <code>Umbrella</code> with an information link from <code>Forecast</code>, and a utility node with parents <code>Weather</code> and <code>Umbrella</code>. Evaluating the diagram follows a fixed recipe: (1) set the evidence variables to their observed values; (2) for each possible value of the decision node, set the decision node to that value and run standard probabilistic inference (enumeration or variable elimination) to compute the posterior over the utility node's parents; (3) compute the expected utility; (4) return the action with the highest value. In other words, decision-network evaluation is a thin wrapper around the inference algorithms already available, which is exactly why these representations are attractive.</p>
+
+<p>A practical benefit of the diagram is that the structure makes <strong>irrelevance</strong> visible. If a chance node is not an ancestor of a utility node, it cannot affect any expected utility and can be pruned. If a variable is d-separated from the utility node's parents given the evidence and the decision, observing it cannot change the chosen action — a graphical shortcut to the value-of-information results developed at the end of this topic.</p>
+
+<p><strong>Utility functions and preferences.</strong> The utility function is not an arbitrary scoring device bolted onto the problem; it is a numerical summary of an underlying <strong>preference relation</strong>. We write <code>A ≻ B</code> for "the agent strictly prefers A to B", <code>A ~ B</code> for "the agent is indifferent between A and B", and <code>A ≽ B</code> for "A is preferred or the agent is indifferent". A utility function <strong>represents</strong> these preferences when</p>
+
+<pre><code>U(A) &gt; U(B)   if and only if   A ≻ B
+U(A) = U(B)   if and only if   A ~ B</code></pre>
+
+<p>The objects over which preferences are held are not only deterministic outcomes but <strong>lotteries</strong>: probability distributions over outcomes. A lottery is written <code>L = [p, A; 1−p, B]</code>, meaning "outcome A with probability p, outcome B otherwise". Lotteries are the natural objects here because every action in an uncertain world <em>is</em> a lottery over outcomes — choosing to leave the umbrella is nothing more than accepting the lottery <code>[0.3, Soaked; 0.7, Unencumbered]</code>. The point of a utility function is precisely that it summarises preferences over this enormous space of lotteries with a single number per <em>outcome</em>, because the utility of a lottery is just the expectation of the utilities of its prizes:</p>
+
+<pre><code>U([p₁, s₁; p₂, s₂; …; pₙ, sₙ]) = Σ_i p_i · U(s_i)</code></pre>
+
+<p><strong>Affine invariance.</strong> Utilities are not measured on an absolute scale. If <code>U</code> represents an agent's preferences, then so does any <strong>positive affine transformation</strong></p>
+
+<pre><code>U'(s) = a·U(s) + b,    with a &gt; 0</code></pre>
+
+<p>The proof is immediate: expectation is linear, so <code>EU'(α) = a·EU(α) + b</code> for every action α, and since <code>a &gt; 0</code> the ranking of actions by <code>EU'</code> is identical to the ranking by <code>EU</code>. In the umbrella example, utilities of (70, 60, 0, 100) and utilities of (7.0, 6.0, −3.0, 13.0) — obtained with <code>a = 0.1, b = −3</code> — yield expected utilities (63, 70) and (3.3, 4.0) respectively; the same action wins. Utility is therefore an <strong>interval scale</strong>, like temperature in Celsius: differences and ratios of differences are meaningful, but the zero point and the unit are conventions. It is meaningless to say "this outcome has utility 50 and is therefore twice as good as one with utility 25", but it is meaningful to say "the improvement from s₁ to s₂ is twice the improvement from s₂ to s₃".</p>
+
+<p>This freedom is exploited to fix a scale. Choose the <strong>best conceivable outcome</strong> in the problem, call it <code>s⊤</code>, and set <code>U(s⊤) = 1</code>; choose the <strong>worst conceivable outcome</strong> <code>s⊥</code> and set <code>U(s⊥) = 0</code>. This is the <strong>normalised utility scale</strong>, and every other outcome receives a number in <code>[0, 1]</code>. The whole function is then pinned down, and it becomes possible to compare the utility assessments of different analysts working on the same problem — provided they agree on the endpoints.</p>
+
+<p><strong>Maximum expected utility in depth.</strong> MEU is a prescription about <em>averaging</em>. It stands in contrast to two other decision rules that appear in the literature and in everyday reasoning. <strong>Maximax</strong> chooses the action with the best possible outcome, ignoring how unlikely that outcome is — the behaviour of the compulsive optimist. <strong>Maximin</strong> chooses the action whose <em>worst</em> outcome is least bad, ignoring how unlikely that disaster is — the behaviour of the compulsive pessimist, and the standard rule in adversarial game playing where the "uncertainty" is actually an opponent trying to hurt you. MEU does neither; it weights every outcome by its probability and takes the average. When the uncertainty is genuine indifferent nature rather than a malicious adversary, MEU is the rule justified by the axioms below.</p>
+
+<p>Because MEU averages, an action with a <strong>small chance of a very large payoff</strong> can outrank a safe action with a modest payoff. Suppose a drug-development team can either (i) license an existing compound for a certain profit of utility 10, or (ii) pursue a novel compound with a 5% chance of a blockbuster worth utility 300 and a 95% chance of total failure worth 0. Then <code>EU(i) = 10</code> while <code>EU(ii) = 0.05 × 300 = 15</code>, and MEU prefers the risky programme. This is the correct recommendation <em>on the stated utilities</em>, and the pharmaceutical industry's portfolio strategy is built on exactly this arithmetic: run many such programmes and the law of large numbers delivers the average. The caveat, developed in the risk-attitudes section, is that the numbers must be <em>utilities</em>, not dollars. If the firm would be bankrupted by 19 consecutive failures, then the utility of failure is far below 0 on the scale where the blockbuster is 300, and the arithmetic changes.</p>
+
+<p>Two further properties of MEU deserve emphasis. First, the probabilities in the expectation must be <strong>conditioned on all available evidence</strong>. An agent that ignores a relevant observation is not performing MEU; it is performing MEU on a misspecified problem. Second, MEU <strong>does not guarantee the best outcome on any single trial</strong>. A doctor who prescribes the treatment with the highest expected utility may still lose the patient; a poker player who makes the highest-EU call may still be beaten by the river card. The guarantee is asymptotic and statistical: over a long sequence of independent decisions, the agent that maximises expected utility accumulates more total utility, with probability approaching one, than any agent following a different policy. Judging a decision by its outcome rather than by the information available when it was made is the error known as <strong>resulting</strong>.</p>
+
+<p><strong>The axioms of rational preference.</strong> A natural objection to all of the above is that the utility function looks like an arbitrary modelling assumption. Why should an agent's desires be summarisable by a single real number per outcome, and why should lotteries be valued by a <em>linear</em> average of those numbers rather than by some other aggregation? The answer is the <strong>von Neumann–Morgenstern theorem</strong>: if an agent's preferences satisfy a short list of qualitative constraints, then a utility function with exactly these properties <em>must</em> exist, and it is unique up to positive affine transformation. The constraints are stated over lotteries, where <code>A</code>, <code>B</code>, <code>C</code> denote arbitrary lotteries (deterministic outcomes being the degenerate case).</p>
+
+<ul>
+<li><strong>Orderability (completeness).</strong> For any two lotteries, exactly one of <code>A ≻ B</code>, <code>B ≻ A</code>, <code>A ~ B</code> holds. The agent cannot refuse to have an opinion. This is less innocuous than it looks — it asserts that the agent can compare, say, a career change with a medical procedure — but an agent that must act has effectively expressed a comparison anyway.</li>
+<li><strong>Transitivity.</strong> If <code>A ≻ B</code> and <code>B ≻ C</code>, then <code>A ≻ C</code>. This is the axiom with the most famous enforcement mechanism. Suppose an agent holds <code>C ≻ B</code>, <code>B ≻ A</code>, and <code>A ≻ C</code>. Start it holding <code>A</code>. Since it prefers <code>C</code>, it will pay a cent to swap <code>A</code> for <code>C</code>; since it prefers <code>B</code> to <code>A</code>… and cycling around, it will pay a cent to swap <code>C</code> for <code>B</code>, then <code>B</code> for <code>A</code>, arriving back where it started three cents poorer. This <strong>money pump</strong> can be run indefinitely, which is a direct behavioural demonstration that intransitive preferences are self-defeating.</li>
+<li><strong>Continuity.</strong> If <code>A ≻ B ≻ C</code>, then there exists some probability <code>p</code> such that <code>[p, A; 1−p, C] ~ B</code>. Intermediate outcomes can always be matched by a gamble between an extreme good and an extreme bad outcome. This axiom is what makes numerical measurement possible at all — it guarantees that the standard-gamble elicitation procedure described below always terminates.</li>
+<li><strong>Substitutability (independence).</strong> If <code>A ~ B</code>, then <code>[p, A; 1−p, C] ~ [p, B; 1−p, C]</code> for any <code>p</code> and <code>C</code>. Equally preferred lotteries can be swapped inside a larger lottery without changing its value; the same holds with <code>≻</code> replacing <code>~</code>. This is the axiom that forces utilities to combine <em>linearly</em> in the probabilities, and it is the one most frequently violated by human subjects (see the Allais paradox).</li>
+<li><strong>Monotonicity.</strong> If <code>A ≻ B</code>, then <code>[p, A; 1−p, B] ≽ [q, A; 1−q, B]</code> if and only if <code>p ≥ q</code>. More chance of the better prize is better. An agent violating this would, bizarrely, pay to reduce its chance of winning something it says it prefers.</li>
+<li><strong>Decomposability ("no fun in gambling").</strong> A compound lottery is equivalent to the simple lottery with the same overall outcome probabilities: <code>[p, A; 1−p, [q, B; 1−q, C]] ~ [p, A; (1−p)q, B; (1−p)(1−q), C]</code>. Only the final probabilities over outcomes matter, not the mechanism or number of stages by which they are generated. An agent who enjoys the <em>process</em> of gambling does not violate this axiom so much as misdescribe its outcomes: the thrill belongs in the outcome description.</li>
+</ul>
+
+<p>Given these axioms, the existence of <code>U</code> can be constructed rather than merely asserted. Order all outcomes, let <code>s⊤</code> and <code>s⊥</code> be best and worst, and set <code>U(s⊤) = 1</code>, <code>U(s⊥) = 0</code>. For any intermediate outcome <code>s</code>, continuity guarantees a unique <code>p</code> with <code>s ~ [p, s⊤; 1−p, s⊥]</code>; define <code>U(s) = p</code>. Monotonicity guarantees this <code>p</code> is unique, substitutability and decomposability guarantee that replacing every prize in a lottery by its equivalent <code>s⊤</code>/<code>s⊥</code> gamble preserves preference, and the resulting reduced lottery has <code>s⊤</code>-probability equal to <code>Σ p_i U(s_i)</code>. Hence preference between lotteries is ranked exactly by expected utility. The MEU principle is therefore not an extra assumption layered on top of probability theory — it is a <em>theorem</em> about any agent whose preferences are internally coherent.</p>
+
+<p><strong>Risk attitudes and the utility of money.</strong> Money is the most studied domain for utility because the outcomes are naturally ordered and numerically measurable. Crucially, utility is <em>not</em> linear in money for most agents. Consider the classic test: would you accept a fair coin flip paying £1,000 on heads and £0 on tails, or take £400 for certain? The <strong>expected monetary value (EMV)</strong> of the gamble is £500, yet most people take the £400. Their preferences are perfectly consistent with the axioms; the function <code>U</code> is simply concave in money.</p>
+
+<p>Two definitions organise the discussion. The <strong>certainty equivalent (CE)</strong> of a lottery is the sure amount of money the agent regards as exactly as good as the lottery: <code>U(CE) = EU(lottery)</code>. The <strong>risk premium</strong> (or insurance premium) is</p>
+
+<pre><code>Risk premium = EMV(lottery) − CE(lottery)</code></pre>
+
+<p>The three canonical shapes of the utility-of-money curve are then distinguished as follows.</p>
+
+<table>
+<thead>
+<tr><th>Shape of U(money)</th><th>Attitude</th><th>Relation of CE to EMV</th><th>Risk premium</th><th>Typical behaviour</th></tr>
+</thead>
+<tbody>
+<tr><td>Concave (U″ &lt; 0, diminishing marginal utility)</td><td>Risk averse</td><td>CE &lt; EMV</td><td>Positive</td><td>Buys insurance; prefers the sure £400 to the coin flip</td></tr>
+<tr><td>Linear (U″ = 0)</td><td>Risk neutral</td><td>CE = EMV</td><td>Zero</td><td>Maximising expected utility is identical to maximising expected money</td></tr>
+<tr><td>Convex (U″ &gt; 0, increasing marginal utility)</td><td>Risk seeking</td><td>CE &gt; EMV</td><td>Negative</td><td>Pays for a gamble with unfavourable odds; "gambling for resurrection" when facing a certain large loss</td></tr>
+</tbody>
+</table>
+
+<p>A worked example makes the concavity concrete. Let an agent's utility for total wealth <code>w</code> be <code>U(w) = ln(w)</code>, a standard risk-averse form, and let the agent currently hold £10,000. Offered the coin flip between +£1,000 and £0, the agent compares:</p>
+
+<pre><code>EU(gamble) = 0.5·ln(11000) + 0.5·ln(10000)
+           = 0.5(9.3057) + 0.5(9.2103) = 9.2580
+CE: ln(w*) = 9.2580  ⇒  w* = 10,488.1
+Certainty equivalent of the extra money = £488.1
+EMV of the gamble = £500
+Risk premium = 500 − 488.1 = £11.9</code></pre>
+
+<p>The agent would sell the gamble for anything above £488.10. Notice that the risk premium here is small because the stake is small relative to wealth; a concave utility function is <em>locally</em> almost linear, which is why risk neutrality is a reasonable approximation for an organisation making many small decisions. Scale the same gamble up to ±£8,000 against the same £10,000 of wealth and the arithmetic changes drastically: <code>EU = 0.5·ln(18000) + 0.5·ln(2000) = 0.5(9.798) + 0.5(7.601) = 8.700</code>, giving a certainty equivalent of total wealth <code>e^8.700 ≈ £6,002</code>, i.e. the agent would pay nearly £4,000 to avoid a gamble whose EMV is zero. Diminishing marginal utility of money is precisely the statement that the pain of losing a given sum exceeds the pleasure of gaining it.</p>
+
+<p><strong>Insurance.</strong> The risk premium is exactly what makes an insurance market possible. Suppose a homeowner faces a 1% annual chance of a £200,000 fire loss. The EMV of the loss is £2,000. If the homeowner's utility is concave, the certainty equivalent of this lottery may be a loss of, say, £3,500 — meaning the homeowner is willing to pay up to £3,500 for full cover. The insurer, who pools thousands of near-independent policies and is therefore effectively risk neutral (by the law of large numbers its aggregate payout is nearly deterministic), is willing to sell cover for anything above £2,000 plus administrative costs. Any premium between those figures makes both parties better off in expectation of <em>utility</em>, even though the transaction is a pure loss in expectation of <em>money</em> for the buyer. The gap, <code>£3,500 − £2,000 = £1,500</code>, is the risk premium and is the economic space in which the industry operates.</p>
+
+<p><strong>Risk seeking over losses.</strong> Empirically, the utility curve for money is not uniformly concave. Below the agent's current wealth level it often becomes convex: a person already facing certain bankruptcy may rationally prefer a gamble with a small chance of escape to a certain ruin, because utility is already near its floor and there is little further to lose. The same shape explains why a trader sitting on a catastrophic loss may double down. The empirically fitted curve is therefore typically S-shaped — concave over gains, convex over losses, with a kink at the reference point — which is the central observation of Kahneman and Tversky's prospect theory.</p>
+
+<p><strong>Descriptive anomalies.</strong> The axioms are <strong>normative</strong> (they say how a coherent agent ought to behave), not <strong>descriptive</strong> (they do not say how people do behave). Two classic experiments show the gap.</p>
+
+<p>The <strong>Allais paradox</strong> targets substitutability. Consider two choices (payoffs in thousands of pounds):</p>
+
+<table>
+<thead>
+<tr><th>Choice</th><th>Option</th><th>Lottery</th><th>Majority preference</th></tr>
+</thead>
+<tbody>
+<tr><td rowspan="2">1</td><td>A</td><td>£2,400 with certainty</td><td><strong>Chosen</strong></td></tr>
+<tr><td>B</td><td>0.33 → £2,500; 0.66 → £2,400; 0.01 → £0</td><td></td></tr>
+<tr><td rowspan="2">2</td><td>C</td><td>0.34 → £2,400; 0.66 → £0</td><td></td></tr>
+<tr><td>D</td><td>0.33 → £2,500; 0.67 → £0</td><td><strong>Chosen</strong></td></tr>
+</tbody>
+</table>
+
+<p>Choosing A over B implies <code>U(2400) &gt; 0.33·U(2500) + 0.66·U(2400) + 0.01·U(0)</code>, i.e. <code>0.34·U(2400) &gt; 0.33·U(2500) + 0.01·U(0)</code>. Choosing D over C implies the exact reverse inequality. No utility function whatsoever can rationalise both choices, yet the majority of subjects make both. The driver is the <strong>certainty effect</strong>: the jump from 0.99 to 1.00 probability of a good outcome feels far more valuable than the numerically identical jump from 0.33 to 0.34, which violates substitutability.</p>
+
+<p>The <strong>Ellsberg paradox</strong> targets the assumption that all uncertainty can be represented by a single probability. An urn contains 90 balls: 30 are red, and the remaining 60 are some unknown mixture of black and yellow. Most people prefer a bet on <em>red</em> over a bet on <em>black</em> (suggesting they believe <code>P(black) &lt; 1/3</code>), yet also prefer a bet on <em>black or yellow</em> over a bet on <em>red or yellow</em> (suggesting <code>P(black) + P(yellow) &gt; 1/3 + P(yellow)</code>, i.e. <code>P(black) &gt; 1/3</code>). The two preferences are flatly contradictory under any probability assignment. The phenomenon is called <strong>ambiguity aversion</strong>: people dislike bets whose probabilities are themselves unknown, independently of risk. For an AI designer, the practical lesson is that systems eliciting preferences or probabilities from humans must expect and correct for these systematic distortions, and that a deployed decision system may be rejected by users whose intuitions are prospect-theoretic even when its recommendations are provably coherent.</p>
+
+<p><strong>Eliciting utilities.</strong> Since utility functions are not observable, they must be constructed by questioning. The workhorse technique is the <strong>standard gamble</strong>, which is a direct implementation of the constructive proof sketched above. Fix the best outcome <code>s⊤</code> at utility 1 and the worst <code>s⊥</code> at 0. For any intermediate outcome <code>s</code>, ask: "for what probability <code>p</code> are you indifferent between receiving <code>s</code> for certain and a lottery that yields <code>s⊤</code> with probability <code>p</code> and <code>s⊥</code> with probability <code>1 − p</code>?" The answer <em>is</em> the utility: <code>U(s) = p</code>. In practice the indifference point is found by bisection — "would you accept at p = 0.9? at p = 0.5?" — narrowing the interval until the subject hesitates.</p>
+
+<p>A medical illustration: let <code>s⊤</code> = "20 further years in perfect health" (U = 1) and <code>s⊥</code> = "immediate death" (U = 0). A patient considering a hip replacement is asked about the intermediate state "20 years with chronic moderate pain". If the patient is indifferent between that state and a surgical gamble with a 0.85 chance of perfect health and a 0.15 chance of death on the table, then <code>U(chronic pain) = 0.85</code>. This number can now be combined with the surgeon's probabilistic model of outcomes to compute expected utilities for operating versus not operating. Two related scales appear in health and safety economics: the <strong>micromort</strong>, a one-in-a-million chance of death (people typically require roughly £20–50 to accept one, which is far more than they will pay to avoid one — a reference-point effect), and the <strong>QALY</strong>, the quality-adjusted life year, which is essentially a standard-gamble utility multiplied by duration.</p>
+
+<p>Elicitation is laborious and noisy, so any structure that reduces the number of questions is valuable — which brings us to outcomes described by several attributes.</p>
+
+<p><strong>Multi-attribute outcomes and dominance.</strong> Realistic outcomes are vectors: siting an airport involves attributes such as <code>Cost</code>, <code>Noise</code>, <code>Deaths</code>, <code>Construction time</code>, and <code>Disruption</code>. Writing a utility number for every combination of attribute values is hopeless if each attribute has many levels. <strong>Multi-attribute utility theory (MAUT)</strong> attacks this in two ways: by eliminating options without fully specifying the utility function, and by decomposing the utility function into simple pieces.</p>
+
+<p><strong>Strict dominance</strong> is the cheapest tool. If option X is at least as good as option Y on every attribute and strictly better on at least one, then under any monotone utility function X is preferred, and Y can be discarded without further analysis. Consider four airport sites:</p>
+
+<table>
+<thead>
+<tr><th>Site</th><th>Cost (£bn, lower better)</th><th>Noise-affected residents (000s, lower better)</th><th>Journey time to city (min, lower better)</th><th>Status</th></tr>
+</thead>
+<tbody>
+<tr><td>S1</td><td>3.0</td><td>40</td><td>25</td><td>Retained (non-dominated)</td></tr>
+<tr><td>S2</td><td>4.2</td><td>55</td><td>30</td><td><strong>Strictly dominated by S1</strong> — worse on all three</td></tr>
+<tr><td>S3</td><td>5.1</td><td>12</td><td>45</td><td>Retained (cheapest noise, costliest)</td></tr>
+<tr><td>S4</td><td>3.5</td><td>18</td><td>35</td><td>Retained</td></tr>
+</tbody>
+</table>
+
+<p>S2 is removed with no knowledge of how the decision maker trades cost against noise. The surviving set — the <strong>Pareto frontier</strong> — is where genuine value judgements are required. Note that strict dominance is often rare in practice precisely because serious options have been engineered to be good at different things.</p>
+
+<p>Attribute values are themselves usually uncertain, so dominance must be generalised. <strong>Stochastic dominance</strong> compares distributions rather than point values. Option X <strong>first-order stochastically dominates</strong> Y on an attribute if, for every threshold <code>t</code>, X's cumulative distribution lies at or below Y's (for an attribute where more is better):</p>
+
+<pre><code>F_X(t) ≤ F_Y(t)   for all t, with strict inequality somewhere</code></pre>
+
+<p>Equivalently, X's distribution is Y's distribution shifted uniformly toward better values, so <code>P(X ≥ t) ≥ P(Y ≥ t)</code> everywhere. Whenever this holds, <code>E[U(X)] ≥ E[U(Y)]</code> for <em>every</em> increasing utility function <code>U</code> — concave, linear or convex — so the dominated option can be pruned regardless of risk attitude. For example, if the cost of construction at site A is uniformly distributed over £2.8–3.4bn and at site B over £3.0–3.8bn, A stochastically dominates B on cost even though their ranges overlap and A is not certain to be cheaper. Because attributes in decision networks are usually linked by monotone relationships (more flights → more noise → lower utility), stochastic dominance can often be established by qualitative reasoning over the network's structure, without numerical integration — the basis of <em>qualitative probabilistic networks</em>.</p>
+
+<p><strong>Preference structure and additive value functions.</strong> When dominance fails, the utility function must be decomposed. The key structural condition for the deterministic case (where attribute values are known) is <strong>preferential independence</strong>. A pair of attributes <code>{X₁, X₂}</code> is preferentially independent of the rest <code>X₃…Xₙ</code> if the preference between two outcomes that differ only in <code>X₁</code> and <code>X₂</code> does not depend on the fixed values of the others. For instance, a traveller's trade-off between <em>journey time</em> and <em>fare</em> is plausibly the same whether the weather is wet or dry; weather matters to overall satisfaction, but it does not change how many pounds a saved minute is worth.</p>
+
+<p>If <em>every</em> subset of attributes is preferentially independent of its complement, the attributes are <strong>mutually preferentially independent (MPI)</strong>, and a theorem of Debreu guarantees that preferences can be represented by an <strong>additive value function</strong>:</p>
+
+<pre><code>V(x₁, …, xₙ) = Σ_i  w_i · V_i(x_i)</code></pre>
+
+<p>where each <code>V_i</code> is a single-attribute value function (often normalised to [0,1]) and the weights <code>w_i</code> encode the trade-offs, commonly normalised so that <code>Σ w_i = 1</code>. The saving is enormous: instead of eliciting one number for each of the exponentially many attribute combinations, the analyst elicits <code>n</code> one-dimensional curves plus <code>n</code> weights. Applying this to the surviving airport sites, with <code>V_cost</code>, <code>V_noise</code> and <code>V_time</code> each scaled so that the best observed value scores 1 and the worst scores 0, and weights <code>(0.4, 0.4, 0.2)</code>:</p>
+
+<table>
+<thead>
+<tr><th>Site</th><th>V_cost (w = 0.4)</th><th>V_noise (w = 0.4)</th><th>V_time (w = 0.2)</th><th>Weighted total</th></tr>
+</thead>
+<tbody>
+<tr><td>S1</td><td>1.00</td><td>0.00</td><td>1.00</td><td>0.4(1.00) + 0.4(0.00) + 0.2(1.00) = <strong>0.60</strong></td></tr>
+<tr><td>S3</td><td>0.00</td><td>1.00</td><td>0.00</td><td>0.4(0.00) + 0.4(1.00) + 0.2(0.00) = <strong>0.40</strong></td></tr>
+<tr><td>S4</td><td>0.76</td><td>0.79</td><td>0.50</td><td>0.4(0.76) + 0.4(0.79) + 0.2(0.50) = <strong>0.72</strong></td></tr>
+</tbody>
+</table>
+
+<p>S4, the compromise site, wins — a conclusion invisible from dominance alone, and one that depends entirely on the weights, which is why sensitivity analysis on <code>w</code> is a standard part of such studies. Note that <code>V</code> here is a <em>value</em> function ranking certain outcomes; to use it inside expected-utility calculations under uncertainty one needs the stronger condition of <strong>mutual utility independence</strong>, which licenses a multiplicative decomposition.</p>
+
+<p><strong>Multiplicative utility.</strong> Additivity fails whenever attributes <em>interact</em>. A holiday with good weather and a good hotel may be worth more than the sum of the two improvements (complementarity); a car that is both very fast and very fuel-efficient may be worth less than the sum of the parts if the buyer will only ever use one characteristic (substitutability). For three mutually utility-independent attributes the general representation is the <strong>multiplicative utility function</strong>:</p>
+
+<pre><code>U = k₁U₁ + k₂U₂ + k₃U₃
+  + k k₁k₂ U₁U₂ + k k₂k₃ U₂U₃ + k k₁k₃ U₁U₃
+  + k² k₁k₂k₃ U₁U₂U₃</code></pre>
+
+<p>where each <code>U_i</code> is a normalised single-attribute utility and <code>k</code> is a single interaction parameter determined by the <code>k_i</code> (if <code>Σ k_i = 1</code> then <code>k = 0</code> and the form collapses to the additive case; <code>k &gt; 0</code> indicates complementarity, <code>k &lt; 0</code> substitutability). The practical point is that even with interactions, the number of elicited parameters grows <em>linearly</em> in the number of attributes (n single-attribute curves, n weights, one interaction constant) rather than exponentially. This is the same methodological move as the Bayesian network itself: exploit a conditional-independence-like structure to replace an exponential table with a product of small local factors.</p>
+
+<p><strong>The value of information.</strong> So far the agent has been passive about evidence: it conditions on whatever it happens to know. But real agents can <em>acquire</em> information — order a blood test, take another sonar reading, run a market survey, query an oracle — usually at a cost. Decision theory answers the question "is this test worth running?" with the <strong>value of perfect information (VPI)</strong>.</p>
+
+<p>Let the agent's current evidence be <code>e</code>, so its best action and value are</p>
+
+<pre><code>MEU(e) = max_a  Σ_s P(s | e) U(s, a)</code></pre>
+
+<p>Suppose it could observe the exact value of a random variable <code>E_j</code> before deciding. If the observed value turned out to be <code>e_j</code>, the agent would then achieve <code>MEU(e, e_j)</code>. But the agent does not yet know which value it will see, so it averages over the possibilities using its <em>current</em> posterior:</p>
+
+<pre><code>VPI_e(E_j) = ( Σ_{e_j} P(E_j = e_j | e) · MEU(e, e_j) ) − MEU(e)</code></pre>
+
+<p>In words: the expected value of acting optimally <em>after</em> seeing the evidence, minus the value of acting optimally <em>now</em>. The crucial asymmetry is that the <code>max</code> sits <em>inside</em> the sum in the first term and <em>outside</em> in the second; information is valuable exactly because it lets the choice of action adapt to what is learned.</p>
+
+<p><strong>A worked example.</strong> An oil company may buy drilling rights to a block for £10m. If the block contains oil (prior probability 0.4) the rights are worth £40m; if not, they are worth £0. Buying has <code>EU = 0.4(40 − 10) + 0.6(0 − 10) = 12 − 6 = £6m</code>; not buying has <code>EU = 0</code>. So <code>MEU = £6m</code> and the company buys. Now consider a perfectly accurate seismic survey that reveals whether oil is present:</p>
+
+<table>
+<thead>
+<tr><th>Survey result</th><th>Probability</th><th>Best action given result</th><th>Value of that action</th><th>Contribution</th></tr>
+</thead>
+<tbody>
+<tr><td>Oil present</td><td>0.4</td><td>Buy</td><td>40 − 10 = £30m</td><td>0.4 × 30 = £12m</td></tr>
+<tr><td>No oil</td><td>0.6</td><td>Do not buy</td><td>£0m</td><td>0.6 × 0 = £0m</td></tr>
+</tbody>
+</table>
+
+<pre><code>Expected value with information = 12 + 0 = £12m
+VPI = 12 − 6 = £6m</code></pre>
+
+<p>The survey is worth up to £6m; if it costs £1m it should be commissioned (net gain £5m), and if it costs £8m it should not. Observe where the £6m comes from: it is exactly the 0.6 × £10m loss that the company now avoids by walking away from dry blocks. <em>Information is valuable only insofar as it prevents mistakes.</em></p>
+
+<p>This yields the three structural properties of VPI.</p>
+
+<ul>
+<li><strong>Information has zero value if it cannot change the action.</strong> If the same action is optimal for every possible value of <code>E_j</code>, then <code>MEU(e, e_j) = Σ_s P(s | e, e_j)U(s, a*)</code> for the same <code>a*</code> throughout, and averaging over <code>e_j</code> recovers <code>MEU(e)</code> exactly, giving <code>VPI = 0</code>. In the oil example, if the rights cost only £1m, the company would buy regardless of the survey (<code>EU(buy) = 0.4(39) + 0.6(−1) = £15m</code> versus £0, and even a "no oil" report leaves… well, it would then not buy, so the survey still has <em>some</em> value) — but make the payoff structure such that buying is optimal under every report and the survey becomes literally worthless. This is the decision-theoretic justification for not ordering a test whose result will not alter the treatment plan, and it is the formal cousin of d-separation: if a variable is irrelevant to the utility node given current evidence, observing it cannot help.</li>
+<li><strong>VPI is never negative.</strong> For any variable and any evidence, <code>VPI_e(E_j) ≥ 0</code>. The proof is the standard fact that the maximum of an average never exceeds the average of maxima: <code>max_a Σ_{e_j} P(e_j|e) EU(a | e, e_j) ≤ Σ_{e_j} P(e_j|e) max_a EU(a | e, e_j)</code>. The left-hand side is the value of committing to one action in advance; the right-hand side is the value of waiting and adapting. Since the agent can always ignore the new evidence and do what it was going to do anyway, it can never be made worse off <em>in expectation</em>. Note the careful wording: a particular observation can certainly make the agent's situation look worse (learning that the block is dry reduces the value of the opportunity from £6m to £0m), and information can be harmful in other frameworks — if it must be revealed to a competitor, or if the agent is irrational, or if the "utility" ignores the psychological cost of bad news. Under MEU with a fixed utility function and private observations, however, free information is never a bad deal.</li>
+<li><strong>VPI is non-additive but order-independent.</strong> Non-additivity means <code>VPI_e(E_j, E_k) ≠ VPI_e(E_j) + VPI_e(E_k)</code> in general. Two tests that measure the same underlying quantity are <em>sub</em>-additive: a second, redundant seismic survey adds nothing once the first has been run, so its marginal value collapses to zero. Conversely two tests can be <em>super</em>-additive: if a drilling decision requires both that oil is present <em>and</em> that the pipeline route is viable, neither fact alone changes the decision (you still would not drill), so each has VPI = 0 in isolation, while jointly they are worth a great deal. Order-independence means <code>VPI_e(E_j) + VPI_{e,e_j}(E_k) = VPI_e(E_k) + VPI_{e,e_k}(E_j)</code>: the total value of acquiring both pieces of evidence is the same regardless of the sequence in which they are obtained, which is reassuring but does <em>not</em> mean the greedy ordering is optimal.</li>
+</ul>
+
+<p><strong>Imperfect information.</strong> Real tests are noisy, and the same machinery handles them with one change: instead of observing the state variable <code>S</code> directly, the agent observes a test result <code>T</code> linked to <code>S</code> by a sensor model <code>P(T | S)</code>, and the inner <code>MEU(e, t)</code> is computed from the posterior <code>P(S | e, t)</code> obtained by Bayes' rule. The result is the <strong>value of imperfect information</strong>, which is always between 0 and the VPI of the underlying variable. Suppose the seismic survey in the oil example is only 80% accurate in each direction: <code>P(T = pos | Oil) = 0.8</code>, <code>P(T = pos | ¬Oil) = 0.2</code>. Then <code>P(T = pos) = 0.4(0.8) + 0.6(0.2) = 0.44</code>, and by Bayes' rule <code>P(Oil | pos) = 0.32/0.44 = 0.727</code> and <code>P(Oil | neg) = 0.08/0.56 = 0.143</code>.</p>
+
+<table>
+<thead>
+<tr><th>Result</th><th>P(result)</th><th>P(Oil | result)</th><th>EU(buy) given result</th><th>Best action</th><th>Contribution</th></tr>
+</thead>
+<tbody>
+<tr><td>Positive</td><td>0.44</td><td>0.727</td><td>0.727(30) + 0.273(−10) = £19.09m</td><td>Buy</td><td>0.44 × 19.09 = £8.40m</td></tr>
+<tr><td>Negative</td><td>0.56</td><td>0.143</td><td>0.143(30) + 0.857(−10) = −£4.29m</td><td>Do not buy</td><td>0.56 × 0 = £0m</td></tr>
+</tbody>
+</table>
+
+<pre><code>Expected value with the noisy survey = £8.40m
+Value of imperfect information = 8.40 − 6.00 = £2.40m</code></pre>
+
+<p>The noisy survey is worth £2.40m against the perfect survey's £6m — a sensible discount, and a direct quantification of how much the company should pay for better instrumentation.</p>
+
+<p><strong>Information-gathering agents.</strong> These results combine into a simple and widely used control loop. At each step, the agent computes <code>VPI_e(E_j) − Cost(E_j)</code> for every observation it could make, performs the observation with the largest positive net value, incorporates the result into <code>e</code>, and repeats; when no observation has positive net value, it stops deliberating and executes the current MEU action. This <strong>myopic</strong> or greedy policy assumes that only one more observation will be made, which is why it undervalues super-additive combinations such as the oil-and-pipeline pair above, and why a non-myopic analysis (solving the full sequential decision problem) is sometimes required. In practice the greedy rule works well and is the standard algorithm behind sequential diagnosis in medical expert systems, test selection in fault diagnosis, next-best-view planning and sensor scheduling in robotics, experimental design, and <strong>active learning</strong>, where a learner chooses which unlabelled example to have labelled next. In all of these the same question is being asked: given what I already believe, how much would this measurement change what I do, and is that worth what it costs?</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+<li><strong>MO1:</strong> Supported indirectly and substantially. Every expected-utility and value-of-information computation in this topic consumes posterior probabilities — the oil example conditions on a noisy survey result via Bayes' rule, and the umbrella example relies on marginal outcome probabilities — so the topic exercises marginalisation and conditioning in an applied setting rather than teaching them afresh.</li>
+<li><strong>MO2:</strong> Supported. Influence diagrams are presented as Bayesian networks extended with decision and utility nodes, so constructing a decision network requires first constructing the DAG and CPTs of its chance-node subgraph; the umbrella and oil models illustrate this directly.</li>
+<li><strong>MO3:</strong> Lightly supported. The topic does not teach d-separation, but it uses it: a variable that is d-separated from the utility node's parents given the evidence and decision has zero value of information, giving a graphical test for irrelevance and option pruning.</li>
+<li><strong>MO4:</strong> Supported indirectly. Evaluating an influence diagram is a wrapper around enumeration or variable elimination, so the cost and accuracy trade-offs between exact and approximate inference carry over directly to how expensive it is to compute an MEU recommendation; the topic does not itself compare sampling methods.</li>
+<li><strong>MO5:</strong> Not addressed directly. The topic notes that HMM filtering supplies the belief state <code>P(X_t | e_{1:t})</code> on which a decision-theoretic agent acts, but it does not execute the forward, forward–backward or Viterbi algorithms.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Numerical checks: ln(11000)=9.30565, ln(10000)=9.21034, mean 9.25800, exp(9.25800)=10488.1 — risk premium ≈ &#163;11.9 as stated. Large-stake case: ln(18000)=9.79813, ln(2000)=7.60090, mean 8.69951, exp(8.69951)≈6001.5. Noisy-survey Bayes figures: P(Oil|pos)=0.32/0.44=0.7273, P(Oil|neg)=0.08/0.56=0.1429; EU(buy|pos)=&#163;19.09m, EU(buy|neg)=−&#163;4.29m; VOI=&#163;2.40m. Allais figures follow the standard Kahneman–Tversky presentation. The multiplicative utility form uses the standard Keeney–Raiffa parameterisation; the sign convention for k (k&gt;0 complementary, k&lt;0 substitutable) follows Keeney &amp; Raiffa (1976). The Debreu additive-value theorem requires mutual preferential independence plus technical continuity/solvability conditions and at least three essential attributes — these caveats were kept light for an introductory treatment. The &quot;resulting&quot; terminology is from decision-analysis/poker literature (Duke). Suggested in-class exercise: re-run the airport weighting table with w = (0.6, 0.2, 0.2) to show the recommendation flipping to S1, demonstrating sensitivity analysis.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

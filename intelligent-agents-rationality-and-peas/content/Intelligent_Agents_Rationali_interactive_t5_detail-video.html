@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Applying Environment Properties to Real Tasks</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Intelligent Agents, Rationality, and PEAS</a></div>
+  <header>
+    <h1>Applying Environment Properties to Real Tasks</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Applying Environment Properties to Real Tasks</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Classifying a task environment is the diagnostic step that sits between stating what an agent must achieve and choosing how to build it. The six classical dimensions — observability, agent count, determinism, episodicity, dynamism, and discreteness — are not academic labels; each one eliminates certain agent architectures and forces others. An agent designer who skips this step typically discovers the mismatch late, when a reflex controller fails in a world that silently demanded memory, or when an exhaustive search is applied to a continuous action space. This topic works through a repeatable checklist, applies it to five familiar domains, and then shows how the resulting profile maps onto concrete design choices and techniques.</p>
+
+<p><strong>A checklist for classifying any task environment.</strong> The checklist is a short sequence of questions whose answers, taken together, form an <em>environment profile</em>. The discipline of asking them in a fixed order matters because the answers interact: partial observability, for instance, changes what "deterministic" even means in practice.</p>
+
+<ul>
+  <li><strong>Can the sensors see the full state, or only part of it?</strong> The test is not "does the agent receive a lot of data" but "do the percepts at each step determine every aspect of the environment state that is relevant to the performance measure?" If a chess agent looks at the board, it sees everything it needs; if a poker agent looks at the table, the opponents' hole cards — decisive for the outcome — remain hidden. Note the extreme case of an <em>unobservable</em> (sensorless) environment, where the agent must act blind and reason about the set of states it might be in.</li>
+  <li><strong>Are there other agents whose behaviour affects the performance measure, and are they cooperative or competitive?</strong> An entity counts as an agent when it is useful to model it as maximising a performance measure that depends on your behaviour. A falling rock is stochastic weather; a blocking defender is an opponent. If maximising their measure tends to minimise yours, the setting is competitive; if the measures are aligned, it is cooperative. Many real settings — driving, negotiation, warehouse fleets — are <em>partially cooperative</em>: all parties want to avoid collisions, but each also wants the faster route.</li>
+  <li><strong>Does the next state follow uniquely from the current state and action, or is there stochastic or unmodelled variation?</strong> The agent must be able to predict the successor exactly for the environment to count as deterministic. Importantly, "exactly" is evaluated relative to the agent's model and percepts, not to physics in the abstract.</li>
+  <li><strong>Are decisions independent episodes, or do they commit the agent to future consequences?</strong> In an episodic environment the experience divides into atomic episodes — perceive, act, receive a score — and the action chosen in one episode does not affect the next. In a sequential environment, each action shapes the states, options, and rewards available later, so short-term decisions must be made with long-term consequences in mind.</li>
+  <li><strong>Does the world change while the agent deliberates, and are states, time, and actions discrete or continuous?</strong> If the environment can change during deliberation, it is dynamic and thinking has a cost measured in lost opportunity or safety margin. If the environment is fixed but the performance score decays with time, it is <em>semi-dynamic</em>. Discreteness is asked separately of the state space, the time base, and the action set — these can differ within a single task.</li>
+  <li><strong>Record the answers as a profile, then match that profile to candidate agent designs.</strong> Write the profile as a tuple, for example <code>&lt;partially observable, multi-agent (mixed), stochastic, sequential, dynamic, continuous&gt;</code>, and keep it next to the design document. Each entry is a constraint; the architecture must satisfy all of them simultaneously. A useful habit is to also record whether the environment is <em>known</em> (the agent has the transition and reward rules) because this is orthogonal to observability and drives whether learning is required.</li>
+</ul>
+
+<p><strong>Chess and poker: observability and opponents.</strong> These two games differ along only two dimensions, yet those two differences change almost everything about the algorithms that work.</p>
+
+<ul>
+  <li><strong>Chess</strong> is fully observable — the board shows the whole state, and the castling, en-passant, and repetition flags are reconstructible from the move history. It is deterministic: moving a rook to e4 produces exactly one successor position. It is sequential: a pawn pushed on move 12 may lose the game on move 55. It is <em>static</em> in its untimed form and <em>semi-dynamic</em> with a clock, since the position does not change while you think but your remaining time does. It is discrete in states, time (moves), and actions (legal moves), and it is multi-agent competitive — strictly zero-sum between two players.</li>
+  <li><strong>Poker</strong> shares the sequential, multi-agent competitive, and largely discrete character of chess, but it is <strong>partially observable</strong> because opponents' hole cards are hidden, and <strong>stochastic</strong> because the shuffle determines future community cards. Betting amounts in no-limit variants also make a portion of the action space effectively continuous or very large.</li>
+  <li><strong>Chess supports minimax and alpha-beta search over a known game tree.</strong> Because the state is fully visible and transitions are deterministic, the agent can expand a tree of exact future positions, apply a heuristic evaluation at the depth limit, and back up values assuming an optimal opponent. Alpha-beta pruning exploits the zero-sum structure to discard branches that cannot affect the root decision, roughly squaring the depth reachable in a fixed time budget. The semi-dynamic clock is handled by iterative deepening, which yields a usable move whenever time runs out — an anytime property.</li>
+  <li><strong>Poker requires belief states, probabilistic reasoning, and mixed strategies.</strong> The agent cannot search over states; it must search over <em>belief states</em> — probability distributions over the opponents' possible holdings, updated by Bayes' rule as betting actions reveal information. Chance nodes in the tree require taking expectations rather than maxima (expectimax). Crucially, because the opponent can observe your behaviour, any deterministic policy is exploitable: if you only raise with strong hands, opponents simply fold. The game-theoretic solution concept is a Nash equilibrium in <em>mixed</em> strategies, so the agent deliberately randomises — bluffing a fixed fraction of the time — to keep its beliefs about you uninformative. Modern solvers approximate this with counterfactual regret minimisation rather than classical minimax.</li>
+  <li><strong>Both are sequential, so neither can be solved by a reflex agent that ignores history.</strong> A lookup from "current board" to "move" without lookahead plays badly in chess because the value of a position is defined by what can happen later; in poker, a reflex agent additionally discards the betting history that is the only evidence about hidden cards.</li>
+</ul>
+
+<p><strong>Automated driving: the hard case.</strong> Driving is the standard example of a task that is "hard" in every dimension at once, which is precisely why it resists the clean algorithms that solve board games.</p>
+
+<ul>
+  <li><strong>Partially observable.</strong> A parked van occludes the crossing pedestrian; a vehicle sits in the blind spot; and — most fundamentally — the intentions of other drivers are internal mental states that no sensor reads. A car drifting toward the lane line may be changing lanes, avoiding a pothole, or drifting through inattention, and these have different safe responses.</li>
+  <li><strong>Stochastic.</strong> Tyre slip on a wet surface, a child stepping off a kerb, a gust of crosswind, and the exact deceleration of the car ahead cannot be predicted exactly. Even where the underlying physics is lawful, the agent has no model precise enough to make exact predictions, so the practical treatment is probabilistic.</li>
+  <li><strong>Sequential and dynamic.</strong> Choosing the right-hand lane now determines which exits are available in two kilometres. More sharply, the world does not pause for deliberation: at 30 m/s a vehicle covers three metres during a 100 ms planning cycle. Latency therefore becomes a <em>safety</em> constraint, not merely a performance nuisance, and the system must produce a safe action on a hard real-time deadline whether or not the search has converged.</li>
+  <li><strong>Continuous and multi-agent with mixed incentives.</strong> Pose, velocity, steering angle, and throttle are real-valued, and time is continuous (approximated by a fast control loop). Other road users are agents: largely cooperative, since nobody wants a collision and lane-merging requires implicit negotiation, but competitive over scarce resources like gaps, parking spaces, and travel time.</li>
+  <li><strong>Design consequences.</strong> The profile mandates sensor fusion (camera, radar, lidar, GPS/IMU combined because no single modality is reliable in all conditions); probabilistic state estimation (Kalman/particle filters for self-localisation and multi-object tracking, plus intention prediction over other agents); continuous control (MPC or PID layered below the planner); and <em>online replanning</em> on a rolling horizon rather than a single offline plan computed before departure. A typical architecture is layered: a fast reactive safety layer (emergency braking) beneath a deliberative planner, so that a slow plan never prevents a quick stop.</li>
+</ul>
+
+<p><strong>Image classification: an episodic, static environment.</strong> The contrast with driving is instructive, because image classification is the easy end of almost every dimension — and that is why a single feed-forward function suffices.</p>
+
+<ul>
+  <li><strong>Episodic.</strong> Labelling photograph <em>n</em> as "tabby cat" does not change which photograph is presented as <em>n+1</em>, nor does it alter the correct answer for it. Each episode is perceive–classify–score, atomically. (The caveat: if the system is deployed in a feedback loop where its outputs choose the next images to collect or moderate, episodicity is lost and the task becomes sequential.)</li>
+  <li><strong>Static.</strong> The pixel array is frozen while the network runs. Taking an extra 50 ms costs nothing in accuracy, which is why the design question is throughput rather than deadline safety.</li>
+  <li><strong>Deterministic from the agent's side</strong> — the same input yields the same output, and the "state" is simply the presented image. The subtlety is that the <em>labelling</em> may be noisy or genuinely ambiguous (is that a wolf or a husky?), so the mapping from image to ground-truth label behaves stochastically. This is why classifiers output a probability distribution rather than a single hard label.</li>
+  <li><strong>Single-agent</strong> under normal operation: no entity is choosing images to minimise your accuracy. Introduce an adversary generating adversarial examples — imperceptible perturbations crafted to flip the prediction — and the environment becomes multi-agent competitive, which changes the design to adversarial training and robustness certification.</li>
+  <li><strong>Architectural consequence.</strong> Because the task is episodic, fully observable within the episode, and static, there is nothing to plan and no history worth remembering. A learned feed-forward mapping from percept to action — the classifier — is exactly the right shape of solution, and it is in fact a <em>learning reflex agent</em>: a condition–action mapping whose conditions were induced from data rather than written by hand.</li>
+</ul>
+
+<p><strong>Indoor robot navigation: partial observability meets continuity.</strong> This domain sits between the two extremes and is the canonical motivation for belief-space methods.</p>
+
+<ul>
+  <li><strong>Partially observable.</strong> A lidar or sonar ring reports distances to nearby surfaces only; corridors look alike, and two different poses can produce near-identical scans (perceptual aliasing). The robot therefore cannot know its pose from a single percept and must maintain a <em>belief</em> — a probability distribution over poses — updated by Monte Carlo (particle) localisation that combines motion prediction with sensor correction.</li>
+  <li><strong>Stochastic.</strong> Commanding "drive forward 1 m" yields perhaps 0.97 m with a 2° heading error because of wheel slip, uneven floors, and encoder quantisation. Sensor readings are noisy and occasionally spurious (specular reflections from glass). Odometry error compounds, which is why dead reckoning alone diverges within metres.</li>
+  <li><strong>Sequential.</strong> Each move changes both what is reachable and what is observable next, which creates an exploration–exploitation tension specific to partial observability: it can be worth detouring to a feature-rich corner purely to reduce pose uncertainty before attempting a narrow doorway. This is <em>information-gathering</em> action selection, impossible in a purely reactive design.</li>
+  <li><strong>Dynamic and continuous.</strong> People walk through corridors, doors open and close, and furniture moves, so the map is only partly valid. Pose, velocity, and time are continuous, so the planner works over sampled or discretised representations (occupancy grids, probabilistic roadmaps, RRTs) rather than enumerating states.</li>
+  <li><strong>Agent count.</strong> A single service robot is single-agent with dynamic obstacles. A warehouse fleet is multi-agent cooperative: robots must avoid deadlock at intersections and share a common throughput objective, which calls for centralised traffic management or explicit communication and conflict-based multi-agent path finding.</li>
+</ul>
+
+<p>The five domains can be compared directly once their profiles are written side by side. The table below summarises the classification and the design implication.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Task environment</th>
+      <th>Observable</th>
+      <th>Agents</th>
+      <th>Deterministic</th>
+      <th>Episodic</th>
+      <th>Static</th>
+      <th>Discrete</th>
+      <th>Typical techniques</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Chess (with clock)</td>
+      <td>Fully</td>
+      <td>Multi, competitive</td>
+      <td>Deterministic</td>
+      <td>Sequential</td>
+      <td>Semi-dynamic</td>
+      <td>Discrete</td>
+      <td>Minimax, alpha-beta, iterative deepening, learned evaluation</td>
+    </tr>
+    <tr>
+      <td>Poker</td>
+      <td>Partially</td>
+      <td>Multi, competitive</td>
+      <td>Stochastic</td>
+      <td>Sequential</td>
+      <td>Static (per decision)</td>
+      <td>Mostly discrete</td>
+      <td>Belief states, expectimax over chance nodes, mixed strategies, CFR</td>
+    </tr>
+    <tr>
+      <td>Automated driving</td>
+      <td>Partially</td>
+      <td>Multi, mixed</td>
+      <td>Stochastic</td>
+      <td>Sequential</td>
+      <td>Dynamic</td>
+      <td>Continuous</td>
+      <td>Sensor fusion, filtering, MPC, online replanning, reactive safety layer</td>
+    </tr>
+    <tr>
+      <td>Image classification</td>
+      <td>Fully (per image)</td>
+      <td>Single</td>
+      <td>Deterministic (noisy labels)</td>
+      <td>Episodic</td>
+      <td>Static</td>
+      <td>Continuous inputs, discrete outputs</td>
+      <td>Supervised feed-forward learning; no planning or state</td>
+    </tr>
+    <tr>
+      <td>Indoor robot navigation</td>
+      <td>Partially</td>
+      <td>Single (or cooperative fleet)</td>
+      <td>Stochastic</td>
+      <td>Sequential</td>
+      <td>Dynamic</td>
+      <td>Continuous</td>
+      <td>Particle filters/SLAM, sampling-based planning, local reactive avoidance</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>From environment profile to agent architecture.</strong> Each dimension of the profile acts as a filter on the design space. Reading the profile left to right produces a specification of the minimum capability the agent must have.</p>
+
+<ul>
+  <li><strong>Partial observability forces internal state or a belief state</strong>, which immediately rules out a simple reflex agent. A reflex agent maps the <em>current percept</em> to an action; if the current percept does not determine the relevant state, the same percept must sometimes lead to different correct actions, and a stateless mapping cannot express that. The minimum upgrade is a model-based reflex agent that carries a state estimate updated by a transition model and a sensor model. Where uncertainty is substantial, the state estimate becomes a full distribution and the problem is formally a POMDP, solved approximately by belief-space planning, filtering plus most-likely-state planning, or recurrent policies.</li>
+  <li><strong>Stochasticity pushes the agent from plans toward policies.</strong> A fixed sequence of actions is fragile when outcomes branch: by step three, the agent may not be where the plan assumed. The robust object is a <em>policy</em>, a mapping from state (or belief) to action defined for every contingency. Decision quality is then measured by <em>expected</em> utility, which also means the agent needs a utility function rather than a binary goal test, since it must trade a high chance of a decent outcome against a small chance of a disastrous one. MDP solution methods (value iteration, policy iteration) and reinforcement learning are the natural tools.</li>
+  <li><strong>Sequential structure requires lookahead.</strong> When current actions constrain later ones, an agent must evaluate actions by their downstream consequences — through search over a transition model, through classical planning, or, when the model is unknown, by learning a value function from experience. This is the dimension that separates a classifier from a chess engine even though both "map input to output".</li>
+  <li><strong>Dynamic environments impose real-time deadlines.</strong> Computation competes with the world. The practical responses are <em>anytime</em> algorithms, which maintain a valid answer that improves monotonically with time (iterative deepening, receding-horizon MPC, Monte Carlo tree search), and layered architectures in which a fast reactive layer guarantees a safe default while a slower deliberative layer improves on it. Deliberation itself becomes a decision: metareasoning asks whether another 50 ms of thinking is worth more than acting now.</li>
+  <li><strong>Continuous spaces forbid exhaustive enumeration.</strong> There is no "list of all states" or "list of all steering angles". The three standard responses are discretisation (occupancy grids, a finite set of candidate trajectories), sampling (RRT, particle filters, Monte Carlo rollouts), and function approximation (neural networks or linear features representing value functions and policies over real-valued inputs), often combined with gradient-based optimisation in the control layer.</li>
+  <li><strong>Multi-agent settings demand opponent modelling or coordination machinery.</strong> Against adversaries, the agent must assume the other party responds to its choices, which brings in minimax, equilibrium computation, and randomised policies to avoid exploitation. Among cooperators, it needs shared conventions, explicit communication protocols, or a joint planner, plus mechanisms for deadlock resolution and task allocation.</li>
+</ul>
+
+<p>Applying this mapping to the five domains yields the architectures observed in practice. Image classification — fully observable, episodic, static, single-agent — needs none of the upgrades, so a learned reflex mapping is optimal and anything more is wasted complexity. Chess needs lookahead and opponent modelling but no belief state or function over continuous actions, so deterministic adversarial search suffices. Poker adds partial observability and chance, so belief tracking and randomisation appear. Robot navigation adds continuity and noise, so filtering plus sampling-based planning appear. Driving requires every single upgrade simultaneously, which is a direct explanation of why it remains an unsolved engineering problem rather than a solved algorithmic one.</p>
+
+<p><strong>Common classification pitfalls.</strong> Most misclassifications come from a handful of recurring confusions, each of which leads to a concrete design error.</p>
+
+<ul>
+  <li><strong>Determinism is judged from the agent's viewpoint.</strong> A die roll is governed by Newtonian mechanics, yet no practical agent can model the tumble; it is therefore stochastic <em>for that agent</em>. The same applies to tyre friction and pedestrian behaviour. The right question is not "is the world lawful?" but "can this agent, with these sensors and this model, predict the successor state exactly?" The related term <em>nondeterministic</em> is reserved for the case where the agent knows the set of possible outcomes but has no probabilities — which calls for contingency planning or worst-case reasoning rather than expected-utility maximisation.</li>
+  <li><strong>Episodic does not mean short.</strong> A single-image classification lasting ten minutes is still episodic; a thirty-second game of speed chess is still sequential. The test is causal coupling, not duration: does this decision change the states, options, or payoffs available to later decisions? Part-picking on a conveyor is episodic even over an eight-hour shift, because each part is independent. Conversely, labelling one frame of a video stream used to track an object is sequential, because the track carries over.</li>
+  <li><strong>Fully observable does not mean omniscient.</strong> Full observability concerns the <em>current environment state</em>, not the future and not other agents' internal reasoning. A chess agent sees the whole board yet cannot know which move its opponent has chosen or how the game will end. Full observability removes the need for state estimation; it does not remove the need for search, prediction, or opponent modelling.</li>
+  <li><strong>Known and observable are different axes.</strong> "Known" refers to the agent's knowledge of the <em>rules</em> — the transition and reward models. "Observable" refers to access to the current <em>state</em>. Poker is a known but partially observable environment: the probabilities of every deal are computable, yet the opponent's cards are hidden. The inverse exists too — a new video game may be fully observable on screen while the effects of actions are entirely unknown and must be learned. Known environments allow model-based search; unknown ones require exploration and learning.</li>
+  <li><strong>Semi-dynamic environments are easily mislabelled as static.</strong> In timed chess the position is frozen while you think, which tempts the label "static" — but your score degrades with deliberation time, and a flagged clock loses the game outright. Treating it as static would justify an unbounded search; recognising it as semi-dynamic forces an anytime algorithm with explicit time management. The same applies to any task with a response-time component in its performance measure, such as an online auction bidder or a fraud-detection system that must decide before the transaction clears.</li>
+  <li><strong>A further trap: dimensions are relative to how the task is framed.</strong> The same physical domain can be classified differently depending on where the agent boundary and performance measure are drawn. Taxi driving is episodic if the performance measure is per-passenger comfort evaluated moment by moment, and strongly sequential if it is fuel efficiency and routecompletion over a shift. Similarly, a single-image classifier is episodic, but the same network embedded in a video-tracking pipeline is one step of a sequential task. Always state the agent boundary, sensors, and performance measure before classifying, and record the framing alongside the profile so that later designers know which assumptions the architecture rests on.</li>
+</ul>
+
+<p>A practical way to close the loop is to write the profile and the derived requirements as a short artefact at the start of a project, for example:</p>
+
+<pre><code>Task: warehouse picking robot
+Profile: partially observable, multi-agent cooperative, stochastic,
+         sequential, dynamic, continuous, known map / unknown dynamics
+Implications:
+  partial observability -&gt; particle-filter localisation + occupancy map
+  stochastic            -&gt; policy with expected-cost evaluation, not fixed plan
+  sequential            -&gt; receding-horizon path planner
+  dynamic               -&gt; 20 Hz reactive obstacle layer, anytime global planner
+  continuous            -&gt; RRT* sampling + PID/MPC velocity control
+  multi-agent coop      -&gt; central traffic manager, reservation-based intersections
+</code></pre>
+
+<p>Each line of the implications block is traceable to exactly one line of the profile, which makes the design reviewable: if a reviewer disputes the architecture, the argument moves to the classification, where it can be settled by inspecting the sensors and the performance measure rather than by preference.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1</strong>: Supported indirectly. The topic repeatedly appeals to what the agent's sensors can perceive and what its actions commit it to, reinforcing the percept-to-action view of the agent function, but it does not set out the agent–environment model from first principles.</li>
+  <li><strong>MO2</strong>: Supported indirectly. The pitfall that full observability does not imply omniscience, and the treatment of stochasticity as a limit of the agent's own model, reinforce the distinction between rationality and omniscience without restating the four ingredients of the rational agent definition.</li>
+  <li><strong>MO3</strong>: Only lightly addressed. The topic assumes a task has already been specified and stresses that the performance measure, sensors, and actuators must be fixed before classification, but it does not teach the construction of a full PEAS specification.</li>
+  <li><strong>MO4</strong>: Directly and primarily supported. The checklist, the five worked domains, the comparison table, and the pitfalls section together give sustained practice in classifying task environments along observability, determinism, episodicity, dynamism, discreteness, and agent count.</li>
+  <li><strong>MO5</strong>: Directly supported. The profile-to-architecture mapping explains why partial observability rules out simple reflex agents, why stochasticity favours utility-based policies, why sequential structure requires goal-based lookahead or learning, and why unknown dynamics require learning agents — providing the justification pattern the outcome requires.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The table deliberately records chess as semi-dynamic (clocked) and notes poker's action space as "mostly discrete" to pre-empt the no-limit betting edge case; instructors using untimed chess should flag the change to "static". The final `&lt;pre&gt;` artefact can be reused as an assessment template: give students a new task and ask them to produce the profile and traceable implications block.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>So far this module has given you vocabulary: sensors and actuators, percept sequences, PEAS, and the six or seven dimensions along which any task environment can be described — fully vs. partially observable, deterministic vs. stochastic, episodic vs. sequential, static vs. dynamic, discrete vs. continuous, and single- vs. multi-agent. This topic is where that vocabulary gets exercised. You will work through a checklist on familiar domains: chess (fully observable, deterministic, sequential, multi-agent), poker (partially observable because of hidden cards, stochastic, strategic), automated driving (partially observable, stochastic, sequential, dynamic, continuous, multi-agent — the hard case), image classification (episodic and static), and indoor robot navigation (partial observability plus continuous space).</p>
+<p>The reason this matters is practical rather than academic. The environment profile tells you what kind of agent you need. A static, episodic, fully observable task may be solved by a simple reflex agent or a single-pass classifier; a partially observable, sequential task forces you to maintain internal state (a model-based agent); stochastic environments with competing outcomes push you toward utility-based reasoning; and unknown or changing environments argue for a learning agent. The second half of the topic walks that bridge from profile to architecture, and then warns you about the classification pitfalls students most often hit — calling chess stochastic because you cannot predict the opponent, calling driving discrete because the control signals are digitized, or forgetting that the agent's own uncertainty is not the same thing as environmental nondeterminism.</p>
+<p>The videos below come from IBM Technology and are industry-facing rather than textbook-exact. Watch them to collect concrete deployed examples — drones, IoT monitoring, disaster response, assistants — and then practice running each example through the classification checklist yourself. When a video describes an agent type, ask which environment properties would justify that choice; when it shows an application, ask what the PEAS specification would look like. The videos supply the raw material; the classification work is yours.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/fXizBc03D7E?cc_load_policy=1&amp;rel=0" title="Video: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 10:22 · 430,730 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=fXizBc03D7E" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>An overview of five categories of AI agents and the autonomous functions each performs, illustrated with real-world applications such as a package-delivery drone. The video is likely to move from simple reactive behavior through goal-oriented and utility-driven agents to learning agents, and to show how each type is used in deployed systems.</p>
+<h3>Why this video</h3>
+<p>It directly mirrors the agent-architecture ladder used in this topic, so you can pair each agent type with the environment properties that make it appropriate — the central move in "From Environment Profile to Agent Architecture." IBM Technology explains these distinctions clearly and with concrete deployment examples rather than abstractions.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: 10 Use Cases for AI Agents: IoT, RAG, &amp; Disaster Response Explained</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Ts42JTye-AI?cc_load_policy=1&amp;rel=0" title="Video: 10 Use Cases for AI Agents: IoT, RAG, &amp; Disaster Response Explained (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 9:12 · 191,696 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=Ts42JTye-AI" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A tour of ten application areas for AI agents, including IoT sensing, retrieval-augmented generation, and disaster response. Each use case is likely to sketch what the agent perceives, what it acts on, and what makes the setting difficult.</p>
+<h3>Why this video</h3>
+<p>It gives you a stockpile of unfamiliar domains to classify with the checklist — an IoT monitoring loop and a disaster-response system differ sharply in observability, dynamism, and agent count. Practicing on cases outside chess and driving is the best test of whether you have internalized the dimensions.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: Generative vs Agentic AI: Shaping the Future of AI Collaboration</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/EDb37y_MhRw?cc_load_policy=1&amp;rel=0" title="Video: Generative vs Agentic AI: Shaping the Future of AI Collaboration (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 7:19 · 1,461,652 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=EDb37y_MhRw" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A comparison of generative AI with agentic AI, focusing on how systems that produce output on request differ from systems that pursue goals, take actions, and operate over time. The discussion is likely to cover autonomy, tool use, and multi-step task execution.</p>
+<h3>Why this video</h3>
+<p>The generative/agentic contrast maps closely onto the episodic-versus-sequential distinction you need for the image-classification and driving examples, making it useful reinforcement for "Image Classification: An Episodic, Static Environment." It also helps you avoid the pitfall of treating every AI system as an agent acting in a dynamic environment.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos reinforce the module outcomes by supplying concrete systems to analyze. The agent-types video supports MO5 by laying out the reflex-through-learning architecture spectrum you must justify choices within, and supports MO1 by showing sensing and acting loops in deployed systems such as drones. The use-case video supplies varied domains for MO4 practice, letting you apply the observability, determinism, episodicity, dynamism, discreteness, and agent-count checklist to settings you have not already memorized, and each use case can be written up as a PEAS specification for MO3. The generative-versus-agentic comparison sharpens the episodic/sequential boundary and the question of what autonomy really requires, which feeds the MO2 discussion of rationality as acting well given available percepts rather than acting perfectly. Treat the videos as sources of examples and bring the formal classification framework from the course readings to them.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

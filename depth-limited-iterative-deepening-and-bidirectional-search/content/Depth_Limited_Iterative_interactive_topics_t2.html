@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iterative Deepening Search</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Depth-Limited, Iterative Deepening, and Bidirectional Search</a></div>
+  <header>
+    <h1>Iterative Deepening Search</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Iterative Deepening Search</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p><strong>Iterative deepening search (IDS)</strong>, sometimes written as <em>iterative deepening depth-first search</em> (IDDFS), is the uninformed strategy that resolves the central dilemma of blind search. Breadth-first search (BFS) is complete and, for uniform step costs, optimal — but it must hold an entire frontier in memory, which grows as <code>O(b^d)</code> and exhausts RAM long before it exhausts patience. Depth-first search (DFS) needs only a single path in memory, but it is neither complete (it can dive forever down an infinite branch) nor optimal (it returns the first goal it stumbles upon, however deep). Depth-limited search (DLS) repairs DFS's infinite-descent problem by refusing to expand nodes below a cutoff depth <code>ℓ</code>, but it introduces a new problem: you must choose <code>ℓ</code> correctly. Choose too small and you miss the goal entirely; choose too large and you re-admit much of DFS's wasted effort and lose optimality. Iterative deepening sidesteps the choice altogether by trying <em>every</em> limit in increasing order until one succeeds.</p>
+
+<p><strong>What iterative deepening search is.</strong> IDS is a loop around depth-limited search. It runs DLS with limit 0, then limit 1, then limit 2, and so on, without any predetermined upper bound. Each iteration is a complete, self-contained depth-limited search launched afresh from the initial state; if that iteration does not find a goal, everything it built — its stack, its path, its generated nodes — is discarded, and the next iteration starts from zero with a limit one greater. This sounds profligate, and it is the feature most students object to on first encounter, but as the complexity analysis below shows, the duplicated work is asymptotically negligible.</p>
+
+<p>Two properties follow immediately from this structure. First, IDS never requires you to guess a depth limit in advance, which is precisely the weakness that makes plain depth-limited search awkward to deploy on unfamiliar problems. Second, because the limits are tried in strictly increasing order starting at 0, the <em>first</em> iteration that returns a solution must be the iteration whose limit equals the depth of the shallowest goal. If a goal existed at some depth <code>k</code>, the iteration with limit <code>k</code> would have found it; so when the goal is first found at limit <code>d</code>, no goal exists at any depth less than <code>d</code>. The process terminates the moment it reaches the shallowest goal depth — it never searches deeper than necessary.</p>
+
+<p><strong>How the algorithm works, step by step.</strong> The control loop is remarkably short, and its correctness rests entirely on depth-limited search returning three distinguishable outcomes rather than two:</p>
+
+<ul>
+  <li><strong>Solution</strong> — a goal node was reached within the limit; IDS stops and returns the solution path.</li>
+  <li><strong>Cutoff</strong> — no goal was found, but at least one branch was truncated because it hit the depth limit. There may still be a goal further down, so IDS increments the limit and tries again.</li>
+  <li><strong>Failure</strong> — no goal was found and <em>no</em> branch was truncated. The entire reachable state space was explored and found to contain no goal, so IDS terminates and reports failure.</li>
+</ul>
+
+<p>Without the distinction between <em>cutoff</em> and <em>failure</em>, iterative deepening could not know when to stop on a finite state space with no solution — it would loop forever, raising the limit past the depth of the deepest reachable node. The pseudocode is:</p>
+
+<pre><code>function ITERATIVE-DEEPENING-SEARCH(problem) returns a solution, or failure
+    for limit = 0 to infinity do
+        result &lt;- DEPTH-LIMITED-SEARCH(problem, limit)
+        if result != cutoff then return result     // solution or failure
+    end for
+
+function DEPTH-LIMITED-SEARCH(problem, limit) returns solution / failure / cutoff
+    return RECURSIVE-DLS(MAKE-NODE(problem.INITIAL-STATE), problem, limit)
+
+function RECURSIVE-DLS(node, problem, limit) returns solution / failure / cutoff
+    if problem.GOAL-TEST(node.STATE) then return SOLUTION(node)
+    else if limit = 0 then return cutoff
+    else
+        cutoff_occurred? &lt;- false
+        for each action in problem.ACTIONS(node.STATE) do
+            child &lt;- CHILD-NODE(problem, node, action)
+            if child.STATE is on the path from the root to node then continue   // cycle check
+            result &lt;- RECURSIVE-DLS(child, problem, limit - 1)
+            if result = cutoff then cutoff_occurred? &lt;- true
+            else if result != failure then return result
+        end for
+        if cutoff_occurred? then return cutoff else return failure</code></pre>
+
+<p>Note the memory behaviour. Because <code>RECURSIVE-DLS</code> is a depth-first recursion, the only nodes alive at any instant are those on the current root-to-node path, plus the unexpanded siblings of each node on that path. When an iteration ends, its entire recursion stack unwinds and the memory is reclaimed before the next iteration begins. At no point does IDS hold two iterations' worth of data simultaneously — only one path at a time is ever stored.</p>
+
+<p><strong>A worked trace.</strong> Consider this binary tree, with the goal state at node <code>N</code>, at depth 3. Children are listed and expanded left to right.</p>
+
+<pre><code>                    A
+            ┌───────┴───────┐
+            B               C
+        ┌───┴───┐       ┌───┴───┐
+        D       E       F       G
+      ┌─┴─┐   ┌─┴─┐   ┌─┴─┐   ┌─┴─┐
+      H   I   J   K   L   M   N*  O        (* = goal)</code></pre>
+
+<table>
+  <thead>
+    <tr><th>Iteration (limit ℓ)</th><th>Nodes generated, in order</th><th>Deepest level reached</th><th>Outcome returned by DLS</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>ℓ = 0</td><td>A</td><td>0</td><td>cutoff (A is not the goal; A's children were not expanded)</td></tr>
+    <tr><td>ℓ = 1</td><td>A, B, C</td><td>1</td><td>cutoff</td></tr>
+    <tr><td>ℓ = 2</td><td>A, B, D, E, C, F, G</td><td>2</td><td>cutoff</td></tr>
+    <tr><td>ℓ = 3</td><td>A, B, D, H, I, E, J, K, C, F, L, M, G, <strong>N</strong></td><td>3</td><td>solution: path A → C → G → N</td></tr>
+  </tbody>
+</table>
+
+<p>Observe the characteristic signature of IDS: the node order within each iteration is depth-first, but the order in which <em>new</em> depths are first visited is breadth-first. The root is generated four times (once per iteration), level 1 three times, level 2 twice, and level 3 once. Also observe that the search stopped at <code>N</code> and never generated <code>O</code> — and that if a second goal had existed at depth 2, the ℓ = 2 iteration would have returned it first, demonstrating the shallowest-first guarantee.</p>
+
+<p><strong>Completeness and optimality.</strong> IDS inherits the good properties of breadth-first search:</p>
+
+<ul>
+  <li><strong>Complete</strong> on any state space with a finite branching factor, <em>even if the space is infinitely deep</em>. Any goal at finite depth <code>d</code> will be reached on iteration <code>d</code> at the latest, because iteration <code>d</code> exhaustively examines every node at depth ≤ <code>d</code>, and there are only finitely many such nodes when <code>b</code> is finite. This is exactly what plain DFS cannot promise: DFS may commit to an infinite branch and never return.</li>
+  <li><strong>Optimal when all step costs are equal</strong> (or, more generally, when path cost is a non-decreasing function of depth). Since limits are tried in increasing order and iteration <code>d</code> is the first that can possibly succeed, the goal returned is a shallowest goal, and with uniform costs shallowest means cheapest.</li>
+  <li><strong>Not optimal with varying step costs.</strong> If moving from <code>A</code> to <code>C</code> costs 100 and a three-step route costs 3, IDS will still return the shallower, more expensive solution. Depth is simply the wrong quantity to minimise when edges have different weights. The correct responses are <em>uniform-cost search</em> (a best-first search ordered by <code>g(n)</code>, which is optimal but pays the BFS-style memory penalty) or <em>iterative lengthening search</em>, described below.</li>
+  <li><strong>Cannot be trapped on an infinite path</strong>, because every iteration imposes a hard finite cutoff and then unwinds. An unbounded descent simply triggers the cutoff signal and causes the next, slightly deeper, iteration.</li>
+</ul>
+
+<p><strong>Memory and time complexity.</strong> Let <code>b</code> be the branching factor and <code>d</code> the depth of the shallowest goal.</p>
+
+<table>
+  <thead>
+    <tr><th>Strategy</th><th>Complete?</th><th>Optimal (uniform costs)?</th><th>Time</th><th>Space</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Breadth-first</td><td>Yes (finite b)</td><td>Yes</td><td>O(b<sup>d</sup>)</td><td><strong>O(b<sup>d</sup>)</strong></td></tr>
+    <tr><td>Uniform-cost</td><td>Yes (costs ≥ ε &gt; 0)</td><td>Yes (any costs)</td><td>O(b<sup>1+⌊C*/ε⌋</sup>)</td><td>O(b<sup>1+⌊C*/ε⌋</sup>)</td></tr>
+    <tr><td>Depth-first (tree)</td><td>No</td><td>No</td><td>O(b<sup>m</sup>)</td><td>O(bm)</td></tr>
+    <tr><td>Depth-limited (limit ℓ)</td><td>No (fails if ℓ &lt; d)</td><td>No</td><td>O(b<sup>ℓ</sup>)</td><td>O(bℓ)</td></tr>
+    <tr><td><strong>Iterative deepening</strong></td><td><strong>Yes (finite b)</strong></td><td><strong>Yes</strong></td><td><strong>O(b<sup>d</sup>)</strong></td><td><strong>O(bd)</strong></td></tr>
+  </tbody>
+</table>
+
+<p>(Here <code>m</code> is the maximum depth of the state space and <code>C*</code> the optimal solution cost.) The decisive line is the last one. IDS matches BFS on completeness, optimality and asymptotic time, but its space requirement is <em>linear</em> in the solution depth rather than exponential. The <code>O(bd)</code> figure counts the <code>d</code> nodes on the current path plus the up-to-<code>b</code> siblings stored at each of those levels while the recursion iterates over them; implementations that generate successors lazily can reduce this to <code>O(d)</code>.</p>
+
+<p>The practical significance is hard to overstate. For <code>b = 10</code> and <code>d = 12</code>, BFS would need to store on the order of 10<sup>12</sup> nodes — terabytes of memory, which is why memory, not time, is almost always the binding constraint on large blind searches. IDS needs storage for roughly 120 nodes. Both do about 10<sup>12</sup> node generations, so both are slow; but IDS will actually run, while BFS will crash. This is why <strong>iterative deepening is the preferred uninformed strategy whenever the search space is large and the solution depth is unknown</strong>.</p>
+
+<p><strong>Why repeated node regeneration costs little.</strong> The objection to IDS is obvious: the root is expanded <code>d + 1</code> times, level 1 is generated <code>d</code> times, and so on. Surely that is enormously wasteful? It is not, and the reason is the geometry of exponential trees: <em>in a tree with branching factor b &gt; 1, the bottom level contains roughly as many nodes as all shallower levels combined</em>. Level <code>d</code> has <code>b<sup>d</sup></code> nodes while levels 0 through <code>d−1</code> together hold <code>(b<sup>d</sup> − 1)/(b − 1)</code>. The nodes that get regenerated most often are exactly the ones that are least numerous.</p>
+
+<p>Counting precisely: a node at depth <code>i</code> is generated once in each iteration whose limit is at least <code>i</code>, i.e. in iterations <code>i, i+1, …, d</code> — that is <code>d − i + 1</code> times. So the total node generations are</p>
+
+<pre><code>N(IDS) = (d+1)·b⁰ + d·b¹ + (d−1)·b² + … + 3·b^(d−2) + 2·b^(d−1) + 1·b^d</code></pre>
+
+<p>compared with breadth-first search's</p>
+
+<pre><code>N(BFS) = b⁰ + b¹ + b² + … + b^d</code></pre>
+
+<p>For <code>b = 10</code> and <code>d = 5</code> the arithmetic is instructive:</p>
+
+<table>
+  <thead>
+    <tr><th>Depth i</th><th>Nodes at that depth</th><th>Times generated by IDS</th><th>IDS generations</th><th>BFS generations</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>0</td><td>1</td><td>6</td><td>6</td><td>1</td></tr>
+    <tr><td>1</td><td>10</td><td>5</td><td>50</td><td>10</td></tr>
+    <tr><td>2</td><td>100</td><td>4</td><td>400</td><td>100</td></tr>
+    <tr><td>3</td><td>1,000</td><td>3</td><td>3,000</td><td>1,000</td></tr>
+    <tr><td>4</td><td>10,000</td><td>2</td><td>20,000</td><td>10,000</td></tr>
+    <tr><td>5</td><td>100,000</td><td>1</td><td>100,000</td><td>100,000</td></tr>
+    <tr><td><strong>Total</strong></td><td>—</td><td>—</td><td><strong>123,456</strong></td><td><strong>111,111</strong></td></tr>
+  </tbody>
+</table>
+
+<p>IDS generates about 11% more nodes than BFS. All the repetition — six visits to the root, five to level 1, and so on — amounts to 12,345 extra generations against a baseline of 111,111. In closed form, the ratio <code>N(IDS)/N(BFS)</code> tends to <code>b/(b − 1)</code> as <code>d</code> grows, so the overhead is a <em>constant factor</em> that shrinks as the branching factor rises, leaving the asymptotic time complexity at <code>O(b^d)</code>, identical to BFS:</p>
+
+<table>
+  <thead>
+    <tr><th>Branching factor b</th><th>Limiting ratio b/(b−1)</th><th>Approximate overhead</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>2</td><td>2.00</td><td>~100% (IDS does about twice the work)</td></tr>
+    <tr><td>3</td><td>1.50</td><td>~50%</td></tr>
+    <tr><td>5</td><td>1.25</td><td>~25%</td></tr>
+    <tr><td>10</td><td>1.11</td><td>~11%</td></tr>
+    <tr><td>25</td><td>1.04</td><td>~4%</td></tr>
+    <tr><td>100</td><td>1.01</td><td>~1%</td></tr>
+  </tbody>
+</table>
+
+<p>Real AI search problems tend to have substantial branching factors — the 8-puzzle has an effective <code>b</code> near 2.8 after excluding the reverse move, chess around 35, Rubik's Cube around 13.3 — so in the regime where blind search is most painful, iterative deepening's overhead is smallest. Trading a 1–25% increase in running time for an exponential-to-linear reduction in memory is an overwhelmingly favourable bargain. The one genuinely unfavourable case is a near-unary tree (<code>b</code> close to 1), where the bottom level is <em>not</em> dominant and the repetition is no longer amortised; there, plain DFS or BFS is preferable.</p>
+
+<p><strong>Variants and practical use.</strong> The "restart with a looser bound" idea generalises well beyond depth limits:</p>
+
+<ul>
+  <li><strong>Iterative lengthening search</strong> replaces the depth cutoff with a <em>path-cost</em> cutoff. Each iteration performs a cost-limited DFS that prunes any node with <code>g(n) &gt; limit</code>; if that iteration fails, the limit is raised to the smallest <code>g</code>-value that exceeded the previous limit. This restores optimality for varying step costs while retaining linear space — a memory-light stand-in for uniform-cost search. Its drawback is substantial overhead: with many distinct path costs, the number of iterations can be far larger than <code>d</code>, since each iteration may admit only one extra node.</li>
+  <li><strong>IDA* (Iterative-Deepening A*)</strong> applies the same cutoff-and-restart scheme to <em>heuristic</em> search, bounding on <code>f(n) = g(n) + h(n)</code> instead of depth. Each iteration is a DFS that prunes nodes whose <code>f</code>-cost exceeds the current threshold; the next threshold is the minimum <code>f</code>-value that was pruned. With an admissible heuristic, IDA* returns optimal solutions using memory linear in the solution depth, whereas A* must store the whole frontier and explored set. IDA* was the method that first produced optimal solutions to the 15-puzzle and remains standard for memory-constrained optimal search.</li>
+  <li><strong>Standard practice for large uninformed searches.</strong> When the goal depth is unknown and the space is too large to hold in memory, IDS (or IDA* if a heuristic is available) is the default recommendation. Game-playing programs use a closely related form of iterative deepening over minimax search depth, both to respect a clock — the deepest completed iteration is always available as an answer — and because the move ordering learned at depth <code>k</code> dramatically improves alpha-beta pruning at depth <code>k + 1</code>, often making the extra iterations pay for themselves.</li>
+  <li><strong>Cycle and duplicate handling.</strong> Because IDS is depth-first inside each iteration, it has no global explored set to detect repeated states, so a graph containing cycles can send one iteration spiralling around a loop until the limit is consumed — wasting effort and bloating the branching factor. The cheap, standard remedy is a <em>cycle check along the current path</em>: before expanding a child, verify its state does not already appear among the ancestors on the root-to-node path. This costs <code>O(d)</code> per node (or <code>O(1)</code> with a hash set keyed on the current path) and preserves the linear space bound. A full transposition table can catch more duplicates, but it reintroduces memory growth and so is used selectively, often with a bounded-size cache.</li>
+</ul>
+
+<p><strong>Putting it together.</strong> Iterative deepening is best understood not as a compromise between BFS and DFS but as a way of getting almost all of BFS's guarantees at DFS's memory cost. It uses depth-first expansion to keep memory linear, while the outer loop over increasing limits imposes a breadth-first ordering on the <em>order in which depths are first explored</em>, which is where completeness and shallowest-goal optimality come from. The price is re-generating shallow nodes, and the geometry of exponential trees makes that price a small constant factor rather than an asymptotic penalty. For a large state space with unit step costs, an unknown goal depth, and no usable heuristic, it is the strategy of choice; add an admissible heuristic and its descendant IDA* takes over; replace the depth bound with a cost bound and iterative lengthening handles non-uniform costs.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1</strong> — Directly supported: the step-by-step account and pseudocode show depth-limited search bounding depth-first expansion at a cutoff depth, and the three outcomes (solution, cutoff, failure) are defined and shown to be essential to IDS's termination logic.</li>
+  <li><strong>MO2</strong> — Directly supported: the worked binary-tree trace tabulates the nodes generated at limits 0, 1, 2 and 3 until the goal at depth 3 is reached, modelling exactly the kind of execution trace required.</li>
+  <li><strong>MO3</strong> — Directly supported: the generation-count formula, the b = 10, d = 5 worked table (123,456 versus 111,111 nodes) and the b/(b−1) limiting-ratio table justify why regeneration leaves the time complexity at O(b<sup>d</sup>).</li>
+  <li><strong>MO4</strong> — Not addressed: bidirectional search, predecessor generation and frontier intersection testing fall outside this topic, which concerns only the depth-limited and iterative-deepening family.</li>
+  <li><strong>MO5</strong> — Partially supported: the comparison table of completeness, optimality, time and space across breadth-first, uniform-cost, depth-first, depth-limited and iterative deepening, together with the guidance on when each is preferable, supplies the criteria needed to recommend a strategy for a given problem.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The pseudocode follows the standard Russell &amp; Norvig formulation of ITERATIVE-DEEPENING-SEARCH and RECURSIVE-DLS, with an added ancestor cycle check. The 123,456 / 111,111 figures for b = 10, d = 5 are the textbook worked example. Effective branching factors quoted (8-puzzle ≈ 2.8, chess ≈ 35, Rubik&#39;s Cube ≈ 13.3) are standard literature values. The O(bd) space bound assumes eager sibling generation; lazy successor generation gives O(d). Instructors may wish to supplement the ASCII tree diagram with a drawn figure, and to set an exercise contrasting IDS with uniform-cost search on a weighted graph to make the non-optimality under varying step costs concrete.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

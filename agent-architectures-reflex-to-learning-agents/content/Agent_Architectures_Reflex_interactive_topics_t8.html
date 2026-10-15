@@ -1,0 +1,468 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Designing Agent Programs for Sample Environments</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Agent Architectures: Reflex to Learning Agents</a></div>
+  <header>
+    <h1>Designing Agent Programs for Sample Environments</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Designing Agent Programs for Sample Environments</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Designing an agent program is not an act of inspiration; it is an act of <em>specification followed by elimination</em>. You first pin down exactly what the agent is being judged on and what world it inhabits, and only then do you choose the simplest internal organisation that can plausibly score well on that judgement. The sequence matters: a design that begins with "let's use reinforcement learning" or "let's write a few if-then rules" has already committed to an architecture before anyone has checked whether the environment supplies the percepts that architecture needs. The material below walks through the design discipline — PEAS first, then architecture selection, then critique — and applies it to four progressively harder sample environments: a vacuum world, an autonomous navigation task, a trading agent, and a game-playing agent.</p>
+
+<p><strong>Starting with a PEAS Specification</strong></p>
+
+<p>PEAS stands for <strong>P</strong>erformance measure, <strong>E</strong>nvironment, <strong>A</strong>ctuators, <strong>S</strong>ensors. It is the design contract. Each of the four fields does a distinct job, and the most common beginner errors come from blurring them.</p>
+
+<p><strong>The performance measure must be a scalar or a ranked set of criteria, not a description of behaviour.</strong> A statement like "the agent should move efficiently and clean up dirt" is a behaviour sketch, not a measure: two designs can both satisfy it while producing different outcomes, and nothing in the sentence tells you which one won. A measure must be computable by an external observer from the sequence of environment states the agent produced. Compare:</p>
+
+<ul>
+  <li><em>Not a performance measure:</em> "Vacuums the room thoroughly and does not waste time."</li>
+  <li><em>A performance measure:</em> "Score = (1 point for each square that is clean at each of the 1000 time steps) − (1 point per movement action) − (50 points if the agent falls down the stairs)."</li>
+</ul>
+
+<p>The second version is a scalar. It is also <em>falsifiable</em>: you can run two agent programs and read off which one is better. Where a single scalar is genuinely impossible — as is usually the case in navigation or trading — you state a <strong>ranked (lexicographic) set</strong> instead: "First, never violate a traffic law or collide; subject to that, minimise expected journey time; subject to that, minimise fuel use; subject to that, maximise comfort." Ranking is weaker than a scalar because it refuses to trade a tiny amount of safety for a large amount of speed, but it is honest about priorities and it is still objective.</p>
+
+<p>Note also that the performance measure is defined over <em>environment states</em>, not over the agent's own beliefs. An agent that believes the floor is clean scores nothing; an agent whose actions made the floor clean scores. This distinction is what stops designers from accidentally rewarding self-deception.</p>
+
+<p><strong>Environment properties must be listed explicitly</strong>, because each property is the reason a particular architecture is needed or not needed. The six standard dimensions are:</p>
+
+<table>
+  <thead>
+    <tr><th>Property</th><th>Question it answers</th><th>Design consequence if the "hard" value holds</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Fully vs. partially observable</td><td>Do the sensors reveal everything relevant to the decision at every step?</td><td>Partial observability forces <strong>internal state</strong> — a model-based agent at minimum.</td></tr>
+    <tr><td>Deterministic vs. stochastic</td><td>Is the next state fixed by the current state and action?</td><td>Stochasticity forces reasoning over <strong>probabilities and expected values</strong>, pushing toward utility.</td></tr>
+    <tr><td>Episodic vs. sequential</td><td>Does the current action affect future percepts and rewards?</td><td>Sequential environments require <strong>planning or lookahead</strong>; episodic ones permit pure classification-style reflexes.</td></tr>
+    <tr><td>Static vs. dynamic</td><td>Can the world change while the agent is deliberating?</td><td>Dynamic worlds impose a <strong>deliberation deadline</strong>; plans must be interruptible and replannable.</td></tr>
+    <tr><td>Discrete vs. continuous</td><td>Are states, time, percepts and actions countable?</td><td>Continuous spaces rule out tabular enumeration and force <strong>function approximation or discretisation</strong>.</td></tr>
+    <tr><td>Single- vs. multi-agent</td><td>Is any other entity optimising a measure that depends on your actions?</td><td>Multi-agent (especially adversarial) settings require <strong>opponent modelling, game-theoretic reasoning, or randomised policies</strong>.</td></tr>
+  </tbody>
+</table>
+
+<p>A useful discipline is to write each property down with a one-line justification, e.g. "Partially observable: the camera sees 60° ahead, so vehicles approaching from behind are not in the percept." That justification is what you will cite later when defending the architecture.</p>
+
+<p><strong>Enumerating actuators bounds the action space.</strong> The agent program is a function that returns an action; if you have not listed the legal actions, you have not defined the function's codomain. Writing "Actuators: wheels, brakes, steering" is too vague to code against. Write the <em>action set</em>: <code>{Accelerate(a) | a ∈ [−4, +2] m/s²} × {Steer(δ) | δ ∈ [−30°, +30°]} ∪ {SignalLeft, SignalRight, Horn}</code>. This immediately exposes design problems: if the performance measure penalises discomfort but the actuator list has no way to limit jerk, the measure cannot be optimised.</p>
+
+<p><strong>Enumerating sensors determines the percept delivered on each cycle</strong> — and, crucially, exposes the gap between what the agent <em>needs</em> and what it can <em>observe</em>. This is the single most productive step in the whole PEAS process. For each item of information the decision rule requires, ask: which sensor supplies it, and at what noise and latency? Anything required but unsupplied must be <em>inferred</em>, and inference needs internal state and a transition model. The sensor list is therefore the formal proof that a reflex agent is or is not sufficient.</p>
+
+<table>
+  <thead>
+    <tr><th>Agent</th><th>Performance measure</th><th>Environment</th><th>Actuators</th><th>Sensors</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Vacuum agent</td><td>+1 per clean square per step; −1 per move; over 1000 steps</td><td>2 (or n) squares, dirt appears stochastically</td><td>Left, Right, Suck, NoOp</td><td>Location sensor, dirt sensor</td></tr>
+    <tr><td>Delivery vehicle</td><td>Lexicographic: safety/legality &gt; on-time delivery &gt; fuel &gt; comfort</td><td>Urban road network, other drivers, weather</td><td>Throttle, brake, steering, indicators</td><td>GPS, lidar, cameras, wheel odometry, map</td></tr>
+    <tr><td>Trading agent</td><td>Expected risk-adjusted return (e.g. Sharpe ratio) net of costs</td><td>Order book, other traders, news flow</td><td>Buy(q), Sell(q), Limit order, Cancel, Hold</td><td>Price/volume feed, order book depth, position/cash state, news feed</td></tr>
+    <tr><td>Chess agent</td><td>Win = 1, draw = ½, loss = 0, averaged over games; respect clock</td><td>8×8 board, one adversary</td><td>Move(piece, square), Resign, OfferDraw</td><td>Board state, clock, move history</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Vacuum World: Reflex versus Model-Based Design</strong></p>
+
+<p>The two-square vacuum world is deliberately trivial, which is exactly why it is a good instrument: it lets you see architecture choice forced by a single environment property rather than by complexity.</p>
+
+<p><em>The fully observable case.</em> The percept is a pair <code>(Location, Status)</code> with <code>Location ∈ {A, B}</code> and <code>Status ∈ {Clean, Dirty}</code>. There are exactly four possible percepts, and therefore the complete percept-to-action table has four rows:</p>
+
+<table>
+  <thead>
+    <tr><th>Percept</th><th>Action</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>[A, Dirty]</td><td>Suck</td></tr>
+    <tr><td>[A, Clean]</td><td>Right</td></tr>
+    <tr><td>[B, Dirty]</td><td>Suck</td></tr>
+    <tr><td>[B, Clean]</td><td>Left</td></tr>
+  </tbody>
+</table>
+
+<p>Four rules — and in fact only two distinct decisions ("if dirty, suck; otherwise move to the other square"). The agent program is a two-line lookup:</p>
+
+<pre><code>function REFLEX-VACUUM-AGENT(percept) returns action
+    (location, status) &lt;- percept
+    if status = Dirty then return Suck
+    else if location = A then return Right
+    else return Left</code></pre>
+
+<p>This is a <strong>simple reflex agent</strong>, and it is provably adequate here because the percept uniquely identifies everything the decision depends on. Note the honest caveat: with the "+1 per clean square per step, −1 per move" measure, this agent oscillates forever between clean squares and bleeds points. Under the simpler "+1 per clean square per step" measure with no movement penalty, it is optimal. The architecture is adequate; the <em>policy</em> is only optimal relative to the measure you wrote. This is already an argument for evaluating designs against the stated measure rather than against intuition.</p>
+
+<p><em>Removing the location sensor.</em> Now the percept is just <code>Status</code>. There are two possible percepts, so a reflex agent can implement only four possible policies (one action choice for each of two percepts). Examine them:</p>
+
+<ul>
+  <li><strong>Always Suck when Dirty, always Right when Clean:</strong> the agent reaches square B, finds it clean, and keeps executing <code>Right</code> against the wall forever. If square A later becomes dirty, it is never revisited. Permanent failure.</li>
+  <li><strong>Always Suck when Dirty, always Left when Clean:</strong> symmetric failure at square A.</li>
+  <li><strong>Suck regardless of status:</strong> never moves; the other square is never cleaned.</li>
+  <li><strong>Move regardless of status:</strong> never cleans anything.</li>
+</ul>
+
+<p>There is no deterministic reflex policy that cleans both squares and stops wasting moves, because <em>two different world states produce the identical percept</em> <code>[Clean]</code> while demanding different actions ("go right" from A, "stay or stop" at B). This is the textbook demonstration that <strong>partial observability breaks simple reflex agents</strong>. A randomised reflex agent (flip a coin between Left and Right when Clean) does eventually clean everything, which is worth noting — randomisation can rescue reflex agents from infinite loops — but it is inefficient and its expected score is poor.</p>
+
+<p><em>Restoring correct behaviour with internal state.</em> A <strong>model-based reflex agent</strong> keeps a small amount of memory and a transition model, and uses the percept to update it:</p>
+
+<pre><code>persistent: belief = {A: Unknown, B: Unknown}   # believed cleanliness
+            pos = A                              # believed position
+            last_action = None
+
+function MODEL-BASED-VACUUM-AGENT(status) returns action
+    # 1. UPDATE-STATE: fold last_action and new percept into the model
+    if last_action = Right and pos = A then pos &lt;- B
+    if last_action = Left  and pos = B then pos &lt;- A
+    belief[pos] &lt;- status
+    if last_action = Suck then belief[pos] &lt;- Clean
+
+    # 2. RULE-MATCH on the internal state, not on the raw percept
+    if belief[pos] = Dirty then action &lt;- Suck
+    else if belief[other(pos)] ≠ Clean then action &lt;- move-toward(other(pos))
+    else action &lt;- NoOp
+
+    last_action &lt;- action
+    return action</code></pre>
+
+<p>Two things are doing the work here. The <strong>transition model</strong> ("Right from A lands me in B") lets the agent infer its position without a location sensor, by dead-reckoning from its own action history. The <strong>sensor model</strong> ("the dirt sensor reports the square I am standing on") lets it attribute the percept to the right square. Together they convert a percept sequence into a belief state, and the rules then fire on the belief state. Notice the <code>NoOp</code> branch: once both squares are believed clean, the agent stops moving, which is impossible for the sensorless reflex agent and which directly earns points under a movement-penalising measure. (If dirt can reappear, the model must decay <code>Clean</code> beliefs back to <code>Unknown</code> after some time — an assumption worth documenting.)</p>
+
+<p><em>Scaling to an n-square grid.</em> Now the asymmetry becomes decisive. If the agent is fully observable over the whole grid, the world state is "which of the n squares are dirty" × "where the agent is", i.e. <code>n · 2ⁿ</code> states, and a complete lookup table needs one row per state:</p>
+
+<table>
+  <thead>
+    <tr><th>Squares (n)</th><th>World states (n · 2ⁿ)</th><th>Rows in a full percept-to-action table</th><th>Size of the model-based program</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>2</td><td>8</td><td>8</td><td>~10 lines</td></tr>
+    <tr><td>4</td><td>64</td><td>64</td><td>~10 lines</td></tr>
+    <tr><td>10</td><td>10,240</td><td>10,240</td><td>~10 lines</td></tr>
+    <tr><td>25 (5×5 room)</td><td>≈ 8.4 × 10⁸</td><td>≈ 8.4 × 10⁸</td><td>~10 lines</td></tr>
+    <tr><td>100 (10×10 room)</td><td>≈ 1.3 × 10³²</td><td>infeasible</td><td>~10 lines</td></tr>
+  </tbody>
+</table>
+
+<p>The table grows exponentially in the number of squares; the model-based program does not grow at all, because it stores a <em>compressed</em> representation (an n-bit dirt map plus a position) and <em>computes</em> the action from it rather than looking it up. This is the general lesson: a reflex table enumerates the state space, while a model-based program factors it. Exponential blow-up in rule tables is the structural reason real agents carry models.</p>
+
+<p><em>Motivating a utility-based variant.</em> Introduce the movement penalty: "+1 per clean square per step, −2 per move, −0 for NoOp." Now actions are no longer simply right or wrong; they trade off. Suppose the agent sits on a clean square and believes square 7 (eight moves away) is dirty with probability 0.6, and square 2 (two moves away) is dirty with probability 0.3. A goal-based formulation ("make every square clean") cannot choose between them — both satisfy the goal eventually. A <strong>utility-based agent</strong> computes expected net gain: travelling to square 2 costs 4 points and yields, with probability 0.3, a stream of +1 per remaining step; travelling to square 7 costs 16 points for a 0.6 chance of the same stream. With 20 steps remaining, the near square wins; with 400 steps remaining, the far square wins. The utility function makes the horizon and the probabilities first-class inputs to the decision, which is precisely what the goal formulation discards.</p>
+
+<p><strong>Autonomous Navigation: Goal-Based Design</strong></p>
+
+<p>Navigation is the canonical case where the <em>right action now depends on a destination that is not in the percept</em>. That single fact rules out reflex architectures.</p>
+
+<p><em>The goal as an explicit state.</em> Specify the goal as a predicate over states: <code>GOAL(s) ≡ (s.position ∈ dropoff_zone) ∧ (s.parcel_delivered = true)</code>. The agent then searches a state space whose nodes are (position, heading, time) and whose edges are actions with costs, using A* over a road graph with an admissible heuristic such as straight-line distance divided by maximum legal speed. The output is an action <em>sequence</em> — a plan — rather than a single action:</p>
+
+<pre><code>function GOAL-BASED-NAVIGATOR(percept) returns action
+    state &lt;- UPDATE-STATE(state, last_action, percept, transition_model, sensor_model)
+    if plan is empty or not VALID(plan, state) then
+        plan &lt;- SEARCH(state, goal, model)          # e.g. A* over the road graph
+    action &lt;- FIRST(plan); plan &lt;- REST(plan)
+    last_action &lt;- action
+    return action</code></pre>
+
+<p>The key architectural feature is the <code>goal</code> variable. Change the destination and the behaviour changes completely with no edit to the program — which is the practical benefit of goal-based design over compiled-in rules.</p>
+
+<p><em>Partial observability and dynamism force replanning.</em> A vehicle sees perhaps 100 m of road; it cannot observe a lane closure two kilometres ahead, a pedestrian behind a parked van, or the intentions of the car in the next lane. The world also changes while the agent deliberates: a plan computed for the state 400 ms ago may already be invalid. Hence the <code>VALID(plan, state)</code> test and the continual <code>UPDATE-STATE</code> step: the agent maintains a world model (map + tracked obstacles + its own pose, typically via a Kalman or particle filter) and treats its plan as a <em>hypothesis</em> to be revised, not a commitment. In practice this appears as a layered design — a slow global planner (route over the road graph, replanned every few seconds), a medium local planner (trajectory over the next 5 seconds, replanned at 10 Hz), and a fast reactive safety layer (emergency braking, running at 100 Hz). The reactive layer is a genuine reflex agent, retained precisely because reflexes are fast; it is <em>subordinated</em> to, not replaced by, the deliberative layers.</p>
+
+<p><em>Contrast with pure obstacle avoidance.</em> A reflex rule set such as "if obstacle ahead, turn right; else go forward" produces behaviour that looks purposeful and is utterly unreliable for a destination task. It has no representation of where it is going, so it cannot fail to reach the goal — it was never trying. Worse, it exhibits classic reflex pathologies: limit cycles around convex obstacles, oscillation in corridors, and the inability to deliberately back out of a dead end (backing out is locally "wrong" and globally necessary). Reaching a specified address reliably requires a goal representation and lookahead; this is an architecture-level limitation, not a tuning problem.</p>
+
+<p><em>Competing objectives expose the limits of goals.</em> Many plans reach the destination. Which one should the agent execute? Consider three candidate routes:</p>
+
+<table>
+  <thead>
+    <tr><th>Route</th><th>Time (min)</th><th>Fuel (L)</th><th>Comfort (jerk events)</th><th>Legal risk</th><th>Goal satisfied?</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Motorway</td><td>24</td><td>2.1</td><td>3</td><td>none</td><td>Yes</td></tr>
+    <tr><td>City shortcut</td><td>21</td><td>1.6</td><td>19</td><td>none</td><td>Yes</td></tr>
+    <tr><td>Bus-lane dash</td><td>17</td><td>1.4</td><td>12</td><td>fine likely</td><td>Yes</td></tr>
+  </tbody>
+</table>
+
+<p>All three satisfy <code>GOAL(s)</code>. Goal satisfaction is a binary predicate and therefore cannot rank them. The designer either smuggles the ranking into the search cost function (which is already a partial move to utility) or admits it openly.</p>
+
+<p><em>Upgrading to a utility function.</em> Define <code>U = −(w_t · time + w_f · fuel + w_c · discomfort + w_l · E[legal penalty] + w_s · E[collision cost])</code>, with weights expressed in a common currency (money, or "equivalent minutes"). The planner then minimises expected cost rather than testing a predicate, and the ranked route table above resolves automatically once the weights are set — and, importantly, resolves <em>differently</em> for an ambulance (high <code>w_t</code>) than for a passenger shuttle (high <code>w_c</code>), without changing the program. The added design cost is real and should be acknowledged: you must elicit and calibrate weights, you must estimate probabilitiesfor rare events from sparse data, and you must defend the resulting trade-offs to regulators and passengers. The justification is that the environment is stochastic and the objectives genuinely conflict: there is no ordering of actions available to a goal-based agent that is correct for all stakeholders, so the trade-off has to live somewhere explicit. A utility function puts it in one auditable place rather than scattering it through ad-hoc tie-breaking rules.</p>
+
+<p>One honest caveat: lexicographic safety constraints are usually kept <em>outside</em> the utility sum. Collapsing "never run a red light" into a weighted term means that a sufficiently large time saving can buy a red light, which is unacceptable. The practical pattern is a <strong>constrained utility maximisation</strong>: hard constraints filter the action set, and the utility function ranks whatever survives.</p>
+
+<p><strong>Trading Agents: Utility and Uncertainty</strong></p>
+
+<p>A trading agent is the cleanest example of an environment in which <em>no action guarantees anything</em>. Every architecture below utility-based is structurally unable to express the problem.</p>
+
+<p><em>Utility over outcomes, not over a binary goal.</em> The outcome of a trading decision is not "succeeded/failed" but a distribution over portfolio states. A workable utility function scores an outcome on several axes at once:</p>
+
+<ul>
+  <li><strong>Profit and loss</strong> — the realised and unrealised change in portfolio value, net of commissions, spread, slippage and financing costs.</li>
+  <li><strong>Risk exposure</strong> — position size relative to limits, concentration in a single name or sector, leverage, and sensitivity (delta, duration) to a market factor.</li>
+  <li><strong>Variance / drawdown</strong> — the dispersion of outcomes, not just the mean. Two strategies with identical expected profit are not equally good if one has twice the volatility.</li>
+</ul>
+
+<p>A standard formulation is <strong>mean–variance utility</strong>: <code>U(w) = E[r(w)] − (λ/2) · Var[r(w)]</code>, where <code>w</code> is the portfolio weight vector, <code>r</code> the return, and <code>λ &gt; 0</code> the risk-aversion coefficient. Equivalently one can use a concave utility of wealth such as <code>U(W) = log W</code>, whose concavity <em>is</em> risk aversion: the pain of losing £10,000 exceeds the pleasure of gaining £10,000, so the agent declines fair gambles. This is not a detail — it is the formal reason a utility-based trader behaves sensibly where an expected-profit maximiser would bet the firm.</p>
+
+<p><em>Environment properties.</em> Written out explicitly:</p>
+
+<table>
+  <thead>
+    <tr><th>Property</th><th>Value</th><th>Justification</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Observability</td><td>Partially observable</td><td>The agent sees prices and visible order-book depth, not other participants' intentions, hidden/iceberg orders, or pending news.</td></tr>
+    <tr><td>Determinism</td><td>Stochastic</td><td>The same order placed in the same visible state yields different fills and different subsequent prices.</td></tr>
+    <tr><td>Episodes</td><td>Sequential</td><td>A position taken now constrains capital, risk limits and tax treatment later; today's trade moves tomorrow's price.</td></tr>
+    <tr><td>Change</td><td>Dynamic</td><td>The book updates in microseconds whether or not the agent acts; deliberation time is itself a cost.</td></tr>
+    <tr><td>Representation</td><td>Continuous (prices, quantities, time), though tick-quantised</td><td>Rules out tabular policies; demands function approximation.</td></tr>
+    <tr><td>Agents</td><td>Multi-agent, partly adversarial</td><td>Other traders — including those detecting and front-running your order flow — optimise measures that depend on your actions.</td></tr>
+  </tbody>
+</table>
+
+<p>The multi-agent property has a specific consequence that single-agent reasoning misses: <strong>your own actions change the environment's response function</strong>. A large market order moves the price against you (market impact), and a predictable execution pattern invites exploitation. Hence real execution agents randomise order sizes and timing — a randomised policy is a rational response to an adversary, exactly as in game theory.</p>
+
+<p><em>Expected utility maximisation as the decision rule.</em> When no action guarantees the goal, the agent ranks actions by expected utility:</p>
+
+<pre><code>function UTILITY-TRADER(percept) returns action
+    state  &lt;- UPDATE-STATE(state, last_action, percept)      # prices, book, position, cash
+    model  &lt;- CURRENT-PROBABILITY-MODEL()                     # P(outcome | state, action)
+    best   &lt;- Hold; best_eu &lt;- EU(Hold)
+    for each action a in LEGAL-ACTIONS(state):                # includes size and limit price
+        eu &lt;- SUM over outcomes o of  P(o | state, a) * U(o)  # U includes risk/variance terms
+        eu &lt;- eu − TRANSACTION-COST(a) − EXPECTED-IMPACT(a)
+        if eu &gt; best_eu then best &lt;- a; best_eu &lt;- eu
+    if VIOLATES-RISK-LIMITS(best, state) then best &lt;- Hold
+    last_action &lt;- best
+    return best</code></pre>
+
+<p>A concrete illustration. The model says a stock currently at £100 will, over the next hour, be at £102 with probability 0.55 and £97 with probability 0.45. Expected profit per share is <code>0.55(+2) + 0.45(−3) = +1.10 − 1.35 = −0.25</code> — negative, so even a risk-neutral agent holds. Change the probabilities to 0.65/0.35 and expected profit is <code>+1.30 − 1.05 = +0.25</code> per share: a risk-neutral agent buys the maximum size. A mean–variance agent, however, also computes the variance of that payoff (≈ 5.7 per share) and sizes the position so that <code>E[r] − (λ/2)Var[r]</code> is maximised, which yields a <em>small</em> position. Notice that the architecture produces position sizing automatically; nowhere did anyone write a rule saying "trade smaller when uncertain."</p>
+
+<p><em>Adding a learning element.</em> The probabilities above were asserted; in reality they must be estimated, and the estimates decay as markets change (regime shift, new participants, altered microstructure). The agent therefore becomes a <strong>learning agent</strong> with the four standard components:</p>
+
+<ul>
+  <li><strong>Performance element</strong> — the expected-utility trader above, which chooses orders.</li>
+  <li><strong>Critic</strong> — compares realised outcomes against the model's predictions and against the performance measure: realised P&amp;L net of costs, calibration error (did events predicted at 65% happen about 65% of the time?), and realised volatility versus forecast volatility.</li>
+  <li><strong>Learning element</strong> — updates <code>P(outcome | state, action)</code>, e.g. by Bayesian updating of a predictive model, refitting a return forecaster on a rolling window, or gradient updates to a neural estimator; it may also recalibrate the market-impact model from the agent's own fills.</li>
+  <li><strong>Problem generator</strong> — deliberately places small exploratory orders in instruments or venues the current model rates poorly, so that the agent keeps collecting data outside its current comfort zone. Without it the agent suffers the classic feedback trap: it only ever observes fills for trades it chose to make, so it never learns that its pessimistic estimate for a neglected market was wrong.</li>
+</ul>
+
+<p>The exploration cost here is literal money, which is why the problem generator must be budgeted: "no more than 0.5% of capital, and no more than 2% of expected daily loss budget, allocated to exploratory positions."</p>
+
+<p><em>Critiquing the goal-based alternative.</em> Suppose someone proposes a goal-based trader: "Goal = achieve a 15% return this year; act so as to reach that state." Three failures follow directly from the architecture:</p>
+
+<ul>
+  <li><strong>It is indifferent among all plans that might reach the goal.</strong> Buying a diversified index on margin and putting the entire account on a single biotech binary event both "achieve 15%" in some reachable future. Goal predicates cannot rank by risk because risk is a property of the <em>distribution</em>, and a goal test looks only at individual states.</li>
+  <li><strong>It induces perverse risk-seeking when behind.</strong> If the agent is down 10% in November, the only remaining plans that reach +15% are extremely high-variance ones, so goal satisfaction <em>requires</em> gambling. This is the well-documented "doubling down" pathology, and it is produced by the architecture, not by a bug.</li>
+  <li><strong>It is indifferent to overshoot and to path.</strong> A +60% return scores the same as +15%, so profitable opportunities are declined once the target is met; and a path that dips to −40% before recovering is scored identically to a smooth one, even though the fund would have been liquidated by its investors en route.</li>
+</ul>
+
+<p>The repair in every case is the same: replace the binary predicate with a utility function that is sensitive to the whole outcome distribution. That is precisely the definition of upgrading from a goal-based to a utility-based architecture.</p>
+
+<p><strong>Game-Playing Agents: Learning Architectures</strong></p>
+
+<p>Games are the standard laboratory for learning agents because the performance measure is unambiguous, the environment is cheap to simulate, and feedback is plentiful.</p>
+
+<p><em>Mapping onto the four components.</em> Take a self-play chess or Go program:</p>
+
+<table>
+  <thead>
+    <tr><th>Component</th><th>Role in general</th><th>Instantiation in a game-playing agent</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Performance element</td><td>Selects actions given percepts; this is "the agent" in the non-learning sense</td><td>Search (alpha–beta or Monte Carlo tree search) guided by the current evaluation function and move-ordering policy</td></tr>
+    <tr><td>Critic</td><td>Judges the agent's behaviour against a fixed external performance standard and emits a feedback signal</td><td>Scores positions and games: final result (win/draw/loss), or the difference between the predicted value of a position and the value backed up by deeper search</td></tr>
+    <tr><td>Learning element</td><td>Modifies the performance element using the critic's feedback</td><td>Gradient updates to evaluation-function weights or network parameters; tuning of search heuristics and move priors</td></tr>
+    <tr><td>Problem generator</td><td>Proposes actions/experiences that are informative even if currently suboptimal</td><td>Exploration: temperature-based or ε-greedy move selection, Dirichlet noise at the root, randomised opening books, self-play against earlier/weaker versions</td></tr>
+  </tbody>
+</table>
+
+<p>The division of labour is worth stating precisely: the performance element tries to <em>win now</em>; the problem generator deliberately sacrifices some of that to <em>learn more</em>; the critic supplies the standard; the learning element is the only component that writes to the performance element. Conflating critic and performance element is a common design error — if the agent grades itself using the same evaluation function it is trying to improve, it will happily confirm its own mistakes.</p>
+
+<p><em>Defining the critic's feedback signal.</em> Two sources, with different properties:</p>
+
+<ul>
+  <li><strong>Terminal outcomes</strong> (+1 win, 0 draw, −1 loss) are unambiguous and perfectly aligned with the performance measure, but extremely sparse: one scalar per game of perhaps 80 moves. This creates the <em>credit assignment problem</em> — which of the 80 moves deserves blame? Monte Carlo methods solve it statistically by averaging over very many games.</li>
+  <li><strong>Intermediate evaluation signals</strong> are dense and available every move. The classic device is <strong>temporal-difference learning</strong>, as in Samuel's checkers player and TD-Gammon: the critic's error signal is <code>δ_t = V(s_{t+1}) − V(s_t)</code> (with the true outcome substituting for <code>V</code> at the terminal state), i.e. the agent learns to make each position's value consistent with the value of the position that actually followed. Alternatively, the critic can compare the shallow static evaluation of a position with the value returned by a deep search from it, and train the evaluation to predict the deeper, more reliable number.</li>
+</ul>
+
+<p>In both cases note what makes this a <em>critic</em> and not merely a reward: the standard is external and fixed (the rules of the game decide wins), and it is applied to the agent's own behaviour to produce a correction.</p>
+
+<p><em>Why the problem generator must force suboptimal moves.</em> A performance element that always plays its current best move is <em>on-policy and self-confirming</em>. Suppose the evaluation function wrongly assigns a low value to positions with doubled pawns. The agent will then never enter such positions, will never see their true outcomes, and will never receive the data needed to correct the error. The bad estimate is protected by the very fact that it is bad. The problem generator breaks the loop by occasionally choosing a move the performance element rates second- or third-best — sampling proportionally to visit counts with a temperature parameter, adding Dirichlet noise to root priors so that every legal move has some chance of being tried, or starting games from randomly chosen opening positions. The short-term cost is real (some games are lost that would have been won); the long-term payoff is an evaluation function that is accurate over a much wider region of the state space. This is the exploration–exploitation trade-off in its architectural form, and it is why the problem generator is drawn as a separate box rather than folded into the performance element.</p>
+
+<p><em>Why hand-coded evaluation is brittle.</em> A classical chess evaluation is a weighted sum of human-identified features: material (♙=1, ♘=♗=3, ♖=5, ♕=9), mobility, king safety, pawn structure, control of the centre. Writing one requires expert knowledge; tuning the weights by hand is slow; and the feature set itself encodes the designer's blind spots. In a state space of roughly 10⁴⁴ legal chess positions or 10¹⁷⁰ Go positions, no enumeration is possible and the evaluation function must <em>generalise</em> — it must give sensible values to positions no one has ever seen. Hand-coded functions generalise poorly at the boundaries: they misjudge long-term positional compensation for material, they are exploitable once an opponent discovers which feature is mis-weighted, and every rule added to patch one case tends to break another. Go was the decisive demonstration: decades of hand-crafted evaluation produced only amateur-level play, while learned value networks trained by self-play surpassed the best humans. The architectural lesson generalises beyond games — whenever the state space is too large to enumerate and too subtle to summarise in a few dozen hand-chosen features, learn the evaluation from outcomes.</p>
+
+<p><em>Chess versus poker: architectural consequences of observability.</em></p>
+
+<table>
+  <thead>
+    <tr><th>Dimension</th><th>Chess</th><th>Poker</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Observability</td><td>Fully observable — the board is the state</td><td>Partially observable — opponents' hole cards are hidden</td></tr>
+    <tr><td>Determinism</td><td>Deterministic</td><td>Stochastic (card deal)</td></tr>
+    <tr><td>State representation</td><td>Position (plus castling/en-passant/repetition flags)</td><td><strong>Belief state</strong>: a probability distribution over opponents' holdings, updated by Bayes from betting actions</td></tr>
+    <tr><td>Search structure</td><td>Minimax tree over a perfect-information game</td><td>Information-set tree; the agent cannot distinguish nodes within an information set</td></tr>
+    <tr><td>Optimal policy</td><td>Deterministic policy suffices</td><td><strong>Randomised policy required</strong> — a deterministic bluffing rule is readable and exploitable; equilibrium play mixes</td></tr>
+    <tr><td>Solution concept</td><td>Game value via backward induction / deep search</td><td>Nash equilibrium approximation, typically via counterfactual regret minimisation</td></tr>
+    <tr><td>Critic's signal</td><td>Game result; evaluation of a visible position</td><td>Game result is noisy (a correct decision can lose a hand); critics often use expected value against the inferred distribution, or all-in equity, to reduce variance</td></tr>
+    <tr><td>Extra reasoning</td><td>None about opponent's knowledge</td><td>Must reason about <em>what the opponent believes about the agent</em>, and must balance its own action frequencies to avoid giving information away</td></tr>
+  </tbody>
+</table>
+
+<p>The architectural consequence is sharp. Chess needs a model-based, utility-guided search agent with a learned evaluation; the internal state it must track is small. Poker needs all of that <em>plus</em> explicit belief-state maintenance, plus deliberate randomisation, plus information-theoretic care about what the agent's own actions reveal. Partial observability does not merely add noise; it changes the mathematical object the agent is optimising and the form of the policy it must output. Also note the critic becomes harder to build: in poker a single hand's result is a terrible feedback signal because luck dominates, so the critic must be redesigned to measure decision quality rather than outcome.</p>
+
+<p><strong>Critiquing and Justifying Architecture Choices</strong></p>
+
+<p>A design is not finished when the architecture is chosen; it is finished when the choice is <em>defended from both sides</em>. The discipline below produces a short, reviewable justification that survives contact with a sceptical colleague.</p>
+
+<p><em>1. State why the next-simpler architecture fails, citing a concrete environment property.</em> Vague claims ("a reflex agent isn't smart enough") are not arguments. The correct form names the property and exhibits the failure. Examples:</p>
+
+<ul>
+  <li><strong>Simple reflex → model-based:</strong> "Partially observable: with the location sensor removed, the world states (at A, both clean) and (at B, both clean) generate the identical percept <code>[Clean]</code> but require different actions, so <em>no</em> deterministic function from percept to action is correct. Internal state is mathematically necessary, not merely convenient."</li>
+  <li><strong>Model-based → goal-based:</strong> "The destination is not a function of the current percept, and the correct first action at a junction depends on where the vehicle is ultimately going. Without an explicit goal variable, a new destination requires rewriting rules."</li>
+  <li><strong>Goal-based → utility-based:</strong> "Multiple plans satisfy the goal and the environment is stochastic, so the goal predicate cannot rank a 21-minute bus-lane route with a likely fine against a 24-minute legal route. A binary test has no expressive capacity for trade-offs."</li>
+  <li><strong>Utility-based → learning:</strong> "The probability model is non-stationary — market microstructure and participants change — so any fixed <code>P(outcome | state, action)</code> degrades. Feedback is abundant and cheap (every fill and every closing price), so the conditions for learning are met."</li>
+</ul>
+
+<p><em>2. State why the next-more-complex architecture is unnecessary, citing avoided cost.</em> This half is skipped far more often and is where most over-engineering originates. The claim takes the form "the extra machinery would buy nothing measurable on the stated performance measure, and here is what it would cost":</p>
+
+<ul>
+  <li>"A learning element for the two-square vacuum is unnecessary: the environment is fully specified, stationary, and tiny, and the optimal policy is already known in closed form. Learning would add a training regime, an exploration budget that loses points, and a non-deterministic component that is harder to certify — for zero attainable score improvement, since the hand-written policy is optimal."</li>
+  <li>"A utility-based vacuum is unnecessary <em>when the performance measure has no movement penalty</em>, because every non-wasteful action is equally good; the trade-off the utility function would express does not exist in the measure."</li>
+  <li>"A full POMDP solver for the delivery vehicle is unnecessary: the receding-horizon replanner achieves the measure, while exact POMDP solution is intractable at this state-space size and would blow the 100 ms control deadline."</li>
+</ul>
+
+<p>Costs worth naming explicitly are <strong>computation</strong> (per-cycle latency, memory, energy), <strong>data</strong> (labelled examples, simulator fidelity, exploration losses), <strong>design and maintenance effort</strong> (who tunes the weights, who retrains the model, who debugs non-deterministic behaviour), and <strong>verifiability</strong> (a 4-row table can be exhaustively tested; a learned network cannot).</p>
+
+<p><em>3. Identify the percept or state information each upgrade requires, and confirm it is obtainable.</em> Every architectural step has a data precondition. If the precondition is not met, the upgrade is a fantasy:</p>
+
+<table>
+  <thead>
+    <tr><th>Architecture</th><th>Information it requires</th><th>Check to perform</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Simple reflex</td><td>A percept that determines the correct action by itself</td><td>Are there two world states sharing a percept but needing different actions?</td></tr>
+    <tr><td>Model-based reflex</td><td>Transition model (how the world evolves, effects of own actions) + sensor model</td><td>Can the model be written or learned? Does drift accumulate (dead reckoning without correction)?</td></tr>
+    <tr><td>Goal-based</td><td>An explicit goal predicate and a searchable model of action consequences</td><td>Is the goal supplied externally and is the state space searchable within the time budget?</td></tr>
+    <tr><td>Utility-based</td><td>Numeric utilities on a common scale, plus outcome probabilities</td><td>Who sets the weights, and can the probabilities be estimated with enough data?</td></tr>
+    <tr><td>Learning</td><td>A feedback signal from a critic, and a safe way to explore</td><td>Is feedback observable, timely, and attributable? Is exploration affordable and safe?</td></tr>
+  </tbody>
+</table>
+
+<p>Two examples of the check failing usefully. Autility-based medical triage agent requires utilities on a common scale across patients; if the institution cannot or will not state how it trades a 1% mortality increase against a four-hour wait, the weights do not exist and the "upgrade" would merely hide an arbitrary choice inside a constant. A learning agent for a rare-fault industrial inspector requires attributable feedback; if the ground truth about a missed fault only arrives eighteen months later as a warranty claim with no record of which inspection passed it, the critic cannot assign credit and the learning element has nothing to consume. In both cases the correct response is either to acquire the missing information (commission a clinical-preference study; instrument the inspection pipeline to log part IDs) or to stay at the simpler architecture and document why.</p>
+
+<p><em>4. Evaluate the design against the stated performance measure, not against intuitive notions of intelligence.</em> The temptation is to judge an agent by whether its behaviour <em>looks</em> clever. This is unreliable in both directions. The two-square reflex vacuum looks mindless and is optimal under the no-movement-penalty measure. A sophisticated planner that deliberates for 900 ms looks intelligent and scores terribly in a dynamic world with a 100 ms deadline, because by the time it acts the world has moved. Conversely, an agent that discovers an odd-looking but high-scoring behaviour — a trading agent that mostly holds, a navigation agent that takes a longer route to avoid an unprotected right turn — is performing correctly even though a human observer might call it timid.</p>
+
+<p>The practical procedure is:</p>
+
+<ul>
+  <li>Instantiate the measure as an executable scoring function.</li>
+  <li>Define an environment generator that samples instances from the specified environment class (dirt distributions, traffic densities, market regimes, opponent pools), including adversarial and edge-case instances.</li>
+  <li>Run each candidate architecture over many instances and report the score distribution — mean <em>and</em> worst case, since a design with a good average and a catastrophic tail is usually unacceptable.</li>
+  <li>Compare against baselines: a random agent, the simplest reflex agent, and (where computable) an omniscient optimal agent, which bounds how much score is actually available.</li>
+</ul>
+
+<p>This last point deserves emphasis. If the optimal policy scores 940 and the simple reflex agent scores 905, then the entire budget for model-based, goal-based, utility-based and learning machinery is 35 points. Measuring the <em>headroom</em> before building is the cheapest design decision available.</p>
+
+<p>If the measure itself produces behaviour you find unacceptable — the agent exploits a loophole, or optimises a proxy at the expense of what you meant — the correct fix is to repair the performance measure, not to bolt a patch onto the agent program. An agent that scores well on a badly written measure has done its job; the specification is the defect.</p>
+
+<p><em>5. Document assumptions so the design can be revisited.</em> Every architecture choice rests on claims about the environment that may later become false. Record them as an explicit, dated list with the design decision each one supports, so that when the environment specification changes you can tell immediately which decisions are now unsupported. A usable format:</p>
+
+<table>
+  <thead>
+    <tr><th>Assumption</th><th>Design decision it supports</th><th>How it could break</th><th>Consequence and response if broken</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Dirt does not reappear within an episode</td><td>Model-based agent may mark a square <code>Clean</code> permanently and then <code>NoOp</code></td><td>Deployment in a workshop where dust settles continuously</td><td>Agent idles while the room dirties; add time-decay of <code>Clean</code> beliefs back to <code>Unknown</code>, or add a revisit policy</td></tr>
+    <tr><td>Wheel odometry is reliable enough for dead reckoning between landmarks</td><td>No location sensor is fitted; position is inferred from the action history</td><td>Slippery floors, carpet-to-tile transitions, being picked up and moved</td><td>Belief position drifts and the dirt map becomes meaningless; fit a location sensor or add periodic landmark re-localisation</td></tr>
+    <tr><td>Map data is accurate to within one road segment and refreshed weekly</td><td>Global route planner trusts the road graph; local planner handles only short-range surprises</td><td>Long-term roadworks, new one-way systems</td><td>Repeated replanning loops at a closed junction; add map-error detection and fall back to exploratory routing</td></tr>
+    <tr><td>Return distributions are approximately stationary over a two-week window</td><td>Rolling-window refit of the forecasting model; fixed risk-aversion coefficient</td><td>Regime change, a liquidity crisis, a new dominant participant</td><td>Model confidence is misplaced and position sizes are too large; add regime detection, shrink exposure on calibration failure</td></tr>
+    <tr><td>Opponent pool is drawn from the same distribution as self-play training</td><td>Learned evaluation function is trusted without opponent modelling</td><td>Facing a human specialist who targets a known weakness</td><td>Systematic exploitation; add online opponent adaptation or a safe fallback policy</td></tr>
+  </tbody>
+</table>
+
+<p>Assumptions should also be made <em>testable at runtime</em> wherever possible. An agent that monitors its own preconditions — "my predicted percept disagrees with my actual percept more often than the sensor model allows", "my realised variance is three times my forecast" — can detect that its design envelope has been exceeded and degrade safely (hand over to a human, revert to a conservative fallback policy, raise an alert) rather than continuing to act confidently on an invalid model. That self-monitoring is itself a small critic, and it is the cheapest form of robustness available to a non-learning agent.</p>
+
+<p>Pulling the whole progression together, the four sample environments differ not in how clever their designers were but in which environment properties they contain:</p>
+
+<table>
+  <thead>
+    <tr><th>Environment</th><th>Decisive property</th><th>Minimum adequate architecture</th><th>Why not simpler</th><th>Why not more complex</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Vacuum, full sensors</td><td>Fully observable, episodic-like, deterministic</td><td>Simple reflex</td><td>n/a — nothing simpler exists</td><td>Percept determines the correct action; memory and planning add cost for no score</td></tr>
+    <tr><td>Vacuum, no location sensor</td><td>Partially observable</td><td>Model-based reflex</td><td>Identical percepts require different actions</td><td>World is tiny, stationary and fully specified; goals/utilities/learning add nothing</td></tr>
+    <tr><td>Vacuum with movement penalty, n squares</td><td>Conflicting costs and uncertainty about dirt</td><td>Utility-based</td><td>Goal test cannot rank plans that all end clean</td><td>Dynamics are known; no need to learn them</td></tr>
+    <tr><td>Autonomous navigation</td><td>Partially observable, dynamic, conflicting objectives</td><td>Utility-based with layered replanning (reflex safety layer retained)</td><td>Reflex avoidance never reaches a destination; goals cannot trade time against fuel, comfort and legality</td><td>Exact POMDP solution is intractable within the control deadline</td></tr>
+    <tr><td>Trading</td><td>Stochastic, multi-agent, non-stationary</td><td>Utility-based learning agent</td><td>Goal targets induce risk-seeking and ignore variance</td><td>Beyond this there is no simpler-to-complex step left; the constraint becomes exploration budget and data, not architecture</td></tr>
+    <tr><td>Game playing (chess/Go)</td><td>Enormous state space, abundant free feedback</td><td>Learning agent with search-based performance element</td><td>Hand-coded evaluation is brittle and exploitable at scale</td><td>Nothing richer is needed; the environment is fully specified by its rules</td></tr>
+    <tr><td>Game playing (poker)</td><td>Partial observability plus adversaries</td><td>Learning agent over belief states with randomised policies</td><td>Deterministic policies are readable and exploitable</td><td>Full opponent-specific modelling may exceed available hand data; equilibrium play is a defensible stopping point</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> The topic uses percepts, percept sequences, agent functions, agent programs and architecture throughout — the vacuum percept <code>(Location, Status)</code>, the pseudocode agent programs, and the distinction between a percept-to-action table (the agent function) and the compact program that computes it — so it reinforces and exercises the core vocabulary in applied form.</li>
+  <li><strong>MO2:</strong> The trading and game-playing designs map the performance element, critic, learning element and problem generator onto concrete systems and show their interaction, including why the critic must be independent of the performance element and why the problem generator must force locally suboptimal actions.</li>
+  <li><strong>MO3:</strong> The PEAS section and the worked PEAS tables for the vacuum, delivery, trading and chess agents give the direct practice needed to construct a PEAS specification, including the rules that performance measures be scalar or ranked and that sensor lists expose observability gaps.</li>
+  <li><strong>MO4:</strong> The progression from simple reflex to model-based, goal-based, utility-based and learning architectures is driven in every case by a named environment property (partial observability, conflicting objectives, stochasticity, non-stationarity), which is exactly the differentiation this outcome requires.</li>
+  <li><strong>MO5:</strong> The critique-and-justification section supplies the two-sided argument pattern — why the next-simpler architecture fails and why the next-more-complex one is unnecessary — together with cost categories, data preconditions, measure-based evaluation and assumption documentation, which is the substance of justifying an architecture against rejected alternatives.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>&lt;p&gt;Suggested in-class exercises: (1) have students remove the dirt sensor instead of the location sensor and argue what internal state would be needed; (2) ask students to write the performance measure for a food-delivery robot as both a scalar and a lexicographic ranking and compare the resulting behaviours; (3) give a one-paragraph scenario and require a written two-sided justification in the form &quot;simpler fails because &amp;lt;property&amp;gt;; more complex is unnecessary because &amp;lt;avoided cost&amp;gt;&quot;.&lt;/p&gt;
+&lt;p&gt;Numbers in the state-space table are illustrative (n&#183;2ⁿ counts dirt configurations times agent positions) and assume a static dirt distribution; adjust if dirt regeneration is modelled. Chess and Go state-space figures are the conventional order-of-magnitude estimates. The mean–variance and log-utility formulations are standard but simplified; transaction costs and market impact are modelled only qualitatively.&lt;/p&gt;</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

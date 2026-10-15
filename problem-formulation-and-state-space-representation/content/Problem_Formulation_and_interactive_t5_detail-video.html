@@ -1,0 +1,256 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Trees, Nodes, and Expansion</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Problem Formulation and State Space Representation</a></div>
+  <header>
+    <h1>Search Trees, Nodes, and Expansion</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Search Trees, Nodes, and Expansion</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Once a task has been formulated as a search problem — a state space, an initial state, a set of actions, a transition model, a goal test, and a path-cost function — the remaining work is to <em>explore</em> that formulation systematically until a goal state is reached. The data structure that an algorithm builds while it explores is <strong>not</strong> the state space itself: it is a <strong>search tree</strong>. Confusing the two is one of the most common sources of error in reasoning about search algorithms, because the two objects have different sizes, different shapes, and different properties. The state space is a static mathematical object that exists whether or not anyone searches it; the search tree is a dynamic, algorithm-specific record of the paths that have actually been considered so far. This topic develops that distinction carefully, dissects the <em>node</em> as a bookkeeping record, explains the mechanics of <em>expansion</em>, introduces the <em>frontier</em> and <em>explored set</em> that together drive every systematic search algorithm, examines the damage done by repeated states and loops, and finishes with the simple pointer-chasing trick that lets an algorithm return an executable plan at the end.</p>
+
+<p><strong>The state space graph.</strong> A state space can always be drawn as a directed graph. Each <em>vertex</em> is a distinct state — a configuration of the world at the level of abstraction chosen during problem formulation — and each <em>directed edge</em> from state <code>s</code> to state <code>s'</code> exists exactly when there is an action <code>a</code> applicable in <code>s</code> with <code>RESULT(s, a) = s'</code>. Edges may carry weights, namely the step cost <code>c(s, a, s')</code>. The crucial property is uniqueness: <strong>each state appears exactly once</strong>. The graph for the Romania route-finding problem has twenty vertices, one per city, no matter how many routes pass through Pitesti. The graph for the two-cell vacuum world has eight vertices (two possible robot positions × two possible dirt conditions per cell = 2 × 2 × 2). The graph for the 8-puzzle has 9! = 362,880 vertices, of which 181,440 are reachable from any given start. These counts are properties of the problem, not of any algorithm.</p>
+
+<p><strong>The search tree.</strong> When an algorithm searches, it does not manipulate vertices; it manipulates <em>paths</em>. A node in the search tree stands for one specific path starting at the initial state. If three different routes from Arad reach Bucharest, the search tree contains three different nodes whose state is Bucharest. Nothing is wrong with this — the nodes are genuinely different objects, because they record different histories with different costs — but it means the search tree can be enormously larger than the state space. In the Romania map, with reversible roads, the state space has 20 vertices while the search tree, if cycles are not detected, is <em>infinite</em>: Arad → Sibiu → Arad → Sibiu → … is a legal (if silly) path of unbounded length, and every one of its prefixes is a distinct node.</p>
+
+<table>
+  <thead>
+    <tr><th>Property</th><th>State space graph</th><th>Search tree</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>What a vertex/node denotes</td><td>A state (a world configuration)</td><td>A path from the initial state to a state</td></tr>
+    <tr><td>Repetition</td><td>Each state appears exactly once</td><td>One state may appear in many nodes</td></tr>
+    <tr><td>Root</td><td>No distinguished vertex (the initial state is just marked)</td><td>Always the node whose state is the initial state</td></tr>
+    <tr><td>Existence</td><td>Defined by the problem; exists before search begins</td><td>Built by the algorithm, lazily, during search</td></tr>
+    <tr><td>Cycles</td><td>Represented explicitly as directed cycles</td><td>Unfolded into infinitely deep branches unless detected</td></tr>
+    <tr><td>Size</td><td>Often finite (e.g. 181,440 reachable 8-puzzle states)</td><td>Often infinite, or exponentially larger than the state space</td></tr>
+    <tr><td>Edges</td><td>Applicable actions between states</td><td>Parent–child links recording one action applied to one node</td></tr>
+  </tbody>
+</table>
+
+<p><strong>The root and lazy generation.</strong> Every search tree begins with a single node whose <code>STATE</code> is the problem's initial state, whose <code>PARENT</code> is empty, whose <code>ACTION</code> is empty, whose <code>PATH-COST</code> is 0 and whose <code>DEPTH</code> is 0. The rest of the tree is produced <em>on demand</em>. This laziness is not an optimisation detail but a necessity: for the 8-puzzle the complete search tree to depth 20 contains on the order of 2<sup>20</sup>–3<sup>20</sup> nodes, and for chess the tree is astronomically beyond any storage. The algorithm therefore holds only a thin slice of the tree in memory at any instant — the nodes it has generated but not yet discarded — and generates children of a node only at the moment it decides to expand that node. A useful mental image: the search tree is a potential structure, implicitly defined by the problem, and the algorithm is a torch illuminating one small region of it at a time.</p>
+
+<p><strong>Anatomy of a search node.</strong> The node is a plain record with a small, fixed set of fields. Keeping these fields straight is essential, because algorithms differ almost entirely in <em>which node they choose next</em>, not in how nodes are built.</p>
+
+<table>
+  <thead>
+    <tr><th>Field</th><th>Meaning</th><th>Value at the root</th><th>Value at a child generated by action <code>a</code></th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>node.STATE</code></td><td>The state in the state space that this node corresponds to</td><td><code>problem.INITIAL-STATE</code></td><td><code>RESULT(parent.STATE, a)</code></td></tr>
+    <tr><td><code>node.PARENT</code></td><td>Pointer to the node that generated this one</td><td><code>null</code></td><td>the parent node</td></tr>
+    <tr><td><code>node.ACTION</code></td><td>The action applied to the parent to produce this node</td><td><code>null</code></td><td><code>a</code></td></tr>
+    <tr><td><code>node.PATH-COST</code>, written <em>g(n)</em></td><td>Total cost of the path from the initial state to this node</td><td><code>0</code></td><td><code>parent.PATH-COST + c(parent.STATE, a, child.STATE)</code></td></tr>
+    <tr><td><code>node.DEPTH</code></td><td>Number of actions along the path</td><td><code>0</code></td><td><code>parent.DEPTH + 1</code></td></tr>
+  </tbody>
+</table>
+
+<p>Two remarks on this table repay attention. First, <code>DEPTH</code> and <code>PATH-COST</code> coincide only when every step costs exactly 1; when step costs vary, a shallow node may be expensive and a deep node cheap, and conflating the two is a classic bug (it turns uniform-cost search into breadth-first search in disguise). Second, the node is <em>not</em> the state. Two nodes may share a state; comparing nodes for equality is almost never what you want, whereas comparing <code>node.STATE</code> values is exactly what the explored set does. In languages without automatic structural equality, this distinction must be enforced by writing a hash function over states, not over nodes.</p>
+
+<pre><code>function CHILD-NODE(problem, parent, action) returns a node
+    s' &lt;- problem.RESULT(parent.STATE, action)
+    return a Node with
+        STATE     = s'
+        PARENT    = parent
+        ACTION    = action
+        PATH-COST = parent.PATH-COST + problem.STEP-COST(parent.STATE, action, s')
+        DEPTH     = parent.DEPTH + 1</code></pre>
+
+<p><strong>Expansion and successor generation.</strong> <em>Expanding</em> a node means: take <code>node.STATE</code>, ask the problem's <code>ACTIONS</code> function which actions are applicable there, and for each one build a child node with <code>CHILD-NODE</code>. The children are the node's <em>successors</em>. Precise vocabulary matters here:</p>
+<ul>
+  <li>A node is <strong>generated</strong> the moment it is created by <code>CHILD-NODE</code> and placed on the frontier. It occupies memory from this moment.</li>
+  <li>A node is <strong>expanded</strong> when it is removed from the frontier and its own children are produced. It consumes time from this moment.</li>
+  <li>Most algorithms generate far more nodes than they expand; at termination the frontier is full of generated-but-never-expanded nodes. Memory analyses count generated nodes; time analyses typically count expansions (or generations — one must say which).</li>
+</ul>
+
+<p>Consider the 8-puzzle with the blank in the centre. <code>ACTIONS</code> returns {Up, Down, Left, Right} (conventionally described as moves of the blank). Expanding that node generates four children, each with <code>PATH-COST = g(parent) + 1</code> and <code>DEPTH = depth(parent) + 1</code>. With the blank in a corner, only two actions apply; along an edge, three. The <strong>branching factor</strong> <em>b</em> is the number of successors produced per expansion — exactly, when it is constant, or on average otherwise. For the 8-puzzle the average is about 3 (roughly 2.13 for a version that forbids undoing the previous move). For chess it is about 35; for the Romania map it is roughly 2.1 (average road degree). Because the number of nodes at depth <em>d</em> is about <em>b<sup>d</sup></em>, and the total tree to depth <em>d</em> is <em>O(b<sup>d</sup>)</em>, the branching factor is the single most important number governing whether a search is feasible. Reducing <em>b</em> from 35 to 20 by pruning hopeless actions buys more than doubling the machine's speed.</p>
+
+<pre><code>// Expanding one node
+function EXPAND(problem, node) returns a set of nodes
+    successors &lt;- empty set
+    for each action in problem.ACTIONS(node.STATE) do
+        add CHILD-NODE(problem, node, action) to successors
+    return successors</code></pre>
+
+<p><strong>The frontier.</strong> The frontier (sometimes called the <em>open list</em>) is the collection of all leaf nodes of the partially built search tree that are available for expansion. It is initialised with the single root node. Each iteration of the main loop removes one node from the frontier, tests it for goalhood, expands it, and inserts its children back into the frontier. The algorithm halts when a goal is found or when the frontier empties, the latter meaning that every reachable state has been examined and no solution exists.</p>
+
+<p>The <strong>queue discipline</strong> — the rule for deciding which node leaves the frontier next — is where the search strategies differ, and essentially nothing else about the skeleton changes:</p>
+
+<table>
+  <thead>
+    <tr><th>Frontier data structure</th><th>Node removed next</th><th>Resulting strategy</th><th>Typical behaviour</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>FIFO queue</td><td>Oldest (shallowest) node</td><td>Breadth-first search</td><td>Finds shallowest goal; frontier grows as <em>O(b<sup>d</sup>)</em></td></tr>
+    <tr><td>LIFO stack</td><td>Newest (deepest) node</td><td>Depth-first search</td><td>Tiny frontier, <em>O(bm)</em>; may dive down an infinite branch</td></tr>
+    <tr><td>Priority queue on <em>g(n)</em></td><td>Cheapest path so far</td><td>Uniform-cost search</td><td>Optimal with non-negative step costs</td></tr>
+    <tr><td>Priority queue on <em>h(n)</em></td><td>Node estimated closest to goal</td><td>Greedy best-first search</td><td>Fast but not optimal</td></tr>
+    <tr><td>Priority queue on <em>g(n)+h(n)</em></td><td>Best estimated total cost</td><td>A* search</td><td>Optimal with an admissible heuristic</td></tr>
+  </tbody>
+</table>
+
+<p><strong>The explored set.</strong> The explored set (or <em>closed list</em>) records the <em>states</em> of all nodes that have already been expanded. It is almost always a hash table or hash set over states, so that membership can be tested in effectively constant time; this requires a canonical, hashable encoding of a state (for the 8-puzzle, the tile permutation as a 9-character string or a packed integer; for the vacuum world, a triple ⟨position, dirtA, dirtB⟩). Note that the explored set stores states, not nodes — it answers the question "have we already finished with this configuration of the world?"</p>
+
+<p><strong>The separation property.</strong> The frontier and explored set together carve the reachable state space into three regions: explored states, frontier states, and the unexplored remainder. The key invariant, which holds for every graph-search algorithm, is that <strong>the frontier separates the explored region from the unexplored region</strong>: every path from the initial state to a state that has not yet been reached must pass through some node currently on the frontier. Geometrically, the explored region is a connected blob containing the start, the frontier is its boundary, and nothing outside can be reached without crossing the boundary. This single property is what makes the algorithms <em>complete</em> — nothing can be missed — and it is also why the frontier must never be allowed to shrink to empty while unexplored reachable states remain. If an implementation discards frontier nodes carelessly (for instance, dropping a frontier node without replacing it) it punches a hole in the boundary and loses completeness.</p>
+
+<p><strong>Space complexity.</strong> Memory, not time, is usually what kills a search. The algorithm must simultaneously hold every node on the frontier and every state in the explored set. For breadth-first graph search on a problem with branching factor <em>b</em> and shallowest solution depth <em>d</em>, the frontier alone holds <em>O(b<sup>d</sup>)</em> nodes and the explored set <em>O(b<sup>d−1</sup>)</em> states. With <em>b</em> = 10 and one million nodes generated per second at 1 KB per node, depth 10 implies roughly 10<sup>10</sup> nodes and 10 terabytes — impossible — long before the three-hour running time becomes the complaint. Depth-first search, by contrast, keeps only the current path plus its siblings, <em>O(bm)</em> nodes for maximum depth <em>m</em>, which is why it survives on deep problems but loses optimality and (without cycle checking) completeness. Whenever you are asked for the space complexity of a search algorithm, the honest answer is a statement about the maximum simultaneous size of the frontier plus the explored set.</p>
+
+<p><strong>Repeated states and redundant paths.</strong> A <em>repeated state</em> is a state reached again by a different node. Not every repeat is wasteful in principle, but most are. A <strong>redundant path</strong> is a path that reaches an already-seen state by a route that is longer than, or no cheaper than, one already known: expanding its endpoint can only rediscover the same subtree of descendants at equal or greater cost. In a rectangular grid world where you may move in four directions, the number of distinct paths of length <em>d</em> from the origin grows like 4<sup>d</sup>, while the number of distinct states within <em>d</em> steps grows only like 2<em>d</em><sup>2</sup>; at <em>d</em> = 20 that is about 10<sup>12</sup> paths over roughly 800 states. Ignoring repeats here converts a trivial problem into an impossible one.</p>
+
+<p><strong>Reversible actions and loops.</strong> If an action can be undone — moving a tile and moving it back, driving from Arad to Sibiu and back to Arad, moving the vacuum left and then right — the state space contains cycles, and the corresponding search tree contains infinitely deep branches. A depth-first tree search dropped into such a space may descend one of these branches forever and never terminate, even when the state space is finite and tiny. This is why the maxim "<em>algorithms that forget their history are doomed to repeat it</em>" is more than a joke: finiteness of the state space does <strong>not</strong> imply termination of tree search.</p>
+
+<p><strong>Tree search versus graph search.</strong> The two skeletons differ by exactly three lines.</p>
+
+<pre><code>function TREE-SEARCH(problem) returns a solution, or failure
+    frontier &lt;- a queue containing the root node (problem.INITIAL-STATE)
+    loop do
+        if frontier is empty then return failure
+        node &lt;- POP(frontier)
+        if problem.GOAL-TEST(node.STATE) then return SOLUTION(node)
+        add EXPAND(problem, node) to frontier          // repeats are never noticed
+
+function GRAPH-SEARCH(problem) returns a solution, or failure
+    frontier &lt;- a queue containing the root node (problem.INITIAL-STATE)
+    explored &lt;- an empty hash set of states
+    loop do
+        if frontier is empty then return failure
+        node &lt;- POP(frontier)
+        if problem.GOAL-TEST(node.STATE) then return SOLUTION(node)
+        add node.STATE to explored
+        for each child in EXPAND(problem, node) do
+            if child.STATE not in explored and child.STATE not on frontier then
+                insert child into frontier
+            else if child.STATE is on frontier with a higher PATH-COST then
+                replace that frontier node with child     // keep the cheaper path</code></pre>
+
+<p>The penultimate test is the classic repeated-state filter; the final clause is the one students most often omit. When step costs vary, discarding a newly generated node merely because its state is already on the frontier can destroy optimality: the new node may represent a genuinely cheaper route. The correct policy is <em>replace, do not discard</em> — if the new node's <code>PATH-COST</code> is lower, swap it in (a <em>decrease-key</em> operation on the priority queue) so that the frontier always holds the best known path to each of its states. With unit step costs and a FIFO frontier this subtlety vanishes, because the first time breadth-first search reaches a state it has already found a shortest path to it; which is precisely why the issue is so easy to overlook when moving from breadth-first to uniform-cost or A* search.</p>
+
+<p>There is also a cost to graph search: the explored set must hold every expanded state, so space becomes proportional to the size of the explored region. This is the root of depth-first search's dilemma — it can either keep its small memory footprint and risk loops, or add cycle checking and lose its chief advantage. Practical compromises include checking only the current path for repeats (eliminating infinite loops at <em>O(depth)</em> cost without eliminating all redundancy) and forbidding the action that simply undoes the parent's action.</p>
+
+<p><strong>A worked trace.</strong> Take the two-cell vacuum world with states ⟨robot location, dirt in A, dirt in B⟩, actions {Left, Right, Suck}, unit step costs, initial state ⟨A, dirty, dirty⟩, and the goal test "both cells clean". A breadth-first graph search proceeds:</p>
+
+<table>
+  <thead>
+    <tr><th>Step</th><th>Node expanded</th><th>Children generated (state, g, depth)</th><th>Frontier after step (states)</th><th>Explored after step</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>0</td><td>— (initialise)</td><td>—</td><td>⟨A,D,D⟩</td><td>{}</td></tr>
+    <tr><td>1</td><td>⟨A,D,D⟩</td><td>Left→⟨A,D,D⟩ (pruned, same state); Right→⟨B,D,D⟩ (1,1); Suck→⟨A,C,D⟩ (1,1)</td><td>⟨B,D,D⟩, ⟨A,C,D⟩</td><td>{⟨A,D,D⟩}</td></tr>
+    <tr><td>2</td><td>⟨B,D,D⟩</td><td>Left→⟨A,D,D⟩ (pruned, explored); Right→⟨B,D,D⟩ (pruned); Suck→⟨B,D,C⟩ (2,2)</td><td>⟨A,C,D⟩, ⟨B,D,C⟩</td><td>{⟨A,D,D⟩, ⟨B,D,D⟩}</td></tr>
+    <tr><td>3</td><td>⟨A,C,D⟩</td><td>Right→⟨B,C,D⟩ (2,2); Suck→⟨A,C,D⟩ (pruned); Left→⟨A,C,D⟩ (pruned)</td><td>⟨B,D,C⟩, ⟨B,C,D⟩</td><td>+ ⟨A,C,D⟩</td></tr>
+    <tr><td>4</td><td>⟨B,D,C⟩</td><td>Left→⟨A,D,C⟩ (3,3); Suck/Right pruned</td><td>⟨B,C,D⟩, ⟨A,D,C⟩</td><td>+ ⟨B,D,C⟩</td></tr>
+    <tr><td>5</td><td>⟨B,C,D⟩</td><td>Suck→⟨B,C,C⟩ (3,3) — goal when popped; Left→⟨A,C,D⟩ pruned</td><td>⟨A,D,C⟩, ⟨B,C,C⟩</td><td>+ ⟨B,C,D⟩</td></tr>
+  </tbody>
+</table>
+
+<p>Notice how much the explored set is doing: the <code>Left</code> action at the root regenerates the initial state, and without the filter that single reversible pair would seed an unbounded Left–Right–Left–Right branch. Notice also the generated/expanded distinction: by step 5 nine children have been generated, five nodes expanded, and the goal node sits on the frontier awaiting the pop that will trigger the goal test.</p>
+
+<p><strong>Recovering the solution path.</strong> A search algorithm must return not a state but a plan: the sequence of actions that transforms the initial state into a goal state. The goal node by itself appears to contain only one action, the last one — but because every node stores a <code>PARENT</code> pointer, the whole history is implicitly present. Starting at the goal node and following <code>PARENT</code> links repeatedly, one walks back up the tree through the node's parent, grandparent, and so on, until reaching the root, whose <code>PARENT</code> is <code>null</code>. Each step of that walk hands back one <code>ACTION</code> field, so the walk produces the actions of the solution <em>in reverse order</em>. Reversing the collected list yields the executable sequence, ready to be handed to the agent for execution.</p>
+
+<pre><code>function SOLUTION(node) returns an action sequence
+    actions &lt;- empty list
+    while node.PARENT is not null do
+        prepend node.ACTION to actions        // or append, then reverse at the end
+        node &lt;- node.PARENT
+    return actions</code></pre>
+
+<p>Applied to the vacuum-world trace above, the goal node ⟨B, clean, clean⟩ has <code>ACTION</code> = Suck and <code>PARENT</code> = the node ⟨B, clean, dirty⟩, whose <code>ACTION</code> = Right and whose parent is ⟨A, clean, dirty⟩, whose <code>ACTION</code> = Suck and whose parent is the root ⟨A, dirty, dirty⟩. The reversed chain is therefore [Suck, Right, Suck], a three-action plan of cost 3 — which matches the goal node's <code>PATH-COST</code> of 3. That correspondence is guaranteed, not coincidental: because each child's cost is its parent's cost plus one step cost, <code>node.PATH-COST</code> is by construction the sum of the step costs of exactly the actions that <code>SOLUTION</code> returns. The algorithm therefore never needs to re-walk the path to price it; <em>g(n)</em> at the goal <em>is</em> the solution cost, and in an optimal algorithm it is the optimal cost <em>C*</em>.</p>
+
+<p>The memory argument for parent pointers is worth making explicit. An alternative design stores the complete action list inside every node. At depth <em>d</em> that costs <em>O(d)</em> per node and <em>O(d · b<sup>d</sup>)</em> for a breadth-first frontier — an extra factor of <em>d</em> in both space and in the time to create each child, since the list must be copied. With parent pointers each node stores a constant number of fields, so node creation is <em>O(1)</em> and total space is <em>O(b<sup>d</sup>)</em>. The path is reconstructed once, at the very end, in <em>O(d)</em> time, and only for the single node that matters. The cost of the trick is that nodes cannot be freed while any descendant survives: ancestors of frontier nodes must be retained even though they have already been expanded, which is why the explored region is in practice kept as a graph of retained nodes rather than discarded outright. Some memory-bounded variants (such as iterative-deepening A* or recursive best-first search) sidestep this by re-deriving paths through recursion, trading repeated work for a smaller footprint.</p>
+
+<p>Two final cautions. First, when a graph search replaces a frontier node with a cheaper one, the replacement's <code>PARENT</code> pointer must be updated too — otherwise the algorithm reports the right cost with the wrong plan, or an inconsistent one. Second, the goal test should be applied when a node is <em>selected for expansion</em>, not when it is generated, in any algorithm whose optimality depends on cost ordering (uniform-cost search, A*); testing at generation time can return a goal node whose path is not the cheapest, because a better path to the same goal may still be sitting on the frontier.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1</strong> — Supported indirectly: the topic repeatedly invokes the five components (initial state as the tree's root, <code>ACTIONS</code> during expansion, <code>RESULT</code> in <code>CHILD-NODE</code>, the goal test in the main loop, and step costs accumulating into <em>g(n)</em>), showing how each formal component is consumed by an algorithm, but it does not teach how to define them for a new task.</li>
+  <li><strong>MO2</strong> — Only lightly addressed: abstraction appears incidentally in the requirement that states have a canonical, hashable encoding and in the counts of reachable states, but the topic does not explain how abstraction preserves solvability.</li>
+  <li><strong>MO3</strong> — Partially supported: the vacuum world, 8-puzzle, and Romania route-finding problems are used as running examples with their state counts and branching factors, reinforcing familiarity with these formulations, though the formulation step itself is covered elsewhere.</li>
+  <li><strong>MO4</strong> — Directly and fully supported: this is the topic's core, contrasting the state space graph with the search tree, defining <code>STATE</code>, <code>PARENT</code>, <code>ACTION</code>, <code>PATH-COST</code>, and <code>DEPTH</code>, and explaining the roles of the frontier and explored set, including the separation property.</li>
+  <li><strong>MO5</strong> — Substantially supported: the discussion of completeness (loops and infinite branches under tree search), optimality (replacing rather than discarding cheaper frontier nodes, goal-testing at expansion), time complexity (<em>b<sup>d</sup></em> growth from the branching factor), and space complexity (simultaneous size of frontier plus explored set) supplies the criteria needed to critique a proposed formulation or implementation, including inconsistent treatment of cost functions.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Node counts used: 8-puzzle 9! = 362,880 states with 181,440 reachable; Romania map 20 cities; two-cell vacuum world 8 states. Branching factors quoted (≈3 for the 8-puzzle, ≈35 for chess) follow the standard Russell &amp; Norvig figures. The vacuum-world trace assumes a FIFO frontier with the explored-set filter applied at generation time and the goal test applied on expansion; the goal node is shown on the frontier at step 5 to highlight the generated/expanded distinction. Terminology note: "open list"/"closed list" are given as synonyms for frontier/explored set since students will meet both conventions.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Once a problem has been formulated with a state space, initial state, actions, transition model, goal test, and path cost, we need machinery to actually explore it. That machinery is the search tree: a structure that a search algorithm builds as it considers sequences of actions. The crucial idea in this topic is that the search tree is not the same thing as the state space graph. The graph is a fixed description of the world — states connected by actions — while the tree is a record of the paths the algorithm has chosen to examine. A single state in the graph can appear many times in the tree, once for each distinct path that reaches it.</p>
+<p>To make this precise, we define a search node as a small bundle of data: the state it represents, a pointer to its parent node, the action that produced it, the cost of the path from the root, and its depth. Expanding a node means applying the applicable actions to its state and generating child nodes for the resulting successors. The nodes generated but not yet expanded form the frontier (sometimes called the open list); the states already expanded are kept in the explored set (closed list). Without an explored set, repeated states produce redundant paths and, in graphs with cycles, infinite loops. Finally, because every node stores a parent pointer, the solution is recovered by walking backwards from the goal node to the root and reversing the sequence of actions.</p>
+<p>The videos below demonstrate breadth-first and depth-first traversal on graphs. As you watch, deliberately translate what you see into search-tree vocabulary: the queue or stack being maintained is the frontier, the set of visited nodes is the explored set, and each time a vertex's neighbors are listed the algorithm is performing expansion and successor generation. Pay particular attention to why the visited check is necessary — that single line of code is what prevents repeated states from becoming loops.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: L-4.15: BFS &amp; DFS | Breadth First Search | Depth First Search | Graph Traversing | DAA</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/N2P7w22tN9c?cc_load_policy=1&amp;rel=0" title="Video: L-4.15: BFS &amp; DFS | Breadth First Search | Depth First Search | Graph Traversing | DAA (Gate Smashers)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Gate Smashers</strong> · 11:16 · 2,530,911 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=N2P7w22tN9c" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A lecture-style walkthrough of the two most basic graph traversal strategies, breadth-first search and depth-first search, worked by hand on example graphs. Expect to see the queue used by BFS and the stack (or recursion) used by DFS, along with the bookkeeping that tracks which vertices have already been visited. The treatment is algorithmic and exam-oriented, in the style of an algorithms (DAA) course.</p>
+<h3>Why this video</h3>
+<p>Because it covers both strategies side by side at a deliberate pace, it is a good place to see expansion and successor generation made concrete, and the queue/stack and visited list map directly onto the frontier and explored set we define in this topic.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Breadth-first search in 4 minutes</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/HZ5YTanv5QE?cc_load_policy=1&amp;rel=0" title="Video: Breadth-first search in 4 minutes (Michael Sambol)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Michael Sambol</strong> · 3:59 · 608,315 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=HZ5YTanv5QE" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A compact, four-minute explanation of breadth-first search, tracing the algorithm level by level over a graph. It shows the FIFO queue that determines which node is expanded next and the marking of nodes so they are not processed twice; accompanying Python code is linked in the description.</p>
+<h3>Why this video</h3>
+<p>Michael Sambol's visual, step-by-step animation makes the frontier-as-queue idea unmistakable, and the explicit visited marking is a clean illustration of how an explored set eliminates repeated states and redundant paths.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: Depth-first search in 4 minutes</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Urx87-NMm6c?cc_load_policy=1&amp;rel=0" title="Video: Depth-first search in 4 minutes (Michael Sambol)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Michael Sambol</strong> · 4:01 · 554,087 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=Urx87-NMm6c" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>The companion four-minute video on depth-first search, following a single branch as deep as possible before backtracking to the most recent unexplored alternative. It demonstrates the LIFO stack or recursive call structure and the visited bookkeeping, with linked code for reference.</p>
+<h3>Why this video</h3>
+<p>Watching DFS immediately after BFS highlights that the two differ only in how the frontier is ordered, and the backtracking behavior is a natural lead-in to parent pointers, node depth, and recovering the solution path.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos chiefly serve MO4: by watching BFS and DFS executed step by step, you can see directly how a search procedure builds a tree of explored paths over a fixed underlying graph, how the queue or stack functions as the frontier, how the visited set functions as the explored set, and why omitting that set allows repeated states and loops. The traversals also reinforce MO1 and MO3 by showing the transition model in action — each neighbor listing is the application of actions to a state — and they give you concrete behavior to reason about when assessing completeness, optimality, and space usage under MO5. Note that the videos use data-structures terminology rather than AI search terminology, so part of your work is the translation exercise described above; the course material on node attributes, path cost, and abstraction (MO2) must come from the readings and lecture rather than from these clips.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

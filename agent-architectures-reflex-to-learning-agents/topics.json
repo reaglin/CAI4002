@@ -1,0 +1,1885 @@
+{
+  "ModuleFolderName": "Agent_Architectures_Reflex",
+  "CourseName": "CAI4002 - Intro to AI",
+  "GeneratedDate": "2026-10-14T19:45:55.0313418-04:00",
+  "ModifiedDate": "2026-10-14T19:49:18.4632753-04:00",
+  "Outcomes": [],
+  "Topics": [
+    {
+      "Id": "52fcc05f-f325-455e-a193-71a1ac8fd86d",
+      "Title": "Foundations: Agents, Environments, and Agent Programs",
+      "Summary": "Establishes the core vocabulary of rational agents \u2014 percepts, percept sequences, actuators, agent functions, and agent programs \u2014 and how environment properties (observability, determinism, dynamics) constrain architectural choice. Sets up the PEAS framing used to analyze every architecture in the module.",
+      "SortOrder": 0,
+      "CreatedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "ModifiedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "Elements": [
+        {
+          "Id": "c9b8f608-4c85-445b-9c31-fe8ece38f1bf",
+          "TopicId": "52fcc05f-f325-455e-a193-71a1ac8fd86d",
+          "Title": "What Is a Rational Agent?",
+          "BodyText": "An agent is anything that perceives its environment through sensors and acts upon that environment through actuators. Rationality is defined relative to a performance measure, prior knowledge, available actions, and the percept history.",
+          "Notes": "Rationality is not omniscience: a rational agent maximizes expected performance given what it can know, not actual performance in hindsight.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:46:19.0411883-04:00",
+          "ModifiedDate": "2026-10-14T19:46:19.0411883-04:00",
+          "Items": [
+            {
+              "Id": "b200a7a9-3648-4d77-a9ed-252102be78f0",
+              "Text": "Sensors deliver percepts; actuators execute actions that change the environment state.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "216ba3da-16f6-45e0-be6f-1de87a2d5a4b",
+              "Text": "A rational agent selects, for each percept sequence, the action expected to maximize its performance measure.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1cd0768b-3ddc-4dd7-93b3-9ce813553503",
+              "Text": "The performance measure should be defined over environment states, not over how the agent believes it is doing.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "0f65bf8d-a60a-427d-8810-804808ca151f",
+              "Text": "Rationality differs from perfection \u2014 an agent can act rationally and still achieve a poor outcome due to uncertainty.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "2ef43f47-003b-4d8d-96c0-7fde9e5882e7",
+              "Text": "Learning and information-gathering (exploration) are themselves rational behaviors when knowledge is incomplete.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "b0d95511-7d82-462f-9676-b02b89f10626",
+          "TopicId": "52fcc05f-f325-455e-a193-71a1ac8fd86d",
+          "Title": "Percepts, Percept Sequences, and the Agent Function",
+          "BodyText": "The agent function is the abstract mathematical mapping from any possible percept sequence to an action. It is the specification of behavior, independent of how that behavior is implemented.",
+          "Notes": "Example: for a two-square vacuum world, the agent function can be written as a table mapping [A, Dirty] \u2192 Suck, [A, Clean] \u2192 Right, and so on.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:46:19.0411883-04:00",
+          "ModifiedDate": "2026-10-14T19:46:19.0411883-04:00",
+          "Items": [
+            {
+              "Id": "2d1a95e0-19e0-4a8c-af04-57d6038fb0a5",
+              "Text": "A percept is the agent\u0027s input at a single instant; the percept sequence is the complete history of everything perceived.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "7591a77d-0ace-48da-9de7-616541843328",
+              "Text": "The agent function f: P* \u2192 A defines behavior exhaustively but is usually infinite and unimplementable as a literal table.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "98de77f4-aa98-4233-9fb4-2e6f968f589e",
+              "Text": "Two agents with identical agent functions are behaviorally equivalent regardless of internal design.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "0c03bbbe-c1e8-43d8-b6f4-ee237c5335ef",
+              "Text": "Specifying the agent function first separates \u0027what the agent should do\u0027 from \u0027how it will be computed\u0027.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "538c0467-88be-4c48-8203-13089bd561c2",
+          "TopicId": "52fcc05f-f325-455e-a193-71a1ac8fd86d",
+          "Title": "Agent Program vs. Agent Architecture",
+          "BodyText": "The agent program is the concrete implementation of the agent function, running on a physical or computational architecture. Agent = architecture \u002B program.",
+          "Notes": "A table-driven agent program is a useful thought experiment but fails on space, time, and learning grounds \u2014 motivating the structured architectures covered later in the module.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:46:19.0411883-04:00",
+          "ModifiedDate": "2026-10-14T19:46:19.0411883-04:00",
+          "Items": [
+            {
+              "Id": "cc44dc9f-977b-43e0-9877-13a1aa7078f5",
+              "Text": "The architecture supplies sensors, actuators, and compute; the program decides actions given percepts.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b5cf399d-c5b8-451f-8e22-4eb2c6d3e1f6",
+              "Text": "Agent programs take only the current percept as an argument, so any needed history must be stored internally.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4325a068-99a3-495b-8a8f-b0997a0112f6",
+              "Text": "A table-lookup implementation is intractable: even simple domains require astronomically large tables.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b1389908-6373-4ed1-a6e5-e2bf61ba43ee",
+              "Text": "Practical agent programs compress the agent function using rules, models, goals, utilities, or learned parameters.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "7418e6a1-9b5c-47cb-9b2f-9314807157a7",
+              "Text": "Architecture choice determines what information the program can retain and reason over.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "eca6ae89-a95a-42db-9c8a-42a9140aa6fa",
+          "TopicId": "52fcc05f-f325-455e-a193-71a1ac8fd86d",
+          "Title": "The PEAS Framework for Task Environments",
+          "BodyText": "PEAS \u2014 Performance measure, Environment, Actuators, Sensors \u2014 is the standard template for specifying a task environment before designing an agent. It forces explicit design commitments that later justify architecture selection.",
+          "Notes": "Example (automated taxi): P = safety, legality, trip time, fuel cost, passenger comfort; E = roads, traffic, pedestrians, weather; A = steering, accelerator, brake, signal, horn; S = cameras, LIDAR, GPS, speedometer, engine sensors.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:46:19.0411883-04:00",
+          "ModifiedDate": "2026-10-14T19:46:19.0411883-04:00",
+          "Items": [
+            {
+              "Id": "0535795a-c05b-46eb-af6d-22ddee3229a0",
+              "Text": "Performance measure states the criteria for success in terms of environment states.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "88d83f0e-b870-4aca-8b6a-9d1cd44456fc",
+              "Text": "Environment describes the world the agent operates in, including other agents.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "cc71445f-ce4a-42d7-8b6c-3ff8b9430d53",
+              "Text": "Actuators enumerate the actions physically available to the agent.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b3ff816a-ee1d-4481-a82f-7705f8866ebf",
+              "Text": "Sensors enumerate the percepts the agent can actually obtain.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "66deff1b-29cd-489f-8d3d-c6385803b436",
+              "Text": "Writing PEAS early exposes gaps such as goals that cannot be measured by available sensors.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "722e7808-6e30-4db6-a075-7f0c7fd8aef0",
+          "TopicId": "52fcc05f-f325-455e-a193-71a1ac8fd86d",
+          "Title": "Environment Properties That Constrain Design",
+          "BodyText": "Task environments are classified along several dimensions, and each dimension pushes the designer toward or away from particular architectures.",
+          "Notes": "",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:46:19.0411883-04:00",
+          "ModifiedDate": "2026-10-14T19:46:19.0411883-04:00",
+          "Items": [
+            {
+              "Id": "a0f8ef8f-8592-4701-b476-26662effc76f",
+              "Text": "Fully vs. partially observable: partial observability forces internal state, ruling out simple reflex agents.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "35b3b3ba-3884-46a3-8d79-01a728af37cb",
+              "Text": "Deterministic vs. stochastic: stochastic outcomes motivate utility-based reasoning over expected value.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "bb298d13-3171-48da-8597-d663145aea3f",
+              "Text": "Episodic vs. sequential: sequential environments require lookahead because current actions affect future episodes.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "2888686f-4094-4f12-9ca5-0ae4c8869979",
+              "Text": "Static vs. dynamic: dynamic environments limit deliberation time and favor fast reactive components.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "470a6ad8-b3ba-4766-bd77-23e48cc30954",
+              "Text": "Discrete vs. continuous and single- vs. multi-agent further shape representation and strategy choice.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "e2f89df0-b45f-4b29-946a-7d1c979c5fd7",
+              "Text": "Known vs. unknown concerns the designer\u0027s knowledge of the rules, which motivates learning agents.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "cbabca6e-aba1-4f4c-bd07-51090029efd4",
+          "TopicId": "52fcc05f-f325-455e-a193-71a1ac8fd86d",
+          "Title": "From Environment Analysis to Architecture Selection",
+          "BodyText": "The purpose of the foundational vocabulary is to make architecture choice a defensible engineering decision rather than a preference. Each architecture in this module answers a specific environmental challenge.",
+          "Notes": "This mapping is the evaluation rubric used throughout the module: every design must cite the environment property that justifies the chosen architecture.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:46:19.0411883-04:00",
+          "ModifiedDate": "2026-10-14T19:46:19.0411883-04:00",
+          "Items": [
+            {
+              "Id": "a14ef032-ca80-4b30-92e9-8b21aea24ed7",
+              "Text": "Fully observable, episodic, simple-rule domains can be handled by condition\u2013action reflex agents.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "20a7b518-0ce0-460e-b38b-9362c7fb0f36",
+              "Text": "Partial observability or hidden state requires a model-based agent that tracks the world.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ec53181b-83cf-4c47-a89b-baceb1ac38e2",
+              "Text": "Sequential tasks with explicit targets call for goal-based search and planning.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "523fb9f4-8b07-46d0-b3f5-ba13c00353b1",
+              "Text": "Competing or graded objectives under uncertainty call for utility-based decision making.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "c4013ace-c54c-4250-a71b-cb82720f7f5e",
+              "Text": "Unknown or changing environments call for a learning agent that improves its own policy over time.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "93b8458a-1132-4975-a48b-aad3e7ad49ba",
+      "Title": "Simple Reflex Agents",
+      "Summary": "Examines condition\u2013action rule agents that map the current percept directly to an action without internal state. Covers their implementation pattern, speed and simplicity advantages, and the failure modes caused by partial observability and infinite loops.",
+      "SortOrder": 1,
+      "CreatedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "ModifiedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "Elements": [
+        {
+          "Id": "e14e35c1-889a-4471-97ff-7ee2f0c0da0d",
+          "TopicId": "93b8458a-1132-4975-a48b-aad3e7ad49ba",
+          "Title": "Definition and Core Principle",
+          "BodyText": "A simple reflex agent selects actions using only the current percept, ignoring the rest of the percept history. Its behaviour is fully described by a set of condition\u2013action rules.",
+          "Notes": "Classic examples include a thermostat, a vacuum agent that sucks whenever it senses dirt, and a braking rule triggered by brake lights ahead.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:46:43.8857844-04:00",
+          "ModifiedDate": "2026-10-14T19:46:43.8857844-04:00",
+          "Items": [
+            {
+              "Id": "362f992e-a48d-4364-9c9e-89b2f9e919f0",
+              "Text": "The agent program is a direct mapping from percept to action, written as \u0027if condition then action\u0027.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "741200f9-0f3e-4ae2-92e6-5dd84398f064",
+              "Text": "No internal state is maintained between perception cycles, so each decision is memoryless.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "6dd144d5-fa62-4c00-bd2e-8837c7875267",
+              "Text": "The agent needs no model of how the world evolves or of the effects of its own actions.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "123a75a1-5b89-49fc-b816-fdc57074f37b",
+              "Text": "Rules are typically authored by the designer rather than learned by the agent.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "05ef6f22-d61e-49a4-8b07-d03a38632b43",
+          "TopicId": "93b8458a-1132-4975-a48b-aad3e7ad49ba",
+          "Title": "Implementation Pattern",
+          "BodyText": "The standard implementation interprets the raw percept into a state description, matches that description against a rule base, and returns the rule\u0027s action.",
+          "Notes": "Pseudocode: function SIMPLE-REFLEX-AGENT(percept) returns action: state \u2190 INTERPRET-INPUT(percept); rule \u2190 RULE-MATCH(state, rules); return rule.ACTION.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:46:43.8857844-04:00",
+          "ModifiedDate": "2026-10-14T19:46:43.8857844-04:00",
+          "Items": [
+            {
+              "Id": "0a9ed5e3-0407-45f6-94cc-b43291a49303",
+              "Text": "INTERPRET-INPUT abstracts the sensor data into a symbolic state description.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e20a4a87-27fd-4c0f-9ee7-4ab022223f24",
+              "Text": "RULE-MATCH finds the first rule whose condition part matches the current state.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d7df0f8c-53e3-4aac-9690-1c32fed78722",
+              "Text": "Rule ordering or priority resolves cases where several conditions match at once.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "7a6f519d-114f-4836-876c-9413593d83ed",
+              "Text": "A default or fallback rule should cover percepts that match no explicit condition.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "5d21f05c-51eb-4b28-908b-94263d6786db",
+              "Text": "Lookup can be implemented as a table, decision tree, or hashed rule index for speed.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "601d9586-2d0b-4a15-a6c0-85c466e7e6f3",
+          "TopicId": "93b8458a-1132-4975-a48b-aad3e7ad49ba",
+          "Title": "Advantages: Speed and Simplicity",
+          "BodyText": "Because decisions require only a rule lookup, simple reflex agents are extremely fast, predictable, and cheap to build.",
+          "Notes": "These properties make them common in embedded controllers and as the reactive layer of larger hybrid architectures.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:46:43.8857844-04:00",
+          "ModifiedDate": "2026-10-14T19:46:43.8857844-04:00",
+          "Items": [
+            {
+              "Id": "072899f9-c9e2-4d2a-bb87-a00544232547",
+              "Text": "Constant or near-constant decision time makes them suitable for hard real-time control.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "8df3ceb7-76c8-4f6a-9e7e-35a5cfc67d64",
+              "Text": "Memory requirements are minimal since no state history is stored.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2a7cc3a9-4d9d-4d2e-a1d6-6e673204bade",
+              "Text": "Behaviour is transparent and easy to verify, debug, and certify.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "72fce8f7-fc29-476a-aa6a-0d49201e7f10",
+              "Text": "They degrade gracefully as a low-level safety layer beneath deliberative components.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "a8260750-2d9f-4e70-b956-a3cc206106c3",
+          "TopicId": "93b8458a-1132-4975-a48b-aad3e7ad49ba",
+          "Title": "Requirement of Full Observability",
+          "BodyText": "Simple reflex agents only work correctly when the current percept contains all information needed to choose the right action.",
+          "Notes": "A vacuum agent that senses only dirt but not its own location cannot decide whether to move left or right once the current square is clean.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:46:43.8857844-04:00",
+          "ModifiedDate": "2026-10-14T19:46:43.8857844-04:00",
+          "Items": [
+            {
+              "Id": "d67ed712-c5f6-4fe8-b3fa-228bef2f6fe7",
+              "Text": "Correct operation demands a fully observable environment for the task at hand.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "787dab9a-4043-406f-a214-990c575cdcd0",
+              "Text": "In partially observable settings the same percept can arise in states requiring different actions \u2014 perceptual aliasing.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5aff0e53-d535-493b-88d3-1d82df5bb1a8",
+              "Text": "Missing sensors or hidden variables cause the agent to apply the wrong rule confidently.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a6c627ed-af35-4fdf-bdaf-1ececa753c3e",
+              "Text": "Adding more sensors can sometimes restore observability without changing the architecture.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "59f7a969-3305-4604-9a4e-36061a493530",
+          "TopicId": "93b8458a-1132-4975-a48b-aad3e7ad49ba",
+          "Title": "Failure Mode: Infinite Loops",
+          "BodyText": "Without memory, a reflex agent revisiting an identical percept will always repeat the same action, which can trap it in an endless cycle.",
+          "Notes": "Randomisation is a cheap partial fix: a vacuum agent that flips a coin to move left or right escapes a deterministic loop and will eventually clean both squares.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:46:43.8857844-04:00",
+          "ModifiedDate": "2026-10-14T19:46:43.8857844-04:00",
+          "Items": [
+            {
+              "Id": "e1d64271-6b8b-4d21-81e6-214c81ea2a83",
+              "Text": "Deterministic rules plus repeated percepts guarantee repeated behaviour, such as oscillating between two locations.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "9cbda279-c8df-4b96-b772-da1757cf0f91",
+              "Text": "Randomising action selection breaks symmetry and can escape loops, often improving expected performance.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2232e0f1-26f4-48ce-b271-7bc663271021",
+              "Text": "Randomisation is a workaround, not a solution \u2014 it adds no actual knowledge of the world.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "fd4d631a-3b22-4bea-946f-9f3eb0c1016f",
+              "Text": "The principled fix is to add internal state, which leads directly to the model-based reflex agent.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "1d691c77-506e-4f2a-99e7-94a4df8faced",
+          "TopicId": "93b8458a-1132-4975-a48b-aad3e7ad49ba",
+          "Title": "Scaling Limits of Rule Sets",
+          "BodyText": "As environments grow in complexity, the number of condition\u2013action rules needed expands rapidly and becomes hard to maintain.",
+          "Notes": "Automated driving illustrates the limit: no finite reflex rule set covers every traffic situation safely.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:46:43.8857844-04:00",
+          "ModifiedDate": "2026-10-14T19:46:43.8857844-04:00",
+          "Items": [
+            {
+              "Id": "9f422b23-9a45-409b-a544-40c5e829e5cf",
+              "Text": "Rule count can grow combinatorially with the number of percept variables.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b1f6c8a3-9888-477d-88b5-6ea3eff1f6be",
+              "Text": "Large rule bases become difficult to check for conflicts, gaps, and unintended interactions.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9d98bb9a-ad6c-4853-accb-ab385354a427",
+              "Text": "Reflex agents cannot represent goals, so changing the objective requires rewriting the rules.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e874f6e7-f221-4fda-8e5d-840f958b89af",
+              "Text": "They cannot plan ahead or evaluate the future consequences of an action.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "db570e92-c312-40d7-936a-1acd2ecd899b",
+          "TopicId": "93b8458a-1132-4975-a48b-aad3e7ad49ba",
+          "Title": "When to Choose This Architecture",
+          "BodyText": "Selecting a simple reflex agent is justified when the task is observable, the correct response is a direct function of the percept, and responsiveness matters most.",
+          "Notes": "Ask: does the right action ever depend on something I saw earlier? If yes, choose a model-based agent instead.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T19:46:43.8857844-04:00",
+          "ModifiedDate": "2026-10-14T19:46:43.8857844-04:00",
+          "Items": [
+            {
+              "Id": "62ab5645-daa6-4e8f-84ad-83ddbc427d4c",
+              "Text": "Appropriate for fully observable, deterministic, single-objective tasks with small percept spaces.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b4a53273-6156-4f9d-82fc-19c2f94b644c",
+              "Text": "Appropriate where latency budgets rule out search or inference at decision time.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "56f5cacb-5fc7-4df5-8690-bc4f0c0b213f",
+              "Text": "Inappropriate when history, goals, or trade-offs between outcomes drive the correct action.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "320b52d5-fa9b-40f6-930e-e15cd72a9327",
+              "Text": "Design justification should cite the environment properties explicitly: observability, determinism, and episodic structure.",
+              "SortOrder": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "2c1d2ca2-5ecc-42b0-adc3-d17525186cc6",
+      "Title": "Model-Based Reflex Agents",
+      "Summary": "Introduces internal state and a transition/sensor model that lets an agent track the unobserved parts of the world. Shows how maintaining \u0027how the world evolves\u0027 and \u0027what my actions do\u0027 extends reflex behavior into partially observable environments.",
+      "SortOrder": 2,
+      "CreatedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "ModifiedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "Elements": [
+        {
+          "Id": "6f754619-e4db-47a4-801f-8c8defd1d16a",
+          "TopicId": "2c1d2ca2-5ecc-42b0-adc3-d17525186cc6",
+          "Title": "Why Reflex Agents Fail in Partially Observable Worlds",
+          "BodyText": "Simple reflex agents map the current percept directly to an action, which breaks down whenever the sensors cannot reveal everything the agent needs to know. Model-based reflex agents were introduced to overcome exactly this limitation.",
+          "Notes": "Classic example: a vacuum agent with only a dirt sensor and no location sensor cannot tell whether it is in square A or B, so a purely percept-driven rule may loop forever.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:47:05.4984833-04:00",
+          "ModifiedDate": "2026-10-14T19:47:05.4984833-04:00",
+          "Items": [
+            {
+              "Id": "4ff5385f-2a0a-42bd-b113-f32fa1ce5639",
+              "Text": "A percept gives only a snapshot, not the full state of the environment.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "117270e6-063a-496b-a1ef-f6e2287c630e",
+              "Text": "Different world states can produce identical percepts, causing the agent to choose the wrong action.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "6298599a-03c8-4187-b8f0-40e86b877f91",
+              "Text": "Reflex rules can cause infinite loops when the distinguishing information is simply not sensed.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "cedb51e7-3842-481a-a466-bd5caed10c8e",
+              "Text": "The remedy is to remember something about what the agent has seen and done before.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "1b255c3b-f936-4665-8df2-6af8fa5b06ff",
+          "TopicId": "2c1d2ca2-5ecc-42b0-adc3-d17525186cc6",
+          "Title": "Internal State: Remembering What Sensors Cannot See",
+          "BodyText": "A model-based reflex agent maintains an internal state variable that summarises the history of percepts so far. This state stands in for the unobserved parts of the world.",
+          "Notes": "Internal state does not need to be a full picture of the world; it only needs to capture the aspects relevant to choosing actions.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:47:05.4984833-04:00",
+          "ModifiedDate": "2026-10-14T19:47:05.4984833-04:00",
+          "Items": [
+            {
+              "Id": "5af7eafb-ca2a-4b71-9410-cc4ad7f1f5a8",
+              "Text": "Internal state is updated on every cycle rather than recomputed from scratch.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c34622d3-8781-46e6-9700-a588e2f5e242",
+              "Text": "It compresses an entire percept history into a compact, usable representation.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5c680b5c-b5ea-4f12-8d9a-03de45fac29a",
+              "Text": "It lets the agent distinguish world states that look identical to its sensors.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e8cecefe-d2bc-4a4b-ac47-0b6654cdafc5",
+              "Text": "Examples include a robot\u0027s estimated position, a car\u0027s belief about vehicles in its blind spot, or which rooms a vacuum has already cleaned.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "19877526-bfe2-4ace-9f2c-541db1e71a8e",
+          "TopicId": "2c1d2ca2-5ecc-42b0-adc3-d17525186cc6",
+          "Title": "The Transition Model: How the World Evolves",
+          "BodyText": "To keep internal state accurate, the agent needs knowledge of how the environment changes over time. This knowledge is called the transition model.",
+          "Notes": "The transition model has two parts: changes caused by the agent\u0027s own actions, and changes that happen independently of the agent.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:47:05.4984833-04:00",
+          "ModifiedDate": "2026-10-14T19:47:05.4984833-04:00",
+          "Items": [
+            {
+              "Id": "675943ee-1fd9-4617-8cdb-6c00883147a8",
+              "Text": "\u0027How the world evolves independently\u0027 covers dynamics such as other cars moving or dirt reappearing.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "dbb0f3c4-5ca6-4825-a922-698709eee9ff",
+              "Text": "\u0027What my actions do\u0027 predicts the effect of the agent\u0027s own behaviour, such as moving right changing the current square.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "23c049b9-69f8-4d0a-9118-0bc7a8aee191",
+              "Text": "The model may be encoded as simple rules, equations, or probabilistic transitions.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "ee43a80b-65ec-49e7-9004-cb801bb3b61c",
+              "Text": "Without a transition model the stored state would quickly become stale and misleading.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "922dbbc7-c867-4c19-8c49-5529387e1d98",
+          "TopicId": "2c1d2ca2-5ecc-42b0-adc3-d17525186cc6",
+          "Title": "The Sensor Model: Interpreting Percepts",
+          "BodyText": "The sensor model describes how states of the world are reflected in the agent\u0027s percepts. Together with the transition model it forms the agent\u0027s model of the world.",
+          "Notes": "Transition model plus sensor model is what we mean when we say the agent is \u0027model-based\u0027.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:47:05.4984833-04:00",
+          "ModifiedDate": "2026-10-14T19:47:05.4984833-04:00",
+          "Items": [
+            {
+              "Id": "60fc68f3-e59e-4044-92d8-1aca56588157",
+              "Text": "The sensor model explains what each percept reveals, and what it leaves ambiguous.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "56e4f186-7519-4bfd-b32f-0c50933ce7ab",
+              "Text": "It is used to reconcile a new percept with the state predicted by the transition model.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "68cd768c-9e4d-418f-b6a6-0b125c75c44e",
+              "Text": "Noisy or partial sensors mean the resulting state is a best estimate, not certainty.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d6528de1-c501-4c82-ae63-2bb4655eb1f9",
+              "Text": "A camera image interpreted as \u0027the car ahead is braking\u0027 is a sensor model in action.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "519a0ad9-6a1b-4162-92b2-2b4c14fea2d1",
+          "TopicId": "2c1d2ca2-5ecc-42b0-adc3-d17525186cc6",
+          "Title": "The Agent Program: Update-State Then Match Rule",
+          "BodyText": "The model-based reflex agent program keeps the condition-action rule structure of a simple reflex agent but inserts a state-update step before rule matching. This is the core of its control loop.",
+          "Notes": "Pseudocode outline: state \u2190 UPDATE-STATE(state, action, percept, model); rule \u2190 RULE-MATCH(state, rules); action \u2190 rule.ACTION; return action.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:47:05.4984833-04:00",
+          "ModifiedDate": "2026-10-14T19:47:05.4984833-04:00",
+          "Items": [
+            {
+              "Id": "5ce8abed-1688-4276-bb70-4386f9b6f0c4",
+              "Text": "Step 1: predict how the world has changed since the last percept, using the previous action and the transition model.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e080a578-e718-42e0-bc18-4acb0f6fd687",
+              "Text": "Step 2: incorporate the new percept using the sensor model to refine the state estimate.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "892f2bdf-6fa1-4d91-929a-37bcf95fc1e1",
+              "Text": "Step 3: match the updated state against the condition-action rules to select an action.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "25ff5ddf-d012-4502-8709-cf91ca23dd5b",
+              "Text": "Step 4: record the chosen action so the next update cycle can account for its effects.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "e21a7757-3ca0-4d58-9efa-a2f377ab8dbf",
+          "TopicId": "2c1d2ca2-5ecc-42b0-adc3-d17525186cc6",
+          "Title": "Strengths, Limits, and When to Choose This Architecture",
+          "BodyText": "Model-based reflex agents handle partial observability well but remain fundamentally reactive. Knowing their boundaries guides architecture selection.",
+          "Notes": "If the task requires reasoning about future sequences of actions to reach a destination, move up to a goal-based agent.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:47:05.4984833-04:00",
+          "ModifiedDate": "2026-10-14T19:47:05.4984833-04:00",
+          "Items": [
+            {
+              "Id": "c1420119-eace-4d66-87fd-fc0326f280b9",
+              "Text": "Choose it when sensors are partial or noisy but the right action is still determined by current conditions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "69c5a053-6a6f-4279-ae61-1822521d425f",
+              "Text": "It still has no explicit representation of goals, so it cannot plan toward a desired outcome.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "23ec1ee1-6eb0-4848-a5d7-cec496a01d00",
+              "Text": "Rule sets can grow large and hard to maintain as the number of distinguishable states increases.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "933e48d8-ad66-4a01-ab67-aac0d99a29e5",
+              "Text": "Accuracy depends entirely on the quality of the model; a wrong model yields confidently wrong actions.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "332603a9-17b2-49a1-a67d-fe0b96a8ff4f",
+              "Text": "Typical applications include automated braking systems, thermostats with occupancy memory, and vacuum robots that track cleaned areas.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "ebea7e46-d5c7-48d0-a205-11850f6d53dd",
+      "Title": "Goal-Based Agents",
+      "Summary": "Covers agents that combine a world model with explicit goal information, selecting actions by reasoning about future states through search and planning. Contrasts the flexibility of goal-directed behavior against the computational cost relative to reflex designs.",
+      "SortOrder": 3,
+      "CreatedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "ModifiedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "Elements": [
+        {
+          "Id": "edd2d17e-93f9-4809-a508-14f19f0795cc",
+          "TopicId": "ebea7e46-d5c7-48d0-a205-11850f6d53dd",
+          "Title": "What Makes an Agent Goal-Based",
+          "BodyText": "A goal-based agent extends the model-based reflex design by adding explicit information about desirable states of the world. Instead of mapping conditions directly to actions, it asks which action brings it closer to achieving the goal.",
+          "Notes": "Example: a delivery robot whose goal is \u0027package at room 304\u0027 rather than a fixed rule set for every corridor junction.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:47:29.6487149-04:00",
+          "ModifiedDate": "2026-10-14T19:47:29.6487149-04:00",
+          "Items": [
+            {
+              "Id": "d4869a79-e7f2-49c7-8c68-a90427df20d4",
+              "Text": "It retains the internal world model that tracks unobservable aspects of the environment.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "5c138e24-666a-4c8a-9f36-cd526deddf99",
+              "Text": "A goal is a description of a state or set of states the agent is trying to reach.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "26b646cd-4505-4854-9e43-80100102e895",
+              "Text": "Action selection becomes a reasoning problem rather than a lookup problem.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "60f85db4-c5ed-42b3-bf38-c57a97e84304",
+              "Text": "The agent considers the future consequences of actions: \u0027what will happen if I do this?\u0027",
+              "SortOrder": 3
+            },
+            {
+              "Id": "f8ce1600-bdfb-4cd2-8168-765d93dfcb6f",
+              "Text": "Goals make the agent\u0027s purpose explicit and inspectable rather than implicit in its rules.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "9efb43ba-9093-4c74-bb17-93ed2d655736",
+          "TopicId": "ebea7e46-d5c7-48d0-a205-11850f6d53dd",
+          "Title": "Core Components of the Agent Program",
+          "BodyText": "The goal-based agent program combines perception, state estimation, a transition model, and goal testing into a single decision loop. Each component contributes a distinct piece of the reasoning process.",
+          "Notes": "",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:47:29.6487149-04:00",
+          "ModifiedDate": "2026-10-14T19:47:29.6487149-04:00",
+          "Items": [
+            {
+              "Id": "27d00ad8-0e58-433b-a869-d01c4ca84252",
+              "Text": "Sensors supply percepts that update the agent\u0027s belief about the current state.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b545f6fb-6601-45be-9821-1cb96ede7b12",
+              "Text": "A model of \u0027how the world evolves\u0027 and \u0027what my actions do\u0027 predicts successor states.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "404d07c9-7e63-444b-b27a-afbf7cf6359a",
+              "Text": "An explicit goal representation defines which states count as success.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9be57e63-2f5d-46b1-80ee-61d42b390a05",
+              "Text": "A search or planning procedure chains predicted states into an action sequence.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "550e6b4a-0fea-48a6-a37b-c3237a64e2e9",
+              "Text": "Actuators execute the first action of the chosen sequence, after which the loop repeats.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "ad4e6136-4a77-4b8b-80e6-e5d8f4f4bee5",
+          "TopicId": "ebea7e46-d5c7-48d0-a205-11850f6d53dd",
+          "Title": "Search and Planning as Decision Making",
+          "BodyText": "Because the right action may be many steps away from the goal, goal-based agents rely on search and planning to find action sequences. This is the mechanism that replaces hard-coded condition-action rules.",
+          "Notes": "Classic examples include route-finding with A*, puzzle solving, and STRIPS-style planning.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:47:29.6487149-04:00",
+          "ModifiedDate": "2026-10-14T19:47:29.6487149-04:00",
+          "Items": [
+            {
+              "Id": "e488ca70-3431-4c1f-9737-3193aec16152",
+              "Text": "Search explores the space of possible action sequences generated by the transition model.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b5eef113-32fb-420d-ac8a-4830f59b4278",
+              "Text": "Planning reasons over structured representations of actions, preconditions, and effects.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ff565da7-22b9-4fa5-a303-6d450796b6a6",
+              "Text": "A single-step lookahead suffices only when one action achieves the goal directly.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "de9fb439-0575-4d07-a92e-d632dc52eb7f",
+              "Text": "Longer horizons require multi-step lookahead and can expand very large state spaces.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "d87459e7-e47e-4184-8d11-178d564a7f04",
+              "Text": "Heuristics estimate distance to the goal and prune unpromising branches of the search.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "9cb07843-1414-4e3f-8b33-e91b26146ec8",
+          "TopicId": "ebea7e46-d5c7-48d0-a205-11850f6d53dd",
+          "Title": "Flexibility Compared to Reflex Agents",
+          "BodyText": "The main advantage of the goal-based architecture is that behaviour is derived rather than pre-specified, making the agent far easier to adapt. Changing what the agent pursues does not require rewriting its rules.",
+          "Notes": "Contrast: a reflex taxi needs every \u0027turn left\u0027 rule rewritten for a new destination; a goal-based taxi only needs a new goal supplied.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:47:29.6487149-04:00",
+          "ModifiedDate": "2026-10-14T19:47:29.6487149-04:00",
+          "Items": [
+            {
+              "Id": "46df81f0-321a-4004-8697-057bdbdbd473",
+              "Text": "Supplying a new goal automatically yields new behaviour from the same knowledge base.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0306aeda-698a-41fb-9e8c-dee60914539a",
+              "Text": "Updating the world model propagates improvements to every goal the agent pursues.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8f943bae-8ce2-431d-9eaa-f8e6da7ea67d",
+              "Text": "The agent can handle novel situations that no designer anticipated with an explicit rule.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "fcba3180-7b60-4e7e-b8fc-95963f438cf2",
+              "Text": "Reflex agents must enumerate condition-action pairs for every situation and destination.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a420b07a-9a81-4f20-a530-9640e982dad5",
+              "Text": "Goal-based reasoning is transparent: the agent\u0027s choices can be explained by the goal and model.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "e0b74a65-a548-4f84-8488-514f8ba83d44",
+          "TopicId": "ebea7e46-d5c7-48d0-a205-11850f6d53dd",
+          "Title": "Computational Cost and Limitations",
+          "BodyText": "Flexibility comes at the price of computation, since searching forward through possible futures is far more expensive than matching a rule. Goal-based agents also treat goals as binary, which limits the decisions they can make.",
+          "Notes": "",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:47:29.6487149-04:00",
+          "ModifiedDate": "2026-10-14T19:47:29.6487149-04:00",
+          "Items": [
+            {
+              "Id": "5b612dba-1179-4ec1-af83-cc217c6b0c82",
+              "Text": "Search time and memory can grow exponentially with the planning horizon and branching factor.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d54634ee-7fc2-47b0-a13a-09100cb22da1",
+              "Text": "Reflex agents respond in effectively constant time, which matters in real-time domains.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c9124a60-d7e1-40ae-ae03-bc78704016af",
+              "Text": "Binary goals cannot distinguish between a fast route and a slow one if both succeed.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "8b8463f5-f013-433e-a6ce-cb402d827b57",
+              "Text": "Conflicting or partially achievable goals cannot be traded off against each other.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "e9e16015-6091-47ab-9c05-5e4f65a88cd7",
+              "Text": "Uncertainty in the model can make a confidently generated plan fail during execution.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "4552aa7c-54c1-481d-93ba-bc1cdb6037d2",
+              "Text": "These limits motivate utility-based agents, which score states on a continuous measure.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "66ccaccd-6c00-41f0-97b2-cd3f800d6515",
+          "TopicId": "ebea7e46-d5c7-48d0-a205-11850f6d53dd",
+          "Title": "Choosing a Goal-Based Architecture",
+          "BodyText": "Goal-based designs are justified when the task has a clearly definable target state and when deliberation time is available. Recognising these conditions is key to architecture selection.",
+          "Notes": "Sample environments: warehouse navigation, puzzle solving, automated assembly sequencing, itinerary construction.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:47:29.6487149-04:00",
+          "ModifiedDate": "2026-10-14T19:47:29.6487149-04:00",
+          "Items": [
+            {
+              "Id": "06def514-9e52-444d-90b8-d2828adf547b",
+              "Text": "Use it when goals change often but the environment dynamics stay stable.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "4b1098ae-077f-4207-9660-e52ef154397d",
+              "Text": "Use it when the correct action depends on consequences several steps ahead.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2379249a-d60a-49d2-96d5-6d31a9ebe155",
+              "Text": "Prefer a reflex design when responses must be immediate and situations are few.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d267f7b0-686d-4950-9f48-37e11a09d199",
+              "Text": "Confirm that a reliable transition model is available before committing to planning.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6ec068a5-4fc7-4aa8-9090-aa67c29be69b",
+              "Text": "Justify the choice by naming the goal representation, the search method, and the expected cost.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "d6fb5751-b595-46f2-8391-52782d5fa783",
+      "Title": "Utility-Based Agents",
+      "Summary": "Explains utility functions as an internalized performance measure that lets agents rank competing outcomes, trade off conflicting goals, and handle uncertainty via expected utility. Distinguishes \u0027achieving a goal\u0027 from \u0027achieving it well\u0027 with cost, risk, and preference considerations.",
+      "SortOrder": 4,
+      "CreatedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "ModifiedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "Elements": [
+        {
+          "Id": "b310272f-855f-4f52-866d-65daacfa2761",
+          "TopicId": "d6fb5751-b595-46f2-8391-52782d5fa783",
+          "Title": "From Goals to Preferences: Why Utility Is Needed",
+          "BodyText": "Goal-based agents treat outcomes as binary \u2014 a state either satisfies the goal or it does not. Utility-based agents add a graded measure of desirability so that competing successful outcomes can be ranked.",
+          "Notes": "Example: three routes all reach the airport, but one is fast and expensive, one is slow and cheap, and one is moderate on both. A goal-based agent is indifferent; a utility-based agent is not.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:47:55.0669259-04:00",
+          "ModifiedDate": "2026-10-14T19:47:55.0669259-04:00",
+          "Items": [
+            {
+              "Id": "31dfb144-c724-4adb-bdab-d3b01448fd87",
+              "Text": "A goal test answers \u0027did I succeed?\u0027 while a utility function answers \u0027how good was this success?\u0027.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "fdc8d9b2-60bd-4fbe-88ab-de3ce020935d",
+              "Text": "Many environments offer multiple goal-satisfying action sequences that differ in cost, time, or risk.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "393f5d56-07be-4f4b-9628-123685e826bd",
+              "Text": "Goals alone give no principled way to choose when two plans both work.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9dce161d-7891-4ad6-91de-a2ae4a87b12f",
+              "Text": "Utility distinguishes \u0027achieving a goal\u0027 from \u0027achieving it well\u0027.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "8bae4e1a-6e7b-4477-8850-9dc110c27e75",
+              "Text": "Utility also lets an agent act sensibly when no plan fully achieves the goal, by selecting the least-bad outcome.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "65b13b59-3511-485b-88ab-691d50b22a48",
+          "TopicId": "d6fb5751-b595-46f2-8391-52782d5fa783",
+          "Title": "The Utility Function as an Internalized Performance Measure",
+          "BodyText": "A utility function maps a state (or a sequence of states) to a real number representing its desirability to the agent. It is effectively the external performance measure brought inside the agent program.",
+          "Notes": "If the internal utility function and the external performance measure disagree, the agent can behave \u0027rationally\u0027 by its own lights while still failing the designer\u0027s criteria.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:47:55.0669259-04:00",
+          "ModifiedDate": "2026-10-14T19:47:55.0669259-04:00",
+          "Items": [
+            {
+              "Id": "6f619ebb-45a2-45f3-8dff-7ff72d21bd40",
+              "Text": "Notation: U(s) returns a scalar score for state s; higher values indicate more preferred states.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "1179a3fd-7bc2-4afb-9f1c-de77c5f3b427",
+              "Text": "The designer encodes what the agent should care about \u2014 speed, safety, energy, comfort \u2014 as terms in U.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8c24796a-7caa-4057-a033-e7294a3db7e3",
+              "Text": "Rational behaviour becomes \u0027choose the action whose outcome maximizes utility\u0027.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e511f607-0083-4a6d-93e4-e5998d4f8ee3",
+              "Text": "Alignment between the designer\u0027s performance measure and the agent\u0027s utility function is essential.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "d4d855d0-4795-45ca-a956-0e74eb7de6d7",
+              "Text": "Utility values are meaningful mainly in comparison; their absolute scale is often arbitrary.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "bbc02df4-c08b-45dd-929e-da175d6ed421",
+          "TopicId": "d6fb5751-b595-46f2-8391-52782d5fa783",
+          "Title": "Trading Off Conflicting Goals",
+          "BodyText": "Real tasks involve objectives that pull in opposite directions, such as speed versus safety or cost versus quality. A utility function provides a common scale on which these incommensurable factors can be weighed against each other.",
+          "Notes": "A delivery robot might use U = w1(speed) \u2212 w2(collision risk) \u2212 w3(battery drain), with weights expressing relative importance.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:47:55.0669259-04:00",
+          "ModifiedDate": "2026-10-14T19:47:55.0669259-04:00",
+          "Items": [
+            {
+              "Id": "9010d1cf-f5e4-4737-9a87-38480a73faa6",
+              "Text": "Multiple criteria are combined into a single scalar, typically through a weighted sum or similar aggregation.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "eca3d408-0b02-47f7-9c80-59db16350960",
+              "Text": "Weights express the relative importance the designer assigns to each criterion.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1b8aae1d-c284-4fb0-a418-56bf9df8d6ba",
+              "Text": "The trade-off becomes explicit and inspectable rather than hidden in hand-coded rules.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "de12576c-9fef-45f6-9505-8cd8092eb113",
+              "Text": "Changing priorities only requires retuning weights, not rewriting the agent\u0027s logic.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "93dfdac6-ea1d-4322-ab0f-d3568d7bc179",
+              "Text": "Poorly chosen weights can produce technically optimal but undesirable behaviour.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "a8c6245b-171e-46a2-8306-fa7e0e8837cb",
+          "TopicId": "d6fb5751-b595-46f2-8391-52782d5fa783",
+          "Title": "Handling Uncertainty with Expected Utility",
+          "BodyText": "When actions have uncertain outcomes, an agent cannot simply evaluate the utility of a known result. Instead it computes expected utility \u2014 the probability-weighted average of the utilities of all possible outcomes.",
+          "Notes": "Expected utility of action a in state s: EU(a|s) = \u03A3 P(outcome | s, a) \u00D7 U(outcome). The principle of Maximum Expected Utility (MEU) says a rational agent selects the action with the highest EU.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:47:55.0669259-04:00",
+          "ModifiedDate": "2026-10-14T19:47:55.0669259-04:00",
+          "Items": [
+            {
+              "Id": "3fcdf73a-8b36-4a85-b5e5-c42cadb8daea",
+              "Text": "Partially observable and stochastic environments make outcomes probabilistic rather than certain.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "53efe5f9-a67c-42c1-b4d5-b784d8447bbb",
+              "Text": "The agent needs a model that supplies outcome probabilities as well as utilities.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "cbe62013-cc2e-4a78-af50-35cd77b716e2",
+              "Text": "MEU lets an agent compare a certain small gain against a risky large gain in a principled way.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c1a580f6-776a-4baf-b51d-f466de30a11c",
+              "Text": "The shape of the utility function encodes risk attitude: concave implies risk aversion, convex implies risk seeking.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "34c4587a-e301-4842-97d3-833770b4daa3",
+              "Text": "Expected utility handles cases where no action guarantees success, enabling graceful degradation.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "5fed2159-05bc-455e-8bf7-42d07a39ec86",
+          "TopicId": "d6fb5751-b595-46f2-8391-52782d5fa783",
+          "Title": "Architecture and Decision Cycle of a Utility-Based Agent",
+          "BodyText": "A utility-based agent extends the model-based goal agent by inserting a utility evaluation step before action selection. It still maintains internal state and a transition model, but uses scores rather than a binary goal test.",
+          "Notes": "Component chain: sensors \u2192 state update (using the world model) \u2192 outcome prediction for candidate actions \u2192 utility/expected-utility evaluation \u2192 select best action \u2192 actuators.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:47:55.0669259-04:00",
+          "ModifiedDate": "2026-10-14T19:47:55.0669259-04:00",
+          "Items": [
+            {
+              "Id": "c0baf9ee-4d70-4d06-9875-5245d9cd53b5",
+              "Text": "It keeps the internal world model needed to track partially observable environments.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "2d689792-b480-4697-9b26-309444ca5601",
+              "Text": "It predicts \u0027what the world will be like if I do action A\u0027.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ddf2c04e-b9c0-4313-999f-3282cd435ee0",
+              "Text": "It then asks \u0027how happy will I be in that state?\u0027 rather than \u0027is that state the goal?\u0027.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "7b0e53d1-bd6b-4c32-9483-41c84420ae07",
+              "Text": "The action with the highest (expected) utility is chosen and sent to the actuators.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "5b731fc2-91ad-4d8e-b92d-9e7989d81718",
+              "Text": "Computational cost is higher because many candidate outcomes must be evaluated and scored.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "9a39c20e-d51f-4df6-8c76-c1ecb820807c",
+          "TopicId": "d6fb5751-b595-46f2-8391-52782d5fa783",
+          "Title": "When to Choose a Utility-Based Architecture",
+          "BodyText": "Utility-based design is justified when outcomes vary in quality, objectives conflict, or uncertainty is unavoidable. It is overkill when a simple goal test fully captures success.",
+          "Notes": "Examples: autonomous vehicle route planning, portfolio management, hospital scheduling, energy-aware robotics.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:47:55.0669259-04:00",
+          "ModifiedDate": "2026-10-14T19:47:55.0669259-04:00",
+          "Items": [
+            {
+              "Id": "da7f6322-9e97-4b5a-ba53-fd750cf46a91",
+              "Text": "Use it when multiple solutions exist and the best one must be identified, not just any solution.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "082b4fdf-57e1-4fcc-b324-1e582655c54a",
+              "Text": "Use it when the agent must balance competing criteria such as cost, time, risk, and comfort.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ff905cf1-1993-4b9b-ba26-5e012f3c783e",
+              "Text": "Use it when actions are stochastic or the environment is only partially observable.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "29b64c7d-e176-46cb-9aeb-b18dedc589d1",
+              "Text": "Avoid it when the goal is binary, deterministic, and cheaply testable \u2014 a goal-based agent suffices.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "586d8001-d005-488f-886b-607471f43058",
+              "Text": "The main design burden shifts to eliciting and validating an accurate utility function.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "6d5f5946-b9fe-4ae4-af7b-486f20318236",
+      "Title": "Learning Agents",
+      "Summary": "Breaks down the learning agent framework into performance element, critic, learning element, and problem generator, and shows how any of the prior architectures can be wrapped in a learning loop. Addresses feedback signals, exploration versus exploitation, and improvement in unknown environments.",
+      "SortOrder": 5,
+      "CreatedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "ModifiedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "Elements": [
+        {
+          "Id": "eb1434e9-6969-4b07-a1c0-080914c0cc23",
+          "TopicId": "6d5f5946-b9fe-4ae4-af7b-486f20318236",
+          "Title": "Why Learning Agents Are Needed",
+          "BodyText": "A learning agent improves its own performance over time from experience, rather than relying solely on knowledge built in by its designer. This makes learning essential when the environment is unknown, changing, or too complex to specify in advance.",
+          "Notes": "Turing\u0027s observation: rather than programming an adult mind by hand, it may be easier to program a child mind and teach it.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:48:23.1241571-04:00",
+          "ModifiedDate": "2026-10-14T19:48:23.1241571-04:00",
+          "Items": [
+            {
+              "Id": "add2ed22-d9b1-4223-81e5-96735fda055d",
+              "Text": "Reflex, model-based, goal-based, and utility-based agents all depend on designer-supplied rules, models, or utility functions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "2cf3f4de-59c2-4df5-b432-b19e99a6e59b",
+              "Text": "Designers cannot anticipate every situation an agent will face in a real environment.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7d135f34-8bf2-4895-93df-0fce4ed11989",
+              "Text": "Learning lets an agent operate in initially unknown environments and become more competent than its initial program.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b326e628-c67e-4e44-a2fe-bca8f5487447",
+              "Text": "Learning also repairs faulty assumptions: a wrong transition model or miscalibrated utility can be corrected by experience.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "fbe6794e-08b0-4bcc-8514-424e7062849b",
+              "Text": "Any of the prior architectures can serve as the decision-making core inside a learning wrapper.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "c2f36d6a-ec95-4d58-84fb-640800e47885",
+          "TopicId": "6d5f5946-b9fe-4ae4-af7b-486f20318236",
+          "Title": "The Four Components of a Learning Agent",
+          "BodyText": "The standard learning agent is decomposed into four conceptual components that work as a loop: performance element, critic, learning element, and problem generator. Separating them clarifies what is being improved and what drives the improvement.",
+          "Notes": "Design of the learning element depends heavily on the design of the performance element \u2014 you can only learn the components that the performance element actually uses.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:48:23.1241571-04:00",
+          "ModifiedDate": "2026-10-14T19:48:23.1241571-04:00",
+          "Items": [
+            {
+              "Id": "1fc2bc70-8296-404c-9bcf-448ec82625a9",
+              "Text": "The performance element is the whole agent we studied previously \u2014 it takes percepts and selects actions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "29cf6ea5-83cc-4f8d-bfe4-fdca38315b60",
+              "Text": "The critic observes percepts and judges how well the agent is doing against a fixed external performance standard.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8081fc45-4f99-41e2-ab4e-8594b60b3259",
+              "Text": "The learning element uses the critic\u0027s feedback to make improvements to the performance element.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b7ce208a-5567-4d74-aa51-1adb213c9c4b",
+              "Text": "The problem generator suggests exploratory actions that lead to new and informative experiences.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "5604d8a9-1a17-4947-95b4-f3900737ba27",
+              "Text": "The loop runs continuously: act, evaluate, modify, explore.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "b2735ca6-efc2-4909-9899-cbf34b88d1e4",
+          "TopicId": "6d5f5946-b9fe-4ae4-af7b-486f20318236",
+          "Title": "The Critic and the Performance Standard",
+          "BodyText": "The critic converts raw percepts into an assessment of agent performance, because percepts alone do not say whether the agent is doing well. The performance standard it uses must be external and fixed so the agent cannot simply redefine success.",
+          "Notes": "Example: a taxi agent that gets honked at by other drivers receives feedback that a recent maneuver was poor; the percept stream is the same, but the critic interprets it against the standard of safe, legal driving.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:48:23.1241571-04:00",
+          "ModifiedDate": "2026-10-14T19:48:23.1241571-04:00",
+          "Items": [
+            {
+              "Id": "75a54c17-fa6f-462c-ba52-977400a8379c",
+              "Text": "The performance standard is supplied from outside the agent and is not modifiable by the agent itself.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "9530797a-f108-45fb-89f7-60901d2444c9",
+              "Text": "Without an external standard, an agent could \u0027learn\u0027 to lower its goals to appear successful.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "e6dcd476-10da-4117-bdd9-0b29926c9a7d",
+              "Text": "The critic translates percept history into statements about how well the agent met that standard.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "83e0b860-509d-470c-bdd1-2b8cc39ea71a",
+              "Text": "Performance measure and utility function are related but distinct: the standard judges the agent, utility guides its choices.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "13a7de36-4bd2-40bd-81a7-315594bea4ce",
+          "TopicId": "6d5f5946-b9fe-4ae4-af7b-486f20318236",
+          "Title": "The Learning Element and What Can Be Learned",
+          "BodyText": "The learning element modifies the components of the performance element so that future decisions are better. What it can modify depends entirely on how the performance element represents its knowledge.",
+          "Notes": "",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:48:23.1241571-04:00",
+          "ModifiedDate": "2026-10-14T19:48:23.1241571-04:00",
+          "Items": [
+            {
+              "Id": "59e3d6d0-ec3a-497b-a069-ca7db511df05",
+              "Text": "Condition\u2013action rules can be added, strengthened, or removed in a reflex architecture.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "2f723742-f7f5-4fe8-a774-c5f5b41a17ec",
+              "Text": "Transition and sensor models can be refined in a model-based agent as the world\u0027s behaviour is observed.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c9c5c7a6-d07f-4ecc-8e84-2ff2147a2ba2",
+              "Text": "Goal-achievement knowledge and action outcomes can be learned in goal-based agents.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "421f19ed-1d75-47c4-876a-ec9bcc950e90",
+              "Text": "Utility estimates can be adjusted from reward signals in utility-based agents.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "5cbb8a94-fc94-4fd4-9d25-597e51a39cfe",
+              "Text": "Learning may be supervised (correct outputs given), unsupervised (pattern discovery), or reinforcement-based (reward and penalty).",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "be074f4d-0098-4eaa-ab18-7d055cf58660",
+          "TopicId": "6d5f5946-b9fe-4ae4-af7b-486f20318236",
+          "Title": "The Problem Generator and Exploration vs Exploitation",
+          "BodyText": "If an agent always takes the action it currently believes is best, it may never discover better options. The problem generator deliberately proposes suboptimal, exploratory actions to generate informative experience.",
+          "Notes": "Example: a taxi agent that always takes its known route never learns that a new road is faster; occasionally trying an unfamiliar route costs short-term performance but may yield long-term gain.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:48:23.1241571-04:00",
+          "ModifiedDate": "2026-10-14T19:48:23.1241571-04:00",
+          "Items": [
+            {
+              "Id": "76c12efe-027f-4cf0-8915-1d0d6128a551",
+              "Text": "Exploitation means choosing the action with the best known expected value right now.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "fdbaa5d3-3c53-44b5-b221-944ab5c5a9a2",
+              "Text": "Exploration means trying actions whose outcomes are uncertain in order to improve future knowledge.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2c222aed-d7ff-421f-88e2-4f5a700092b8",
+              "Text": "Pure exploitation risks locking into a locally optimal but globally poor policy.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e59a14e0-a339-436e-8122-1dd145094de7",
+              "Text": "Pure exploration sacrifices performance and may never consolidate what has been learned.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "91bda314-3052-4daf-ac10-1605b6679f7b",
+              "Text": "Practical agents balance the two, often exploring more early on and less as knowledge matures.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "af4f2aec-ca88-4740-9760-cdbbf998489e",
+          "TopicId": "6d5f5946-b9fe-4ae4-af7b-486f20318236",
+          "Title": "Feedback Signals and Learning in Unknown Environments",
+          "BodyText": "Learning depends on the kind and quality of feedback available from the environment. Sparse, delayed, or noisy feedback makes credit assignment \u2014 deciding which earlier action caused the outcome \u2014 much harder.",
+          "Notes": "",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:48:23.1241571-04:00",
+          "ModifiedDate": "2026-10-14T19:48:23.1241571-04:00",
+          "Items": [
+            {
+              "Id": "16feb2b8-916e-47f6-9c0b-7178900aec2c",
+              "Text": "Rewards and penalties are direct feedback that shape future action selection.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "5c813792-81eb-4a4a-bce7-255bd5c9be20",
+              "Text": "Delayed rewards require the agent to attribute outcomes to actions taken much earlier.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "0bece913-855c-456f-b4e0-63394313a507",
+              "Text": "Noisy or partial feedback can mislead learning if the agent over-fits to single episodes.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d76fb3ed-dbfa-4c9f-9abc-cd43549cb08b",
+              "Text": "In a genuinely unknown environment, the agent must build its model and its policy at the same time.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "046f4788-cf07-4d6d-b549-96840767063f",
+              "Text": "Safety constraints matter: some exploratory actions are irreversible and must be ruled out in advance.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "ab0744b6-004e-4e26-a04c-a2155948d9a7",
+          "TopicId": "6d5f5946-b9fe-4ae4-af7b-486f20318236",
+          "Title": "Designing and Justifying a Learning Agent",
+          "BodyText": "When selecting an architecture, learning should be added when the task environment is unknown, dynamic, or too varied to hand-code. The design decision is both about the performance element core and the learning machinery wrapped around it.",
+          "Notes": "Justification example: a vacuum agent in a fixed two-room world needs no learning; a vacuum agent in arbitrary houses with varying dirt patterns benefits from learning a model and a policy.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T19:48:23.1241571-04:00",
+          "ModifiedDate": "2026-10-14T19:48:23.1241571-04:00",
+          "Items": [
+            {
+              "Id": "dc008f1b-b837-4fb9-98f0-fd69fc25c250",
+              "Text": "Identify which component of the performance element most needs improvement from experience.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f90aa0d2-15a5-4d16-bcc2-6cd468cfe94e",
+              "Text": "Specify the external performance standard the critic will apply.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ef4017fa-b6a0-4590-ba87-d2891c94aa8b",
+              "Text": "Choose a feedback mechanism appropriate to the environment\u0027s observability and reward structure.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "4e740444-61ef-4681-a331-3c6ca784d952",
+              "Text": "Decide how much exploration is affordable given the cost of mistakes in that domain.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "1654fea4-24c6-4c34-a904-a97607ee4ac6",
+              "Text": "Compare against a non-learning design: learning adds complexity and should be justified by uncertainty or change.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "95ce42fc-5ee6-4151-b424-f171e7b239ca",
+      "Title": "Selecting and Justifying an Architecture",
+      "Summary": "Provides a comparative decision framework that maps environment characteristics and task requirements to the most appropriate agent architecture. Students practice defending a choice by weighing performance, complexity, data availability, and maintainability trade-offs.",
+      "SortOrder": 6,
+      "CreatedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "ModifiedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "Elements": [
+        {
+          "Id": "af9a0b6b-2aaa-442e-9cda-3b8874fc3d7a",
+          "TopicId": "95ce42fc-5ee6-4151-b424-f171e7b239ca",
+          "Title": "Start with the Environment Profile",
+          "BodyText": "Architecture selection begins by characterising the environment rather than by preferring a favourite design. The PEAS description and environment properties narrow the viable options before any trade-off analysis occurs.",
+          "Notes": "Example: a thermostat operates in a fully observable, deterministic, single-agent environment, which immediately legitimises a simple reflex design.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:48:51.117379-04:00",
+          "ModifiedDate": "2026-10-14T19:48:51.117379-04:00",
+          "Items": [
+            {
+              "Id": "7ef607a0-26dc-4f7b-916d-fc08331620f6",
+              "Text": "Full observability of the relevant state permits a simple reflex agent; partial observability forces internal state and therefore a model-based design.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e39cce20-98e9-49b6-b7c1-fabc6e325540",
+              "Text": "Dynamic environments require the agent to track how the world changes independently of its own actions.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2cf7269a-992c-46d0-a551-275942923526",
+              "Text": "Multiple competing objectives or probabilistic outcomes signal the need for utility-based reasoning rather than binary goal satisfaction.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e1879f7b-feb1-4b90-aacd-f5649e2ec4c3",
+              "Text": "Unknown or shifting environment dynamics point towards a learning agent with a performance element and critic.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "644b6f87-7013-4355-a9e1-6ea930003c2a",
+              "Text": "Document the environment properties explicitly so the justification can be traced back to evidence.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "377a2b2f-a4db-4349-a9f2-0c4c8de4645f",
+          "TopicId": "95ce42fc-5ee6-4151-b424-f171e7b239ca",
+          "Title": "Map Task Requirements to Architectures",
+          "BodyText": "Each architecture solves a distinct class of problem, so the task requirement is the second filter applied after the environment profile. Matching requirement to capability prevents both under-engineering and over-engineering.",
+          "Notes": "",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:48:51.117379-04:00",
+          "ModifiedDate": "2026-10-14T19:48:51.117379-04:00",
+          "Items": [
+            {
+              "Id": "729e5c7e-b270-4df7-b65a-be044dbcc126",
+              "Text": "Condition-action responses with no history requirement map to simple reflex agents.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "3c8d70f6-4349-4d04-b68d-7ba3097d8693",
+              "Text": "Tasks needing memory of unobserved state or action effects map to model-based reflex agents.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "b67b7768-2036-46d3-b954-6dc595f076cd",
+              "Text": "Tasks defined by a desired end state and requiring search or planning map to goal-based agents.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "bb49ea93-c486-44b8-b984-98ceaf8bfb3b",
+              "Text": "Tasks involving trade-offs, degrees of success, or risk map to utility-based agents.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "7aa75469-a663-487a-84e1-c3dbcf6e3d45",
+              "Text": "Tasks where correct behaviour must be discovered or refined over time map to learning agents.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "3d162b76-c229-4933-9a7b-8f131fb31583",
+          "TopicId": "95ce42fc-5ee6-4151-b424-f171e7b239ca",
+          "Title": "Weighing Performance Against Complexity",
+          "BodyText": "More sophisticated architectures deliver broader competence but incur higher design, computation, and debugging costs. A defensible choice selects the simplest architecture that meets the performance measure.",
+          "Notes": "Planning and utility computation can be intractable under tight real-time deadlines, which sometimes makes a reflex layer the correct pragmatic answer.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:48:51.117379-04:00",
+          "ModifiedDate": "2026-10-14T19:48:51.117379-04:00",
+          "Items": [
+            {
+              "Id": "6281ccf0-0d0e-4b74-bd7d-b54bd8a70c94",
+              "Text": "State the performance measure first, then test whether a simpler architecture can satisfy it.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "cbc7b752-1058-4f58-899c-25359749393f",
+              "Text": "Account for per-decision latency: search and expected-utility calculations consume time and memory.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4a9f5cef-5151-45f1-bdcd-6aa3cb7dfb24",
+              "Text": "Model-based and goal-based designs add transition models and goal representations that must be built and maintained.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "476745a7-c54c-4113-9c2f-2813f9f707f3",
+              "Text": "Hybrid designs can combine a fast reflex layer for safety-critical responses with deliberative layers for longer-horizon decisions.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "3bf0162c-3050-4220-a861-5e26013a0d1e",
+              "Text": "Avoid selecting a learning agent purely for novelty when a deterministic rule set is sufficient and verifiable.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "18cb78e9-fd85-4cb7-9a79-1b28156cb191",
+          "TopicId": "95ce42fc-5ee6-4151-b424-f171e7b239ca",
+          "Title": "Data, Feedback, and Maintainability Constraints",
+          "BodyText": "Practical constraints often decide between architectures that are theoretically equivalent. Data availability, feedback quality, and long-term upkeep must enter the justification.",
+          "Notes": "Example: a medical triage agent may be blocked from a learning architecture by a lack of labelled outcome data and by auditability requirements.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:48:51.117379-04:00",
+          "ModifiedDate": "2026-10-14T19:48:51.117379-04:00",
+          "Items": [
+            {
+              "Id": "dee4a21a-1bd6-4998-a069-a3985bc5f9e9",
+              "Text": "Learning agents require a usable feedback signal from a critic plus sufficient experience or training data.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "55256872-8d82-41f6-bb08-53d90465b39e",
+              "Text": "Reflex rule sets become brittle and costly to maintain as the number of conditions grows.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f0947e51-3402-4844-aa6a-3aa68bc6cf68",
+              "Text": "Utility functions require elicitation and calibration of preferences, which may be contested among stakeholders.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a6d690d9-7efb-4726-ac49-e2c0e63686fc",
+              "Text": "Explainability and auditability requirements can favour explicit goal or rule representations over learned policies.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "0d5eb2b1-1b61-454c-ae0e-b1d6e1d6678a",
+              "Text": "Consider who will maintain the agent and whether they can update models, goals, or utility weights safely.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "bcdaef00-7369-4781-93bd-516135ea418b",
+          "TopicId": "95ce42fc-5ee6-4151-b424-f171e7b239ca",
+          "Title": "Building a Defensible Justification",
+          "BodyText": "A justification is an argument, not an assertion, and should follow a repeatable structure. Strong justifications also name the rejected alternatives and the conditions that would reverse the decision.",
+          "Notes": "A useful template: \u0027Given [environment properties] and [performance measure], architecture X is selected because [capability match]; Y was rejected because [limitation]; this choice should be revisited if [trigger].\u0027",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:48:51.117379-04:00",
+          "ModifiedDate": "2026-10-14T19:48:51.117379-04:00",
+          "Items": [
+            {
+              "Id": "5cbac6e1-11f1-4a74-b0c4-dc955464d4d8",
+              "Text": "Begin with the PEAS specification and the observed environment properties as evidence.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "30ece608-eb40-41e3-ac19-5c0cf62c7982",
+              "Text": "State the chosen architecture and the specific capability that makes it necessary.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ba549d7d-2b0d-437a-a075-7f19ce24e96e",
+              "Text": "Name at least one simpler and one more complex alternative and explain why each was rejected.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "2030a679-12c4-49ac-8d8e-cd33501644e9",
+              "Text": "Acknowledge the residual risks or failure modes the chosen architecture does not address.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "0bd807d3-f3b4-4f87-a018-5eb0cb827633",
+              "Text": "Specify measurable triggers that would justify migrating to a different architecture later.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "807874d6-6004-4b2b-b69e-f7358bb158a7",
+          "TopicId": "95ce42fc-5ee6-4151-b424-f171e7b239ca",
+          "Title": "Comparative Worked Scenarios",
+          "BodyText": "Applying the framework to contrasting scenarios reveals how small changes in environment assumptions flip the recommended architecture. These comparisons are the core practice activity for the topic.",
+          "Notes": "Try re-running each scenario after changing one environment property and observe which architecture becomes necessary.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:48:51.117379-04:00",
+          "ModifiedDate": "2026-10-14T19:48:51.117379-04:00",
+          "Items": [
+            {
+              "Id": "90d1176c-912c-484d-8d00-75345551bffb",
+              "Text": "Vacuum cleaner with full dirt sensing: simple reflex is adequate and cheapest.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "1ed8f910-6d4f-400e-a50e-66f4165d7670",
+              "Text": "Vacuum cleaner with limited sensing across many rooms: model-based reflex is needed to track coverage.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a054013f-e8f8-4d19-ab88-749683736746",
+              "Text": "Route-finding delivery robot with a defined destination: goal-based search is required.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a2bbd658-9d17-4d05-90c0-99fc022c8c86",
+              "Text": "Delivery robot balancing speed, fuel use, and parcel priority: utility-based reasoning resolves the trade-offs.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "3ccc3738-2e16-4814-9ce5-0f3578bc59eb",
+              "Text": "Recommendation agent facing shifting user preferences: a learning agent adapts where fixed rules degrade.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "118a8f20-56ad-4822-81b3-b15907b53eb9",
+              "Text": "Autonomous vehicle: a hybrid stack layers reflex safety responses beneath utility-based planning.",
+              "SortOrder": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "c5fee55c-050d-42e6-a229-d6e0bc8ed351",
+      "Title": "Designing Agent Programs for Sample Environments",
+      "Summary": "Applies the full progression through hands-on design exercises in environments such as vacuum worlds, autonomous navigation, trading, and game-playing agents. Students specify PEAS descriptions, sketch agent programs, and critique designs against alternative architectures.",
+      "SortOrder": 7,
+      "CreatedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "ModifiedDate": "2026-10-14T19:45:55.0313418-04:00",
+      "Elements": [
+        {
+          "Id": "08e3531f-4da2-43ae-8532-c65965c08ee7",
+          "TopicId": "c5fee55c-050d-42e6-a229-d6e0bc8ed351",
+          "Title": "Starting with a PEAS Specification",
+          "BodyText": "Every agent design begins by precisely defining the task environment using the PEAS framework: Performance measure, Environment, Actuators, and Sensors. A rigorous PEAS description constrains which architectures are viable before any program is sketched.",
+          "Notes": "Example PEAS for an automated taxi: Performance = safety, speed, legality, passenger comfort, profit; Environment = roads, traffic, pedestrians, weather; Actuators = steering, accelerator, brake, signal, horn, display; Sensors = cameras, lidar, GPS, speedometer, engine sensors.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T19:49:18.4631943-04:00",
+          "ModifiedDate": "2026-10-14T19:49:18.4631943-04:00",
+          "Items": [
+            {
+              "Id": "648ab8ab-404c-4d83-a748-257e17c9cbb6",
+              "Text": "State the performance measure as a scalar or ranked set of criteria the agent will be judged against, not as a description of behaviour.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "71065ea7-f7f0-4afb-bc06-b017e091c0d0",
+              "Text": "List environment properties explicitly: observability, determinism, episodic vs. sequential, static vs. dynamic, discrete vs. continuous, single vs. multi-agent.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3760becb-9239-4160-b120-b3f57dfcc914",
+              "Text": "Enumerate actuators to bound the action space the agent program may return.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "939bd34f-84cc-4dae-a2a1-24bd782cd07c",
+              "Text": "Enumerate sensors to determine what percept the program receives on each cycle, which exposes any gap between what is needed and what is observable.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "26356220-bb32-48cc-8e7f-2a1780e27137",
+          "TopicId": "c5fee55c-050d-42e6-a229-d6e0bc8ed351",
+          "Title": "Vacuum World: Reflex versus Model-Based Design",
+          "BodyText": "The two-square vacuum world is the canonical starter exercise because a simple reflex agent solves it in a handful of condition-action rules. Removing the location sensor forces students to upgrade to a model-based design.",
+          "Notes": "Classic rules: if Dirty then Suck; else if in A then MoveRight; else MoveLeft.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T19:49:18.4631943-04:00",
+          "ModifiedDate": "2026-10-14T19:49:18.4631943-04:00",
+          "Items": [
+            {
+              "Id": "7a87011e-515b-4abf-a5e8-a2614cc27f19",
+              "Text": "Write the full percept-to-action table for the fully observable case and count how few rules are actually required.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "acd7a82e-55f7-4808-a9be-e8180ae1089f",
+              "Text": "Remove the location sensor and show that the reflex agent can no longer distinguish states, causing infinite loops or missed squares.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "adecfdf1-9f07-48be-8cac-4ed8ae3205a1",
+              "Text": "Add internal state tracking the last action and the believed cleanliness of each square to restore correct behaviour.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "854ac438-e823-4f33-95e1-10a84476eb5d",
+              "Text": "Extend to an n-square grid and discuss why the rule table grows unmanageably while the model-based program stays compact.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6fac00f3-4136-49a0-a2f1-a7d82dd5cec9",
+              "Text": "Introduce a performance measure that penalises movement to motivate a utility-based variant.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "0cfff71f-ea58-407f-82a2-c43afd3e326e",
+          "TopicId": "c5fee55c-050d-42e6-a229-d6e0bc8ed351",
+          "Title": "Autonomous Navigation: Goal-Based Design",
+          "BodyText": "A delivery robot or self-driving vehicle must reach a specified destination, which makes goal-based architecture the natural starting point. The agent program combines a world model with search over sequences of actions.",
+          "Notes": "",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T19:49:18.4631943-04:00",
+          "ModifiedDate": "2026-10-14T19:49:18.4631943-04:00",
+          "Items": [
+            {
+              "Id": "ec0b53b4-59e0-4d69-a1f3-b7636d5d88a3",
+              "Text": "Specify the goal as an explicit destination state and show how the agent searches for an action sequence that reaches it.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "20dc0283-1ff4-47f2-886b-786bb579409a",
+              "Text": "Model the environment as partially observable and dynamic, requiring continuous replanning as percepts update the world model.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3dab0c64-226f-4d64-a207-b7cb0995a134",
+              "Text": "Contrast with a reflex approach such as pure obstacle-avoidance, which never reaches a specified destination reliably.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "46f011bc-2988-41cf-bf89-5cf29a05a839",
+              "Text": "Introduce competing objectives \u2014 travel time, fuel use, passenger comfort, legal compliance \u2014 to show where goal satisfaction alone is insufficient.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a3efabb8-be27-4158-a1e5-f2414a4463f0",
+              "Text": "Upgrade to a utility function that trades off these objectives and justify the added design cost.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "6ed52429-538d-40d2-97b3-a61bee1e88fa",
+          "TopicId": "c5fee55c-050d-42e6-a229-d6e0bc8ed351",
+          "Title": "Trading Agents: Utility and Uncertainty",
+          "BodyText": "A trading or bidding agent operates under uncertainty with outcomes that are naturally measured in expected value, making utility-based architecture the default choice. Design focuses on the utility function and probabilistic world model.",
+          "Notes": "Risk attitude is encoded in the shape of the utility function; a concave function produces risk-averse bidding.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T19:49:18.4631943-04:00",
+          "ModifiedDate": "2026-10-14T19:49:18.4631943-04:00",
+          "Items": [
+            {
+              "Id": "29ef5da6-5e36-414e-87a1-b7a343ccb7a2",
+              "Text": "Define the utility function over outcomes such as profit, risk exposure, and portfolio variance rather than over a single binary goal.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e44b380b-ac93-407a-8ee1-b40892a17f12",
+              "Text": "Model the environment as stochastic and multi-agent, since other traders\u0027 actions affect outcomes.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "92800228-ed9f-4ac5-a5cd-d3d766d7f19c",
+              "Text": "Show how expected utility maximisation selects actions when no action guarantees the goal.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "462a3648-71de-425d-a466-5ada16f56844",
+              "Text": "Add a learning element that updates the probabilistic model from observed market behaviour over time.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "9c6b1604-c9f7-421e-8576-dbfe7a459448",
+              "Text": "Critique a goal-based alternative such as \u0027achieve a target return\u0027 and explain why it mishandles risk.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "9b2df356-f0cd-4968-84ff-cc152ac8bfae",
+          "TopicId": "c5fee55c-050d-42e6-a229-d6e0bc8ed351",
+          "Title": "Game-Playing Agents: Learning Architectures",
+          "BodyText": "Game-playing environments are ideal for learning agents because the performance standard is unambiguous and experience is cheap to generate through self-play. The design decomposes into the four learning-agent components.",
+          "Notes": "",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T19:49:18.4631943-04:00",
+          "ModifiedDate": "2026-10-14T19:49:18.4631943-04:00",
+          "Items": [
+            {
+              "Id": "7ecf145e-0bf9-4992-be27-b905985e5d41",
+              "Text": "Map the architecture onto the performance element, critic, learning element, and problem generator.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0c6ae5a5-c7db-439f-a39d-368a8552f550",
+              "Text": "Define the critic\u0027s feedback signal from game outcomes or intermediate evaluation scores.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f3c891be-1681-4649-96bb-58140eb60464",
+              "Text": "Use the problem generator to force exploratory moves that would be suboptimal under the current performance element.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "2eb45399-2b9c-4d9f-b9ba-deadf2b58946",
+              "Text": "Discuss why a hand-coded utility or evaluation function is brittle in large state spaces, motivating learned evaluation.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "57789210-7dae-41c3-afe9-d85e693d5e23",
+              "Text": "Compare a fully observable game such as chess with a partially observable one such as poker, and note the architectural consequences.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "aef12f05-de44-4554-9266-e2a9e7ed90aa",
+          "TopicId": "c5fee55c-050d-42e6-a229-d6e0bc8ed351",
+          "Title": "Critiquing and Justifying Architecture Choices",
+          "BodyText": "The final design step is to defend the chosen architecture against the simpler and more complex alternatives. Good justification is grounded in specific environment properties, not general preference.",
+          "Notes": "A useful heuristic: select the simplest architecture whose required information is actually available from the sensors and internal state.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T19:49:18.4631943-04:00",
+          "ModifiedDate": "2026-10-14T19:49:18.4631943-04:00",
+          "Items": [
+            {
+              "Id": "6945a9b5-f189-4138-810b-e6a170397a54",
+              "Text": "State why the next-simpler architecture fails, citing a concrete environment property such as partial observability or conflicting objectives.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "19c7e6ff-ca4a-4fe1-8478-f2159eafffcb",
+              "Text": "State why the next-more-complex architecture is unnecessary, citing avoided cost in computation, data, or design effort.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "fc277293-a7b7-44d7-8576-cf8b6b1746cd",
+              "Text": "Identify the specific percept or state information each architectural upgrade requires and confirm it is obtainable.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "dbdf6478-fae1-4428-831e-16498fb94799",
+              "Text": "Evaluate the design against the stated performance measure rather than against intuitive notions of intelligence.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "8d1aca5f-f911-4d37-8be7-36e07de765da",
+              "Text": "Document assumptions so the design can be revisited if the environment specification changes.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "TotalElementCount": 50
+}

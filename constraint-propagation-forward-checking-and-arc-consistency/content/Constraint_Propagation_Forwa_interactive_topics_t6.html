@@ -1,0 +1,296 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Search for CSPs</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Propagation: Forward Checking and Arc Consistency</a></div>
+  <header>
+    <h1>Local Search for CSPs</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Local Search for CSPs</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Systematic constraint solvers such as backtracking search with forward checking or maintaining arc consistency build a solution incrementally: they start from the empty assignment, extend it one variable at a time, and retract decisions whenever a dead end is reached. <strong>Local search</strong> for constraint satisfaction problems takes the opposite stance. It begins with a <em>complete</em> assignment — every variable already has a value, almost certainly a bad one — and then repairs that assignment by changing one variable at a time until no constraint is violated. This family of methods is often called <em>iterative repair</em> or <em>heuristic repair</em>, and the best-known member is the <strong>min-conflicts</strong> heuristic. The shift in perspective is profound: there is no partial assignment, no search tree, no backtracking stack, and no guarantee of completeness. What is gained in exchange is an astonishing ability to scale, a natural anytime behaviour, and a near-perfect fit with dynamic, real-world problems where a slightly broken schedule needs mending rather than a brand new schedule needs inventing.</p>
+
+<p><strong>The complete-state formulation.</strong> In a partial-state (constructive) formulation, a state is an assignment to some subset of the variables, and the goal test is "all variables assigned and all constraints satisfied". In the complete-state formulation, a state is a total function from variables to values: <code>{X1 = v1, X2 = v2, ..., Xn = vn}</code>, with <code>vi</code> drawn from <code>Di</code>. Unary and domain constraints are therefore satisfied by construction; what may be violated are the binary (or higher-arity) constraints. A state is a <em>candidate solution</em> at all times, and it becomes an actual solution exactly when its conflict count reaches zero.</p>
+
+<p>The neighbourhood structure defines the search space. The standard move is to pick one variable and change its value, which gives each state a neighbourhood of size <code>&Sigma;i (|Di| - 1)</code>. For 8-queens formulated with one queen per column, that is 8 columns &times; 7 alternative rows = 56 neighbours. The full space of complete assignments is <code>&prod;i |Di|</code> — 8<sup>8</sup> = 16,777,216 states for 8-queens — but local search never enumerates it; it only ever looks at the neighbours of the state it currently holds.</p>
+
+<p>The <strong>objective function</strong> to be minimised is almost always the number of violated constraints, sometimes called the <em>cost</em>, <em>energy</em>, or <em>conflict count</em> of the state:</p>
+
+<pre><code>cost(s) = | { c in Constraints : c is violated under s } |
+
+Goal: find s with cost(s) = 0</code></pre>
+
+<p>This turns satisfaction into optimisation. Weighted variants replace the plain count with <code>&Sigma; wc</code> over violated constraints, which matters both for soft constraints (see the discussion of minimal perturbation below) and for the constraint-weighting escape technique.</p>
+
+<p><strong>Memory is constant.</strong> A backtracking solver must retain the current path from the root plus, in forward-checking or MAC variants, a trail of domain reductions to undo. Local search stores only the current assignment (<code>n</code> values), an auxiliary conflict data structure, and possibly a best-so-far copy. Whether the algorithm runs for 10 steps or 10 million, memory use does not grow. This is precisely why problems with millions of variables are tractable for local search and completely out of reach for systematic solvers whose trails and nogood stores would exhaust memory.</p>
+
+<p><strong>Initial states.</strong> The simplest initialisation assigns each variable a uniformly random value from its domain. A much better option for many problems is a <em>greedy conflict-minimising</em> construction: process the variables in some order and give each one the value that conflicts least with the variables already placed, breaking ties randomly. For n-queens this means walking column by column and placing each queen in the row that is attacked by the fewest already-placed queens. The greedy start typically leaves only a handful of conflicts even for n = 1,000,000, and min-conflicts then clears them in a small number of repairs. Note the tie-breaking must be randomised: deterministic tie-breaking produces highly structured, symmetric starting states that are often local minima.</p>
+
+<pre><code>GREEDY-INIT(csp):
+  for each variable X in some (random) order:
+      best &larr; argmin over v in D(X) of
+                 conflicts(X = v, given variables assigned so far)
+      assign X &larr; random choice among the argmin set
+  return the complete assignment</code></pre>
+
+<p><strong>The min-conflicts heuristic.</strong> Min-conflicts is a hill-climbing strategy specialised to CSPs. One iteration does three things: choose a variable that is currently in conflict, evaluate every value in that variable's domain by counting how many constraints the variable would violate if it took that value, and move to the value with the lowest count. The algorithm in pseudocode:</p>
+
+<pre><code>MIN-CONFLICTS(csp, max_steps):
+  current &larr; an initial complete assignment (random or greedy)
+  for i = 1 to max_steps:
+      if current is a solution (cost = 0): return current
+      X &larr; a randomly chosen variable from CONFLICTED-VARS(current)
+      v &larr; argmin over v' in D(X) of CONFLICTS(X, v', current)
+            (ties broken uniformly at random)
+      current[X] &larr; v
+  return failure            # no solution found within the step budget</code></pre>
+
+<p>Three design points deserve emphasis. First, the variable is chosen <em>uniformly at random among conflicted variables</em>, not greedily. Choosing the most-conflicted variable deterministically tends to cycle between a small set of variables and get trapped. Second, the value is chosen greedily, and <em>ties are broken randomly</em> — on plateaus, where many values give the same conflict count, random tie-breaking is what performs the sideways random walk that eventually leads off the plateau. Third, the current value of <code>X</code> is included among the candidates; if it is already the minimum, the move may be a no-op, and some implementations exclude the current value to force a genuine change.</p>
+
+<p><strong>Worked example: 4-queens.</strong> Variables <code>Q1..Q4</code> are the columns, values are rows 1&ndash;4, and two queens conflict if they share a row or a diagonal. Start from the assignment <code>Q1=1, Q2=1, Q3=1, Q4=1</code> (all on row 1). Every pair shares a row, so cost = 6 (all six pairs conflict).</p>
+
+<table>
+  <thead>
+    <tr><th>Step</th><th>State (Q1,Q2,Q3,Q4)</th><th>Cost</th><th>Variable picked</th><th>Conflict counts for its values (rows 1..4)</th><th>Move</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>0</td><td>(1,1,1,1)</td><td>6</td><td>Q2</td><td>r1: 3, r2: 2, r3: 1, r4: 1</td><td>Q2 &larr; 4 (tie r3/r4 broken randomly)</td></tr>
+    <tr><td>1</td><td>(1,4,1,1)</td><td>4</td><td>Q3</td><td>r1: 2, r2: 1, r3: 2, r4: 2</td><td>Q3 &larr; 2</td></tr>
+    <tr><td>2</td><td>(1,4,2,1)</td><td>2</td><td>Q4</td><td>r1: 2, r2: 1, r3: 1, r4: 2</td><td>Q4 &larr; 3 (tie r2/r3 broken randomly)</td></tr>
+    <tr><td>3</td><td>(1,4,2,3)</td><td>1</td><td>Q1</td><td>r1: 1, r2: 1, r3: 2, r4: 1</td><td>Q1 &larr; 2? still 1 conflict &mdash; plateau</td></tr>
+    <tr><td>4</td><td>(2,4,2,3)</td><td>1</td><td>Q3</td><td>r1: 2, r2: 2, r3: 1, r4: 0</td><td>Q3 &larr; 4? conflicts with Q2 &mdash; recount gives r1: 0</td></tr>
+    <tr><td>5</td><td>(2,4,1,3)</td><td>0</td><td>&mdash;</td><td>&mdash;</td><td>Solution found</td></tr>
+  </tbody>
+</table>
+
+<p>The trace illustrates the typical shape of a min-conflicts run: a rapid, steep descent from a very poor state, followed by a slower phase of plateau moves near cost 1 or 2, then a final repair to zero. Note also the solution <code>(2,4,1,3)</code> is one of the two valid 4-queens configurations.</p>
+
+<p><strong>Incremental conflict counting.</strong> A naive implementation recomputes <code>cost</code> from scratch, which is <code>O(number of constraints)</code> per evaluation and would make each step expensive. Real implementations maintain auxiliary counters so each step costs time proportional only to the variables that could be affected. For n-queens the classical trick is to keep three integer arrays:</p>
+
+<pre><code>rowCount[r]      = number of queens on row r
+diagCount1[c-r]  = number of queens on the "\" diagonal indexed by (col - row)
+diagCount2[c+r]  = number of queens on the "/" diagonal indexed by (col + row)
+
+conflicts(queen in column c moved to row r) =
+      rowCount[r] + diagCount1[c-r] + diagCount2[c+r]
+      (minus self-counts if the queen is currently on those lines)</code></pre>
+
+<p>Moving a queen means decrementing three counters at the old position and incrementing three at the new one: <code>O(1)</code> per move, and <code>O(n)</code> to evaluate all rows for one column. The same idea generalises: for an arbitrary binary CSP, keep for each variable&ndash;value pair a count of how many neighbours currently conflict with it, and update only the entries belonging to the neighbours of the variable that just changed. A separate "list of currently conflicted variables" structure (a set or bucket array) lets variable selection be <code>O(1)</code> as well.</p>
+
+<p><strong>Scaling behaviour.</strong> The headline empirical result, from Minton, Johnston, Philips and Laird's work in the early 1990s, is that min-conflicts solves the million-queens problem in roughly 50 moves on average after a greedy initialisation, and the number of repair steps is roughly <em>independent of n</em> for large n. This is not magic; it is a property of the problem class. The n-queens problem is massively <em>under-constrained</em>: the ratio of constraints to the available freedom is low, solutions are dense in the state space, and almost every region of the landscape contains a solution nearby. Under such conditions a gradient-following repair method walks downhill to a solution almost immediately. The same holds for random graph colouring well away from the satisfiability threshold and for many large scheduling problems with slack resources. The lesson is that the hardness of a problem for local search is governed by solution density and landscape structure, not by raw size.</p>
+
+<p><strong>Local minima and plateaus.</strong> Pure min-conflicts is hill climbing, and hill climbing gets stuck. Two failure modes matter:</p>
+<ul>
+  <li>A <strong>local minimum</strong> is a state with cost &gt; 0 where every single-variable change strictly increases the cost. No greedy move escapes it.</li>
+  <li>A <strong>plateau</strong> is a connected region of equal-cost states. Random tie-breaking lets the search wander across it, but on a large plateau the wander can be very long, and a <em>shoulder</em> (a plateau with an exit downhill somewhere) may take exponential time to cross by random walking alone.</li>
+</ul>
+<p>Because conflict counts are integers and the neighbourhood is small, CSP landscapes are riddled with plateaus. Every practical local-search solver therefore adds a diversification mechanism on top of greedy repair. Five standard ones follow.</p>
+
+<p><strong>Random restarts.</strong> The crudest and sometimes most effective method: if the search has not found a solution within <code>max_steps</code> moves, throw the state away and start over from a fresh (randomised) complete assignment. Restarts are the right tool when the run-time distribution is <em>heavy-tailed</em> — when a large fraction of runs finish quickly but a minority get stuck for an extremely long time. Cutting off the stuck runs and restarting converts a heavy-tailed distribution into a much better-behaved one. Choosing the cutoff matters: too short and no run ever has time to succeed; too long and the benefit disappears. Luby's universal restart schedule (cutoffs 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, ...) is a principled choice when the optimal cutoff is unknown.</p>
+
+<p><strong>Random walk (noise).</strong> With a small probability <code>p</code>, ignore the heuristic and move the chosen variable to a value picked uniformly at random from its domain; with probability <code>1 - p</code>, take the greedy min-conflicts move. This is the CSP analogue of the WalkSAT strategy for Boolean satisfiability, and empirically it is one of the highest-value additions per line of code.</p>
+
+<pre><code>MIN-CONFLICTS-RANDOM-WALK(csp, max_steps, p):
+  current &larr; initial complete assignment
+  for i = 1 to max_steps:
+      if cost(current) = 0: return current
+      X &larr; random conflicted variable
+      if random() &lt; p:
+          v &larr; uniformly random value from D(X)        # noise move
+      else:
+          v &larr; argmin_{v'} CONFLICTS(X, v', current)   # greedy move
+      current[X] &larr; v
+  return failure</code></pre>
+
+<p>Typical values of <code>p</code> lie between 0.02 and 0.2. The parameter trades off intensification against diversification: <code>p = 0</code> is pure hill climbing and stalls in local minima; <code>p = 1</code> is a blind random walk that never exploits the gradient. Adaptive noise schemes raise <code>p</code> when the cost has not improved for a while and lower it after each improvement, removing the need to tune it by hand.</p>
+
+<p><strong>Simulated annealing.</strong> Instead of a fixed noise probability, accept a randomly proposed move with a probability that depends on how much it worsens the cost and on a temperature parameter <code>T</code> that is lowered over time:</p>
+
+<pre><code>SIMULATED-ANNEALING(csp, schedule):
+  current &larr; initial complete assignment
+  for t = 1 to &infin;:
+      T &larr; schedule(t)
+      if T = 0 or cost(current) = 0: return current
+      next &larr; a randomly chosen neighbour of current
+      &Delta;E &larr; cost(next) - cost(current)
+      if &Delta;E &lt;= 0:
+          current &larr; next                    # always accept improvements
+      else:
+          current &larr; next with probability exp(-&Delta;E / T)</code></pre>
+
+<p>At high <code>T</code> nearly every move is accepted and the search is effectively random, exploring widely. As <code>T</code> &rarr; 0 only improving moves survive and the search behaves like hill climbing, settling into a basin. With a sufficiently slow (logarithmic) cooling schedule the method converges to a global optimum with probability 1, though that schedule is far too slow to be practical; geometric schedules such as <code>T &larr; 0.95 T</code> every <code>k</code> steps are the usual compromise. Annealing is the method of choice when the objective is a weighted sum with a rugged landscape, for instance timetabling with many soft preferences.</p>
+
+<p><strong>Tabu search.</strong> Tabu search attacks cycling directly by maintaining a short-term memory. After a variable&ndash;value pair <code>(X, v)</code> is changed, that pair (or the move that would undo the change) is declared <em>tabu</em> for the next <code>tt</code> iterations and may not be selected, even if it looks best. This forces the search away from the region it just left, allowing it to climb out of a local minimum and explore elsewhere. The implementation is a table <code>tabuUntil[X][v]</code> of iteration numbers, so the test is <code>O(1)</code>:</p>
+
+<pre><code>if tabuUntil[X][v] &gt; iteration: the move is forbidden
+   unless ASPIRATION holds, e.g. the move would produce
+   a state strictly better than the best found so far.</code></pre>
+
+<p>The <em>aspiration criterion</em> is important: a tabu move that would immediately improve on the best-ever cost should be allowed, since the reason for forbidding it (avoiding revisitation) is clearly outweighed. The tenure <code>tt</code> is the key parameter — small tenures intensify, large tenures diversify — and reactive tabu search adjusts it dynamically by detecting repeated states. Tabu search is the engine behind many of the strongest solvers for graph colouring and timetabling.</p>
+
+<p><strong>Constraint weighting (breakout / clause weighting).</strong> Rather than changing the search behaviour, constraint weighting changes the <em>landscape</em>. Each constraint <code>c</code> carries a weight <code>wc</code> (initially 1) and the objective becomes <code>&Sigma;{c violated} wc</code>. Whenever the search reaches a local minimum, the weights of all currently violated constraints are incremented:</p>
+
+<pre><code>BREAKOUT:
+  while not solved:
+      take min-conflicts moves on the weighted cost
+      if no move strictly improves the weighted cost:   # local minimum
+          for each violated constraint c: w[c] &larr; w[c] + 1</code></pre>
+
+<p>Incrementing the weights lifts the floor of the basin the search is sitting in until it is no longer a minimum, and the search flows out. The weights also accumulate information about which constraints are structurally hard to satisfy, steering future effort towards them. Variants such as SAPS (Scaling and Probabilistic Smoothing) periodically smooth the weights back towards their mean to prevent runaway values from distorting the landscape permanently. The chief advantage over restarts is that the knowledge gained (the weights) persists instead of being discarded.</p>
+
+<p>The following table compares the escape mechanisms:</p>
+
+<table>
+  <thead>
+    <tr><th>Mechanism</th><th>What it changes</th><th>Memory</th><th>Key parameter</th><th>Typical strength</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Random restart</td><td>Current state (discarded entirely)</td><td>None retained</td><td>Cutoff length</td><td>Heavy-tailed run-time distributions</td></tr>
+    <tr><td>Random walk / noise</td><td>Move selection, stochastically</td><td>None</td><td>Noise probability p</td><td>Cheap, general, very effective on SAT-like problems</td></tr>
+    <tr><td>Simulated annealing</td><td>Acceptance of worsening moves</td><td>None (just T)</td><td>Cooling schedule</td><td>Weighted/soft-constraint optimisation</td></tr>
+    <tr><td>Tabu search</td><td>Which moves are legal</td><td>Tabu list of size O(n&middot;d)</td><td>Tenure tt</td><td>Preventing short cycles; colouring, timetabling</td></tr>
+    <tr><td>Constraint weighting</td><td>The objective function itself</td><td>One weight per constraint</td><td>Increment / smoothing rate</td><td>Structured problems with a few hard constraints</td></tr>
+  </tbody>
+</table>
+
+<p><strong>When local search beats systematic search.</strong> The two paradigms have complementary profiles, and the choice should be driven by the properties of the instance rather than by habit.</p>
+<ul>
+  <li><strong>Scale.</strong> Because memory is constant and each move is <code>O(1)</code> or <code>O(d)</code> with incremental counters, local search routinely handles problems with hundreds of thousands or millions of variables. A backtracking solver on the same instance would spend all its time on the first few levels of a tree whose depth equals the number of variables.</li>
+  <li><strong>Incompleteness.</strong> Local search is <em>sound but not complete</em>: if it reports a solution, that solution is genuinely conflict-free (easy to verify), but failure to find one proves nothing. It can never return "unsatisfiable", only "not found within my budget". If the task is to prove that a timetable with the given constraints is impossible, or to count solutions, or to find a provably optimal one, a systematic method (or a hybrid with a complete component) is mandatory.</li>
+  <li><strong>The phase transition.</strong> For many random CSP families, hardness peaks at a critical constrainedness ratio where the probability of satisfiability passes through one half. Below it, solutions are dense and local search is extremely fast; above it, instances are usually unsatisfiable and local search spins forever. Exactly at the transition, satisfiable instances have very few, isolated solutions and the landscape is rugged with deep local minima — the worst case for iterative repair, and the regime where good systematic solvers with strong propagation and learning are usually superior.</li>
+  <li><strong>Anytime behaviour.</strong> Local search always holds a complete assignment, so it can be interrupted at any moment and asked for its best-so-far state — perhaps a schedule with three violations instead of zero, which a human dispatcher can patch. Backtracking search interrupted halfway holds only a partial assignment, which is operationally useless.</li>
+  <li><strong>Hybrids.</strong> The paradigms combine well. Local search can be used as a <em>probe</em> to identify promising regions, with a systematic solver then exploring a restricted neighbourhood exhaustively — this is the idea behind <em>large neighbourhood search</em>, where a fragment of the current solution is destroyed and a complete solver (often a CP or MIP engine) optimally re-completes it. Conversely, nogoods or value-ordering information harvested by a systematic solver can bias local search, and local search can supply a good upper bound that lets a branch-and-bound solver prune aggressively.</li>
+</ul>
+
+<table>
+  <thead>
+    <tr><th>Criterion</th><th>Backtracking + propagation (FC / MAC)</th><th>Min-conflicts local search</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>State representation</td><td>Partial assignment + domain trail</td><td>Complete assignment</td></tr>
+    <tr><td>Memory</td><td>O(n &middot; d) for domains, plus trail; grows with depth</td><td>O(n) constant, independent of run length</td></tr>
+    <tr><td>Completeness</td><td>Complete &mdash; proves unsatisfiability</td><td>Incomplete &mdash; can only report "not found"</td></tr>
+    <tr><td>Optimality / counting</td><td>Supports branch-and-bound, solution counting</td><td>No guarantees; best-effort only</td></tr>
+    <tr><td>Scale reached in practice</td><td>Thousands of variables (more with learning)</td><td>Millions of variables</td></tr>
+    <tr><td>Behaviour on under-constrained instances</td><td>Fast, but wasteful tree overhead</td><td>Extremely fast; near-constant number of repairs</td></tr>
+    <tr><td>Behaviour at the phase transition</td><td>Best available option; propagation and learning pay off</td><td>Poor; rugged landscape, deep local minima</td></tr>
+    <tr><td>Behaviour on unsatisfiable instances</td><td>Terminates with a proof</td><td>Never terminates usefully</td></tr>
+    <tr><td>Anytime output</td><td>None (partial assignment is unusable)</td><td>Always a full, scored candidate</td></tr>
+    <tr><td>Response to a small change in the problem</td><td>Search tree invalidated; restart from scratch</td><td>Reuse old solution as the start state</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Online repair and real-world scheduling.</strong> Most industrial scheduling is not a one-shot computation but a continuous process. A crew member calls in sick, a machine breaks down, a cloud front moves over an observatory, a customer brings a deadline forward. The constraint network changes slightly, and the question is what to do with the schedule that was already published. A systematic solver has nothing to reuse: its search tree, its nogoods, and its propagation state were all derived from the old constraints, so it must discard them and solve again. Local search, by contrast, has an ideal starting point already in hand — the old schedule. Seed the current state with it, recompute the conflict counts under the new constraints (usually only a handful of constraints are violated), and run min-conflicts. Repair typically takes a few moves rather than a full re-solve.</p>
+
+<pre><code>ONLINE-REPAIR(old_solution, changed_csp):
+  current &larr; old_solution                    # reuse, don't rebuild
+  recompute conflict counters under changed_csp
+  while cost(current) &gt; 0 and time remains:
+      X &larr; random conflicted variable
+      v &larr; argmin CONFLICTS(X, v', current)   # with noise / tabu as needed
+      current[X] &larr; v
+  return current</code></pre>
+
+<p>Reusing the old solution also delivers something the user cares about independently of feasibility: <strong>stability</strong>. People have planned their lives around the published roster; a mathematically valid but entirely different schedule is operationally unacceptable. Because min-conflicts only touches variables that are actually in conflict (and their knock-on effects), the repaired schedule stays close to the original by construction. This is the <em>minimal perturbation problem</em>, and it can be modelled explicitly: add, for every variable <code>X</code>, a soft constraint <code>X = old(X)</code> with weight <code>&lambda;</code>, and minimise</p>
+
+<pre><code>cost(s) = (number of violated hard constraints) &times; M
+          + &lambda; &times; |{ X : s(X) &ne; old(X) }|
+
+with M large enough that no amount of stability
+can compensate for a hard-constraint violation.</code></pre>
+
+<p>The parameter <code>&lambda;</code> tunes how much churn is tolerated to regain feasibility. Because the stability term is itself just a count over variables, it slots straight into the same incremental conflict-counting machinery.</p>
+
+<p>Classic deployments of this pattern include:</p>
+<ul>
+  <li><strong>Telescope observation scheduling.</strong> The original min-conflicts work came out of NASA's scheduling of the Hubble Space Telescope, where the SPIKE system had to allocate thousands of observations subject to orbital visibility windows, instrument changeovers and target priorities, and had to re-plan whenever an instrument failed or a target of opportunity (a supernova, a comet) appeared. Iterative repair cut scheduling time dramatically compared with the previous approach.</li>
+  <li><strong>Airline crew rostering and disruption management.</strong> Rosters covering tens of thousands of duties must respect legality rules on duty time, rest, qualifications and base returns. When weather closes an airport, an operations-control system repairs the roster in minutes, re-assigning the minimum number of crews rather than regenerating the month.</li>
+  <li><strong>Factory job-shop scheduling.</strong> Machine breakdowns, rush orders and material shortages all perturb the plan; repair-based rescheduling keeps the shop floor instructions largely intact, which matters because setups and material movements have already begun.</li>
+  <li><strong>University timetabling and nurse rostering</strong> follow the same shape: an annual systematic solve, then continual local repair as room availabilities and staff absences change.</li>
+</ul>
+
+<p><strong>Combining local search with constraint propagation.</strong> The two techniques of this module are not rivals; propagation strengthens local search in several concrete ways.</p>
+<ul>
+  <li><strong>Preprocessing with AC-3.</strong> Before any repair begins, run arc consistency over the whole network. Every value removed is a value that cannot participate in <em>any</em> solution, so deleting it is free of risk. If a variable is assigned a value that AC-3 deletes, that value is simply reset to a surviving one before the search starts. Higher levels (path consistency, singleton arc consistency) or global-constraint filtering can be used when the extra preprocessing cost is justified.</li>
+  <li><strong>Cheaper moves.</strong> The per-step cost of min-conflicts is dominated by evaluating every value in the chosen variable's domain. Shrinking <code>d</code> from, say, 40 to 12 by preprocessing cuts that cost by roughly a factor of three on every single iteration for the entire run — a large cumulative saving when runs last millions of moves. Pruned domains also shrink the search space and remove whole families of local minima that were supported only by impossible values.</li>
+  <li><strong>Detecting unsatisfiability.</strong> This is arguably the most valuable contribution. Local search cannot distinguish "hard" from "impossible"; it will churn forever on an unsatisfiable instance. If AC-3 wipes out a domain during preprocessing, the instance is proven unsatisfiable immediately and the fruitless run is avoided entirely. A cheap propagation pass is therefore excellent insurance before committing a long local-search budget.</li>
+  <li><strong>Propagation inside the loop.</strong> Some hybrids run limited filtering after each repair move: having set <code>X = v</code>, propagate the consequences a short distance to mark values of neighbouring variables that are now locally inconsistent, and exclude those values from the next move's candidate set. The filtering must be <em>non-destructive</em> with respect to the complete-state invariant — values are suppressed for the purposes of move selection rather than permanently deleted, since the current assignment must always remain total. The trade-off is familiar from forward checking versus MAC: stronger filtering prunes more candidate moves but raises the cost of each step, and for local search, where steps are supposed to be very cheap, the balance usually favours light propagation.</li>
+  <li><strong>Structural analysis and decomposition.</strong> Analysing the constraint graph before searching often reveals exploitable structure. If the graph has several connected components, each is an independent CSP and local search can run on each separately (in parallel if desired), with the overall conflict count being the sum. Cut vertices and small cutsets permit cycle-cutset decomposition; tree-structured components can be solved exactly in <code>O(n d&sup2;)</code> by directional arc consistency rather than searched at all. Removing the easy parts leaves local search to concentrate its effort on the genuinely hard core of the problem.</li>
+</ul>
+
+<p>A sensible default pipeline for a large, loosely constrained practical problem therefore looks like this: normalise and preprocess the model, run AC-3 (bailing out with "unsatisfiable" if a domain empties), decompose into independent components, build a greedy conflict-minimising initial assignment for each, run min-conflicts with random walk and a restart schedule under a time budget, and return the best-so-far assignment with its conflict count so that the user always has something actionable. When the instance turns out to sit near the phase transition and local search stalls, fall back on a systematic MAC-based solver, or wrap the two together in a large-neighbourhood scheme where the complete solver re-optimises fragments chosen by the local search.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> Supported indirectly. The topic revisits constraint propagation in the hybrid setting, explaining how AC-3 preprocessing enforces local consistency to shrink domains, although here the reductions serve local search rather than a backtracking tree.</li>
+  <li><strong>MO2:</strong> Not addressed directly. Forward checking is a partial-assignment technique and is referenced only as a contrast to the complete-state formulation; no step-by-step forward-checking trace is given here.</li>
+  <li><strong>MO3:</strong> Partially supported. AC-3 appears as a preprocessing and unsatisfiability-detection component of a local-search pipeline, reinforcing why arc consistency is implemented, but the arc queue and REVISE subroutine themselves are covered elsewhere.</li>
+  <li><strong>MO4:</strong> Directly supported. The topic supplies the local-search half of the comparison — per-move cost with incremental counters, constant memory, scaling behaviour, incompleteness, and behaviour at the phase transition — in explicit tabular contrast with forward checking and MAC.</li>
+  <li><strong>MO5:</strong> Supported. The discussion of step counts, run-time distributions, restart cutoffs, anytime best-so-far conflict counts and scaling with problem size provides exactly the kinds of complementary metrics used when benchmarking a configurable solver's min-conflicts mode.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Worked 4-queens trace is illustrative: conflict counts are computed over queen pairs sharing a row or diagonal, and the two randomised tie-breaks mean a different run can take a different path to one of the two solutions, (2,4,1,3) or (3,1,4,2). Instructors may wish to have students re-run the trace with the opposite tie-breaks. The million-queens result attributed to Minton, Johnston, Philips and Laird (1992) and the Hubble/SPIKE application are the standard citations for this material; Luby&#39;s restart schedule is from Luby, Sinclair and Zuckerman (1993). Breakout is due to Morris (1993), WalkSAT-style noise to Selman, Kautz and Cohen (1994), and the minimal perturbation framing to Bart&#225;k, M&#252;ller and Rudov&#225;.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

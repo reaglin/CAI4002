@@ -1,0 +1,213 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Greedy Best-First Search</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Heuristic Functions, Best-First Search, and A*</a></div>
+  <header>
+    <h1>Greedy Best-First Search</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Greedy Best-First Search</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Greedy best-first search is the simplest informed search strategy that makes direct use of a heuristic function. It is best understood not as an isolated algorithm but as one setting of a dial inside a much more general machine: the <strong>best-first search</strong> framework. Once that framework is in place, uniform-cost search, greedy best-first search and A* all become the same control loop running with three different evaluation functions. Studying greedy search carefully is therefore valuable for two reasons. First, it shows what pure heuristic guidance can buy you — often a dramatic reduction in the number of nodes expanded. Second, and more importantly, it shows precisely what pure heuristic guidance <em>cannot</em> buy you: any guarantee at all about the quality of the solution returned. That failure is the motivation for the evaluation function used by A*.</p>
+
+<p><strong>Best-first search as a general framework.</strong> Best-first search maintains the frontier (the set of generated-but-not-yet-expanded nodes) as a <em>priority queue</em> ordered by increasing value of an evaluation function <code>f(n)</code>. At each iteration the algorithm removes the node with the lowest <code>f</code>-value, tests it, and expands it, inserting each successor into the queue. Because the queue is ordered by <code>f</code>, the algorithm always works next on the node that currently looks most promising according to whatever notion of "promising" <code>f</code> encodes. The word <em>best</em> is therefore aspirational rather than factual: the node with the smallest <code>f</code>-value is the node that <em>appears</em> best given the information available, not the node that is genuinely best.</p>
+
+<pre><code>function BEST-FIRST-SEARCH(problem, f) returns a solution node or failure
+    node   &lt;- NODE(STATE = problem.INITIAL)
+    frontier &lt;- a priority queue ordered by f, containing node
+    reached  &lt;- a table mapping problem.INITIAL to node      // the explored/closed structure
+
+    while frontier is not empty do
+        node &lt;- POP(frontier)                                // lowest f(n)
+        if problem.IS-GOAL(node.STATE) then return node
+        for each child in EXPAND(problem, node) do
+            s &lt;- child.STATE
+            if s is not in reached then
+                reached[s] &lt;- child
+                INSERT(frontier, child)
+    return failure</code></pre>
+
+<p>Three features of this loop deserve attention. The <em>priority queue</em> supplies the ordering discipline; a binary heap gives <code>O(log |frontier|)</code> insertion and extraction. The <em>explored (closed) set</em> — here the <code>reached</code> table — converts tree search into graph search by refusing to regenerate states that have already been seen, which is what prevents the algorithm from wandering round cycles forever. And the <em>evaluation function</em> <code>f</code> is passed in as a parameter: it is the only problem-specific knowledge in the loop. This separation is the central design idea. The mechanism (queue, expansion, goal test, repeated-state handling) is fixed and reusable; the intelligence lives entirely in <code>f</code>.</p>
+
+<table>
+  <thead>
+    <tr><th>Evaluation function f(n)</th><th>Resulting strategy</th><th>What it prioritises</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>depth(n), lowest first</td><td>Breadth-first search</td><td>Shallow nodes; ignores cost and goal location</td></tr>
+    <tr><td>g(n) — cost so far</td><td>Uniform-cost (Dijkstra) search</td><td>Cheap paths from the start; ignores the goal</td></tr>
+    <tr><td>h(n) — estimated cost to goal</td><td>Greedy best-first search</td><td>Apparent closeness to the goal; ignores the past</td></tr>
+    <tr><td>g(n) + h(n)</td><td>A* search</td><td>Estimated total cost of a solution through n</td></tr>
+    <tr><td>g(n) + w·h(n), w &gt; 1</td><td>Weighted A*</td><td>A tunable blend between A* and greedy</td></tr>
+  </tbody>
+</table>
+
+<p>Nothing in the pseudocode changes as you move down that table. You swap one line — the definition of <code>f</code> — and obtain a strategy with completely different completeness, optimality and complexity properties. This is why best-first search is taught as a framework: understanding the loop once means you understand all of its specialisations.</p>
+
+<p><strong>The greedy strategy: f(n) = h(n).</strong> Greedy best-first search sets <code>f(n) = h(n)</code>, where <code>h(n)</code> is a heuristic estimate of the cheapest cost from the state at <code>n</code> to a goal. The accumulated cost <code>g(n)</code> of reaching <code>n</code> plays no role whatsoever in the ordering. The algorithm always expands the node that it believes is closest to a goal, in the hope that such a node lies on a short path to one. It is called <em>greedy</em> in exactly the sense used in greedy algorithms generally: it takes the locally most attractive option at every decision point and never revisits the question of whether the money already spent getting there was well spent.</p>
+
+<p>Termination is normally by the <em>late goal test</em>: the search stops when a goal node is selected for expansion, i.e. popped from the frontier. Some presentations use an <em>early goal test</em> and stop as soon as a goal is generated as a successor. For greedy search this distinction matters very little, because a goal node has <code>h = 0</code> and therefore sits at the very front of the queue the moment it is inserted; it will be popped on the next iteration anyway (barring other zero-<code>h</code> nodes). For A*, by contrast, the distinction is critical, because popping is what certifies optimality. The early test simply makes greedy search stop one iteration sooner.</p>
+
+<p>The consequence of ignoring <code>g</code> is easy to state and easy to underestimate: <em>a node that looks close to the goal is preferred even if it was reached by an absurdly expensive route</em>. Suppose state <code>X</code> is reached by a 900 km detour but has <code>h(X) = 10</code>, while state <code>Y</code> is reached by a 5 km hop and has <code>h(Y) = 60</code>. Greedy search expands <code>X</code> first and will happily return a solution of cost around 910 in preference to one of total estimated cost 65. Because the ordering is driven purely by the forward estimate, greedy search behaves much like depth-first search with a compass: it plunges deeper and deeper along whichever branch keeps producing smaller <code>h</code>-values, backing up only when the current region stops looking good relative to everything else on the frontier.</p>
+
+<p><strong>A worked trace: Arad to Bucharest.</strong> The canonical illustration uses the Romania road map with straight-line distance (SLD) to Bucharest as <code>h</code>. Relevant values are <code>h(Arad)=366</code>, <code>h(Zerind)=374</code>, <code>h(Timisoara)=329</code>, <code>h(Sibiu)=253</code>, <code>h(Oradea)=380</code>, <code>h(Fagaras)=176</code>, <code>h(Rimnicu Vilcea)=193</code>, <code>h(Pitesti)=100</code>, <code>h(Bucharest)=0</code>. Road distances include Arad–Sibiu 140, Sibiu–Fagaras 99, Fagaras–Bucharest 211, Sibiu–Rimnicu Vilcea 80, Rimnicu–Pitesti 97, Pitesti–Bucharest 101.</p>
+
+<table>
+  <thead>
+    <tr><th>Iteration</th><th>Node popped (h)</th><th>Successors generated (h)</th><th>Frontier after expansion, lowest h first</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>Arad (366)</td><td>Sibiu (253), Timisoara (329), Zerind (374)</td><td>Sibiu 253, Timisoara 329, Zerind 374</td></tr>
+    <tr><td>2</td><td>Sibiu (253)</td><td>Fagaras (176), Rimnicu Vilcea (193), Oradea (380), Arad (already reached)</td><td>Fagaras 176, Rimnicu 193, Timisoara 329, Zerind 374, Oradea 380</td></tr>
+    <tr><td>3</td><td>Fagaras (176)</td><td>Bucharest (0), Sibiu (already reached)</td><td>Bucharest 0, Rimnicu 193, Timisoara 329, Zerind 374, Oradea 380</td></tr>
+    <tr><td>4</td><td>Bucharest (0)</td><td>— goal test succeeds</td><td>— search terminates</td></tr>
+  </tbody>
+</table>
+
+<p>Greedy search expands only four nodes and returns Arad → Sibiu → Fagaras → Bucharest, of cost 140 + 99 + 211 = <strong>450</strong>. It is impressively efficient: uniform-cost search on the same map expands far more nodes. But the optimal route is Arad → Sibiu → Rimnicu Vilcea → Pitesti → Bucharest, of cost 140 + 80 + 97 + 101 = <strong>418</strong>. The search was seduced at iteration 2: Fagaras has the smaller straight-line distance (176 versus 193), so Rimnicu Vilcea was never expanded, and the cheaper route through Pitesti was never even generated. Note that the SLD heuristic is admissible — it never overestimates — and that admissibility did nothing to protect the solution quality.</p>
+
+<p><strong>Completeness and termination behaviour.</strong> In its <em>tree-search</em> form, with no record of visited states, greedy best-first search is <strong>not complete</strong> even in finite state spaces. The classic counterexample is travelling from Iasi to Fagaras in Romania. From Iasi, the heuristic favours Neamt, which is geographically nearer to Fagaras but is a dead end: its only successor is Iasi itself. Tree search has no memory of having been at Iasi, so it regenerates Iasi, whose best-looking successor is again Neamt, and the algorithm oscillates between two neighbouring cities forever, never considering the detour south through Vaslui that actually leads to the goal.</p>
+
+<p>In its <em>graph-search</em> form, with an explored set (or a <code>reached</code> table as above), this cannot happen: Neamt's successor Iasi is already in <code>reached</code> and is discarded, Neamt's subtree is exhausted, and the search is forced to fall back on Vaslui. Since every expansion permanently removes a state from the pool of expandable states, and the pool is finite, the algorithm must eventually either find a goal or empty the frontier. Greedy best-first graph search is therefore <strong>complete in finite state spaces</strong>.</p>
+
+<p>Infinite or unbounded state spaces restore the problem in a different guise. There, a repeated-state check does not help, because the algorithm need never repeat a state in order to fail: it can follow an infinite path of ever-new states whose heuristic values keep decreasing (or simply remain small) without ever reaching a goal. Consider searching an infinite grid for a goal to the west while the heuristic is miscalibrated so that easterly cells always look slightly better; the search marches east forever. The practical lessons are blunt: always use graph search with an explored set or a <code>reached</code> table; add a depth or expansion-count cut-off in unbounded spaces; and treat loop detection as a correctness requirement, not an optimisation.</p>
+
+<p><strong>Optimality: why greedy search fails.</strong> Greedy best-first search is <strong>not optimal</strong>, and no property of the heuristic can repair this. In particular, <em>admissibility buys nothing</em>. Admissibility (<code>0 ≤ h(n) ≤ h*(n)</code>) constrains the heuristic's relationship to the remaining cost, and consistency constrains how <code>h</code> changes along an edge, but neither constrains the relationship between <code>h</code> and the cost <em>already incurred</em>. Since <code>g</code> is precisely the quantity the greedy ordering discards, a property of <code>h</code> alone cannot control the total cost <code>g + h</code> of the path returned. The Romania trace above is a complete proof by counterexample: SLD is both admissible and consistent, and the answer is still 32 km worse than optimal.</p>
+
+<p>The mechanism of failure is worth naming explicitly. A node whose heuristic value is low is attractive <em>regardless of how it got there</em>, so a low-<code>h</code> node sitting at the end of an expensive approach route acts as a lure. Conversely, the first few steps of the genuinely cheapest path may lead through nodes whose heuristic values are temporarily worse — Rimnicu Vilcea (193) looks worse than Fagaras (176) even though it is on the optimal route — and greedy search has no reason to look at them. Any strategy that wants optimality must be able to say "this branch looked good, but it has now cost so much that an alternative with a worse-looking estimate is more promising overall." That requires adding the accumulated cost back into the evaluation function, giving <code>f(n) = g(n) + h(n)</code>: an estimate of the total cost of the <em>whole</em> solution through <code>n</code>, rather than of one half of it. That is exactly A*.</p>
+
+<p><strong>Time and space complexity.</strong> Let <code>b</code> be the branching factor and <code>m</code> the maximum depth of the search space. In the worst case — an uninformative, misleading or constant heuristic — greedy best-first search degenerates into something close to an unguided exploration of the whole space and runs in <code>O(b^m)</code> time. Space is also <code>O(b^m)</code>, because every generated node is retained: unexpanded nodes sit in the priority queue, and expanded nodes sit in the explored set so that repeated states can be detected. Exponential memory growth is usually the binding constraint in practice. A machine can often keep computing for hours, but a frontier that doubles every few seconds exhausts RAM in minutes, so greedy search typically dies of memory exhaustion rather than impatience.</p>
+
+<p>The worst case, however, is rarely the typical case. The whole point of the heuristic is to prune, and a good heuristic prunes hard. In the extreme, a perfect heuristic (<code>h = h*</code>) with no ties makes greedy search expand only the nodes on an optimal path, giving <code>O(bd)</code> generated nodes for a solution at depth <code>d</code> — essentially linear in the solution depth. Realistic heuristics sit between these poles, and performance degrades gracefully but genuinely as the heuristic's error grows. A useful mental model is that the search explores a "beam" around the heuristic's preferred direction whose width grows with the heuristic's inaccuracy.</p>
+
+<p>One more cost is easy to forget: the priority queue itself. Each insertion and each extract-min on a binary heap costs <code>O(log N)</code> where <code>N</code> is the current frontier size, so the per-node overhead carries a logarithmic factor on top of the cost of generating successors and evaluating <code>h</code>. When <code>h</code> is cheap (a subtraction and an absolute value, as in Manhattan distance) this overhead is visible in profiling; when <code>h</code> is expensive (a pattern-database lookup or a sub-search), it is negligible. Duplicate detection via a hash table adds expected <code>O(1)</code> per generated node plus the memory for the table.</p>
+
+<table>
+  <thead>
+    <tr><th>Property</th><th>Uniform-cost search</th><th>Greedy best-first (graph search)</th><th>A*</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Evaluation function</td><td>g(n)</td><td>h(n)</td><td>g(n) + h(n)</td></tr>
+    <tr><td>Complete?</td><td>Yes (positive step costs)</td><td>Yes in finite spaces; no in infinite spaces; no in tree-search form</td><td>Yes (finite branching, positive step costs)</td></tr>
+    <tr><td>Optimal?</td><td>Yes</td><td>No</td><td>Yes with admissible h (tree) / consistent h (graph)</td></tr>
+    <tr><td>Worst-case time</td><td>O(b^(1+⌊C*/ε⌋))</td><td>O(b^m)</td><td>O(b^(1+⌊C*/ε⌋)), far better with accurate h</td></tr>
+    <tr><td>Worst-case space</td><td>Same as time</td><td>O(b^m)</td><td>Same as time</td></tr>
+    <tr><td>Typical nodes expanded with a good h</td><td>Many (ignores goal)</td><td>Few — often the fewest of the three</td><td>Intermediate</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Failure modes caused by misleading heuristics.</strong> Greedy search's behaviour is entirely dictated by the shape of the heuristic landscape, so it inherits all of that landscape's pathologies.</p>
+
+<ul>
+  <li><strong>Local minima in h.</strong> A local minimum is a state whose successors all have higher <code>h</code>-values than itself. Greedy search entering such a region must expand <em>every</em> node in the basin whose <code>h</code>-value is below the value of the "escape" nodes before it will consider leaving. In a large basin this means exhaustive, essentially blind exploration of a region that contains no solution.</li>
+  <li><strong>Plateaux.</strong> A plateau is a connected region in which many states share the same <code>h</code>-value. Since the priority queue cannot distinguish them, tie-breaking (often insertion order) decides the expansion sequence, and the search degenerates to an uninformed sweep across the plateau. Integer-valued heuristics on grid maps produce plateaux constantly, which is why practical implementations break ties deliberately — for example, preferring the most recently generated node, or preferring lower <code>g</code> — rather than leaving the order to chance.</li>
+  <li><strong>Obstacles invisible to h.</strong> Straight-line distance on a grid or road map knows nothing about walls, rivers, one-way streets or impassable terrain. A heuristic that measures "as the crow flies" will happily lead the search into the mouth of a U-shaped wall, because every step into the concavity reduces <code>h</code>. The search must then fill the entire pocket before it is willing to back out and go around. This is the single most commonly observed failure of greedy search in game and robotics pathfinding.</li>
+  <li><strong>Attraction to unreachable or distant regions.</strong> Nodes can have small <code>h</code>-values and yet be very far from any goal <em>along feasible paths</em>; <code>h</code> measures geometry while the real cost measures connectivity. A state on the wrong side of a wall, a room with one long corridor to it, or a puzzle configuration two tiles from solved but requiring a long cyclic manoeuvre, all look cheap and all consume expansions.</li>
+  <li><strong>No cheap recovery.</strong> Because <code>g</code> is invisible, greedy search has no notion of "this branch is becoming expensive." It abandons a region only when every node in it is numerically worse than something else on the frontier, and even then it keeps all of the sunk work in memory. There is no backtracking policy, no cost-based cut-off, and no mechanism analogous to A*'s automatic re-focusing when <code>g</code> grows.</li>
+</ul>
+
+<p>A concrete grid example makes the pattern vivid. Consider a 20×20 grid with the start at the left, the goal at the right, and a long vertical wall between them containing a single gap at the extreme top. With Manhattan or Euclidean distance to the goal as <code>h</code>, every eastward step reduces <code>h</code>, so greedy search drives straight at the wall, then fans out along it expanding cells in order of their distance to the goal — which means it explores the cells <em>nearest</em> the wall first, including the whole dead region in front of it, before drifting to the gap. The pathology is not that it fails (it will find the gap eventually) but that it expands a large, wholly useless region, and that the path it finally returns may hug the wall in an awkward, far-from-optimal way.</p>
+
+<p><strong>When greedy best-first search is appropriate.</strong> None of the above makes greedy search useless; it makes it a tool with a specific profile. It is the right choice when <em>finding something quickly</em> matters more than <em>finding the best thing</em>.</p>
+
+<ul>
+  <li><strong>Very large spaces where any feasible solution is acceptable.</strong> In planning, configuration, or constraint-style problems with huge branching factors, an optimal solution may be computationally out of reach while a workable one is not. Greedy search — and its descendants, such as the enforced-hill-climbing and greedy best-first modes of modern planners like FF and Fast Downward — routinely solve instances on which A* exhausts memory.</li>
+  <li><strong>As a fast first pass.</strong> A greedy solution can serve as an initial incumbent whose cost bounds later search (branch-and-bound, anytime weighted A*, or ARA*), or it can be locally repaired by smoothing and shortcutting. "Get a path now, improve it while the agent is already moving" is standard practice in robotics and games.</li>
+  <li><strong>When the heuristic is known to be accurate.</strong> If <code>h</code> correlates strongly with true remaining cost and the domain is free of large local minima and obstacle-induced traps — open terrain, well-behaved metric spaces, smooth cost landscapes — greedy search expands dramatically fewer nodes than uniform-cost search and returns solutions only slightly worse than optimal.</li>
+  <li><strong>As a tunable extreme.</strong> Weighted A* with <code>f = g + w·h</code> interpolates between A* (<code>w = 1</code>) and greedy search (<code>w → ∞</code>). Knowing how the greedy endpoint behaves is what lets you reason about intermediate weights, which typically give bounded-suboptimal solutions (cost at most <code>w</code> times optimal) with large speed-ups.</li>
+  <li><strong>When <em>not</em> to use it.</strong> Avoid greedy search whenever the cost of the returned solution has real consequences — fuel, money, distance travelled by a physical vehicle, machine time, safety margins — or whenever a guarantee must be given to a user or a regulator. In those settings the extra expansions bought by <code>f = g + h</code> are the price of correctness, and they are usually worth paying.</li>
+</ul>
+
+<p><strong>Alignment with Learning Outcomes.</strong></p>
+<ul>
+  <li><strong>MO1:</strong> Supported. The topic uses <code>h(n)</code> throughout as the carrier of domain knowledge about remaining cost, and illustrates it concretely with straight-line distance on the Romania map and with Manhattan/Euclidean distance on grid maps.</li>
+  <li><strong>MO2:</strong> Partially supported. Admissibility and consistency are stated and used in the optimality argument — specifically to show that straight-line distance satisfies <code>0 ≤ h(n) ≤ h*(n)</code> yet greedy search is still suboptimal — but the topic does not drill the testing of candidate heuristics against the definitions.</li>
+  <li><strong>MO3:</strong> Supported indirectly. The best-first pseudocode, the priority-queue frontier, the explored/<code>reached</code> structure and the repeated-state handling developed here are exactly the expansion loop that A* instantiates with <code>f(n) = g(n) + h(n)</code>; the Romania trace models the step-by-step tracing procedure.</li>
+  <li><strong>MO4:</strong> Directly supported. The topic analyses greedy best-first search's completeness, non-optimality, and <code>O(b^m)</code> time and space behaviour, and sets them side by side with uniform-cost search and A* in a comparison table.</li>
+  <li><strong>MO5:</strong> Not addressed. Constructing admissible heuristics from relaxed problems, pattern databases or subproblem decomposition is outside this topic, which takes <code>h</code> as given and studies how a search strategy consumes it.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Suggested teaching sequence: (1) present the generic best-first loop and the f-substitution table before naming any specific algorithm; (2) run the Romania trace live and stop at iteration 2 to ask which successor should be expanded, so the 176-vs-193 decision is made by the class before the 450-vs-418 reveal; (3) use the Iasi–Neamt oscillation to motivate the explored set. A good lab exercise is to implement BEST-FIRST-SEARCH once with f as a parameter, then obtain UCS, greedy and A* by passing three lambdas, and instrument node-expansion counts on a grid map with a U-shaped obstacle. Common student misconceptions to pre-empt: that an admissible heuristic makes greedy search optimal; that greedy search is a form of hill-climbing (it is not — it keeps a full frontier and can jump to any previously generated node); and that the early/late goal test distinction matters as much for greedy search as it does for A*.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Best-first search is a general framework rather than a single algorithm: it keeps a priority queue (the open list) of frontier nodes and always expands the node that looks most promising according to an evaluation function f(n). Different choices of f give different algorithms — uniform-cost search uses f(n) = g(n), A* uses f(n) = g(n) + h(n), and greedy best-first search uses f(n) = h(n), the heuristic estimate of the remaining cost to a goal, ignoring the cost already paid to reach n.</p>
+<p>That single design choice explains everything about greedy search's behaviour. Because it only looks forward, it often dives quickly toward the goal and expands far fewer nodes than uninformed search, which is why it is attractive in practice. But it is not optimal: a shallow-looking but expensive route can win over a cheaper one, and with repeated-state checking it is complete only on finite graphs, while in the worst case it degenerates to the exponential time and space of breadth-first style search because the whole frontier must be stored.</p>
+<p>As you watch the videos, keep four questions in mind. What exactly is in the priority queue, and what key is used to order it? Where does g(n) disappear in greedy search, and what does that cost us? What happens when the heuristic is misleading — does the search get stuck, loop, or just return a poor path? And finally, note every point where a video contrasts greedy search with A*, since that contrast is the core comparison you will be assessed on.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Best First Search in Artificial Intelligence | BFS - Artificial Intelligence | Great Learning</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/sbuql9tQhSg?cc_load_policy=1&amp;rel=0" title="Video: Best First Search in Artificial Intelligence | BFS - Artificial Intelligence | Great Learning (Great Learning)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Great Learning</strong> · 13:05 · 11,901 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=sbuql9tQhSg" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A lecture-style introduction to informed (heuristic) search that frames best-first search as the use of an evaluation function to decide which frontier node to expand next. Expect coverage of how best-first search differs from uninformed strategies, how the priority queue drives node selection, and a worked example tracing expansions on a small graph.</p>
+<h3>Why this video</h3>
+<p>This is the right starting point because it establishes best-first search as the general framework before any particular f(n) is chosen, which is exactly the first subtopic; Great Learning's structured classroom format makes the open-list mechanics easy to follow.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: AI Greedy | Best-First | Algorithm | Simple Python Tutorial</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/rqVi5coCt5E?cc_load_policy=1&amp;rel=0" title="Video: AI Greedy | Best-First | Algorithm | Simple Python Tutorial (Dr Codie)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Dr Codie</strong> · 9:00 · 1,800 views · 2y ago · captions — <a href="https://www.youtube.com/watch?v=rqVi5coCt5E" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short, implementation-oriented tutorial that defines greedy best-first search as an informed algorithm using a heuristic to find a path to the goal, and then builds it in simple Python. Watching the code makes the defining feature concrete: the priority queue is ordered by h(n) alone, with no accumulated path cost g(n) in the key.</p>
+<h3>Why this video</h3>
+<p>Seeing the strategy as a few lines of code pins down f(n) = h(n) precisely and shows how the frontier and visited set determine termination behaviour, supporting the greedy strategy, completeness, and complexity subtopics.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: The Greedy Algorithm and A* | Path Planning</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/XTJOioKI-2I?cc_load_policy=1&amp;rel=0" title="Video: The Greedy Algorithm and A* | Path Planning (Bot Field)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Bot Field</strong> · 6:34 · 5,653 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=XTJOioKI-2I" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A concise path-planning video that presents the greedy algorithm alongside A*, noting that A* is the more reliable way to find a path while greedy uses some of the same principles. Expect grid or map-style visuals showing how the two searches expand different sets of nodes and can return different paths.</p>
+<h3>Why this video</h3>
+<p>The direct side-by-side comparison is the clearest way to see why dropping g(n) costs optimality and how a misleading heuristic can steer greedy search down a poor route, which covers the optimality, failure-mode, and "when is greedy appropriate" subtopics.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos build the comparison required by MO4: the first establishes the best-first framework and the role of the evaluation function, the second shows greedy search as the special case f(n) = h(n) with its concrete open-list and complexity consequences, and the third sets greedy search beside A* so the loss of optimality and the effect of misleading heuristics are visible rather than abstract. The heuristic examples and expansion traces in all three also reinforce MO1 (what h(n) estimates) and MO3 (how the expansion loop and open/closed lists operate), giving you the behavioural baseline against which admissibility and consistency (MO2) and heuristic design (MO5) are later judged.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

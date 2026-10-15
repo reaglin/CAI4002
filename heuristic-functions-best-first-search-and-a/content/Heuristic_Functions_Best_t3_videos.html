@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greedy Best-First Search</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Heuristic Functions, Best-First Search, and A*</a></div>
+<h1>Greedy Best-First Search</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: Best First Search in Artificial Intelligence | BFS - Artificial Intelligence | Great Learning</a>
+<a href="#sec3">Video 2: AI Greedy | Best-First | Algorithm | Simple Python Tutorial</a>
+<a href="#sec4">Video 3: The Greedy Algorithm and A* | Path Planning</a>
+<a href="#sec5">How These Videos Support the Learning Outcomes</a>
+<a href="#sec6">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>Best-first search is a general framework rather than a single algorithm: it keeps a priority queue (the open list) of frontier nodes and always expands the node that looks most promising according to an evaluation function f(n). Different choices of f give different algorithms — uniform-cost search uses f(n) = g(n), A* uses f(n) = g(n) + h(n), and greedy best-first search uses f(n) = h(n), the heuristic estimate of the remaining cost to a goal, ignoring the cost already paid to reach n.</p>
+<p>That single design choice explains everything about greedy search&#39;s behaviour. Because it only looks forward, it often dives quickly toward the goal and expands far fewer nodes than uninformed search, which is why it is attractive in practice. But it is not optimal: a shallow-looking but expensive route can win over a cheaper one, and with repeated-state checking it is complete only on finite graphs, while in the worst case it degenerates to the exponential time and space of breadth-first style search because the whole frontier must be stored.</p>
+<p>As you watch the videos, keep four questions in mind. What exactly is in the priority queue, and what key is used to order it? Where does g(n) disappear in greedy search, and what does that cost us? What happens when the heuristic is misleading — does the search get stuck, loop, or just return a poor path? And finally, note every point where a video contrasts greedy search with A*, since that contrast is the core comparison you will be assessed on.</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: Best First Search in Artificial Intelligence | BFS - Artificial Intelligence | Great Learning</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/sbuql9tQhSg?cc_load_policy=1&amp;rel=0" title="Video: Best First Search in Artificial Intelligence | BFS - Artificial Intelligence | Great Learning (Great Learning)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Great Learning</strong> · 13:05 · 11,901 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=sbuql9tQhSg" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A lecture-style introduction to informed (heuristic) search that frames best-first search as the use of an evaluation function to decide which frontier node to expand next. Expect coverage of how best-first search differs from uninformed strategies, how the priority queue drives node selection, and a worked example tracing expansions on a small graph.</p>
+<h3>Why this video</h3>
+<p>This is the right starting point because it establishes best-first search as the general framework before any particular f(n) is chosen, which is exactly the first subtopic; Great Learning&#39;s structured classroom format makes the open-list mechanics easy to follow.</p>
+</section>
+<section class="item" id="sec3">
+<h2>Video 2: AI Greedy | Best-First | Algorithm | Simple Python Tutorial</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/rqVi5coCt5E?cc_load_policy=1&amp;rel=0" title="Video: AI Greedy | Best-First | Algorithm | Simple Python Tutorial (Dr Codie)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Dr Codie</strong> · 9:00 · 1,800 views · 2y ago · captions — <a href="https://www.youtube.com/watch?v=rqVi5coCt5E" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short, implementation-oriented tutorial that defines greedy best-first search as an informed algorithm using a heuristic to find a path to the goal, and then builds it in simple Python. Watching the code makes the defining feature concrete: the priority queue is ordered by h(n) alone, with no accumulated path cost g(n) in the key.</p>
+<h3>Why this video</h3>
+<p>Seeing the strategy as a few lines of code pins down f(n) = h(n) precisely and shows how the frontier and visited set determine termination behaviour, supporting the greedy strategy, completeness, and complexity subtopics.</p>
+</section>
+<section class="item" id="sec4">
+<h2>Video 3: The Greedy Algorithm and A* | Path Planning</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/XTJOioKI-2I?cc_load_policy=1&amp;rel=0" title="Video: The Greedy Algorithm and A* | Path Planning (Bot Field)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Bot Field</strong> · 6:34 · 5,653 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=XTJOioKI-2I" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A concise path-planning video that presents the greedy algorithm alongside A*, noting that A* is the more reliable way to find a path while greedy uses some of the same principles. Expect grid or map-style visuals showing how the two searches expand different sets of nodes and can return different paths.</p>
+<h3>Why this video</h3>
+<p>The direct side-by-side comparison is the clearest way to see why dropping g(n) costs optimality and how a misleading heuristic can steer greedy search down a poor route, which covers the optimality, failure-mode, and &quot;when is greedy appropriate&quot; subtopics.</p>
+</section>
+<section class="item" id="sec5">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>Together these videos build the comparison required by MO4: the first establishes the best-first framework and the role of the evaluation function, the second shows greedy search as the special case f(n) = h(n) with its concrete open-list and complexity consequences, and the third sets greedy search beside A* so the loss of optimality and the effect of misleading heuristics are visible rather than abstract. The heuristic examples and expansion traces in all three also reinforce MO1 (what h(n) estimates) and MO3 (how the expansion loop and open/closed lists operate), giving you the behavioural baseline against which admissibility and consistency (MO2) and heuristic design (MO5) are later judged.</p>
+</section>
+<section class="item" id="sec6">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

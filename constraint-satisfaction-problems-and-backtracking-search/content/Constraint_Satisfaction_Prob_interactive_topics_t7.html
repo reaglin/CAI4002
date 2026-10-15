@@ -1,0 +1,435 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Applying and Evaluating CSP Solvers</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Satisfaction Problems and Backtracking Search</a></div>
+  <header>
+    <h1>Applying and Evaluating CSP Solvers</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Applying and Evaluating CSP Solvers</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>A constraint satisfaction problem is easy to define on paper and surprisingly fiddly to solve well in code. The gap between the two is where this topic lives. Once you have written down a CSP as a triple of variables, domains, and constraints, you still need a program that explores assignments systematically, a way to plug different search strategies into that program without rewriting it, a set of honest measurements that tell you which strategy actually helps, and the engineering discipline to know whether a disappointing result means "this heuristic is weak" or "my model is wrong." This topic walks through a pluggable backtracking solver, applies it to two very different case studies — Sudoku and scheduling — and then turns to measurement, debugging, and the judgement call of whether CSP is the right tool at all.</p>
+
+<p><strong>Building a pluggable backtracking solver</strong></p>
+
+<p>The first design decision is the data representation. A CSP is naturally stored as three cooperating structures: an ordered collection of <em>variables</em> (usually just names or integer indices), a <em>domain map</em> from each variable to the set of values it may still take, and a <em>constraint list</em>. The crucial detail is what a constraint object looks like. A constraint needs two parts:</p>
+
+<ul>
+<li>a <strong>scope</strong>: the tuple of variables the constraint talks about, and</li>
+<li>a <strong>satisfaction test</strong>: a predicate that, given values for the variables in the scope, returns true or false.</li>
+</ul>
+
+<p>Separating scope from test is what makes the solver generic. The search engine never needs to know whether a constraint means "different colours," "task A finishes before task B," or "all nine cells differ." It only needs to know which variables a constraint touches (so it can decide when the constraint is testable) and how to evaluate it. A useful refinement is to let the test accept a <em>partial</em> assignment and return true whenever the constraint is not yet fully determined — a convention that makes consistency checking on partial assignments trivial.</p>
+
+<pre><code>class Constraint:
+    def __init__(self, scope, test, name=""):
+        self.scope = tuple(scope)     # e.g. ("WA", "NT")
+        self.test  = test             # callable over values in scope order
+        self.name  = name
+
+    def holds(self, assignment):
+        # Unassigned variables in scope => not yet violated.
+        if any(v not in assignment for v in self.scope):
+            return True
+        return self.test(*[assignment[v] for v in self.scope])
+
+class CSP:
+    def __init__(self, variables, domains, constraints):
+        self.variables   = list(variables)
+        self.domains     = {v: set(domains[v]) for v in variables}
+        self.constraints = list(constraints)
+        # index: variable -> constraints whose scope contains it
+        self.involving = {v: [c for c in constraints if v in c.scope]
+                          for v in variables}
+</code></pre>
+
+<p>The <code>involving</code> index matters more than it looks. Without it, every consistency check scans every constraint, which turns an O(d) check into an O(|C|) sweep and dominates runtime on large models. With it, after assigning <code>X</code> you only re-test constraints whose scope contains <code>X</code>; every other constraint's truth value is unchanged.</p>
+
+<p>The recursive core is then short. It is depth-first search over partial assignments with chronological backtracking:</p>
+
+<pre><code>def backtrack(csp, assignment, domains, stats,
+              select_var, order_values, inference):
+    stats["nodes"] += 1
+    if len(assignment) == len(csp.variables):
+        return dict(assignment)                 # complete and consistent
+
+    var = select_var(csp, assignment, domains)  # pluggable
+    for value in order_values(csp, var, assignment, domains):  # pluggable
+        assignment[var] = value
+        stats["checks"] += 1
+        if consistent(csp, var, assignment):
+            saved = snapshot(domains, csp)      # trail or copy
+            if inference(csp, var, value, assignment, domains, stats):
+                result = backtrack(csp, assignment, domains, stats,
+                                   select_var, order_values, inference)
+                if result is not None:
+                    return result
+            restore(domains, saved)             # undo pruning exactly
+        del assignment[var]                     # undo the assignment
+        stats["backtracks"] += 1
+    return None
+
+def consistent(csp, var, assignment):
+    return all(c.holds(assignment) for c in csp.involving[var])
+</code></pre>
+
+<p>Read the loop body as a strict four-step cycle: <em>assign, check, recurse, undo</em>. Every one of those steps has to be exactly reversible, or state leaks between branches and the solver silently loses solutions. Notice also that only constraints involving the newly assigned variable are tested — the rest were already verified at shallower levels of the tree.</p>
+
+<p>The three parameters <code>select_var</code>, <code>order_values</code>, and <code>inference</code> are the plug points, and they all share a key property: <strong>every implementation must be interchangeable without changing the engine</strong>. That is what makes systematic experimentation possible later. Typical implementations:</p>
+
+<table>
+<thead>
+<tr><th>Plug point</th><th>Strategy</th><th>Rule</th><th>Intuition</th></tr>
+</thead>
+<tbody>
+<tr><td>Variable ordering</td><td>Static / chronological</td><td>Next variable in declaration order</td><td>Baseline; ignores structure entirely</td></tr>
+<tr><td>Variable ordering</td><td>MRV (minimum remaining values)</td><td>Pick the unassigned variable with the smallest current domain</td><td>Fail first: detect dead ends near the root, where pruning is cheapest</td></tr>
+<tr><td>Variable ordering</td><td>Degree (usually a tie-break for MRV)</td><td>Among ties, pick the variable in the most constraints with unassigned variables</td><td>Assigning the most entangled variable constrains the rest fastest</td></tr>
+<tr><td>Value ordering</td><td>Natural order</td><td>Domain order as given</td><td>Baseline</td></tr>
+<tr><td>Value ordering</td><td>LCV (least constraining value)</td><td>Try the value that removes the fewest values from neighbours' domains</td><td>Succeed first: keep the most options open on the branch you intend to take</td></tr>
+<tr><td>Inference</td><td>None</td><td>Return true immediately</td><td>Pure backtracking search</td></tr>
+<tr><td>Inference</td><td>Forward checking</td><td>Delete values from the domains of unassigned neighbours that conflict with the new assignment; fail if any empties</td><td>Cheap one-step lookahead</td></tr>
+<tr><td>Inference</td><td>MAC / AC-3</td><td>Re-establish arc consistency over the whole affected sub-network</td><td>Expensive per node, but prunes dramatically</td></tr>
+</tbody>
+</table>
+
+<p>Each is a plain function with a fixed signature, so a configuration is just a tuple of three callables:</p>
+
+<pre><code>def mrv(csp, assignment, domains):
+    unassigned = [v for v in csp.variables if v not in assignment]
+    return min(unassigned, key=lambda v: (len(domains[v]), -degree(csp, v, assignment)))
+
+def lcv(csp, var, assignment, domains):
+    def cost(val):
+        return sum(1 for n in neighbours(csp, var) if n not in assignment
+                     for w in domains[n] if conflicts(csp, var, val, n, w))
+    return sorted(domains[var], key=cost)
+
+config = (mrv, lcv, forward_check)   # swap any component independently
+</code></pre>
+
+<p><strong>Restoring state exactly.</strong> Inference prunes domains; backtracking must un-prune them. There are two correct approaches and one tempting wrong one.</p>
+
+<ul>
+<li><strong>Trail (undo log).</strong> Every deletion is pushed onto a stack as a <code>(variable, value)</code> pair together with a mark for the current depth. On backtrack, pop entries back to the mark and re-insert each value. Cost is proportional to the number of values actually pruned, which is usually tiny. This is what real solvers use.</li>
+<li><strong>Copy-on-write / snapshot.</strong> Copy the domain map (or just the domains of variables about to be touched) before inference, and restore the copy on failure. Simpler to get right, costs O(n·d) per node in the naive version — acceptable for teaching and for small models.</li>
+<li><strong>The wrong one:</strong> recomputing domains from scratch "from the current assignment." This looks clean but quietly discards pruning that came from deeper inference and reintroduces values that a correct trail would keep removed higher up the tree, or worse, forgets values that were removed by earlier levels. Restoration must return the state to <em>exactly</em> its prior condition, not to a plausible approximation of it.</li>
+</ul>
+
+<pre><code>class Trail:
+    def __init__(self): self.entries, self.marks = [], []
+    def mark(self):     self.marks.append(len(self.entries))
+    def prune(self, domains, var, val):
+        domains[var].discard(val); self.entries.append((var, val))
+    def undo(self, domains):
+        back = self.marks.pop()
+        while len(self.entries) > back:
+            var, val = self.entries.pop()
+            domains[var].add(val)
+</code></pre>
+
+<p><strong>Instrumentation.</strong> A solver that returns only an answer is unmeasurable. Thread a <code>stats</code> dictionary through the recursion and increment it at well-defined events: <code>nodes</code> (each call to <code>backtrack</code>, i.e. each partial assignment explored), <code>checks</code> (each evaluation of a constraint's satisfaction test), <code>backtracks</code> (each time a value is withdrawn after failure), <code>pruned</code> (each value removed by inference), and optionally <code>max_depth</code> and <code>revisions</code> for AC-3 queue operations. Define these events precisely and keep the definitions fixed across configurations, otherwise your comparisons are meaningless. Also give the solver a <code>timeout</code> or <code>node_limit</code> parameter so that a hopeless configuration terminates rather than hanging an experiment.</p>
+
+<p><strong>Case study: solving Sudoku</strong></p>
+
+<p>Sudoku is the ideal first client of the solver because the model is clean, the instances are graded by difficulty, and the effect of heuristics is dramatic.</p>
+
+<p><strong>The model.</strong> There are 81 variables, one per cell, conventionally named by row letter and column digit (<code>A1</code>…<code>I9</code>). Each domain is <code>{1,…,9}</code>. The constraints are 27 <em>all-different</em> global constraints: 9 for the rows, 9 for the columns, 9 for the 3×3 boxes.</p>
+
+<pre><code>rows, cols = "ABCDEFGHI", "123456789"
+cells = [r+c for r in rows for c in cols]
+units = ([[r+c for c in cols] for r in rows] +            # 9 rows
+         [[r+c for r in rows] for c in cols] +            # 9 columns
+         [[r+c for r in rs for c in cs]                   # 9 boxes
+          for rs in ("ABC","DEF","GHI") for cs in ("123","456","789")])
+
+alldiff = lambda *vals: len(set(vals)) == len(vals)
+constraints = [Constraint(u, alldiff, "alldiff") for u in units]
+</code></pre>
+
+<p>The 27 global constraints can be <em>decomposed</em> into 810 binary not-equals constraints (each unit contributes 36 pairs; shared cells mean 810 distinct pairs overall) if your engine only understands binary constraints. The decomposition is logically equivalent for checking a complete assignment but strictly weaker for propagation: a global <code>alldiff</code> can run Régin's matching-based filtering and deduce, for example, that if three cells in a row have domains <code>{4,7}</code>, <code>{4,7}</code>, <code>{4,7}</code> then no other cell in that row may take 4 or 7 — a "naked triple" that pairwise ≠ constraints cannot see. This is a concrete illustration of why global constraints are worth representing as such.</p>
+
+<p><strong>Encoding the clues.</strong> A given clue can be modelled in two ways. The first is as a <em>unary constraint</em> <code>A1 = 5</code>, which is uniform and keeps the puzzle data inside the constraint list. The second — almost always better — is to apply unary constraints once at setup time and <em>pre-reduce the domain to a singleton</em>: <code>domains["A1"] = {5}</code>. Node consistency is enforced before search even begins, every subsequent consistency check is cheaper, and MRV immediately sees those cells as having domain size 1. Many implementations go one step further and run constraint propagation over the clues before the first search node, which on easy puzzles solves the whole grid with zero search.</p>
+
+<p><strong>What the heuristics do.</strong> Plain chronological backtracking assigns <code>A1, A2, A3, …</code> in order. On an easy puzzle it may be fine; on a hard one it is catastrophic, because a contradiction created by a choice in row A may not be detected until the search reaches row G, whereupon the solver has to undo and re-explore an enormous subtree. Worse, the famously hard "anti-backtracking" puzzles are constructed specifically so that left-to-right, top-to-bottom value trials fail as late as possible. MRV changes the dynamic completely: the solver always jumps to the most constrained cell, which after propagation is usually a cell with two candidates, and a wrong guess there is refuted almost immediately. Combined with forward checking, typical newspaper "hard" puzzles are solved with single-digit backtrack counts; many are solved with none at all. Representative figures on a 17-clue puzzle look like this:</p>
+
+<table>
+<thead>
+<tr><th>Configuration</th><th>Nodes expanded</th><th>Backtracks</th><th>Outcome</th></tr>
+</thead>
+<tbody>
+<tr><td>Static order, no inference</td><td>&gt; 10,000,000</td><td>&gt; 10,000,000</td><td>Timeout at 60 s</td></tr>
+<tr><td>Static order + forward checking</td><td>≈ 120,000</td><td>≈ 119,000</td><td>Solved, ~4 s</td></tr>
+<tr><td>MRV, no inference</td><td>≈ 9,000</td><td>≈ 8,900</td><td>Solved, ~0.6 s</td></tr>
+<tr><td>MRV + forward checking</td><td>≈ 180</td><td>≈ 100</td><td>Solved, ~0.05 s</td></tr>
+<tr><td>MRV + degree tie-break + MAC (AC-3)</td><td>≈ 90</td><td>≈ 20</td><td>Solved, ~0.08 s</td></tr>
+</tbody>
+</table>
+
+<p>The last row illustrates an important lesson that recurs throughout this topic: the configuration with the fewest nodes is not automatically the fastest, because full arc consistency costs far more per node than forward checking. Node counts and wall-clock time answer different questions.</p>
+
+<p>Note also that LCV is nearly useless on Sudoku. LCV helps when a problem has many solutions and you want to steer toward one; a well-formed Sudoku has exactly one solution, so there is no "roomier" branch to steer toward and the ordering overhead is pure cost. This is a genuinely useful negative result to obtain experimentally.</p>
+
+<p><strong>Independent verification.</strong> Never report "solved" on the basis of the solver's internal state. The solver's belief that an assignment is consistent is computed by the same constraint objects that may be buggy, and by inference code that may have pruned something it shouldn't. Write a separate checker that takes the returned 81 values and re-validates all 27 units from scratch, plus checks that every clue cell still holds its given value:</p>
+
+<pre><code>def verify_sudoku(grid, clues):
+    assert all(grid[c] in range(1, 10) for c in cells), "value out of domain"
+    for u in units:
+        vals = [grid[c] for c in u]
+        assert sorted(vals) == list(range(1, 10)), f"unit {u} invalid"
+    for c, v in clues.items():
+        assert grid[c] == v, f"clue {c} overwritten"
+    return True
+</code></pre>
+
+<p>Assert this on every returned solution in your test suite. It costs microseconds and catches whole classes of modelling bug.</p>
+
+<p><strong>Graded test sets.</strong> Evaluate on a ladder of difficulty rather than one puzzle: a handful of easy puzzles solvable by propagation alone, a set of medium puzzles requiring a little search, a set of hard puzzles with 20–24 clues, the standard 17-clue minimal puzzles, and a few adversarial instances (e.g. "platinum blonde," "AI escargot") built to defeat naive search. The point of grading is to find the <em>crossover</em> — the difficulty level at which each configuration starts to struggle. A configuration that solves everything instantly tells you nothing; a configuration that fails everything tells you nothing. The informative data lies at the boundary.</p>
+
+<p><strong>Case study: scheduling instances</strong></p>
+
+<p>Scheduling exercises a different part of the solver. Sudoku is uniform, tightly constrained, and has exactly one solution; scheduling models are irregular, mix several constraint types, and are frequently infeasible as first written.</p>
+
+<p><strong>Variables and domains.</strong> Variables are the things being placed: tasks on a shop floor, meetings, exams, lectures, shifts. Domains are the places they can go: discrete time slots, or — when resources are also being chosen — <em>pairs</em> of slot and resource, e.g. <code>(Tuesday 10:00, Room B)</code>. Pairing inflates the domain multiplicatively (20 slots × 6 rooms = 120 values) but keeps the model simple, since room clashes become ordinary constraints over paired values. The alternative is two variables per task, <code>start_T</code> and <code>room_T</code>, which keeps domains small and lets MRV reason about them separately, at the cost of more variables and more constraints. Either is defensible; choosing deliberately, and being able to say why, is part of modelling skill.</p>
+
+<p><strong>Three constraint families in one model.</strong></p>
+
+<ul>
+<li><strong>Binary non-overlap (disjunctive).</strong> For two tasks sharing a machine or a person: <code>end(A) ≤ start(B) OR end(B) ≤ start(A)</code>. With fixed durations this is a binary constraint over start times: <code>|start(A) − start(B)| ≥ dur</code> when durations are equal, or the asymmetric form otherwise. These constraints are the backbone of job-shop models.</li>
+<li><strong>Precedence.</strong> <code>start(B) ≥ start(A) + dur(A)</code>: operation 2 of a job cannot begin until operation 1 completes; the exam board cannot meet before marking finishes. Precedence constraints are directed and propagate extremely well — forward checking on a precedence chain pushes the earliest start times forward in one sweep.</li>
+<li><strong>Global resource capacity.</strong> At most <em>k</em> tasks may occupy a slot, or the total demand on a resource must not exceed its capacity. In CSP terms this is a <code>cumulative</code> or <code>at-most-k</code> global constraint over all tasks that could use the resource. Decomposing it into pairwise constraints is impossible in general (you cannot express "at most 3 in this room" with binary ≠), which is a clean motivating example for higher-order and global constraints.</li>
+</ul>
+
+<pre><code># Exam timetabling fragment
+slots  = range(0, 15)                       # 15 exam periods
+exams  = ["AI", "DB", "OS", "NET", "ML"]
+domains = {e: set(slots) for e in exams}
+
+shared = [("AI","ML"), ("AI","DB"), ("DB","OS"), ("NET","OS")]   # cohort clashes
+cons  = [Constraint((a,b), lambda x,y: x != y, "clash") for a,b in shared]
+cons += [Constraint(("AI","ML"), lambda x,y: abs(x-y) >= 2, "rest gap")]
+cons += [Constraint(tuple(exams),
+                    lambda *s: all(list(s).count(t) &lt;= 2 for t in set(s)),
+                    "at most 2 exams per period")]          # global capacity
+</code></pre>
+
+<p><strong>Infeasibility and thrashing.</strong> Many real scheduling instances are over-constrained: there simply is no assignment satisfying every hard constraint. A complete solver must then prove infeasibility by exhausting the search space, and naive backtracking does this appallingly badly. The classic failure mode is <em>thrashing</em>: the solver repeatedly rediscovers the same local contradiction deep in the tree — say, three exams that all clash and only two usable slots — but, because it backtracks chronologically to the most recent decision, it undoes an irrelevant choice and re-enters the same doomed region with a different, equally irrelevant prefix. The fixes in increasing order of sophistication:</p>
+
+<ul>
+<li><strong>Propagation at the root.</strong> Run AC-3 before search; many infeasible instances collapse to an empty domain immediately and are reported infeasible in milliseconds.</li>
+<li><strong>MRV plus degree.</strong> Forces the solver into the tightest part of the problem first, so the contradiction is found at shallow depth where the proof of infeasibility is small.</li>
+<li><strong>Backjumping / conflict-directed backjumping.</strong> Jump back to the variable actually responsible for the conflict rather than the chronologically last one.</li>
+<li><strong>No-good recording / clause learning.</strong> Remember the conflicting combination so the same dead end is never re-entered.</li>
+</ul>
+
+<p>At minimum, any solver used on scheduling data must have a timeout and must distinguish three outcomes honestly: <code>SOLVED</code>, <code>PROVEN INFEASIBLE</code>, and <code>UNKNOWN (timeout)</code>. Reporting a timeout as "no solution" is a serious error — it is the difference between "there is no timetable" and "I gave up."</p>
+
+<p><strong>Adding slack.</strong> When a model is genuinely infeasible, the right response is usually to change the model, not the solver. Options:</p>
+
+<ul>
+<li><strong>Widen domains:</strong> add more time slots, extra rooms, an evening session, a sixth machine. Going from 15 exam periods to 18 often converts infeasible to trivially feasible.</li>
+<li><strong>Relax soft preferences.</strong> Distinguish hard constraints (no student sits two exams at once) from soft ones (lecturers prefer mornings; no student sits three exams in two days). Drop or demote the soft ones and re-solve. If you need to keep them, re-model as a constraint <em>optimisation</em> problem with penalties rather than a pure CSP.</li>
+<li><strong>Relax quantitative margins.</strong> Reduce a required rest gap from 48 hours to 24; allow a room to hold 40 rather than 35.</li>
+<li><strong>Allow explicit violation variables.</strong> Add a Boolean or integer "unplaced" value to each domain and constrain the number of unplaced tasks, turning "no solution" into "a solution that leaves two exams unscheduled," which is far more useful to a human planner.</li>
+</ul>
+
+<p>A disciplined workflow is to compute a <em>minimal unsatisfiable core</em> by hand or by deletion: remove constraints one at a time, re-solve, and find a small subset that is still infeasible. Telling a timetabling officer "exams AI, ML and DB mutually clash and only two periods are open to all three" is actionable; telling them "infeasible" is not.</p>
+
+<p><strong>Why MRV and degree matter more here.</strong> Sudoku's constraint graph is perfectly regular — every cell has exactly 20 neighbours. Scheduling graphs are wildly irregular: a core first-year module shared by 800 students may clash with thirty other exams, while a niche elective clashes with two. Degree heuristics exploit exactly this asymmetry by scheduling the hub variables first, when the calendar is still empty and there is room to place them; leaving them until last is how you end up with a popular exam that has no legal slot. MRV then tracks the dynamic consequences of those placements. Empirically, on irregular graphs the MRV + degree combination often changes the node count by several orders of magnitude, whereas on a regular graph like Sudoku's the degree tie-break contributes comparatively little because all degrees are equal at the start.</p>
+
+<p><strong>Measuring solver performance</strong></p>
+
+<p>Once the solver is pluggable, the interesting question becomes empirical: <em>which configuration is actually better, and on what?</em> Answering that honestly requires discipline, because it is very easy to produce impressive-looking numbers that mean nothing.</p>
+
+<p><strong>Hardware-independent counters.</strong> The primary measures should be counts of search events, not seconds, because counts are reproducible on any machine, in any language, under any system load:</p>
+
+<ul>
+<li><strong>Nodes expanded</strong> — partial assignments considered. The canonical measure of search tree size.</li>
+<li><strong>Backtracks</strong> — failures that forced a value to be withdrawn. Closely tracks nodes but highlights wasted work specifically.</li>
+<li><strong>Constraint checks</strong> — evaluations of a satisfaction test. This is the measure that exposes the hidden cost of inference: AC-3 may expand ten times fewer nodes while performing a hundred times more checks.</li>
+<li><strong>Values pruned</strong> — domain deletions performed by inference, a direct measure of how much work propagation is doing.</li>
+</ul>
+
+<p><strong>And wall-clock time anyway.</strong> Counters alone can mislead in the opposite direction. A node under MAC is far more expensive than a node under plain backtracking; a node under LCV requires scanning every neighbour's domain before the first value is even tried. If you compare configurations only by nodes expanded, you will reliably conclude that the heaviest inference wins, and you will be wrong about half the time. Report both, and report the <em>cost per node</em> (time ÷ nodes, or checks ÷ nodes) to make the trade-off explicit.</p>
+
+<p><strong>The ablation grid.</strong> The clean experimental design is a factorial sweep in which each component is turned on and off independently, so any observed effect can be attributed to a specific component rather than to a bundle of changes:</p>
+
+<table>
+<thead>
+<tr><th>Variable ordering</th><th>Value ordering</th><th>Inference</th><th>What it isolates</th></tr>
+</thead>
+<tbody>
+<tr><td>Static</td><td>Natural</td><td>None</td><td>Baseline — pure chronological backtracking</td></tr>
+<tr><td>MRV</td><td>Natural</td><td>None</td><td>Effect of variable ordering alone</td></tr>
+<tr><td>MRV + degree</td><td>Natural</td><td>None</td><td>Marginal value of the degree tie-break</td></tr>
+<tr><td>MRV</td><td>LCV</td><td>None</td><td>Effect of value ordering given good variable ordering</td></tr>
+<tr><td>Static</td><td>Natural</td><td>Forward checking</td><td>Effect of inference alone</td></tr>
+<tr><td>MRV</td><td>Natural</td><td>Forward checking</td><td>Interaction: MRV is far stronger with live domain sizes</td></tr>
+<tr><td>MRV + degree</td><td>LCV</td><td>Forward checking</td><td>The usual practical default</td></tr>
+<tr><td>MRV + degree</td><td>LCV</td><td>MAC (AC-3)</td><td>Maximum pruning; tests whether it pays for itself</td></tr>
+</tbody>
+</table>
+
+<p>The MRV × forward-checking cell deserves attention. MRV needs <em>current</em> domain sizes to be meaningful; with no inference at all, domains never shrink and MRV degenerates towards a static order broken only by the initial unary reductions. This is why the two are usually reported together and why an ablation grid, rather than a one-at-a-time study, is necessary: the components interact.</p>
+
+<p><strong>Timeouts and censored data.</strong> Hard instances will not finish. The correct protocol is to fix a timeout in advance (say 60 seconds or 10<sup>6</sup> nodes — expressed without superscripts in your log as one million nodes), apply it identically to every configuration, and report <strong>the number of instances solved within the limit</strong> alongside the effort statistics for those that finished. Discarding timed-out runs and averaging the rest is a textbook statistical error: it systematically deletes the hardest instances from the weakest configuration's results, making the weak configuration look fast. A configuration that solves 12 of 50 instances in a mean of 0.3 s is worse, not better, than one that solves 48 of 50 in a mean of 4 s. Many researchers report a <em>cactus plot</em> equivalent in tabular form: instances solved as a function of the time budget.</p>
+
+<table>
+<thead>
+<tr><th>Configuration</th><th>Solved / 50</th><th>Median nodes (solved)</th><th>Mean checks (solved)</th><th>Median time</th></tr>
+</thead>
+<tbody>
+<tr><td>Static, none</td><td>11</td><td>412,000</td><td>9.8 M</td><td>6.1 s</td></tr>
+<tr><td>MRV, none</td><td>29</td><td>24,500</td><td>1.1 M</td><td>0.9 s</td></tr>
+<tr><td>MRV + FC</td><td>48</td><td>640</td><td>210 K</td><td>0.07 s</td></tr>
+<tr><td>MRV + degree + LCV + FC</td><td>49</td><td>430</td><td>340 K</td><td>0.09 s</td></tr>
+<tr><td>MRV + degree + MAC</td><td>50</td><td>170</td><td>1.4 M</td><td>0.21 s</td></tr>
+</tbody>
+</table>
+
+<p>Read that table carefully: the bottom row wins on robustness and node count, loses on median time, and costs the most constraint checks. Which configuration you ship depends on whether you care about worst-case coverage or average-case latency.</p>
+
+<p><strong>Averaging and randomisation.</strong> A single instance proves nothing. Backtracking search has famously heavy-tailed runtime distributions — the same solver on the same instance family can vary by four orders of magnitude depending on early choices. Therefore: generate or collect many instances (30–100 is a reasonable minimum), vary the random seed where the solver makes any arbitrary choice (tie-breaking, shuffled value order, random restarts), and report medians and quartiles as well as means, since a single catastrophic run dominates a mean. If you generate random instances, control the <em>constraint tightness</em> parameter and sample across it: random CSPs exhibit a sharp phase transition from mostly-satisfiable to mostly-unsatisfiable, and the hardest instances cluster right at that transition. Sampling only loose instances makes every configuration look excellent; sampling only tight ones makes every configuration look identical because propagation refutes them instantly.</p>
+
+<p><strong>Debugging constraint models</strong></p>
+
+<p>Most "the solver is broken" reports are actually "the model is wrong." The following practices separate the two quickly.</p>
+
+<p><strong>1. Write an independent checker first.</strong> Before writing the search, write <code>is_solution(assignment)</code> that validates a complete assignment directly from the problem specification — not by reusing the solver's constraint objects, and ideally written from the original problem statement rather than from your model. Then assert it on every solution the solver returns, in every test. This is the single highest-value debugging investment available, because it converts silent wrongness into a loud failure at the exact moment it occurs.</p>
+
+<p><strong>2. Diagnose by symptom.</strong> The two failure modes point in opposite directions:</p>
+
+<table>
+<thead>
+<tr><th>Symptom</th><th>Most likely causes</th><th>First things to check</th></tr>
+</thead>
+<tbody>
+<tr><td>No solution found, but one is known to exist</td><td>A constraint is too tight; wrong scope; an off-by-one in a precedence or duration; a domain was built too small; inference pruned a value it should not have; restoration failed to put a value back</td><td>Disable inference entirely and re-run — if a solution appears, the bug is in propagation or restoration, not the model. Then disable constraints one at a time until the known solution is accepted; the last one disabled is the culprit.</td></tr>
+<tr><td>An invalid "solution" is returned</td><td>A constraint is missing; its scope lists the wrong variables; the test has reversed arguments; the constraint is never consulted because the variable index was built before it was added</td><td>Run the independent checker to learn which requirement is violated, then verify that constraint exists in <code>csp.constraints</code> and appears in <code>csp.involving[v]</code> for every <code>v</code> in its scope.</td></tr>
+<tr><td>Correct but absurdly slow</td><td>Consistency check scanning all constraints; domains copied wholesale at every node; heuristic recomputed from scratch per node</td><td>Profile; check the <code>involving</code> index exists; compare checks-per-node against the theoretical minimum.</td></tr>
+</tbody>
+</table>
+
+<p>The "never consulted" bug deserves emphasis. If your engine precomputes <code>involving</code> and you later append a constraint to the list, the index is stale and the constraint is invisible to <code>consistent()</code>, even though it appears in your model and in your printouts. A cheap guard is an assertion that the number of constraints reachable through the index equals the number in the list.</p>
+
+<p><strong>3. Shrink the instance.</strong> Debug on 4×4 Sudoku (4 variables per unit, domains 1–4), 4-Queens, a 3-region map, or a 3-task schedule — instances whose entire search tree you can draw on paper. If the solver expands 11 nodes and you expected 9, you can enumerate both. On an 81-variable instance with a million nodes, you cannot. Minimal reproducing examples are as valuable in constraint programming as anywhere else in software engineering.</p>
+
+<p><strong>4. Log the search path.</strong> Add an optional trace that prints, at each node, the depth, the chosen variable, the value tried, the result of the consistency check, and the domains pruned. On failure, the trace shows whether the solver explored what you expected. Two specific things to look for: a variable being assigned a value that is no longer in its domain (ordering computed before pruning), and the solver re-trying a branch it has already refuted (restoration bug).</p>
+
+<p><strong>5. Assert exact state restoration.</strong> The nastiest bugs in CSP solvers are state-leak bugs, and they are invisible on small tests. The direct test: snapshot a deep copy of every domain immediately before an inference step, run the step, force a failure, run restoration, and assert that the restored domains are <em>equal</em> to the snapshot — same values, for every variable, not merely the same sizes. Do this at every node in a debug mode and run the full test suite; it is slow but it finds the bug in one run. A related invariant worth asserting: on return from <code>backtrack</code>, the assignment dictionary must contain exactly the variables it contained on entry.</p>
+
+<pre><code>def checked_backtrack(csp, assignment, domains, ...):
+    before_a = dict(assignment)
+    before_d = {v: set(domains[v]) for v in csp.variables}
+    result = backtrack(csp, assignment, domains, ...)
+    if result is None:                       # only meaningful on failure
+        assert assignment == before_a, "assignment leaked"
+        assert all(domains[v] == before_d[v] for v in csp.variables), \
+               "domain restoration incomplete"
+    return result
+</code></pre>
+
+<p><strong>Knowing when CSP methods fit</strong></p>
+
+<p>A solver is a tool, not a worldview. Recognising when the CSP framing is the right one — and when it quietly is not — saves more time than any heuristic.</p>
+
+<p><strong>Where classical finite-domain CSP is strong.</strong> Three conditions together make CSP an excellent fit:</p>
+
+<ul>
+<li><strong>Finite, discrete domains.</strong> Cells take digits; exams take periods; queens take rows; machines take one of six settings. If the natural domain is "any real number between 0 and 1," the fit is poor.</li>
+<li><strong>Hard constraints.</strong> The requirements are absolute: a student cannot be in two exams at once. CSP's semantics are exactly "satisfy all of these."</li>
+<li><strong>Any feasible solution is acceptable.</strong> There is no objective to maximise; a legal timetable is a legal timetable. Puzzles, configuration problems, and feasibility-driven planning all have this character.</li>
+</ul>
+
+<p>Under those conditions you get strong propagation, complete search with a genuine proof of infeasibility, and a declarative model that non-programmers can read and audit.</p>
+
+<p><strong>When to prefer local search.</strong> For very large instances where a complete proof is unnecessary and speed dominates, use local search such as <em>min-conflicts</em>: start from a complete (probably invalid) assignment, repeatedly pick a conflicted variable, and reassign it to the value minimising the number of remaining conflicts. The canonical result is the million-queens problem, which min-conflicts solves in seconds and roughly a constant number of steps regardless of n, while complete backtracking is hopeless at that scale. The trade-off is sharp: local search cannot prove that no solution exists, can stall in local minima (mitigated by random restarts, tabu lists, or simulated annealing), and offers no completeness guarantee. Use it when you expect a solution to exist and merely need to find one.</p>
+
+<p><strong>When to prefer mathematical programming.</strong> If there is a genuine objective function — minimise total tardiness, minimise cost, maximise throughput — and the variables and constraints are mostly numeric and linear, linear programming and mixed-integer programming are usually the better tool. MIP solvers provide optimality bounds, duality information, and the ability to say "this solution is within 2% of optimal," which plain CSP cannot. In practice the boundary is blurred: constraint optimisation problems (COP) and hybrid CP/MIP solvers exist precisely because real scheduling problems have both combinatorial structure (where propagation shines) and numeric objectives (where LP relaxation shines). A rough rule: combinatorial feasibility with complex logical side conditions → CP; numeric optimisation with mostly linear structure → MIP.</p>
+
+<p><strong>Signals that point away from classical CSP.</strong></p>
+
+<ul>
+<li><strong>Continuous variables.</strong> Positions, temperatures, flows, times measured to arbitrary precision. Discretising is sometimes acceptable (quarter-hour slots), but a fine discretisation explodes domain sizes and loses the algebraic structure that numeric solvers exploit.</li>
+<li><strong>Uncertainty.</strong> If durations are stochastic, demand is forecast, or outcomes are probabilistic, hard constraints misrepresent the problem; look to stochastic programming, MDPs, or probabilistic graphical models (which, notably, share CSP's factor-graph structure but replace "satisfied/violated" with probabilities).</li>
+<li><strong>Soft, learned, or conflicting preferences.</strong> "Lecturers prefer mornings" is not a hard constraint, and trading such preferences off against each other requires weights — that is an optimisation or preference-learning problem, best handled by weighted/soft CSP, MaxSAT, or a MIP objective rather than by piling conditions into a pure CSP and discovering it is infeasible.</li>
+<li><strong>Constraints that are not decidable cheaply.</strong> If evaluating whether a constraint holds requires running a simulation, the per-check cost destroys the search's economics.</li>
+</ul>
+
+<p><strong>Size is not the disqualifier.</strong> A common misconception is that CSP is a toy technique that works on 81-cell puzzles and collapses on industrial problems. The opposite is true in practice: it is <em>weak modelling</em>, not scale, that kills CSP approaches. Industrial constraint programming routinely handles models with tens of thousands of variables — rostering for airlines and hospitals, container stowage, rail and factory scheduling, product configuration — because strong global constraints (<code>alldifferent</code>, <code>cumulative</code>, <code>gcc</code>, <code>table</code>, <code>circuit</code>) come with specialised polynomial-time filtering algorithms that remove enormous numbers of values per propagation step. A model with 5,000 variables and well-chosen global constraints will often solve faster than a model with 200 variables decomposed into thousands of pairwise constraints. The practical lesson for your own solver work is to spend effort on the model and on propagation strength before concluding that the problem class is out of reach.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+<li><strong>MO1:</strong> The solver's data representation — a variable list, a domain map, and a constraint list — is a direct realisation of the CSP triple, and the recursive core's distinction between partial assignments (tested for consistency), complete assignments (returned as solutions), and consistent assignments (validated by an independent checker) is exercised throughout both case studies.</li>
+<li><strong>MO2:</strong> The topic repeatedly classifies the constraints it uses: unary clue constraints in Sudoku, binary non-overlap and precedence constraints in scheduling, and global <code>alldifferent</code> and capacity constraints that cannot be decomposed into binary form, together with the <code>involving</code> index that is effectively the constraint graph or hypergraph in implementation form.</li>
+<li><strong>MO3:</strong> The Sudoku and scheduling case studies give fully explicit formulations — 81 variables with domains 1–9 and 27 all-different constraints; tasks with slot or slot-resource domains subject to clash, precedence, and capacity constraints — demonstrating the formulation skill on two contrasting real problems.</li>
+<li><strong>MO4:</strong> The pluggable backtracking engine, with its assign–check–recurse–undo cycle, trail-based domain restoration, and consistency testing of partial assignments, is precisely the depth-first backtracking solver this outcome requires, and the debugging section supports getting that implementation correct.</li>
+<li><strong>MO5:</strong> The measurement section supplies the methodology — node, backtrack, check and prune counters, an MRV/degree/LCV ablation grid, fixed timeouts with instances-solved reporting, and averaging over randomised benchmark instances — needed to evaluate heuristic effect on solver efficiency rigorously.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Suggested practical work: have students implement the Constraint/CSP classes and the recursive core, then add MRV, degree tie-breaking, LCV, forward checking and AC-3 as separate plug-in functions so that configurations can be swapped from a command-line flag. The figures in the Sudoku and ablation tables are representative orders of magnitude for a straightforward Python implementation, not measurements from a specific benchmark run — students should be asked to reproduce their own numbers rather than cite these. Recommended datasets: the 49,151 known 17-clue Sudoku puzzles (Royle), plus a small set of adversarial puzzles; for scheduling, a few hand-built exam-timetabling instances deliberately made infeasible so that students must diagnose and repair them. A useful assessment task is to require a minimal unsatisfiable core for one infeasible instance and an exact-restoration assertion harness in the submitted code.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

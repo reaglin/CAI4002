@@ -1,0 +1,1765 @@
+{
+  "ModuleFolderName": "Genetic_Algorithms_and",
+  "CourseName": "CAI4002 - Intro to AI",
+  "GeneratedDate": "2026-10-14T20:02:49.7913271-04:00",
+  "ModifiedDate": "2026-10-14T20:06:01.0682276-04:00",
+  "Outcomes": [],
+  "Topics": [
+    {
+      "Id": "482cf675-c525-4aaa-a5e5-7b13ecebc413",
+      "Title": "Foundations of Evolutionary Computation",
+      "Summary": "Introduces the biological inspiration behind evolutionary algorithms and how population-based search differs from classical and local search methods. Establishes core terminology such as individuals, populations, generations, and the generational cycle.",
+      "SortOrder": 0,
+      "CreatedDate": "2026-10-14T20:02:49.7913271-04:00",
+      "ModifiedDate": "2026-10-14T20:02:49.7913271-04:00",
+      "Elements": [
+        {
+          "Id": "dab78086-3939-4fd5-a725-70ac8a5945fa",
+          "TopicId": "482cf675-c525-4aaa-a5e5-7b13ecebc413",
+          "Title": "Biological Inspiration for Search",
+          "BodyText": "Evolutionary computation borrows its core mechanics from Darwinian natural selection, where better-adapted organisms reproduce more often and pass traits forward. Algorithms mimic this process to improve candidate solutions over time.",
+          "Notes": "The analogy is deliberately loose: the goal is effective search, not biological accuracy.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:03:09.6691621-04:00",
+          "ModifiedDate": "2026-10-14T20:03:09.6691621-04:00",
+          "Items": [
+            {
+              "Id": "79a130f4-1159-4e91-973e-9a4a0f87c411",
+              "Text": "Variation is introduced through recombination and random mutation of existing solutions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "5afb257a-ab4e-4727-a0b1-51eb46c8f51f",
+              "Text": "Selection pressure favours individuals that score well against a problem-specific fitness measure.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "50ccb63c-2542-4fc2-9c30-959e02be1fec",
+              "Text": "Inheritance allows useful building blocks of a solution to survive across generations.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "1a9ba1a5-7a15-4f98-aa79-bf922572972d",
+              "Text": "Survival of the fittest becomes a probabilistic bias rather than a strict rule, preserving diversity.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "04853b1d-72a7-4ada-9150-5a08fdce3e15",
+              "Text": "No gradient, derivative, or explicit model of the search space is required.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "2e0d51b5-b28d-4650-833c-6d52e6e92b21",
+          "TopicId": "482cf675-c525-4aaa-a5e5-7b13ecebc413",
+          "Title": "Core Terminology",
+          "BodyText": "Evolutionary algorithms use a consistent vocabulary that maps biological concepts onto computational objects. Understanding these terms is essential before examining operators.",
+          "Notes": "Genotype refers to the encoded representation; phenotype refers to the decoded solution evaluated in the problem domain.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:03:09.6691621-04:00",
+          "ModifiedDate": "2026-10-14T20:03:09.6691621-04:00",
+          "Items": [
+            {
+              "Id": "70179d3c-bead-4737-8bda-9f7ba4e7c7ba",
+              "Text": "An individual is a single candidate solution, usually stored as an encoded chromosome.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f0ca07df-8f45-4077-9201-efcf28c6ba70",
+              "Text": "A gene is one element of that chromosome, and an allele is the value a gene takes.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1518ef45-cdc9-451d-9c92-fc7a3068beaa",
+              "Text": "A population is the collection of individuals maintained and evolved simultaneously.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "bde07f84-a9f9-4213-bbb9-e38bc723488b",
+              "Text": "A generation is one complete cycle of evaluation, selection, variation, and replacement.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b102874f-f676-4e8a-b424-8d47a0a4f767",
+              "Text": "Fitness is the numeric score indicating how well an individual solves the target problem.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "f678065b-7c61-4548-b769-326cf38b64e6",
+          "TopicId": "482cf675-c525-4aaa-a5e5-7b13ecebc413",
+          "Title": "Population-Based Versus Single-Point Search",
+          "BodyText": "Classical and local search methods typically track one current solution, whereas evolutionary algorithms maintain many solutions at once. This distinction changes how the search space is explored.",
+          "Notes": "Hill climbing and simulated annealing are single-point methods; genetic algorithms are population-based.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:03:09.6691621-04:00",
+          "ModifiedDate": "2026-10-14T20:03:09.6691621-04:00",
+          "Items": [
+            {
+              "Id": "8c16744f-abad-4269-83ea-d3e90d7d22ba",
+              "Text": "A population samples multiple regions of the search space in parallel, reducing reliance on a single starting point.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "358a3d4d-aa07-46be-afef-d067b7d16c37",
+              "Text": "Information can be combined across individuals, something single-point methods cannot do.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8b43cbcc-9386-4905-bb61-899e666af947",
+              "Text": "Population diversity provides natural resistance to premature convergence on local optima.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "7635f6b4-7b97-4c7c-b33a-405a41ba7dd7",
+              "Text": "Single-point methods are often faster per iteration but more sensitive to initialisation.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "2613bb91-7966-4beb-b6f3-85ea57e99ac3",
+              "Text": "Evolutionary search trades extra computation for broader coverage and robustness.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "95ee71c8-2700-43a8-bc0e-4f48a2ed3e5f",
+          "TopicId": "482cf675-c525-4aaa-a5e5-7b13ecebc413",
+          "Title": "The Generational Cycle",
+          "BodyText": "Evolutionary algorithms repeat a fixed loop of steps until a stopping condition is met. Each pass through the loop produces a new generation of candidate solutions.",
+          "Notes": "The cycle is the skeleton into which specific encoding, selection, and variation choices are plugged.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:03:09.6691621-04:00",
+          "ModifiedDate": "2026-10-14T20:03:09.6691621-04:00",
+          "Items": [
+            {
+              "Id": "a662f452-36f7-4f01-bef6-83adf28b0c03",
+              "Text": "Initialise a population, usually by random sampling of the encoded representation.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "4cb9dc58-ce9d-401e-b5e1-7ba876d8aed4",
+              "Text": "Evaluate every individual using the fitness function.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "15e993ff-5efc-4784-b447-98479bd4be84",
+              "Text": "Select parents with a bias toward higher fitness.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "501dd5cf-fa5d-4af1-be80-782f81cba283",
+              "Text": "Apply crossover and mutation to create offspring.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "812dfea8-5634-467a-8e16-ac215b19f16d",
+              "Text": "Replace all or part of the population and repeat until termination.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "35ccff9f-ce43-4a1d-bac7-ebd78f043e9d",
+          "TopicId": "482cf675-c525-4aaa-a5e5-7b13ecebc413",
+          "Title": "Exploration, Exploitation, and Termination",
+          "BodyText": "Effective evolutionary search balances the discovery of new regions against the refinement of promising ones. Termination criteria decide when that search ends.",
+          "Notes": "Too much exploitation causes premature convergence; too much exploration turns the search into random sampling.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:03:09.6691621-04:00",
+          "ModifiedDate": "2026-10-14T20:03:09.6691621-04:00",
+          "Items": [
+            {
+              "Id": "00f109f3-6311-42a3-b7c2-fb765b7341b8",
+              "Text": "Mutation and population diversity drive exploration of unvisited regions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "cabee497-56ae-4fd3-aedf-2fa08ad70e15",
+              "Text": "Selection and crossover drive exploitation of already-promising solutions.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "921dc12f-65cb-4acb-a3cb-df082ef1c0be",
+              "Text": "Common stopping rules include a maximum generation count or a fitness threshold.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "4aefa31f-6e73-47a9-8f02-ff7a18f05c38",
+              "Text": "Stagnation detection halts the run when best fitness stops improving over many generations.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "83eb2223-64bd-4305-b947-e6ed9e97e9d6",
+              "Text": "The best individual ever seen is typically retained and returned as the final answer.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "135eed63-5556-453f-9f57-6ef7e5292539",
+          "TopicId": "482cf675-c525-4aaa-a5e5-7b13ecebc413",
+          "Title": "When Evolutionary Methods Are Appropriate",
+          "BodyText": "Evolutionary algorithms are general-purpose optimisers suited to problems that defeat analytical or exhaustive techniques. They are not universally superior to specialised methods.",
+          "Notes": "They are heuristics: good solutions are likely, but optimality is not guaranteed.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:03:09.6691621-04:00",
+          "ModifiedDate": "2026-10-14T20:03:09.6691621-04:00",
+          "Items": [
+            {
+              "Id": "901d6283-6194-4a8a-9431-f15281f1f0ba",
+              "Text": "They suit large, rugged, or discontinuous search spaces with many local optima.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "74a7c6b8-d7ea-4f47-8bb0-128eac2014a7",
+              "Text": "They handle black-box objectives where only an evaluation score is available.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3bb3dc98-a61f-4eaa-8a8a-b6a2095056e0",
+              "Text": "They cope well with combinatorial problems such as scheduling and layout design.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "50c19822-512b-46dc-ac97-6bf88218b453",
+              "Text": "They are a poor choice when a fast exact or convex optimisation algorithm already exists.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "50079883-422e-438a-8b32-5844b8953a81",
+              "Text": "Evaluation cost is often the dominant expense, since each generation scores many individuals.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "4e11865e-c942-4d4b-b207-0ab22ddbdd39",
+      "Title": "Problem Encoding and Representation",
+      "Summary": "Covers how candidate solutions are encoded as chromosomes using binary, integer, real-valued, permutation, and tree representations. Examines how representation choice shapes the search space and constrains the operators that can be applied.",
+      "SortOrder": 1,
+      "CreatedDate": "2026-10-14T20:02:49.7913271-04:00",
+      "ModifiedDate": "2026-10-14T20:02:49.7913271-04:00",
+      "Elements": [
+        {
+          "Id": "267fe12a-fbc5-4378-8852-26886f7650c5",
+          "TopicId": "4e11865e-c942-4d4b-b207-0ab22ddbdd39",
+          "Title": "The Role of Encoding in Genetic Algorithms",
+          "BodyText": "Encoding is the mapping between a real-world candidate solution (the phenotype) and the data structure a genetic algorithm manipulates (the genotype or chromosome). Every GA begins with this design decision because all operators act on the encoded form, not on the problem itself.",
+          "Notes": "Example: in a delivery-route problem, the phenotype is an actual route driven by a van; the genotype might be the ordered list [3, 1, 4, 2] of city indices.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:03:38.2844351-04:00",
+          "ModifiedDate": "2026-10-14T20:03:38.2844351-04:00",
+          "Items": [
+            {
+              "Id": "e27cc09d-11d7-4b3c-9634-5cdf0faae703",
+              "Text": "A chromosome is a structured string of genes, each gene holding an allele value drawn from a defined alphabet.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "757205b9-c16a-438f-8146-a3369defd2c3",
+              "Text": "Decoding converts a chromosome back into a candidate solution so that fitness can be evaluated.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4d42ec19-de92-4036-84c2-4eb586e67ed9",
+              "Text": "The encoding defines the search space: only solutions expressible in the chosen representation can ever be found.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "6b20ae9f-b90d-4ca7-b7aa-49e053382b7b",
+              "Text": "A good encoding keeps related information close together so that crossover can inherit meaningful building blocks.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "fbc4f8e2-6cc6-46ec-9a97-c435e2d68304",
+              "Text": "Poor encodings create redundancy, where many distinct chromosomes decode to the same solution, wasting search effort.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "0fef482b-bace-4eb2-adc2-aaa6e9560b9b",
+          "TopicId": "4e11865e-c942-4d4b-b207-0ab22ddbdd39",
+          "Title": "Binary Representation",
+          "BodyText": "Binary encoding represents each chromosome as a fixed-length string of 0s and 1s and is the classical representation used in early genetic algorithm work. It is simple, general, and supports the standard bit-flip mutation and single-point crossover operators.",
+          "Notes": "Example: a 0/1 knapsack chromosome 1011001 means items 1, 3, 4 and 7 are selected.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:03:38.2844351-04:00",
+          "ModifiedDate": "2026-10-14T20:03:38.2844351-04:00",
+          "Items": [
+            {
+              "Id": "b4905fbb-67f3-4c30-821c-79e7f2e77078",
+              "Text": "Boolean decision problems map naturally onto binary strings, with each bit indicating include or exclude.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "7f4cdd53-a4c3-446c-95ed-da07fd0861fc",
+              "Text": "Continuous parameters can be discretised by allocating a block of bits per variable and scaling the decoded integer into a defined range.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4bfece81-f048-4ee2-b21c-1f01453c659b",
+              "Text": "Precision is limited by the number of bits allocated, so there is a trade-off between accuracy and chromosome length.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "935a6066-ecc5-47d2-9e0b-f41d4f91945f",
+              "Text": "Standard binary coding suffers from Hamming cliffs, where adjacent numeric values differ in many bits (for example 0111 to 1000).",
+              "SortOrder": 3
+            },
+            {
+              "Id": "f0a69616-5d6c-475c-ae54-cff71ad0b07b",
+              "Text": "Gray coding reduces this effect by ensuring consecutive integers differ by exactly one bit.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "da4ca0ab-e1f7-461e-955c-b131adddea02",
+          "TopicId": "4e11865e-c942-4d4b-b207-0ab22ddbdd39",
+          "Title": "Integer and Real-Valued Representations",
+          "BodyText": "Many problems are expressed more naturally using integer or floating-point genes rather than bit strings. These representations remove the decoding step and let operators work directly in the problem\u0027s own units.",
+          "Notes": "Real-valued encodings dominate in engineering design optimisation, where parameters such as thickness, angle, or flow rate are genuinely continuous.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:03:38.2844351-04:00",
+          "ModifiedDate": "2026-10-14T20:03:38.2844351-04:00",
+          "Items": [
+            {
+              "Id": "6fdf1f99-613e-4dd6-b1e1-6d958d7c2d5f",
+              "Text": "Integer encoding suits problems with discrete choices from a finite set, such as assigning machines, colours, or resource levels.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "35da4395-0770-4049-9119-137ea8c25c81",
+              "Text": "Real-valued encoding stores each design parameter as a floating-point number, preserving full precision without bit-level discretisation.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2edb2932-7083-4b28-9de6-851158652a80",
+              "Text": "Real-valued genomes require specialised operators such as arithmetic or blend crossover and Gaussian mutation.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b49832ce-6bea-4b8f-8ca9-5a717f29159a",
+              "Text": "Mutation step size becomes a tunable parameter that controls how locally or globally the search explores.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "3d25ff14-f299-4e6f-a276-b7b0afd0bafb",
+              "Text": "Box constraints (lower and upper bounds) must be enforced after each operator through clipping, reflection, or repair.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "0e2b0f75-9804-40d4-9040-bc48e43f6c9d",
+          "TopicId": "4e11865e-c942-4d4b-b207-0ab22ddbdd39",
+          "Title": "Permutation Representation",
+          "BodyText": "Permutation encoding represents a solution as an ordering of a fixed set of elements and is used where sequence or assignment order determines quality. The travelling salesman problem and job-shop scheduling are the canonical examples.",
+          "Notes": "Example: the chromosome [D, A, C, B, E] encodes the visiting order of five cities; every city must appear exactly once.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:03:38.2844351-04:00",
+          "ModifiedDate": "2026-10-14T20:03:38.2844351-04:00",
+          "Items": [
+            {
+              "Id": "c7e5a202-d357-4f4d-ab28-bfeb2698e534",
+              "Text": "Each element appears exactly once, so the chromosome must remain a valid permutation after every operator.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f724e7fa-8662-42af-a247-4cfa9eda0e6f",
+              "Text": "Standard one-point crossover breaks this validity by producing duplicates and omissions.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "bce041b7-4f8d-48f6-9dc1-4e0f71bcabb8",
+              "Text": "Specialised operators such as order crossover (OX), partially mapped crossover (PMX), and cycle crossover preserve permutation feasibility.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "27325005-2db6-4323-b698-71532e7d534e",
+              "Text": "Mutation is implemented as swap, insertion, inversion, or scramble of positions rather than independent gene changes.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a771b430-6530-4e0e-ad7f-b7d30527ee5f",
+              "Text": "Some problems care about relative order and others about absolute position, and the operator should match that interpretation.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "c89c12ce-8a82-425d-8d27-5feb3a2a088d",
+          "TopicId": "4e11865e-c942-4d4b-b207-0ab22ddbdd39",
+          "Title": "Tree and Variable-Length Representations",
+          "BodyText": "Tree encoding represents solutions as hierarchical structures of functions and terminals, forming the basis of genetic programming. Chromosome size and shape vary across the population rather than being fixed.",
+          "Notes": "Example: the expression tree (\u002B (* x 3) y) encodes the formula 3x \u002B y and can be evaluated directly against training data.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:03:38.2844351-04:00",
+          "ModifiedDate": "2026-10-14T20:03:38.2844351-04:00",
+          "Items": [
+            {
+              "Id": "787305cb-9630-44aa-8913-781de97069bd",
+              "Text": "Internal nodes hold operators or functions, while leaf nodes hold variables and constants.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "98632f8f-8b90-46aa-b77c-420b4556a021",
+              "Text": "Crossover exchanges randomly chosen subtrees between parents, and mutation replaces a subtree with a newly generated one.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "6d2842d0-afa6-4ee6-9d3b-63b2a52a90b2",
+              "Text": "Tree encodings evolve programs, symbolic expressions, and decision rules rather than fixed parameter vectors.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b75ce664-2181-4205-bf35-b7414d91a3c7",
+              "Text": "Uncontrolled growth, known as bloat, inflates trees without improving fitness and is countered by depth limits or parsimony pressure.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "88d65988-8c05-40e2-97ad-a4f0360c5c74",
+              "Text": "Closure and sufficiency requirements ensure every function can accept any subtree result and that the primitive set can express a solution.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "139ed207-5964-4661-8d7b-f8304b4248c3",
+          "TopicId": "4e11865e-c942-4d4b-b207-0ab22ddbdd39",
+          "Title": "Representation, Constraints, and Operator Choice",
+          "BodyText": "The representation chosen determines which operators are legal, how constraints are handled, and how smoothly fitness varies across neighbouring chromosomes. Matching representation to problem structure is often more decisive than tuning GA parameters.",
+          "Notes": "A useful design test: can a small change to the chromosome produce a small change in the decoded solution? If not, the search landscape will be rugged and hard to traverse.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:03:38.2844351-04:00",
+          "ModifiedDate": "2026-10-14T20:03:38.2844351-04:00",
+          "Items": [
+            {
+              "Id": "bf7aa54f-ceee-48a5-b4b4-d7c88b65a919",
+              "Text": "Operators must be closed under the representation, always producing chromosomes that decode to valid solutions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "7b778bb0-2b9c-4e93-90e0-69c5a0f9e637",
+              "Text": "Infeasible offspring can be handled by penalty functions, repair procedures, or encodings that make infeasibility impossible.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "fe6d8077-6ca2-41d6-8270-d27f7bde2c10",
+              "Text": "Locality means small genotype changes cause small phenotype changes, which helps mutation refine solutions incrementally.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e290f55b-df60-4e60-ada5-6f43f6a3bb65",
+              "Text": "Direct encodings map genes straight to solution components, while indirect encodings store instructions interpreted by a decoder or heuristic.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "5f8c44cf-ebd5-41c8-b893-9f2381a35501",
+              "Text": "Hybrid or mixed chromosomes combine segments of different types, such as binary switches alongside real-valued parameters.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "7ac99227-c4ea-41ff-ab0e-6502af72a429",
+      "Title": "Fitness Functions and Evaluation",
+      "Summary": "Explains how to design fitness functions that accurately measure solution quality and guide selective pressure. Addresses constraint handling through penalties and repair, along with multi-objective and noisy fitness considerations.",
+      "SortOrder": 2,
+      "CreatedDate": "2026-10-14T20:02:49.7913271-04:00",
+      "ModifiedDate": "2026-10-14T20:02:49.7913271-04:00",
+      "Elements": [
+        {
+          "Id": "78941ef5-849c-4f41-81fb-faeee1c0eabf",
+          "TopicId": "7ac99227-c4ea-41ff-ab0e-6502af72a429",
+          "Title": "The Role of the Fitness Function",
+          "BodyText": "The fitness function is the only link between a genetic algorithm and the problem it is solving, translating a candidate solution into a numeric measure of quality. It defines what the search considers \u0027better\u0027 and therefore determines the direction of evolution.",
+          "Notes": "A GA optimises whatever the fitness function rewards \u2014 not what the designer intended. Mis-specified fitness functions are a common cause of surprising or degenerate solutions.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:04:10.0888547-04:00",
+          "ModifiedDate": "2026-10-14T20:04:10.0888547-04:00",
+          "Items": [
+            {
+              "Id": "d7c57a98-7a18-489b-a25c-b66b88126965",
+              "Text": "Fitness is computed by decoding the chromosome into a phenotype and scoring it against problem objectives.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "068482cd-e6ff-43d4-933e-6ba4fe3262af",
+              "Text": "The function must be defined for every individual the operators can produce, including unusual or boundary cases.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "bb7486a0-befd-48fc-b55e-6da40603ab2c",
+              "Text": "Fitness is evaluated far more often than any other operation, so efficiency directly affects total run time.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "02772fab-ebaf-4c1c-bc51-c52bfeefe960",
+              "Text": "Caching, incremental evaluation, and surrogate models can reduce the cost of expensive evaluations.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "c4346c2c-0304-481e-bc0a-47e248b2e2a3",
+              "Text": "Scores should be relative and comparable across the population rather than absolute measures of correctness.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "1f84afde-ba8a-4211-91cb-3f6a11023521",
+          "TopicId": "7ac99227-c4ea-41ff-ab0e-6502af72a429",
+          "Title": "Designing a Discriminating Fitness Landscape",
+          "BodyText": "A good fitness function provides a graded signal that distinguishes partially good solutions from poor ones, rather than a flat or binary score. Smooth gradation lets selection accumulate useful building blocks incrementally.",
+          "Notes": "Example: for a timetabling problem, counting the number of satisfied constraints gives far more guidance than a simple feasible/infeasible flag.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:04:10.0888547-04:00",
+          "ModifiedDate": "2026-10-14T20:04:10.0888547-04:00",
+          "Items": [
+            {
+              "Id": "24c9c4ea-8e7d-447a-9690-da638e26fd49",
+              "Text": "Avoid all-or-nothing fitness, which gives the GA no gradient to climb.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "14406e2b-f6c6-4894-9cec-7b57abfa4db5",
+              "Text": "Reward partial progress so intermediate individuals can be selected and recombined.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "60e5a06e-38b4-4aee-b090-ff77bd0871e2",
+              "Text": "Watch for deceptive landscapes where locally improving moves lead away from the global optimum.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "4a4b661f-010b-48da-91ef-a0253c8264c4",
+              "Text": "Plateaus and large neutral regions slow convergence because selection cannot differentiate individuals.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "4601c3e5-d80c-4b12-b837-fee1fb1e48f0",
+              "Text": "Test the function by hand-scoring a few known good and bad solutions before running the full algorithm.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "5eced74b-37cd-40ac-8d35-e77b46b8178e",
+          "TopicId": "7ac99227-c4ea-41ff-ab0e-6502af72a429",
+          "Title": "Fitness Scaling and Selective Pressure",
+          "BodyText": "Raw objective values often need transformation so that selection pressure stays appropriate throughout the run. Scaling controls how strongly better individuals are favoured over weaker ones.",
+          "Notes": "Too much pressure causes premature convergence; too little causes the search to drift randomly.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:04:10.0888547-04:00",
+          "ModifiedDate": "2026-10-14T20:04:10.0888547-04:00",
+          "Items": [
+            {
+              "Id": "253e35c5-ec6e-4580-ae48-dba699c023f7",
+              "Text": "Early generations may contain a few super-individuals that dominate reproduction and destroy diversity.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "821cace5-4fdd-42ff-a4fc-ffdc3b08a14e",
+              "Text": "Late generations often have similar fitness values, which weakens discrimination between individuals.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "b0b6e402-e6ac-4c27-be95-5eb77a56a3ae",
+              "Text": "Linear scaling maps raw fitness to a target range with a controlled best-to-average ratio.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "3bc25d2c-ea5e-4368-a35b-d51fa8e7e80c",
+              "Text": "Rank-based fitness replaces raw values with position in the sorted population, bounding pressure automatically.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "2160f60e-5037-40ae-9420-a4262e497aa4",
+              "Text": "Sigma truncation and power-law scaling are alternatives for handling outliers and compressed ranges.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "a2ce6914-0bf9-4dda-9e89-6df1cc94c974",
+              "Text": "Minimisation problems must be converted to maximisation, for example by negation or subtraction from a constant.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "0d41cb3d-e1cd-498f-ab21-09e5d57b151d",
+          "TopicId": "7ac99227-c4ea-41ff-ab0e-6502af72a429",
+          "Title": "Constraint Handling: Penalties and Repair",
+          "BodyText": "Many real problems include constraints that random genetic operators will routinely violate. The fitness evaluation must decide how to treat infeasible individuals so the search is guided toward the feasible region.",
+          "Notes": "Hybrid approaches are common: penalise soft constraints while repairing or preventing violations of hard constraints.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:04:10.0888547-04:00",
+          "ModifiedDate": "2026-10-14T20:04:10.0888547-04:00",
+          "Items": [
+            {
+              "Id": "2151369c-db32-428a-a87f-954180cac434",
+              "Text": "Penalty functions subtract a cost proportional to the degree and number of constraint violations.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d32c234d-c73f-4824-be71-df9bf9e987e8",
+              "Text": "Static penalties use fixed weights, while adaptive or dynamic penalties increase pressure as the run progresses.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "14db3543-1721-4585-9a03-f63a2fae6484",
+              "Text": "Penalties that are too harsh discard useful genetic material near constraint boundaries; too mild and infeasible solutions dominate.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "7d9ffe82-b8b0-4f67-923f-78a20ef74685",
+              "Text": "Repair operators transform an infeasible chromosome into a valid one before or after evaluation.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "e4cf298a-bb3b-4f93-a979-8b6a3724e208",
+              "Text": "Decoder and specialised-encoding approaches make infeasible solutions impossible to represent in the first place.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "24b6bc4b-5ba2-48af-b0a3-94621dbfa109",
+              "Text": "Death penalty (assigning zero fitness) is simple but wastes evaluations when feasible regions are small.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "7cdfc014-61b7-47f0-873a-832e566c9616",
+          "TopicId": "7ac99227-c4ea-41ff-ab0e-6502af72a429",
+          "Title": "Multi-Objective Fitness Evaluation",
+          "BodyText": "Practical problems usually involve several competing criteria, such as cost versus quality or speed versus reliability. Multi-objective evaluation must express these trade-offs without collapsing them prematurely.",
+          "Notes": "Example: a scheduling GA may need to minimise makespan, minimise overtime, and balance workload simultaneously.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:04:10.0888547-04:00",
+          "ModifiedDate": "2026-10-14T20:04:10.0888547-04:00",
+          "Items": [
+            {
+              "Id": "6dd3692c-7c8d-4b2f-81b1-24882914cfd6",
+              "Text": "Weighted-sum aggregation combines objectives into a single score but requires meaningful weights and comparable scales.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "7ee62ba7-04fa-474d-8a1e-f11b85286907",
+              "Text": "Normalising each objective prevents large-magnitude criteria from dominating the aggregate score.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c951af0e-ba7a-458c-939a-d020cb3dbf6f",
+              "Text": "Pareto-based approaches rank individuals by dominance, preserving the full trade-off surface.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e991726d-6b08-45c1-883f-dd0128142945",
+              "Text": "Algorithms such as NSGA-II add crowding or niching measures to spread solutions along the Pareto front.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "d8be1313-72dd-458a-8968-85288e2f677d",
+              "Text": "Lexicographic ordering optimises objectives in strict priority sequence when preferences are clearly ranked.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "b1d54be2-0207-4ed8-ae75-7e01d4b267a9",
+              "Text": "The output of a Pareto approach is a set of non-dominated solutions for a human to choose from.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "835d3faa-9fc1-4e73-bf1f-75d8a683a005",
+          "TopicId": "7ac99227-c4ea-41ff-ab0e-6502af72a429",
+          "Title": "Noisy and Uncertain Fitness",
+          "BodyText": "When evaluation involves simulation, sampling, or real-world measurement, the same chromosome may produce different fitness values on repeated evaluation. Noise can mislead selection into favouring lucky individuals.",
+          "Notes": "There is a trade-off between spending evaluations on accuracy per individual and on exploring more individuals.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:04:10.0888547-04:00",
+          "ModifiedDate": "2026-10-14T20:04:10.0888547-04:00",
+          "Items": [
+            {
+              "Id": "49c86f0e-735e-4a6a-a74b-72ec6e551581",
+              "Text": "Averaging multiple samples per individual reduces variance at the cost of more evaluations.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "2fec41e8-5b8a-4735-9b09-bd85920afb3b",
+              "Text": "Adaptive sampling allocates more evaluations only to promising or closely competing individuals.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9a38c191-70ae-47da-a432-bec3ec793b76",
+              "Text": "Larger populations provide implicit averaging and improve robustness to evaluation noise.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "21711269-4ca8-4c1a-bf90-b045eb6c8cc3",
+              "Text": "Re-evaluating elite individuals each generation prevents noisy overestimates from persisting indefinitely.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "df7c5fd6-c3ed-49a8-9a89-6665b8428569",
+              "Text": "For robust design, deliberately evaluating under perturbed conditions favours solutions insensitive to variation.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "7b0b3fb0-29cf-4dcf-8db7-d6d06d4a740b",
+          "TopicId": "7ac99227-c4ea-41ff-ab0e-6502af72a429",
+          "Title": "Validating and Tuning the Fitness Function",
+          "BodyText": "Fitness design is iterative: initial runs frequently reveal that the algorithm is exploiting loopholes or stalling on uninformative scores. Systematic validation prevents wasted computation.",
+          "Notes": "Keep a log of fitness-function versions alongside results so improvements can be attributed correctly.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T20:04:10.0888547-04:00",
+          "ModifiedDate": "2026-10-14T20:04:10.0888547-04:00",
+          "Items": [
+            {
+              "Id": "86a75029-1955-4684-a94a-c7b85e31f3a9",
+              "Text": "Inspect the best individuals from early runs to check they represent genuinely good solutions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c38fa1a8-09ec-4e51-8765-c7398abe86ad",
+              "Text": "Plot best, average, and worst fitness per generation to diagnose convergence and pressure problems.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a61535c3-f86e-48fa-b531-835c600e6187",
+              "Text": "Compare GA results against random search and a simple heuristic as sanity baselines.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "ea7ce4f2-d237-415b-b729-35479ab122c7",
+              "Text": "Separate reported objective value from internal fitness so penalties do not distort reported results.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "20b54d9b-b27b-4bb4-8437-1774d5c8d040",
+              "Text": "Revise weights, penalties, and scaling only one change at a time to understand their effects.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "107d74da-cc88-45f1-9c69-f584be097f44",
+      "Title": "Selection Strategies",
+      "Summary": "Surveys selection mechanisms including roulette wheel, rank-based, tournament, and elitism, and how each controls selective pressure. Discusses the balance between exploration and exploitation and the risks of premature convergence.",
+      "SortOrder": 3,
+      "CreatedDate": "2026-10-14T20:02:49.7913271-04:00",
+      "ModifiedDate": "2026-10-14T20:02:49.7913271-04:00",
+      "Elements": [
+        {
+          "Id": "6e0e164c-709f-447b-831b-a65eb432d4c6",
+          "TopicId": "107d74da-cc88-45f1-9c69-f584be097f44",
+          "Title": "The Role of Selection in Evolutionary Search",
+          "BodyText": "Selection is the operator that decides which individuals in the current population contribute genetic material to the next generation. It is the primary mechanism through which fitness information steers the search.",
+          "Notes": "Selection does not create new solutions; crossover and mutation do that. Selection only biases which existing solutions are reproduced.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:04:36.9642707-04:00",
+          "ModifiedDate": "2026-10-14T20:04:36.9642707-04:00",
+          "Items": [
+            {
+              "Id": "9cb2dfc9-969a-4c49-a0c4-f086160924dd",
+              "Text": "Selection applies a bias toward higher-fitness individuals without eliminating diversity outright.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "1b52543c-0505-42c1-ae09-ddad3293f342",
+              "Text": "The strength of that bias is called selective pressure.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "b2cb92e0-0771-4cae-82e3-0b08ccb0ba63",
+              "Text": "High selective pressure speeds convergence but narrows the search; low pressure keeps the search broad but slow.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c705c1a9-7bcb-4adf-b915-c729ff04424d",
+              "Text": "Selection is usually applied with replacement, so a strong individual may be chosen several times.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "88d9d739-3709-4be3-b501-1ee68d4b606b",
+              "Text": "Choice of selection scheme often affects GA performance more than crossover or mutation settings.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "20c82a0b-a695-4860-836a-cf32427933fb",
+          "TopicId": "107d74da-cc88-45f1-9c69-f584be097f44",
+          "Title": "Roulette Wheel (Fitness-Proportionate) Selection",
+          "BodyText": "Roulette wheel selection assigns each individual a probability of being chosen that is proportional to its fitness relative to the population total. It is the classical selection method described in early GA literature.",
+          "Notes": "Implemented by computing cumulative fitness sums and drawing a uniform random number scaled to the total fitness.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:04:36.9642707-04:00",
+          "ModifiedDate": "2026-10-14T20:04:36.9642707-04:00",
+          "Items": [
+            {
+              "Id": "ce152c81-7fbf-4c0d-92e9-7f6186b637da",
+              "Text": "Each individual occupies a slice of a notional wheel sized by its share of total fitness.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d011ef4a-03e2-4f8c-8dbd-1cc188d8e82e",
+              "Text": "Selection probability equals individual fitness divided by the sum of all fitnesses.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "b36795e6-291d-41b7-bdaf-c3c122b1072d",
+              "Text": "It requires positive fitness values, so minimisation problems must be transformed first.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a09601a7-923a-4b00-88b6-2fe97927fd3b",
+              "Text": "A single \u0027super-individual\u0027 with very high fitness can dominate the wheel and cause rapid loss of diversity.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "2846001d-e557-4dcb-ab3c-e74346804f87",
+              "Text": "When fitness values become similar late in a run, the method degenerates toward random selection.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "d8034302-71b6-434a-b0c4-f0159a1d23a4",
+              "Text": "Fitness scaling (linear, sigma, or power scaling) is often applied to control these extremes.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "908e1245-f746-4562-9c9d-23677acb42eb",
+          "TopicId": "107d74da-cc88-45f1-9c69-f584be097f44",
+          "Title": "Rank-Based Selection",
+          "BodyText": "Rank-based selection sorts the population by fitness and allocates selection probability according to rank position rather than raw fitness value. This decouples selective pressure from the scale of the fitness function.",
+          "Notes": "Linear ranking is commonly parameterised by a pressure constant that sets the expected number of offspring for the best individual, typically between 1.1 and 2.0.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:04:36.9642707-04:00",
+          "ModifiedDate": "2026-10-14T20:04:36.9642707-04:00",
+          "Items": [
+            {
+              "Id": "04c898c9-a9d5-4589-88e0-da82132d903a",
+              "Text": "Only the ordering of individuals matters, so outlier fitness values cannot dominate.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "dd6ecd12-2457-4c12-bb8c-f64ab8137675",
+              "Text": "It maintains steady selective pressure even when fitness values converge.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "bd1cd2d9-3f7f-4115-900a-ed8411f75aa7",
+              "Text": "Linear ranking assigns probabilities on a straight line from worst to best rank.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "18a6c231-271e-4e8a-b949-69ae754b8b18",
+              "Text": "Exponential ranking gives steeper pressure toward top-ranked individuals.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "03e32a5a-b020-4684-a484-7f992a340645",
+              "Text": "The cost is a sorting step each generation and the loss of information about fitness gaps.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "e57af960-4daf-41d0-89e8-6684b30cfa09",
+          "TopicId": "107d74da-cc88-45f1-9c69-f584be097f44",
+          "Title": "Tournament Selection",
+          "BodyText": "Tournament selection repeatedly draws a small random subset of individuals and selects the fittest member of that subset. It is simple, efficient, and the most widely used scheme in practical GA implementations.",
+          "Notes": "Binary tournaments (k=2) are a common default; probabilistic tournaments select the winner with probability p \u003C 1 to soften pressure.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:04:36.9642707-04:00",
+          "ModifiedDate": "2026-10-14T20:04:36.9642707-04:00",
+          "Items": [
+            {
+              "Id": "2a52441e-8e2c-4c1e-b636-6c5d1d67fce9",
+              "Text": "Tournament size k directly controls selective pressure: larger k means stronger pressure.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "738f0f16-b038-4f35-a477-04aaba05851c",
+              "Text": "It requires no global sorting or summing, so it parallelises easily across distributed populations.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "935d0086-0c11-4923-a59a-a8231138e162",
+              "Text": "It works with any comparable fitness measure, including negative values and rank orderings.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "41cbf4ac-e35b-4e5e-a458-89d3b3007528",
+              "Text": "Individuals below the top (k-1) fraction may never be selected at all.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6fcc56a0-0b65-4e00-a7a7-ba7efecb8cc7",
+              "Text": "Varying k during a run allows a planned shift from exploration to exploitation.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "78717058-0f4b-41d1-b971-485a15625ed4",
+          "TopicId": "107d74da-cc88-45f1-9c69-f584be097f44",
+          "Title": "Elitism and Survivor Selection",
+          "BodyText": "Elitism copies a small number of the best individuals unchanged into the next generation, guaranteeing that the best-so-far solution is never lost to crossover or mutation. Survivor selection more generally decides which individuals persist across generations.",
+          "Notes": "Typical elite sizes are one to a few individuals, or roughly 1\u20135% of the population.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:04:36.9642707-04:00",
+          "ModifiedDate": "2026-10-14T20:04:36.9642707-04:00",
+          "Items": [
+            {
+              "Id": "59e91b18-c94e-4953-847e-2aba535c5537",
+              "Text": "Without elitism, a GA\u0027s best fitness can decrease from one generation to the next.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f032cd74-2fbd-4bdb-8c50-bb0a8b063644",
+              "Text": "Elitism makes monotonic improvement of the best solution guaranteed.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "78a2bfa7-9dbf-43fe-92ee-9ff268ad6c35",
+              "Text": "Excessive elitism floods the population with copies of a few genotypes and triggers premature convergence.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "47d6d8c6-9b1a-4df3-a566-6eec6f708d0a",
+              "Text": "Generational replacement swaps the whole population; steady-state replacement swaps only a few individuals per cycle.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "1b0d99d3-c7f5-4217-ab79-45d749b424d3",
+              "Text": "Replacement strategies such as replace-worst, replace-oldest, or crowding trade off pressure against diversity.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "bedb8c8b-4cdc-4710-a729-cc7e91881a45",
+          "TopicId": "107d74da-cc88-45f1-9c69-f584be097f44",
+          "Title": "Balancing Exploration and Exploitation",
+          "BodyText": "Effective selection balances exploring new regions of the search space against exploiting promising regions already found. Selection pressure is the main dial for this trade-off.",
+          "Notes": "A useful diagnostic is to track population diversity (e.g. average pairwise genotype distance or fitness variance) alongside best fitness.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:04:36.9642707-04:00",
+          "ModifiedDate": "2026-10-14T20:04:36.9642707-04:00",
+          "Items": [
+            {
+              "Id": "a82f5fbd-88a8-4da8-90d8-8301381891e4",
+              "Text": "Too much exploitation collapses the population onto one region and stalls progress.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "334d767b-0792-4733-90c7-5b53cfe05747",
+              "Text": "Too much exploration makes the GA behave like random search and wastes evaluations.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "bf8484e9-5c65-42c7-ab5c-a036d16ea849",
+              "Text": "Many designs start with low pressure for broad coverage and increase it as the run proceeds.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c973393d-920c-4e2b-9499-a9ea1eba0b75",
+              "Text": "Diversity-preserving techniques such as fitness sharing, crowding, and niching counteract excessive pressure.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "57be69b6-ea1b-4993-828a-caeea119610e",
+              "Text": "Island or multi-population models apply selection locally and exchange migrants to retain global diversity.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "41d941c2-6c65-4872-a270-a7b82c06a6f7",
+          "TopicId": "107d74da-cc88-45f1-9c69-f584be097f44",
+          "Title": "Premature Convergence and Its Remedies",
+          "BodyText": "Premature convergence occurs when the population loses diversity and settles on a local optimum long before the search budget is exhausted. Recognising and countering it is a core practical skill in GA design.",
+          "Notes": "Symptoms include a flat best-fitness curve combined with near-zero fitness variance across the population.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T20:04:36.9642707-04:00",
+          "ModifiedDate": "2026-10-14T20:04:36.9642707-04:00",
+          "Items": [
+            {
+              "Id": "e70edca5-4d0a-4f9f-9e24-fc33647624bc",
+              "Text": "Dominant \u0027super-individuals\u0027 under proportionate selection are a frequent cause.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b4718fbc-5e58-4c83-b8c4-24eb6b11d01f",
+              "Text": "Small populations and overly aggressive elitism accelerate the problem.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "46cc00ff-dad0-4a9a-b4b6-5d0c5b8cbdf4",
+              "Text": "Fitness scaling or a switch to rank or tournament selection reduces the dominance effect.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "de1334c1-35f0-4699-a5a6-d7c2d0004ce8",
+              "Text": "Raising mutation rates, restarting, or injecting random immigrants reintroduces lost alleles.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "66df991d-3a1b-4d07-a65c-b374888ea7de",
+              "Text": "Fitness sharing penalises individuals crowded into the same niche, spreading the population out.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "2a01a01a-b890-4998-9be9-22fdb7cab66b",
+              "Text": "Monitoring diversity metrics each generation allows corrective action before the search stagnates.",
+              "SortOrder": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "7c9be3d0-bdfe-4a97-898f-2205089eba3d",
+      "Title": "Crossover and Mutation Operators",
+      "Summary": "Details recombination operators such as single-point, multi-point, uniform, and order-based crossover, together with mutation schemes for different encodings. Explores the roles of these operators in combining building blocks and maintaining diversity.",
+      "SortOrder": 4,
+      "CreatedDate": "2026-10-14T20:02:49.7913271-04:00",
+      "ModifiedDate": "2026-10-14T20:02:49.7913271-04:00",
+      "Elements": [
+        {
+          "Id": "47a12089-25a0-4392-8271-7b6859e96d52",
+          "TopicId": "7c9be3d0-bdfe-4a97-898f-2205089eba3d",
+          "Title": "The Role of Crossover in Evolutionary Search",
+          "BodyText": "Crossover (recombination) combines genetic material from two or more parents to create offspring that inherit features from each. It is the primary exploitative operator in a genetic algorithm, assembling promising partial solutions discovered by different individuals.",
+          "Notes": "The building block hypothesis holds that GAs work by combining short, low-order, high-fitness schemata (building blocks) into increasingly fit complete solutions.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:05:04.2368054-04:00",
+          "ModifiedDate": "2026-10-14T20:05:04.2368054-04:00",
+          "Items": [
+            {
+              "Id": "8a92dd77-0fd2-4430-bfe2-85cdf0ca130e",
+              "Text": "Crossover is applied to selected parents with a probability typically between 0.6 and 0.95.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "82f6c1e5-d20b-4b5b-9c2d-e626051ba55e",
+              "Text": "Offspring inherit a mixture of allele values, allowing good sub-solutions to be merged.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3a054c8c-892b-4769-8e8b-ccb8927a61d1",
+              "Text": "Recombination explores the region of the search space bounded by the parents rather than making purely random jumps.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "707b9c07-d2cd-49b8-a34f-08c7c8e11d31",
+              "Text": "If crossover disrupts building blocks too often, search degenerates toward random restart behaviour.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "0cd6ee8e-323c-4c2c-b6c8-773f24daa341",
+              "Text": "Linkage between interacting genes influences whether a given crossover operator preserves or destroys useful structure.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "f21319ad-12ad-444b-b591-43abbfe7b5ca",
+          "TopicId": "7c9be3d0-bdfe-4a97-898f-2205089eba3d",
+          "Title": "Single-Point and Multi-Point Crossover",
+          "BodyText": "Point-based crossover operators cut two parent chromosomes at one or more randomly chosen loci and exchange the resulting segments. They are the classical operators for fixed-length binary or integer strings.",
+          "Notes": "Example: parents 1 1 0 1 | 0 1 and 0 0 1 0 | 1 1 with a cut after position four produce children 1 1 0 1 1 1 and 0 0 1 0 0 1.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:05:04.2368054-04:00",
+          "ModifiedDate": "2026-10-14T20:05:04.2368054-04:00",
+          "Items": [
+            {
+              "Id": "cf9de4e1-9cd4-4c87-90ff-65c7ad3dfe16",
+              "Text": "Single-point crossover selects one cut position and swaps the tails of the two parents.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "2550b85b-bea3-4a66-9b5b-1045a949aa6b",
+              "Text": "Two-point crossover exchanges the middle segment between two cut points and treats the chromosome as a ring, reducing endpoint bias.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "590d3003-a8dc-4123-bc1b-376b33117ef3",
+              "Text": "Multi-point (k-point) crossover uses k cuts and alternates segments, increasing the mixing rate.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "94a0321c-8174-4cd1-9371-6cd95ae8cbd9",
+              "Text": "Point-based operators exhibit positional bias: genes close together on the string are inherited together more often.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "55c1d550-f39c-41ba-8642-869e6c20bf1d",
+              "Text": "They preserve contiguous building blocks well, which suits encodings where adjacent genes are functionally related.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "939a34a9-bd08-4419-9bd0-6ad67d218aeb",
+          "TopicId": "7c9be3d0-bdfe-4a97-898f-2205089eba3d",
+          "Title": "Uniform and Arithmetic Crossover",
+          "BodyText": "Uniform crossover decides the parent source of each gene independently, while arithmetic crossover blends real-valued genes numerically. Both reduce the positional bias inherent in point-based operators.",
+          "Notes": "Blend crossover (BLX-alpha) and simulated binary crossover (SBX) are widely used arithmetic variants for continuous optimization.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:05:04.2368054-04:00",
+          "ModifiedDate": "2026-10-14T20:05:04.2368054-04:00",
+          "Items": [
+            {
+              "Id": "b0b4de6f-d72c-4236-b24e-756efa5e1650",
+              "Text": "Uniform crossover uses a random binary mask, taking each gene from parent A or parent B with a set probability, usually 0.5.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "3801e4c6-1984-46d5-9df2-5156a31ab781",
+              "Text": "It gives a high mixing rate and no positional bias, but can disrupt long building blocks.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "e3e39494-8a29-4b18-afda-d4d08bca6ebb",
+              "Text": "Arithmetic (whole or single) crossover produces children as weighted averages such as c = alpha*p1 \u002B (1-alpha)*p2.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "db22c6fb-b319-4607-9604-16a02ca81e0b",
+              "Text": "Blend operators can sample slightly outside the parental interval to avoid premature convergence of real-valued genes.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "89bb282b-965a-4efd-bb35-167c6b6f480c",
+              "Text": "Choice between uniform and point-based crossover should reflect how strongly genes interact in the chosen encoding.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "467435db-b906-4082-b0cf-c71a8fc33276",
+          "TopicId": "7c9be3d0-bdfe-4a97-898f-2205089eba3d",
+          "Title": "Order-Based Crossover for Permutation Encodings",
+          "BodyText": "Permutation problems such as scheduling and the travelling salesperson problem require operators that produce valid orderings with no duplicated or missing elements. Specialised order-based crossovers achieve this.",
+          "Notes": "Order and cycle operators preserve relative sequence information, while edge recombination preserves adjacency, which matters for routing problems.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:05:04.2368054-04:00",
+          "ModifiedDate": "2026-10-14T20:05:04.2368054-04:00",
+          "Items": [
+            {
+              "Id": "62db60fc-f50b-4451-82ad-f8776d927696",
+              "Text": "Order crossover (OX) copies a segment from one parent and fills remaining positions in the order they appear in the other parent.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b6da2eb3-dd88-40ab-a7a3-32e8b7a6b3bf",
+              "Text": "Partially mapped crossover (PMX) swaps a segment and repairs duplicates using a position mapping between parents.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9ac19cda-ffe8-4de5-8773-38621781b3d1",
+              "Text": "Cycle crossover (CX) preserves the absolute position of each element by exchanging complete cycles of indices.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "434e2473-f9d9-4fc8-aaaf-3c80c7b5d592",
+              "Text": "Edge recombination builds offspring from an adjacency list, preserving neighbour relationships rather than positions.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "cc126bc2-3b9b-4c76-ae99-3ea12b48b11f",
+              "Text": "Naive point crossover on permutations produces illegal chromosomes that require costly repair.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "b6e3e09b-bc5d-4eeb-ad36-c67166f88b46",
+          "TopicId": "7c9be3d0-bdfe-4a97-898f-2205089eba3d",
+          "Title": "Mutation Schemes for Different Encodings",
+          "BodyText": "Mutation applies small random changes to individual chromosomes, introducing alleles that may be absent from the population. The specific scheme must match the representation used.",
+          "Notes": "A common heuristic sets the bit-flip mutation rate to 1/L, where L is the chromosome length, giving roughly one mutated gene per individual.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:05:04.2368054-04:00",
+          "ModifiedDate": "2026-10-14T20:05:04.2368054-04:00",
+          "Items": [
+            {
+              "Id": "04c4fd56-7dac-42b6-90d2-0582363c45d1",
+              "Text": "Binary encodings typically use bit-flip mutation applied independently to each gene with a low probability.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "495476df-c2ab-4fd8-a127-1953fdf2a674",
+              "Text": "Real-valued genes use Gaussian or Cauchy perturbation, sometimes with a self-adapted step size, plus boundary clamping.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "069884bf-6831-401a-ac70-056631af63a4",
+              "Text": "Integer encodings use random resetting or creep mutation that shifts a value by a small amount.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a0d8b71b-0ad6-4679-a7b2-0bd813178f66",
+              "Text": "Permutation encodings use swap, insert, scramble, or inversion mutation to retain validity.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "85551c60-9820-4c91-a68b-572636b01871",
+              "Text": "Tree and program representations mutate by replacing a randomly chosen subtree with a new random subtree.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "0a74cbef-bd12-4e4e-bd0c-8d13af512132",
+          "TopicId": "7c9be3d0-bdfe-4a97-898f-2205089eba3d",
+          "Title": "Balancing Exploration, Exploitation, and Diversity",
+          "BodyText": "Crossover and mutation play complementary roles: recombination exploits existing information while mutation supplies new information and prevents convergence to a single genotype. Operator rates control this balance.",
+          "Notes": "Adaptive schemes may raise mutation when population diversity falls below a threshold and lower it when the population is still exploring.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:05:04.2368054-04:00",
+          "ModifiedDate": "2026-10-14T20:05:04.2368054-04:00",
+          "Items": [
+            {
+              "Id": "4b2e7740-c5a2-447f-8069-878e6c41e600",
+              "Text": "High crossover rates with very low mutation risk premature convergence on a local optimum.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d9d39e98-336e-4efd-9d43-9d205c602497",
+              "Text": "Excessive mutation degrades the algorithm toward random search and destroys accumulated building blocks.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2917c4a4-7291-41a7-b63a-cc606aea4fd8",
+              "Text": "Diversity metrics such as average Hamming distance or fitness variance can trigger adaptive operator rates.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "8a37266b-5111-4412-aec0-d21ff57cf464",
+              "Text": "Elitism should accompany high mutation rates so that the best solutions found are never lost.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "9c82e559-cb36-48ae-8c29-365ba608a239",
+              "Text": "Operator performance is problem-dependent, so rates are usually tuned empirically on representative instances.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "584e0c4f-314f-43aa-b809-7513e9da074a",
+      "Title": "Algorithm Design, Tuning, and Convergence",
+      "Summary": "Brings the components together into a complete genetic algorithm loop with parameter choices for population size, crossover and mutation rates, and termination criteria. Covers diagnosing convergence behaviour, maintaining diversity, and benchmarking performance.",
+      "SortOrder": 5,
+      "CreatedDate": "2026-10-14T20:02:49.7913271-04:00",
+      "ModifiedDate": "2026-10-14T20:02:49.7913271-04:00",
+      "Elements": [
+        {
+          "Id": "0481dcf9-3e53-4b47-82dd-4bb198eb1727",
+          "TopicId": "584e0c4f-314f-43aa-b809-7513e9da074a",
+          "Title": "The Complete Generational Loop",
+          "BodyText": "A genetic algorithm assembles encoding, fitness evaluation, selection, crossover, and mutation into a repeating generational cycle. Understanding the order and purpose of each stage is essential before tuning any parameter.",
+          "Notes": "Example skeleton: initialise(P0) \u2192 while not terminated: evaluate(Pt) \u2192 select parents \u2192 recombine \u2192 mutate \u2192 form Pt\u002B1.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:05:30.5800166-04:00",
+          "ModifiedDate": "2026-10-14T20:05:30.5800166-04:00",
+          "Items": [
+            {
+              "Id": "c59868b3-9053-4084-93d4-942aa1c9267a",
+              "Text": "Initialise a random population of candidate solutions using the chosen encoding.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "3f41db20-9582-47fc-bdc0-922d8054660f",
+              "Text": "Evaluate every individual with the fitness function and record the best-so-far solution.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "150008ef-d19d-46b5-94c5-4ec6eefb6386",
+              "Text": "Select parents according to the chosen selection pressure scheme, then apply crossover and mutation to produce offspring.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "50867d01-ca32-41f6-b797-b828f830692b",
+              "Text": "Form the next generation through full replacement, steady-state replacement, or elitist carry-over of the top individuals.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "4a0fa830-adad-453a-a658-5ecc4ff3ee10",
+              "Text": "Repeat until a termination condition is met and return the best individual found, not merely the final population.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "ad70486e-9ccf-4b60-942a-4601ab446455",
+          "TopicId": "584e0c4f-314f-43aa-b809-7513e9da074a",
+          "Title": "Choosing Population Size",
+          "BodyText": "Population size controls how much of the search space is sampled in parallel and directly affects both solution quality and runtime cost.",
+          "Notes": "A common heuristic is to scale population size with chromosome length, for example 10 to 20 individuals per gene for binary encodings.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:05:30.5800166-04:00",
+          "ModifiedDate": "2026-10-14T20:05:30.5800166-04:00",
+          "Items": [
+            {
+              "Id": "bd27bc58-f9c2-4092-88ae-9933c6a0d5e2",
+              "Text": "Small populations converge quickly but risk premature convergence on a local optimum through loss of allele diversity.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "3bd386c3-e36c-412f-a270-e3711d5586af",
+              "Text": "Large populations preserve diversity and explore more broadly but multiply the number of fitness evaluations per generation.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "40e7541b-35c4-454a-93f1-30b3a6dfc293",
+              "Text": "The practical limit is usually the cost of the fitness function, especially when evaluation requires simulation.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "6c5a9bb5-9723-4473-ac61-e99f1e2d0624",
+              "Text": "Budget should be expressed in total fitness evaluations so that population size and generation count can be traded off fairly.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "9082ded6-cebf-4447-9b7c-2a03439f9466",
+          "TopicId": "584e0c4f-314f-43aa-b809-7513e9da074a",
+          "Title": "Setting Crossover and Mutation Rates",
+          "BodyText": "Crossover and mutation rates govern the balance between exploiting existing good material and exploring new regions of the search space.",
+          "Notes": "Typical starting values: crossover probability 0.6\u20130.9, mutation probability 1/L where L is chromosome length.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:05:30.5800166-04:00",
+          "ModifiedDate": "2026-10-14T20:05:30.5800166-04:00",
+          "Items": [
+            {
+              "Id": "6b23f541-c860-4b73-b896-502811d91d7d",
+              "Text": "High crossover rates accelerate the recombination of useful building blocks found in the current population.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e247eee6-def1-4d52-a686-e48df75a958b",
+              "Text": "Mutation rates that are too low allow diversity to collapse; rates that are too high degrade the search towards random walk.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a0e89036-9e9c-4673-842d-9e8c8ce66281",
+              "Text": "Mutation probability is often set per gene rather than per chromosome so it scales with representation length.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "cd3c2538-783d-4a53-aa5c-b379ad326a43",
+              "Text": "Adaptive or self-adaptive schemes can raise mutation when diversity falls and lower it as the population converges.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "395544a2-87f5-4380-9e22-fb6a6d2de84b",
+              "Text": "Selection pressure interacts with these rates, so parameters should be tuned together rather than one at a time.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "7673458a-0c6c-4169-b475-78ffb6371716",
+          "TopicId": "584e0c4f-314f-43aa-b809-7513e9da074a",
+          "Title": "Termination Criteria",
+          "BodyText": "A genetic algorithm has no natural stopping point, so an explicit termination condition must be defined in advance.",
+          "Notes": "",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:05:30.5800166-04:00",
+          "ModifiedDate": "2026-10-14T20:05:30.5800166-04:00",
+          "Items": [
+            {
+              "Id": "01ffe324-6801-4021-935b-afd92bbcc817",
+              "Text": "Fixed generation or evaluation budgets give predictable runtime and allow fair comparison between configurations.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c4537d47-e542-4a2f-a637-1778ae587ba0",
+              "Text": "Stagnation criteria stop the run when the best fitness has not improved by a threshold over a set number of generations.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3313763e-b8c3-430a-9262-6c06ad8a6a29",
+              "Text": "Target-fitness criteria halt as soon as a known acceptable solution quality is reached.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "ebd1a144-747e-411d-b06e-dd83c0ef6818",
+              "Text": "Convergence criteria trigger when population diversity, measured by variance or average pairwise distance, falls below a threshold.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "9cc2f140-6614-4cdc-9cb1-1df89a923153",
+              "Text": "Combining several criteria with a logical OR avoids both wasted computation and premature stopping.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "bd8fe2fa-5288-458c-848d-fefa2823e71a",
+          "TopicId": "584e0c4f-314f-43aa-b809-7513e9da074a",
+          "Title": "Diagnosing Convergence Behaviour",
+          "BodyText": "Plotting fitness and diversity over generations reveals whether the algorithm is exploring effectively or has stalled.",
+          "Notes": "Track best fitness, mean fitness, and a diversity measure on the same generation axis to interpret the three curves together.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:05:30.5800166-04:00",
+          "ModifiedDate": "2026-10-14T20:05:30.5800166-04:00",
+          "Items": [
+            {
+              "Id": "377c6878-1505-4247-8904-887530646534",
+              "Text": "A healthy run shows steady improvement in best fitness with mean fitness gradually approaching it.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b3eb89b1-b6d5-42be-8115-ab7ea312a7e6",
+              "Text": "Premature convergence appears as a flat best-fitness curve with mean fitness almost equal to best and diversity near zero.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d9a9a1f1-4c2c-403f-a331-2e14e115115a",
+              "Text": "Slow or absent convergence, where mean fitness stays far below best, suggests mutation or selection pressure is misconfigured.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "7c884f61-4b0c-421b-9bec-deead1125aec",
+              "Text": "Restarting from a fresh population or injecting random individuals can recover a run trapped in a local optimum.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "9970008d-85de-409f-b4a1-42ebf6e9a71c",
+          "TopicId": "584e0c4f-314f-43aa-b809-7513e9da074a",
+          "Title": "Maintaining Population Diversity",
+          "BodyText": "Diversity preservation techniques counteract the natural tendency of selection to drive the population towards a single genotype.",
+          "Notes": "Fitness sharing divides an individual\u0027s fitness by the number of similar neighbours within a niche radius.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:05:30.5800166-04:00",
+          "ModifiedDate": "2026-10-14T20:05:30.5800166-04:00",
+          "Items": [
+            {
+              "Id": "038f4585-af8c-4e13-aa72-3129dfd5e0e3",
+              "Text": "Fitness sharing and crowding penalise clusters of similar individuals and encourage occupation of multiple optima.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "39ff5c5d-f19a-4694-b227-f745493931d9",
+              "Text": "Island or deme models evolve subpopulations separately with occasional migration between them.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "280571e4-9fbd-4601-a80b-1fa8baa8d0af",
+              "Text": "Reducing selection pressure, for example by using tournament size two instead of larger tournaments, slows takeover by a single genotype.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "aeed3625-c17e-4041-a535-fa58de9157f8",
+              "Text": "Random immigrants and restart strategies reinject new genetic material when diversity metrics decline.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "8448a95b-da23-40d2-96c8-56890e51b924",
+              "Text": "Elitism should be used sparingly, since preserving too many top individuals accelerates convergence.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "7ad517cc-cf4a-4357-a63a-f142b5c41c39",
+          "TopicId": "584e0c4f-314f-43aa-b809-7513e9da074a",
+          "Title": "Benchmarking and Performance Evaluation",
+          "BodyText": "Because genetic algorithms are stochastic, performance claims require repeated runs and statistical comparison rather than single results.",
+          "Notes": "Report mean and standard deviation of best fitness across at least 30 independent runs with different random seeds.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T20:05:30.5800166-04:00",
+          "ModifiedDate": "2026-10-14T20:05:30.5800166-04:00",
+          "Items": [
+            {
+              "Id": "d63cef90-4911-471d-ac11-151ee217928e",
+              "Text": "Run each configuration multiple times with distinct random seeds and report distributions, not single best outcomes.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c8a578b4-9a19-4e9b-b5ac-733284af0f23",
+              "Text": "Compare algorithms on equal budgets of fitness evaluations rather than generations or wall-clock time.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1e1b32ab-9af2-43a5-a739-5734cbac2547",
+              "Text": "Use standard test functions and problem instances so results can be reproduced and contrasted with published work.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "7d198771-f5c8-4d4e-b3b0-a3d3af400e46",
+              "Text": "Baselines such as random search, hill climbing, or a problem-specific heuristic show whether the GA adds genuine value.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "f8bc9be0-0e8e-4b44-b687-024b059672ee",
+              "Text": "Report success rate and evaluations-to-target alongside final fitness to capture both reliability and efficiency.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "a789ddaa-dcad-4104-8e80-cddb465d15c6",
+      "Title": "Case Studies in Scheduling, Design, and Optimization",
+      "Summary": "Applies genetic algorithms to practical problems such as job-shop and timetable scheduling, engineering design, and combinatorial optimization. Compares outcomes against alternative methods and extracts practical lessons for real deployments.",
+      "SortOrder": 6,
+      "CreatedDate": "2026-10-14T20:02:49.7913271-04:00",
+      "ModifiedDate": "2026-10-14T20:02:49.7913271-04:00",
+      "Elements": [
+        {
+          "Id": "45f6bfd0-cbc7-4e18-a5c5-99dfbb66b902",
+          "TopicId": "a789ddaa-dcad-4104-8e80-cddb465d15c6",
+          "Title": "Job-Shop Scheduling with Genetic Algorithms",
+          "BodyText": "Job-shop scheduling assigns operations of multiple jobs to machines in an order that minimises makespan or tardiness, and it is a classic proving ground for genetic algorithms.",
+          "Notes": "A common encoding is the operation-based permutation chromosome, in which each job identifier appears once per operation and is decoded left to right into a feasible active schedule.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:06:01.0679681-04:00",
+          "ModifiedDate": "2026-10-14T20:06:01.0679681-04:00",
+          "Items": [
+            {
+              "Id": "f6903373-cd17-4497-a386-850d2723ddd6",
+              "Text": "Chromosomes often encode operation sequences or machine priority rules rather than raw start times, which keeps offspring feasible after recombination.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "a495c9b3-3804-4844-a3f4-047992026adb",
+              "Text": "Fitness is typically the inverse of makespan, sometimes combined with weighted tardiness or machine idle time.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f2756a3d-6fab-4068-a8a1-c76e6028c9f7",
+              "Text": "Order-preserving operators such as precedence-preserving crossover and swap mutation avoid producing invalid operation orders.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "468fabc7-5fb2-479d-a017-3c68778baa7f",
+              "Text": "A decoder converts the genotype into an active or non-delay schedule, so repair is rarely needed.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b7522b01-23fa-4397-92a3-2603cb7035d5",
+              "Text": "Reported results on benchmark sets such as the Fisher-Thompson and Lawrence instances show GAs reaching near-optimal makespans where exhaustive search is intractable.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "f4011ceb-119a-4ab3-9012-1d52e4514767",
+          "TopicId": "a789ddaa-dcad-4104-8e80-cddb465d15c6",
+          "Title": "Timetabling and Resource Allocation",
+          "BodyText": "University and staff timetabling involves assigning events to time slots and rooms while satisfying hard constraints and optimising soft preferences.",
+          "Notes": "Hard constraints include no clashes for a teacher, group, or room; soft constraints include preferred times, minimal gaps, and balanced daily loads.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:06:01.0679681-04:00",
+          "ModifiedDate": "2026-10-14T20:06:01.0679681-04:00",
+          "Items": [
+            {
+              "Id": "b18e13a9-66fe-4e37-bd56-e375e23a48c6",
+              "Text": "A direct encoding maps each event to a (time slot, room) pair, giving a chromosome as long as the number of events.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c7453513-7ea5-4cb1-b5a1-17066b8fbf55",
+              "Text": "Penalty-based fitness scores hard-constraint violations heavily and soft-constraint violations lightly, producing a single comparable value.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "77aa0692-0c9c-4bf4-ae97-adc7df69680f",
+              "Text": "Repair operators or constraint-aware initialisation reduce the share of infeasible individuals in early generations.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "cfc2a3d9-c16e-43e8-8ced-188850b3d5f7",
+              "Text": "Hybridising the GA with local search on the best individuals (a memetic approach) markedly improves soft-constraint quality.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "dfd88159-cfa3-4e6f-b878-efada4c4b68c",
+              "Text": "Practical deployments usually need a human review step, because stakeholder preferences are hard to express fully in the penalty function.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "5c22e94e-49e3-4432-9065-8d26e423036c",
+          "TopicId": "a789ddaa-dcad-4104-8e80-cddb465d15c6",
+          "Title": "Engineering Design Optimisation",
+          "BodyText": "Genetic algorithms are widely used in parametric and structural design where objectives are non-linear, discontinuous, or evaluated by simulation.",
+          "Notes": "Classic examples include truss weight minimisation, antenna geometry, pressure vessel design, and aerofoil shaping.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:06:01.0679681-04:00",
+          "ModifiedDate": "2026-10-14T20:06:01.0679681-04:00",
+          "Items": [
+            {
+              "Id": "49b9691a-4d7b-4646-b178-4c46a2860b7f",
+              "Text": "Real-valued encoding with simulated binary crossover and Gaussian mutation suits continuous design variables such as thickness or length.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0f1e9bc9-4ab4-44d3-9e87-e5007988d32f",
+              "Text": "Mixed encodings handle designs that combine continuous dimensions with discrete material or component choices.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f0e4fb0a-0c79-4c1a-8aee-28925ff17ed2",
+              "Text": "Constraints such as stress, deflection, or cost limits are handled by penalty terms, feasibility-first ranking, or repair.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "39311839-f21e-4485-a26c-0f3ad27f6468",
+              "Text": "Simulation-based fitness is expensive, so surrogate models and caching of evaluated designs are commonly used.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6711e907-1c9e-410d-b27a-39a09cfb5f0c",
+              "Text": "NASA\u0027s evolved X-band antenna is a widely cited case where a GA produced an unintuitive geometry that outperformed a hand-designed alternative.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "637389f1-a608-4cca-ba2b-8c036f93698f",
+          "TopicId": "a789ddaa-dcad-4104-8e80-cddb465d15c6",
+          "Title": "Combinatorial Optimisation Problems",
+          "BodyText": "Routing, packing, and assignment problems have discrete search spaces that grow factorially, making them natural targets for evolutionary search.",
+          "Notes": "The travelling salesman problem, vehicle routing, bin packing, and knapsack variants are the standard case-study set.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:06:01.0679681-04:00",
+          "ModifiedDate": "2026-10-14T20:06:01.0679681-04:00",
+          "Items": [
+            {
+              "Id": "dd2e16fb-4ff0-4a2e-97d6-2eca9d235544",
+              "Text": "Permutation encodings for TSP and routing require specialised operators such as order crossover, PMX, or edge recombination.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "a6add0d6-2302-480e-aced-70d4a4484b62",
+              "Text": "Binary encodings suit knapsack and subset-selection problems, with penalties or repair for capacity violations.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4362b88f-a989-4387-826c-79b8f925ef21",
+              "Text": "Grouping-based representations work better than item-based ones for bin packing because they preserve good partial groupings.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b5ec0e10-eac3-4ac3-b13d-cd383e35c2c7",
+              "Text": "Seeding the initial population with greedy or nearest-neighbour solutions speeds convergence on large instances.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ce10478a-3388-4ea2-b025-b9a9c60c2732",
+              "Text": "GAs rarely beat specialised exact or heuristic solvers on pure TSP, but they adapt easily when extra real-world constraints are added.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "98d474ad-4215-4aa9-8c88-2a3a6e0d8119",
+          "TopicId": "a789ddaa-dcad-4104-8e80-cddb465d15c6",
+          "Title": "Comparing Genetic Algorithms with Alternative Methods",
+          "BodyText": "A credible case study benchmarks the GA against other approaches on the same instances, budget, and objective definition.",
+          "Notes": "Typical comparators are exact methods (branch and bound, integer programming), other metaheuristics (simulated annealing, tabu search, particle swarm), and simple construction heuristics.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:06:01.0679681-04:00",
+          "ModifiedDate": "2026-10-14T20:06:01.0679681-04:00",
+          "Items": [
+            {
+              "Id": "ac0b555f-3d0e-413d-9769-3ac623f9f9da",
+              "Text": "Exact solvers guarantee optimality but become impractical as instance size grows, which defines the point at which a GA becomes attractive.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "fcf013f8-4dd9-4884-ab05-54603b28ebcc",
+              "Text": "Simulated annealing and tabu search often converge faster on single-solution landscapes, while GAs explore multiple basins in parallel.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "e9d32b9d-2c67-4dd8-afb0-49fb9b778ed9",
+              "Text": "Fair comparison requires equal evaluation budgets rather than equal wall-clock time or equal generations.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9a941f87-190a-4bdf-ab08-d2b02b53b168",
+              "Text": "Because GAs are stochastic, results should be reported over multiple independent runs with means, best values, and variance.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "0d884421-b2ae-4345-a07e-2ce70f32eff1",
+              "Text": "Hybrid memetic algorithms frequently outperform both pure GAs and pure local search on scheduling benchmarks.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "9411b207-6c71-4836-a87a-fba79a288f12",
+          "TopicId": "a789ddaa-dcad-4104-8e80-cddb465d15c6",
+          "Title": "Practical Lessons for Real Deployments",
+          "BodyText": "Case-study evidence points to recurring practical issues that determine whether a genetic algorithm succeeds outside the laboratory.",
+          "Notes": "Many failed deployments trace back to representation choice or a mis-specified fitness function rather than to the search operators themselves.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:06:01.0679681-04:00",
+          "ModifiedDate": "2026-10-14T20:06:01.0679681-04:00",
+          "Items": [
+            {
+              "Id": "2dce19d2-5e97-408a-ab47-1fbbafe71853",
+              "Text": "Representation and decoder design influence performance more than fine tuning of crossover and mutation rates.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f0c9eeeb-0ee1-4c3a-88a5-567591199be4",
+              "Text": "Fitness functions must capture the true business objective, or the GA will optimise a convenient proxy and produce unusable solutions.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5f18d976-9ba3-4e29-9189-02b43fe343ab",
+              "Text": "Diversity safeguards such as elitism with restarts, niching, or adaptive mutation prevent premature convergence on long runs.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "3d817878-fd8d-4dbe-a806-18c738af7ad3",
+              "Text": "Expensive fitness evaluation should be parallelised across the population, which is straightforward given the independence of individuals.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "54ae68f6-4c81-496b-be30-144c9f818217",
+              "Text": "Set clear stopping criteria (generation cap, stagnation window, or time budget) and present a shortlist of good solutions rather than a single answer.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "11d17299-70d4-4949-b036-003f830bb7b4",
+              "Text": "Stakeholders accept evolved solutions more readily when the system can explain trade-offs and allow constraint weights to be adjusted.",
+              "SortOrder": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "TotalElementCount": 45
+}

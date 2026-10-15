@@ -1,0 +1,334 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ethical Considerations in AI Practice</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ History and Foundations of Artificial Intelligence</a></div>
+  <header>
+    <h1>Ethical Considerations in AI Practice</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Ethical Considerations in AI Practice</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Artificial intelligence has moved from laboratory curiosity to infrastructure. Systems that rank job applicants, triage emergency department patients, price insurance, moderate speech, approve loans, and steer vehicles are no longer research prototypes — they are production software embedded in institutions that make consequential decisions about people. Once a technology occupies that position, the questions asked of it change. It is no longer sufficient to ask whether a model achieves high accuracy on a benchmark; practitioners must ask who benefits, who is burdened, who can contest an outcome, and who answers when something goes wrong. Ethics in AI practice is not a philosophical appendix bolted onto a technical discipline. It is a set of engineering, organisational, and legal obligations that shape data collection, model selection, evaluation design, deployment conditions, and monitoring regimes.</p>
+
+<p>This topic examines why ethical scrutiny became unavoidable, then works through the recurring concerns that structure the field — bias and fairness, transparency and explainability, privacy and data governance, accountability, and workforce and societal impact — before turning to the governance frameworks and professional practices that attempt to operationalise these concerns inside real development cycles.</p>
+
+<p><strong>Why ethics became central to AI</strong></p>
+
+<p>Four structural features of modern AI explain why ethical questions became pressing in a way they were not for earlier generations of software.</p>
+
+<p><em>Scale amplifies harm.</em> A human loan officer with a prejudice harms the applicants who happen to reach that officer's desk — perhaps a few thousand people over a career. A scoring model deployed at a national bank applies the same prejudice to every applicant, in every branch, simultaneously, for as long as the model remains in production. Automation does not merely replicate a decision; it replicates it uniformly and at machine speed. In 2012 a widely reported incident saw an automated trading system at a major brokerage lose roughly 440 million dollars in about 45 minutes through a deployment error — an illustration of how rapidly an automated decision process can compound a single flaw. The same arithmetic applies to content recommendation, welfare eligibility screening, and predictive policing: errors that would be absorbed as noise in a human-scale process become systemic when industrialised. Scale also removes the natural friction of human discretion, which historically allowed individual decision-makers to notice that a rule was producing absurd results in a particular case.</p>
+
+<p><em>Machine learning induces patterns rather than reasoning from principles.</em> A rule-based expert system of the 1980s encoded explicit propositions supplied by domain experts: <code>IF fever AND stiff_neck AND photophobia THEN suspect_meningitis</code>. Those propositions could be read, debated, and corrected. A supervised learning system, by contrast, is handed a corpus of historical examples and instructed to find whatever statistical regularities predict the labels. It has no concept of justice, relevance, or causal mechanism. If the historical record shows that a particular group was systematically denied opportunities, the model learns that denial as a reliable signal, because within the training distribution it <em>is</em> a reliable signal. The model is not malfunctioning when it reproduces discrimination; it is performing exactly as specified on a specification that never mentioned fairness.</p>
+
+<p><em>Opacity makes harm harder to detect and contest.</em> When an expert system refused a claim, an analyst could trace the firing rules and show the applicant the chain of inference. When a deep network with hundreds of millions of parameters refuses a claim, there is no comparable chain. The decision emerges from a high-dimensional nonlinear function whose intermediate representations have no agreed human semantics. This matters ethically because contestability depends on legibility: a person who cannot know why they were rejected cannot identify a factual error, cannot argue that an irrelevant factor was used, and cannot demonstrate that the decision was discriminatory.</p>
+
+<p><em>Ethical failure has concrete institutional consequences.</em> Beyond the harm to individuals, organisations face regulatory penalties, litigation, forced withdrawal of products, and durable reputational damage. Regulators have ordered the deletion of models trained on improperly obtained data — a remedy sometimes called algorithmic disgorgement — which destroys the economic value of the training investment as well as the data. Ethics is therefore also risk management, and framing it that way often secures organisational attention that appeals to principle alone do not.</p>
+
+<p><strong>Bias and fairness in AI systems</strong></p>
+
+<p>"Bias" in this context does not mean the statistical bias of the bias–variance decomposition. It means systematic disparity in a system's errors or outputs across groups, particularly groups defined by protected attributes such as race, sex, age, disability, or religion. Several distinct mechanisms produce it, and distinguishing them matters because they require different remedies.</p>
+
+<table>
+<thead>
+<tr><th>Mechanism</th><th>How it arises</th><th>Illustrative example</th><th>Typical remedy</th></tr>
+</thead>
+<tbody>
+<tr><td>Historical bias</td><td>The world the data describes was already unequal; the labels encode past discrimination</td><td>A hiring model trained on a decade of CVs from a male-dominated firm learns to downgrade indicators of women's participation</td><td>Relabel or reweight the target; question whether the outcome variable is the right one</td></tr>
+<tr><td>Sampling / representation bias</td><td>Training data under-represents certain populations or operating contexts</td><td>Facial analysis trained predominantly on light-skinned faces performs far worse on darker-skinned women</td><td>Targeted data collection; stratified sampling; disaggregated evaluation</td></tr>
+<tr><td>Measurement bias</td><td>The available proxy differs in meaning across groups</td><td>Using healthcare <em>spending</em> as a proxy for health need understates the needs of groups with reduced access to care</td><td>Choose a construct closer to the quantity of real interest</td></tr>
+<tr><td>Aggregation bias</td><td>One model is imposed on subpopulations with genuinely different relationships</td><td>A single diabetes risk threshold applied across ethnic groups with different HbA1c dynamics</td><td>Group-aware modelling or separate calibration</td></tr>
+<tr><td>Deployment / feedback bias</td><td>The model's outputs shape the data it later trains on</td><td>Predictive policing directs patrols to a district, generating more recorded arrests there, which confirms the prediction</td><td>Break the feedback loop; collect exploratory or counterfactual data</td></tr>
+</tbody>
+</table>
+
+<p><em>Proxy variables</em> defeat the naive remedy of simply deleting protected attributes from the feature set. In most societies residential postcode correlates strongly with ethnicity because of historical segregation; similarly, the name of a secondary school, membership of certain societies, gaps in employment history, the brand of device used to submit an application, or even typing patterns can carry group information. A sufficiently flexible model will reconstruct the protected attribute from these correlates and use it. This phenomenon — sometimes called redundant encoding — means that "fairness through unawareness" is generally ineffective, and that auditing must test the model's <em>outputs</em> for disparity rather than merely inspecting its <em>inputs</em>. A standard diagnostic is to train an auxiliary classifier that attempts to predict the protected attribute from the remaining features; high accuracy indicates that the attribute is recoverable and that simple exclusion will not protect against disparate impact.</p>
+
+<p><em>Competing mathematical definitions of fairness.</em> A critical and often underappreciated point is that fairness cannot be reduced to a single equation, because the plausible formalisations conflict. Consider a binary decision system with a protected attribute <code>A</code>, prediction <code>Ŷ</code>, score <code>S</code>, and true outcome <code>Y</code>:</p>
+
+<ul>
+<li><strong>Demographic parity:</strong> the rate of positive decisions is equal across groups — <code>P(Ŷ=1 | A=a)</code> is the same for all <code>a</code>.</li>
+<li><strong>Equalised odds:</strong> true positive and false positive rates are equal across groups — <code>P(Ŷ=1 | Y=y, A=a)</code> is independent of <code>a</code> for each <code>y</code>.</li>
+<li><strong>Predictive parity / calibration:</strong> a given score means the same thing in every group — <code>P(Y=1 | S=s, A=a)</code> is independent of <code>a</code>.</li>
+<li><strong>Individual fairness:</strong> similar individuals, under a task-relevant similarity metric, receive similar outcomes.</li>
+<li><strong>Counterfactual fairness:</strong> the decision would be unchanged in a counterfactual world where the individual belonged to a different group.</li>
+</ul>
+
+<p>An impossibility result established in the context of the debate over the COMPAS recidivism tool shows that when base rates of the outcome genuinely differ between groups, a system cannot simultaneously be calibrated within groups and equalise false positive and false negative rates, except in degenerate cases (perfect prediction or equal base rates). This was precisely the structure of the public disagreement about COMPAS: investigative journalists demonstrated that Black defendants who did not reoffend were labelled high-risk at roughly twice the rate of comparable white defendants, while the vendor demonstrated that a given risk score corresponded to the same empirical reoffending probability regardless of race. Both claims were arithmetically correct. They were measuring different fairness criteria that could not both be satisfied.</p>
+
+<p>The practical consequence is that fairness is a <em>normative choice</em> that must be made explicitly, justified publicly, and documented — not a technical default that an engineer can select without stakeholder input. Which criterion is appropriate depends on the decision context: equalising false negative rates matters most where the harm of a missed positive is severe (disease screening), while calibration matters most where downstream actors will treat the score as a probability (judicial bail decisions).</p>
+
+<p><em>Mitigation</em> operates at three stages. <strong>Pre-processing</strong> alters the data: targeted collection to close representation gaps, reweighting, or learning representations from which the protected attribute cannot be recovered. <strong>In-processing</strong> alters the learning objective: adding a fairness penalty to the loss, or adversarial debiasing where a second network tries to predict the protected attribute from the representation while the main network is trained to defeat it. <strong>Post-processing</strong> alters the outputs: group-specific thresholds chosen to equalise a selected error rate. None of these is sufficient alone. The indispensable practice is <strong>disaggregated evaluation</strong> — reporting performance separately for each relevant subgroup and for intersections of subgroups, rather than a single aggregate figure. The influential "Gender Shades" audit of commercial facial analysis systems made exactly this point: overall accuracy figures above 90 per cent concealed error rates of around one per cent for lighter-skinned men and over thirty per cent for darker-skinned women. Aggregate metrics are averages dominated by the majority population and are structurally incapable of revealing such disparities. Finally, mitigation must continue after deployment, because populations, behaviours, and data-generating processes drift; a model that was equitable at launch can become inequitable without any change to its code.</p>
+
+<p><strong>Transparency and explainability</strong></p>
+
+<p>Transparency concerns what an organisation discloses about a system; explainability concerns whether a particular output can be rendered intelligible. Both are strained by the architecture of contemporary models. A large convolutional or transformer network comprises hundreds of millions to hundreds of billions of learned parameters, arranged so that the influence of any single input feature is distributed across layers and entangled with every other feature. There is no human-readable rule to extract because the model does not contain rules; it contains a learned geometry.</p>
+
+<p>It is useful to distinguish several things that "explanation" might mean:</p>
+
+<ul>
+<li><strong>Global explanation:</strong> what the model does in general — which features dominate, what regularities it has learned.</li>
+<li><strong>Local explanation:</strong> why <em>this</em> input produced <em>this</em> output. Techniques include LIME (fitting a simple surrogate model in the neighbourhood of the instance), SHAP (attributing the prediction across features using a game-theoretic allocation), saliency and attention maps for images and text, and counterfactual explanations.</li>
+<li><strong>Counterfactual explanation:</strong> the minimal change to the input that would have changed the decision — "your application would have been approved had your declared income been £3,000 higher, holding other factors constant." These are often the most actionable form for an affected person, because they describe recourse.</li>
+<li><strong>Process transparency:</strong> disclosure that an automated system was used at all, what data it consumed, how it was validated, and how to challenge the result.</li>
+</ul>
+
+<p>Post-hoc explanation methods carry a caveat that practitioners must internalise: they are <em>approximations of</em> the model, not descriptions of its actual computation, and they can be unstable or even manipulated. Two explanation methods can attribute a decision to different features; small perturbations can change the explanation without changing the prediction. An explanation that satisfies an auditor while misrepresenting the model is worse than no explanation, because it manufactures unjustified confidence.</p>
+
+<p><em>A right to explanation.</em> Several legal regimes grant affected individuals some entitlement to understand automated decisions. The EU General Data Protection Regulation restricts decisions based solely on automated processing that produce legal or similarly significant effects, and requires meaningful information about the logic involved together with rights to obtain human intervention and to contest the outcome. The EU AI Act extends this for high-risk systems. Equal-opportunity and consumer-credit statutes in other jurisdictions require adverse action notices specifying the principal reasons for a refusal. Whatever the exact legal contour, the ethical rationale is constant: due process requires that a person subject to a consequential decision can learn its basis and challenge it.</p>
+
+<p><em>The accuracy–interpretability trade-off deserves scepticism.</em> It is commonly assumed that opaque models are always more accurate. On tabular data with well-engineered features — which describes many high-stakes institutional decisions, including credit, recidivism, and clinical risk scoring — the performance gap between a carefully constructed interpretable model and a deep ensemble is frequently negligible. Scoring systems built from small integer weights on a handful of features, generalised additive models, and short decision lists have repeatedly matched black-box performance in such domains. Where the gap is small and the stakes are high, the interpretable model is the ethically preferable choice, because it permits inspection, debate, and error correction. The genuine performance advantage of deep models concentrates in perceptual tasks — vision, speech, natural language — where the raw input is unstructured and no compact feature representation exists.</p>
+
+<p><em>Documentation practices</em> convert transparency from an aspiration into an artefact. Two conventions have become widespread:</p>
+
+<ul>
+<li><strong>Model cards</strong> accompany a trained model and state its intended use, out-of-scope uses, training and evaluation data, performance disaggregated by relevant subgroup, known ethical considerations, and caveats.</li>
+<li><strong>Datasheets for datasets</strong> accompany a dataset and record its motivation, composition, collection process, preprocessing, consent and licensing status, recommended uses, and maintenance plan.</li>
+</ul>
+
+<p>Related artefacts include system cards covering an entire deployed pipeline and factsheets describing supplier assurances. A minimal model card might look like this:</p>
+
+<pre><code>Model: dermatology-lesion-triage-v3.1
+Intended use: Flag suspicious skin lesions for clinician review in primary care.
+Out of scope: Autonomous diagnosis; use without clinician confirmation;
+              paediatric patients; mucosal or subungual lesions.
+Training data: 182,000 dermoscopic images, 14 clinics, 2016-2022.
+               Fitzpatrick skin types I-III: 91%; types IV-VI: 9%.
+Performance (sensitivity for melanoma, 95% CI):
+               Types I-III: 0.94 (0.92-0.96)
+               Types IV-VI: 0.78 (0.69-0.85)
+Known limitation: Reduced sensitivity on darker skin due to data imbalance.
+               Do not use as sole triage in populations with majority types IV-VI.
+Monitoring: Monthly review of flagged-vs-biopsy concordance, disaggregated by
+               skin type, age band, and clinic site.</code></pre>
+
+<p>The value of such documentation is partly informational and partly organisational: producing it forces a team to answer questions — who is under-represented? what is out of scope? — that are easy to leave unasked.</p>
+
+<p><strong>Privacy and data governance</strong></p>
+
+<p>Machine learning is data-hungry, and the data is frequently about people. Privacy concerns in AI go beyond the familiar problem of securing a database against intrusion; the model itself becomes an artefact that encodes information about its training subjects.</p>
+
+<p><em>Purpose limitation and repurposing.</em> Data protection law generally requires that personal data be collected for specified, explicit, and legitimate purposes and not further processed incompatibly with those purposes. In practice this principle is routinely strained. Photographs uploaded to a photo-sharing service in 2009 were later scraped into face recognition training corpora. Clinical records gathered for patient care are repurposed for model development. Customer service transcripts collected to resolve complaints become fine-tuning data for conversational assistants. In each case the original consent was genuine but was not consent to the later use. Meaningful governance therefore requires provenance tracking — knowing, for every training record, where it came from, under what legal basis, and with what restrictions — and a defensible answer to the question "would the data subject have expected this?"</p>
+
+<p><em>Models leak.</em> Neural networks memorise. Large language models have been shown to emit verbatim passages from their training data, including names, addresses, and phone numbers, when prompted appropriately. Several attack families are well characterised:</p>
+
+<ul>
+<li><strong>Membership inference:</strong> determining whether a specific individual's record was in the training set, often by exploiting the model's higher confidence on examples it has seen. Where the training set is "patients treated for a stigmatised condition," membership alone is a disclosure.</li>
+<li><strong>Model inversion:</strong> reconstructing representative inputs — for instance, recovering a recognisable face from a face recognition model given a person's name.</li>
+<li><strong>Training-data extraction:</strong> prompting a generative model to regurgitate memorised sequences.</li>
+<li><strong>Attribute inference:</strong> deducing an unobserved sensitive attribute from observable behaviour, as when purchasing patterns reveal a pregnancy before it has been disclosed.</li>
+</ul>
+
+<p><em>Anonymisation is weaker than it appears.</em> Removing direct identifiers does not render a dataset safe when quasi-identifiers remain. A classic result showed that the combination of five-digit postcode, date of birth, and sex uniquely identifies a large majority of the United States population, which allowed a "de-identified" state employee health dataset to be linked to a public voter roll and the governor's medical record to be isolated. The release of an anonymised film-rating dataset was similarly de-anonymised by linking rating patterns to public reviews. Sparse, high-dimensional behavioural data — location traces, browsing histories, transaction records — is especially vulnerable: four approximate spatio-temporal points are typically enough to single out an individual in a mobility dataset. The lesson is that privacy risk is a property of the <em>combination</em> of available datasets, not of any one dataset in isolation, and that risk therefore grows as the data ecosystem grows.</p>
+
+<p><em>Privacy-preserving techniques</em> offer partial mitigations, each with costs:</p>
+
+<table>
+<thead>
+<tr><th>Technique</th><th>Mechanism</th><th>Strengths</th><th>Limitations</th></tr>
+</thead>
+<tbody>
+<tr><td>Federated learning</td><td>Model updates are computed on-device and aggregated centrally; raw data never leaves the device</td><td>Avoids central data pooling; suits mobile keyboards, clinical consortia</td><td>Updates themselves can leak; requires secure aggregation; communication and heterogeneity costs</td></tr>
+<tr><td>Differential privacy</td><td>Calibrated noise added to queries, gradients, or outputs so that any individual's presence changes results only within a bounded factor <code>e^ε</code></td><td>Formal, composable, quantifiable guarantee; resists linkage attacks</td><td>Accuracy loss, often worst for minority subgroups; choosing ε is a policy decision, not a technical one</td></tr>
+<tr><td>Synthetic data</td><td>A generative model trained on real data produces artificial records with similar statistics</td><td>Shareable; useful for development and testing</td><td>Offers no guarantee unless the generator itself is differentially private; can reproduce outliers verbatim; may distort tails</td></tr>
+<tr><td>Secure computation / homomorphic encryption</td><td>Computation performed on encrypted data</td><td>Strong confidentiality across parties</td><td>Significant computational overhead; limited operation sets</td></tr>
+<tr><td>Data minimisation</td><td>Collect and retain only what the task demands</td><td>Simple, cheap, reduces breach surface and legal exposure</td><td>Conflicts with the "collect everything" instinct of ML teams</td></tr>
+</tbody>
+</table>
+
+<p>An important and uncomfortable interaction: differential privacy degrades accuracy most severely for under-represented groups, because the noise that protects a rare record also swamps the signal it carries. Privacy protection and subgroup fairness can therefore pull against each other, and the trade-off must be faced explicitly rather than resolved by default.</p>
+
+<p><em>Surveillance and proportionality.</em> Some applications raise questions that no technique resolves. Live facial recognition in public spaces, emotion inference, workplace keystroke and camera monitoring, and predictive policing all involve capabilities whose harms arise from their legitimate functioning, not from their failure. The relevant tests are those familiar from human rights law: is the measure provided for by law; does it pursue a legitimate aim; is it necessary, in the sense that no less intrusive means would achieve the aim; and is it proportionate in its effects, including the chilling effect on freedom of assembly and expression? Several jurisdictions have concluded that certain uses fail these tests — a number of cities have banned municipal facial recognition, and the EU AI Act prohibits categories including untargeted scraping of facial images to build recognition databases, emotion inference in workplaces and educational settings, social scoring by public authorities, and — subject to narrowly drawn exceptions — real-time remote biometric identification in publicly accessible spaces for law enforcement. The practical point for practitioners is that "can we build it?" and "is it lawful?" are not the same question as "should this exist?", and the third question belongs on the design agenda rather than being deferred to regulators.</p>
+
+<p><strong>Accountability and responsibility</strong></p>
+
+<p>Accountability asks who is answerable when an AI system causes harm — answerable in the sense of owing an explanation, bearing the cost, and being obliged to fix the problem. The difficulty is that an AI system is the joint product of many hands: the organisation that collected the data, the team that labelled it, the researchers who designed the architecture, the vendor that packaged the model, the integrator that embedded it in a workflow, the institution that deployed it, and the operator who acted on its output. Each can plausibly point elsewhere. This diffusion is sometimes called the <em>problem of many hands</em>, and its consequence is an accountability gap: a harm occurs, everyone acted reasonably within their own remit, and no one is responsible.</p>
+
+<p>Two domains make the difficulty concrete.</p>
+
+<ul>
+<li><strong>Autonomous vehicles.</strong> When a self-driving test vehicle struck and killed a pedestrian in Tempe, Arizona in 2018, the investigation identified a chain of contributing factors: the perception system classified the pedestrian inconsistently and did not reason about jaywalking, emergency braking had been disabled to reduce erratic behaviour, the safety driver was not attending to the road, and the operator's safety culture and risk assessment were inadequate. Criminal liability ultimately attached to the human safety driver, while the corporate operator settled civilly. Whether that allocation of responsibility is just is contested precisely because the human was positioned to absorb blame for a system designed in ways that made her failure likely — a pattern sometimes described as creating a <em>moral crumple zone</em>, where a human operator is placed at the point of impact to absorb responsibility for a distributed technical system.</li>
+<li><strong>Medical diagnostic tools.</strong> If a clinician follows an AI triage recommendation that proves wrong, is the clinician negligent for not overriding it? If the clinician overrides a correct recommendation, is that negligence? As such tools become standard of care, deviating from them may itself attract liability, which pressures clinicians toward deference and hollows out the human judgement that justified keeping a human in the loop. Regulatory approval of the device, the hospital's procurement decision, and the vendor's claims about intended use all bear on where responsibility properly sits.</li>
+</ul>
+
+<p><em>Meaningful human oversight.</em> Many governance regimes require a "human in the loop," but the requirement is easily satisfied in form and defeated in substance. Oversight is meaningful only if the human has the information, time, authority, incentives, and competence to disagree. Several well-documented failure modes undermine it:</p>
+
+<ul>
+<li><strong>Automation bias:</strong> people over-trust machine outputs, accepting them without independent verification and sometimes overriding their own correct judgement.</li>
+<li><strong>Rubber-stamping:</strong> an operator processing hundreds of cases per shift cannot genuinely review each one; approval becomes a formality that launders algorithmic decisions as human ones.</li>
+<li><strong>Vigilance decrement:</strong> humans are poor monitors of systems that are usually right, because sustained attention to a rarely failing process is cognitively unnatural — the central problem in supervised autonomous driving.</li>
+<li><strong>Adverse incentives:</strong> if overrides are counted against an employee's productivity or require written justification while acceptance does not, the system structurally discourages disagreement.</li>
+</ul>
+
+<p>Designing for genuine oversight therefore means presenting confidence and uncertainty honestly, surfacing the evidence behind a recommendation, sizing caseloads so review is feasible, protecting and even rewarding well-reasoned overrides, measuring override rates as a monitored metric, and training operators on the system's known failure modes rather than only on its interface.</p>
+
+<p><em>Audit trails and logging.</em> Retrospective accountability is impossible without records. A defensible logging regime captures, for each consequential decision: the model version and its cryptographic hash, the input features as supplied, the output and any confidence score, the decision threshold or business rule applied, whether a human reviewed or overrode the output and on what stated grounds, and a timestamp. Combined with version control over data, code, and model artefacts — and with reproducible training pipelines — this allows an investigator to reconstruct what the system did and why, months later. The counterweight is that detailed logs are themselves sensitive personal data, so retention periods, access controls, and minimisation apply to them too.</p>
+
+<p><em>Liability regimes fit awkwardly.</em> Conventional product liability assumes a manufactured article with a stable specification, a definable defect, and a manufacturer who placed it on the market. Adaptive systems disturb every element of that picture. A model that continues to learn after deployment may behave differently from the version that was tested and certified. Is a statistical error rate known to be irreducible a "defect"? Software has often been treated as a service rather than a product, escaping strict liability. Causation is hard to establish when the claimant cannot access the model, which is why some reform proposals introduce rebuttable presumptions of causation or disclosure duties that shift the evidential burden toward the better-informed party. Open-weight models distributed freely and modified downstream complicate the chain further. The emerging regulatory response, visible in the EU AI Act and in sectoral guidance elsewhere, is to allocate duties by role — provider, deployer, importer, distributor — so that each actor carries obligations proportionate to its control.</p>
+
+<p><strong>Workforce and societal impact</strong></p>
+
+<p>The labour-market effects of AI are neither the wholesale unemployment of popular commentary nor the frictionless adjustment of complacent forecasts. Evidence points to task-level displacement within occupations, substantial reallocation, and highly uneven distribution of gains.</p>
+
+<p><em>What is most exposed.</em> The task-based framework that dominates the economics literature holds that automation targets <em>tasks</em>, not jobs; an occupation is affected to the extent that its bundle of tasks is automatable. Earlier waves of computerisation displaced routine tasks that could be specified as explicit procedures — clerical record-keeping, payroll processing, back-office reconciliation, routine assembly — which produced the "hollowing out" of mid-skill employment observed across advanced economies since the 1980s. Current machine learning extends automation into tasks that are routine in the statistical sense but were never codifiable as rules: document classification, invoice extraction, first-line customer support, basic translation, transcription, and large parts of data entry and verification.</p>
+
+<p><em>Generative AI changes the exposure profile.</em> Unlike previous waves, generative systems bear on tasks associated with higher education and higher pay: drafting marketing copy, summarising legal documents, producing code, generating illustration and stock imagery, preparing first drafts of reports, and routine translation and editing. Field experiments have found substantial productivity gains for writing and support tasks, with the largest gains typically accruing to less experienced workers — a compression effect that raises the floor while reducing the premium on accumulated craft skill. This has ambiguous distributional consequences: it may democratise access to professional-quality output, or it may erode the entry-level and apprenticeship work through which professionals have traditionally acquired expertise, creating a pipeline problem that appears only a decade later.</p>
+
+<table>
+<thead>
+<tr><th>Exposure profile</th><th>Task characteristics</th><th>Examples</th><th>Likely near-term pattern</th></tr>
+</thead>
+<tbody>
+<tr><td>High, displacement-leaning</td><td>Predictable, digital input and output, abundant labelled precedent, low consequence of individual error</td><td>Data entry, transcription, basic bookkeeping, tier-one support scripting, routine copywriting</td><td>Headcount reduction, role consolidation</td></tr>
+<tr><td>High, augmentation-leaning</td><td>Draft-and-review structure, expert can verify output quickly, high value of throughput</td><td>Software development, legal research, radiological pre-reading, marketing production, translation</td><td>Role redefined around review, judgement, and accountability</td></tr>
+<tr><td>Moderate</td><td>Mixed cognitive and interpersonal content, context-dependent judgement</td><td>Teaching, nursing, management, sales, social work</td><td>Selective task offload; administrative burden reduced</td></tr>
+<tr><td>Low</td><td>Physical dexterity in unstructured settings, embodied care, trust-dependent relationships</td><td>Trades, elder care, emergency response, skilled manual craft</td><td>Little direct effect; indirect effects via wages and demand</td></tr>
+</tbody>
+</table>
+
+<p><em>Augmentation versus automation is a design choice, not a prediction.</em> The same underlying capability can be deployed to replace a worker or to raise that worker's output. A clinical decision support tool can be configured as an autonomous triage gate or as a second reader that flags cases a radiologist might otherwise miss. A customer-service model can replace agents or can summarise case history, retrieve policy, and draft a reply that the agent edits. Which configuration an organisation adopts depends on management strategy, labour relations, regulatory constraint, and the relative cost of error — not on the technology itself. Critics of what has been called "so-so automation" argue that deployments which barely outperform humans while eliminating jobs destroy wage income without generating compensating productivity, and that tax systems favouring capital over labour tilt choices in that direction.</p>
+
+<p><em>Transitions are mediated by institutions.</em> Historically, technological change has raised aggregate output while imposing severe and long-lasting costs on specific workers and regions — displaced workers in affected industries frequently never recover their previous earnings, and local labour markets can take a generation to adjust. What determines whether a transition is experienced as opportunity or dislocation is largely institutional: the availability and quality of reskilling programmes, whether education systems teach adaptable rather than narrowly vocational skills, the portability of health insurance and pensions, the generosity and conditionality of unemployment support, active labour-market policy, and the strength of collective bargaining. The 2023 US screenwriters' and actors' agreements, which established consent and compensation rules for synthetic performances and constrained the use of AI-generated material in writers' rooms, illustrate how negotiated governance can shape deployment terms within an industry.</p>
+
+<p><em>Concentration of gains.</em> Training frontier models requires capital expenditure on compute, proprietary data at scale, and scarce specialist talent — conditions that favour a small number of firms and jurisdictions. If the returns to AI accrue primarily to owners of data, models, and infrastructure, the labour share of income falls even as output rises, and inequality widens between firms, regions, and countries. Compounding this, much of the data labelling and content moderation that makes these systems work is performed by low-paid workers, often in lower-income countries, under conditions that have attracted documented concern about psychological harm and inadequate support. An honest account of AI's societal impact includes this labour, which is frequently invisible in discussions that treat models as if they emerged from compute alone.</p>
+
+<p><strong>Governance frameworks and responsible practice</strong></p>
+
+<p>Over the past decade, scores of AI ethics declarations have been published by governments, standards bodies, companies, and professional associations. Systematic surveys of these documents find striking convergence on a small set of principles, even where the underlying political traditions differ.</p>
+
+<table>
+<thead>
+<tr><th>Principle</th><th>Core commitment</th><th>Representative operational practice</th></tr>
+</thead>
+<tbody>
+<tr><td>Fairness and non-discrimination</td><td>Avoid unjustified disparate impact across groups</td><td>Disaggregated evaluation; documented choice of fairness criterion; bias audits</td></tr>
+<tr><td>Transparency and explainability</td><td>Disclose use and make decisions intelligible and contestable</td><td>Model cards and datasheets; notice to affected persons; counterfactual explanations</td></tr>
+<tr><td>Safety and robustness</td><td>Perform reliably under foreseeable conditions and misuse</td><td>Stress testing, adversarial evaluation, out-of-distribution detection, fallback modes</td></tr>
+<tr><td>Privacy and data governance</td><td>Lawful, minimised, purpose-limited data handling</td><td>Provenance records, retention limits, differential privacy, access controls</td></tr>
+<tr><td>Accountability</td><td>Identifiable responsible parties and effective redress</td><td>Role allocation, audit logs, incident reporting, complaint channels</td></tr>
+<tr><td>Human oversight and autonomy</td><td>Preserve genuine human authority over consequential decisions</td><td>Override mechanisms, operator training, monitoring of override rates</td></tr>
+<tr><td>Societal and environmental wellbeing</td><td>Consider wider effects including labour and energy use</td><td>Impact assessment, compute and emissions reporting, stakeholder consultation</td></tr>
+</tbody>
+</table>
+
+<p>Convergence at the level of wording, however, conceals disagreement about meaning, priority, and enforcement. "Fairness" means demographic parity to one team and calibration to another; "transparency" means a published model card to one firm and source code disclosure to a critic. Principles alone have also proved weak in practice: empirical work on software developers found that exposure to an ethics code made no measurable difference to decisions, which is the central argument for embedding ethics in process, incentives, and law rather than in exhortation.</p>
+
+<p><em>Risk-based regulation</em> is the dominant structural response. Rather than regulating "AI" uniformly, obligations scale with the stakes of the application. The EU AI Act is the clearest example, sorting systems into tiers:</p>
+
+<ul>
+<li><strong>Prohibited:</strong> practices deemed incompatible with fundamental rights — social scoring by public authorities, manipulative techniques exploiting vulnerability, untargeted facial-image scraping, emotion inference in workplaces and schools, and (with narrow, authorised exceptions) real-time remote biometric identification in public spaces for law enforcement.</li>
+<li><strong>High risk:</strong> systems used in employment and worker management, education and admissions, access to essential public and private services including credit, biometrics, critical infrastructure, law enforcement, migration, and the administration of justice. These carry obligations covering risk management, data governance, technical documentation, logging, accuracy and robustness, human oversight, and conformity assessment.</li>
+<li><strong>Limited risk:</strong> transparency duties — disclosing that a person is interacting with a machine, and labelling synthetic media.</li>
+<li><strong>Minimal risk:</strong> no specific obligations beyond general law; voluntary codes encouraged.</li>
+</ul>
+
+<p>Complementary instruments include the NIST AI Risk Management Framework, organised around the functions <em>Govern, Map, Measure, Manage</em>, and the management-system standard ISO/IEC 42001, which specifies auditable organisational processes in the manner of established quality and information-security standards. Sectoral regulators — medicines agencies, financial conduct authorities, data protection authorities — apply existing powers to AI within their remit, which means a single deployment may face several overlapping regimes.</p>
+
+<p><em>Impact assessments</em> move scrutiny upstream. A data protection impact assessment is already mandatory in some jurisdictions for high-risk processing; algorithmic impact assessments extend the logic to model behaviour and social consequence, and the EU AI Act requires a fundamental rights impact assessment for certain deployers of high-risk systems. A workable assessment answers a disciplined set of questions before resources are committed:</p>
+
+<pre><code>1. Purpose        What decision is being automated, and why? What is the
+                  alternative, and is the status quo actually worse?
+2. Affected       Who is subject to the decision? Who is affected indirectly?
+                  Which groups are historically disadvantaged in this domain?
+3. Data           Provenance, legal basis, representativeness, known gaps,
+                  quality of labels, who was excluded from collection.
+4. Harms          Enumerate error types and their asymmetric costs; consider
+                  misuse, function creep, feedback loops, and aggregate effects.
+5. Fairness       Which criterion applies, on what justification? What
+                  disaggregated metrics will be reported, for which groups?
+6. Oversight      Who reviews? With what information, authority, and workload?
+                  What triggers escalation or shutdown?
+7. Redress        How is an affected person notified, how do they obtain an
+                  explanation, and how do they challenge the outcome?
+8. Monitoring     What is measured post-deployment, how often, by whom, and
+                  what threshold triggers retraining or withdrawal?
+9. Decision       Proceed, proceed with conditions, redesign, or do not build.</code></pre>
+
+<p>The ninth line matters: an assessment that cannot return "do not build" is a compliance ritual rather than a control.</p>
+
+<p><em>Internal scrutiny structures.</em> Ethics review boards, modelled loosely on institutional review boards in human-subjects research, provide a forum for review independent of the delivery team. Their effectiveness depends on composition that includes domain experts, legal and social-science perspectives, and representatives of affected communities; on authority to delay or block; and on insulation from the commercial pressures of the teams they review — boards that are advisory, under-resourced, or staffed solely by employees reporting to product leadership have repeatedly proved ineffective. <strong>Red-teaming</strong> complements review by adversarially probing a system before release: attempting to elicit harmful outputs, bypass safety filters, extract training data, trigger disparate error rates, or find inputs that collapse performance. Mature programmes combine internal red teams, external specialists, and bug-bounty-style schemes that reward outside researchers for reporting algorithmic flaws, and they treat findings as blocking defects rather than advisory notes.</p>
+
+<p><em>Responsible practice is a lifecycle discipline.</em> The decisive insight is that ethics cannot be a gate passed once before launch. Models degrade as the world changes: distributions drift, adversaries adapt, user populations shift, upstream data pipelines are altered, and the social meaning of a feature changes. A credit model trained before an economic shock may misprice risk afterwards; a content classifier calibrated on one year's slang fails on the next; a clinical model trained at one hospital may transfer badly to another with different equipment and case mix. Continuous practice therefore includes monitoring of input and output distributions, periodic re-evaluation of disaggregated performance, incident reporting and post-incident review, user feedback and appeal data treated as a quality signal, scheduled re-assessment when the system's purpose or population changes, and a documented decommissioning path. Responsibility ends not at deployment but at retirement — and sometimes not even then, if the model's outputs have been written into records that continue to affect people.</p>
+
+<p>Taken together, these concerns describe a professional posture rather than a checklist. The practitioner who asks early who could be harmed, who insists on disaggregated evidence rather than aggregate accuracy, who documents limits honestly, who designs for contestability, and who treats deployment as the beginning of obligation rather than its end, is practising the discipline that the governance frameworks are attempting, imperfectly, to codify.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+<li><strong>MO1:</strong> Not addressed. This topic does not examine the four classic definitions of AI or the thinking/acting and human-performance/rationality axes; its subject matter is ethical and governance practice rather than the definitional landscape of the field.</li>
+<li><strong>MO2:</strong> Not addressed. Turing's imitation game is not covered here, although the discussion of disclosure duties — informing people when they are interacting with a machine rather than a human — touches the same human–machine indistinguishability that motivated the test.</li>
+<li><strong>MO3:</strong> Only indirectly supported. The topic assumes contemporary systems are narrow, task-specific models and does not teach the weak/strong classification criteria; however, the exposure analysis of occupational tasks implicitly reflects the narrow capability profile of present-day AI.</li>
+<li><strong>MO4:</strong> Not addressed. The AI winters of 1974–1980 and 1987–1993 are not analysed. The contrast drawn between rule-based expert systems and modern statistical learning provides background context on that historical shift, but no treatment of its technical and economic causes.</li>
+<li><strong>MO5:</strong> Directly and substantially supported. The topic supplies the analytical apparatus for evaluating ethical risk in a proposed deployment: mechanisms and mitigation of bias, competing fairness criteria and their impossibility results, forms and limits of explanation, privacy attack surfaces and privacy-preserving techniques, accountability structures including oversight and audit trails, and an impact-assessment procedure that can be applied to a specific application domain.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Scope note: the body deliberately exceeds the listed subtopics in a few places where accurate, well-established material improves comprehension — notably the taxonomy of bias mechanisms (adding measurement, aggregation, and feedback bias), the three-stage mitigation framing, named privacy attack families, failure modes of human oversight, and the NIST AI RMF / ISO/IEC 42001 instruments alongside the EU AI Act.
+
+Factual anchors used: the 2012 Knight Capital trading loss; the COMPAS fairness dispute and the calibration-versus-error-rate-balance impossibility result; the Gender Shades facial analysis audit; the healthcare-spending-as-proxy-for-need study; the postcode/date-of-birth/sex re-identification result and the de-anonymisation of a released film-rating dataset; the 2018 Tempe autonomous vehicle fatality and the &quot;moral crumple zone&quot; framing; the 2023 US screenwriters&#39; and actors&#39; agreements on synthetic performance. Figures in the sample model card are illustrative and clearly labelled as a worked example rather than reported data.
+
+Deliberate pedagogical emphases: (1) fairness is a normative choice requiring explicit justification, not a technical default; (2) the accuracy–interpretability trade-off is often overstated on tabular high-stakes data; (3) privacy and subgroup fairness can conflict under differential privacy; (4) augmentation versus automation is a management choice rather than a technological inevitability; (5) human oversight requirements are easily satisfied in form while defeated in substance.
+
+Possible extensions if more depth is wanted later: worked numerical example of the calibration/error-rate impossibility using contrasting base rates; a short case study applying the nine-step impact assessment to a named domain such as CV screening or tenant selection; and a comparison table of EU AI Act, NIST AI RMF, and ISO/IEC 42001 obligations by role.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

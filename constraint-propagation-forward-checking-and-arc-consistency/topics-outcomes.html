@@ -1,0 +1,205 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constraint Propagation: Forward Checking and Arc Consistency — Topics &amp; Learning Outcomes</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:880px;margin:0 auto;padding:32px 24px;color:#222;line-height:1.55}
+h1{font-size:1.6rem;border-bottom:2px solid #dcdcdc;padding-bottom:8px}
+h2{font-size:1.25rem;margin-top:30px;color:#1a3c6e;border-bottom:1px solid #ececec;padding-bottom:4px}
+h3{font-size:1.05rem;margin-top:22px;color:#1a3c6e}
+.toc{border:1px solid #c9d4e3;background:#f5f8fc;border-radius:8px;padding:10px 16px;margin:14px 0 6px;display:flex;gap:18px;flex-wrap:wrap}
+.toc a{color:#1a3c6e;font-weight:600;text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.summary{color:#555;font-style:italic;margin:4px 0 10px}
+ul{margin:6px 0 6px 4px}
+li{margin:5px 0}
+.el-body{color:#555}
+.prefix{color:#555;font-style:italic;margin:6px 0 14px}
+.mo{border:1px solid #e2e2e2;border-radius:6px;padding:12px 16px;margin:12px 0}
+.mo .code{font-size:.8rem;color:#595959;text-transform:uppercase;letter-spacing:.04em}
+.mo .statement{font-weight:600;margin:4px 0 8px}
+.meta span{display:inline-block;background:#eef2f8;color:#1a3c6e;border-radius:3px;padding:1px 8px;margin:0 6px 0 0;font-size:.85rem}
+.meta .map{background:#eaf6ec;color:#137333}
+.co{margin:7px 0}
+.co .code{font-weight:600;color:#1a3c6e;margin-right:6px}
+.empty{color:#595959}
+.tm-jump{margin:2px 0 8px;font-size:.92rem}
+.tm-jump a{color:#1a3c6e;font-weight:600}
+ul.tm li{margin:7px 0}
+ul.tm a{color:#1a3c6e;font-weight:600}
+.tm-kind{display:inline-block;background:#eef2f8;color:#1a3c6e;border-radius:3px;padding:1px 8px;margin-left:6px;font-size:.82rem}
+.tm-also{color:#555;font-size:.88rem}
+.tm-back{margin:0 0 4px;font-size:.88rem}
+.tm-back a{color:#1a3c6e}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Propagation: Forward Checking and Arc Consistency</a></div>
+<h1>Constraint Propagation: Forward Checking and Arc Consistency — Topics &amp; Learning Outcomes</h1>
+<div class="toc"><a href="#topics">📋 Module Topics</a><a href="#outcomes">🎯 Student Learning Outcomes</a><a href="#materials">📚 Materials for Each Topic</a></div>
+
+<h2 id="topics">Module Topics</h2>
+<h3 id="topic-1">1. Foundations of Constraint Propagation and Inference</h3>
+<div class="summary">Introduces constraint satisfaction problems and the role of inference in reducing search effort by pruning variable domains. Establishes core concepts such as consistency, domain reduction, and how propagation interleaves with backtracking search.</div>
+<p class="tm-jump"><a href="#materials-topic-1">Materials for topic 1 (3)</a></p>
+<ul>
+<li><strong>What Is a Constraint Satisfaction Problem?</strong> <span class="el-body">— A constraint satisfaction problem (CSP) is defined by variables, domains of possible values, and constraints that restrict allowable combinations. This representation exposes problem structure that generic search cannot see.</span></li>
+<li><strong>Inference Versus Search</strong> <span class="el-body">— Solvers can make progress in two complementary ways: by guessing a value for a variable (search) or by deducing values that cannot possibly appear in any solution (inference). Constraint propagation is the systematic application of inference.</span></li>
+<li><strong>Local Consistency and Domain Reduction</strong> <span class="el-body">— Consistency conditions are local guarantees about variables and constraints that can be enforced cheaply. Enforcing them removes values from domains, which is the mechanism by which propagation reduces search effort.</span></li>
+<li><strong>Interleaving Propagation with Backtracking Search</strong> <span class="el-body">— Modern CSP solvers embed propagation inside the backtracking loop, running inference after every assignment. This turns blind enumeration into a guided, failure-aware process.</span></li>
+<li><strong>Heuristics That Exploit Reduced Domains</strong> <span class="el-body">— Propagation does more than prune: the resulting domain sizes supply information that ordering heuristics use to choose what to assign next. Inference and heuristics reinforce each other.</span></li>
+</ul>
+<h3 id="topic-2">2. Forward Checking</h3>
+<div class="summary">Explains how forward checking removes inconsistent values from the domains of unassigned neighbours after each assignment and detects failure early. Demonstrates the algorithm step by step on example CSPs and compares its cost and pruning power against plain backtracking.</div>
+<p class="tm-jump"><a href="#materials-topic-2">Materials for topic 2 (3)</a></p>
+<ul>
+<li><strong>What Forward Checking Does</strong> <span class="el-body">— Forward checking is a simple form of constraint propagation that is applied immediately after each variable assignment during backtracking search. It looks ahead at the unassigned neighbours of the newly assigned variable and deletes any domain values that conflict with that assignment.</span></li>
+<li><strong>The Forward Checking Algorithm Step by Step</strong> <span class="el-body">— Forward checking is inserted into backtracking search as an inference call made whenever a value is assigned to a variable. The algorithm follows a fixed sequence of prune, test and restore operations.</span></li>
+<li><strong>Worked Example: Map Colouring</strong> <span class="el-body">— The Australia map-colouring CSP with colours {red, green, blue} shows the pruning effect clearly. Each assignment shrinks the domains of the adjacent regions.</span></li>
+<li><strong>Early Failure Detection and Interaction with Heuristics</strong> <span class="el-body">— The main benefit of forward checking is that a dead end is recognised as soon as some future variable loses all its values, rather than when that variable is eventually reached. The reduced domains it maintains also feed directly into variable- and value-ordering heuristics.</span></li>
+<li><strong>Cost Versus Pruning Power</strong> <span class="el-body">— Forward checking adds overhead at every assignment but usually pays for itself by eliminating large subtrees. The trade-off is between the time spent pruning and the time saved in avoided search.</span></li>
+<li><strong>Limitations of Forward Checking</strong> <span class="el-body">— Forward checking only checks constraints between the current variable and its immediate neighbours, so it misses conflicts that lie further ahead. This incompleteness motivates stronger propagation such as arc consistency.</span></li>
+</ul>
+<h3 id="topic-3">3. Arc Consistency and the AC-3 Algorithm</h3>
+<div class="summary">Defines arc consistency and walks through the AC-3 algorithm, including its queue of arcs, revise step, and termination conditions. Covers complexity analysis and the relationship between AC-3, forward checking, and stronger consistency levels such as path and k-consistency.</div>
+<p class="tm-jump"><a href="#materials-topic-3">Materials for topic 3 (3)</a></p>
+<ul>
+<li><strong>Defining Arc Consistency</strong> <span class="el-body">— Arc consistency is a local consistency property that strengthens the pruning power of a CSP solver beyond simple forward checking. It is defined over directed arcs between pairs of variables that share a binary constraint.</span></li>
+<li><strong>The REVISE Step</strong> <span class="el-body">— REVISE is the core subroutine of arc consistency algorithms; it enforces consistency for a single directed arc. It returns whether any value was removed so the algorithm knows when to propagate further.</span></li>
+<li><strong>The AC-3 Algorithm and Its Queue of Arcs</strong> <span class="el-body">— AC-3 enforces arc consistency across the whole CSP by maintaining a worklist (queue) of arcs that still need checking. It repeatedly revises arcs and re-adds affected neighbours until no further change is possible.</span></li>
+<li><strong>Termination Conditions and Outcomes</strong> <span class="el-body">— AC-3 halts in one of two ways, and each outcome tells the search algorithm something useful. Understanding these outcomes determines how AC-3 is integrated into backtracking search.</span></li>
+<li><strong>Complexity Analysis of AC-3</strong> <span class="el-body">— AC-3&#39;s running time is bounded by how many times each arc can be re-inserted into the queue and the cost of each revision. The analysis assumes a CSP with c binary constraints and domains of size at most d.</span></li>
+<li><strong>AC-3 Versus Forward Checking</strong> <span class="el-body">— Forward checking can be viewed as a restricted, one-step version of arc consistency. Comparing the two clarifies the trade-off between inference strength and per-node cost.</span></li>
+<li><strong>Stronger Consistency: Path and k-Consistency</strong> <span class="el-body">— Arc consistency considers only pairs of variables, so some inconsistencies survive it. Higher levels of consistency examine larger subsets of variables at greater computational cost.</span></li>
+</ul>
+<h3 id="topic-4">4. Integrating Propagation with Search and Heuristics</h3>
+<div class="summary">Shows how maintaining arc consistency (MAC) during backtracking combines with ordering heuristics like minimum remaining values, degree, and least constraining value. Addresses backjumping, conflict-directed strategies, and practical trade-offs between inference cost and search savings.</div>
+<p class="tm-jump"><a href="#materials-topic-4">Materials for topic 4 (3)</a></p>
+<ul>
+<li><strong>Maintaining Arc Consistency (MAC) During Search</strong> <span class="el-body">— MAC interleaves the AC-3 algorithm with backtracking search, enforcing arc consistency after every variable assignment rather than only checking neighbours once.</span></li>
+<li><strong>Variable Ordering: Minimum Remaining Values and Degree</strong> <span class="el-body">— Which variable to assign next has a dramatic effect on search size, and propagation supplies exactly the information these heuristics need.</span></li>
+<li><strong>Value Ordering: Least Constraining Value</strong> <span class="el-body">— Once a variable is chosen, the order in which its values are tried determines how quickly a solution is found on satisfiable problems.</span></li>
+<li><strong>Backjumping and Conflict-Directed Strategies</strong> <span class="el-body">— Chronological backtracking undoes the most recent assignment even when it had nothing to do with the failure; conflict-directed methods jump back to the real culprit.</span></li>
+<li><strong>Trade-offs Between Inference Cost and Search Savings</strong> <span class="el-body">— Stronger propagation prunes more nodes but costs more time per node, so the best configuration depends on problem structure and constraint tightness.</span></li>
+<li><strong>Assembling a Complete CSP Solver</strong> <span class="el-body">— A practical solver combines backtracking search, a propagation engine, and ordering heuristics into a single configurable pipeline.</span></li>
+</ul>
+<h3 id="topic-5">5. Exploiting Problem Structure</h3>
+<div class="summary">Examines how constraint graph structure can be leveraged through independent subproblems, tree-structured CSPs, cutset conditioning, and tree decomposition. Highlights the complexity gains achievable when problems exhibit favourable topology.</div>
+<p class="tm-jump"><a href="#materials-topic-5">Materials for topic 5 (3)</a></p>
+<ul>
+<li><strong>Independent Subproblems and Connected Components</strong> <span class="el-body">— Many constraint graphs are not fully connected; they decompose into separate components that share no constraints. Each component can be solved entirely independently and the solutions combined.</span></li>
+<li><strong>Tree-Structured CSPs Solved in Linear Time</strong> <span class="el-body">— When the constraint graph is a tree (no cycles), the CSP can be solved without backtracking in time linear in the number of variables. This is the most dramatic structural payoff available.</span></li>
+<li><strong>Cutset Conditioning</strong> <span class="el-body">— Most real constraint graphs contain cycles, but removing a small set of variables can leave a tree. Cutset conditioning instantiates that cycle cutset and solves the remaining tree efficiently.</span></li>
+<li><strong>Tree Decomposition</strong> <span class="el-body">— Tree decomposition transforms a constraint graph into a tree of overlapping clusters of variables, each solved as a mini-CSP. The tree of clusters is then solved with the linear-time tree algorithm.</span></li>
+<li><strong>Tree Width and the Limits of Structural Methods</strong> <span class="el-body">— The practical value of structural decomposition is governed by the tree width of the constraint graph. Low tree width means tractability; high tree width means structure offers little help.</span></li>
+<li><strong>Value-Level Structure and Symmetry Breaking</strong> <span class="el-body">— Structure can also exist in the values rather than the graph, most commonly as interchangeable values or symmetric solutions. Exploiting it removes redundant branches from the search tree.</span></li>
+</ul>
+<h3 id="topic-6">6. Local Search for CSPs</h3>
+<div class="summary">Introduces complete-state formulations and iterative repair methods, focusing on the min-conflicts heuristic and techniques for escaping local minima. Discusses when local search outperforms systematic search, including large-scale scheduling and n-queens style problems.</div>
+<p class="tm-jump"><a href="#materials-topic-6">Materials for topic 6 (3)</a></p>
+<ul>
+<li><strong>Complete-State Formulation</strong> <span class="el-body">— Local search for CSPs begins with a complete assignment of values to all variables, which may violate constraints, and then repairs it iteratively. This contrasts with backtracking search, which extends partial, consistent assignments one variable at a time.</span></li>
+<li><strong>The Min-Conflicts Heuristic</strong> <span class="el-body">— Min-conflicts is the dominant variable-value selection rule for CSP local search: pick a variable that is currently in conflict, and reassign it to the value that violates the fewest constraints. Ties are broken randomly to avoid deterministic cycling.</span></li>
+<li><strong>Escaping Local Minima and Plateaus</strong> <span class="el-body">— Pure min-conflicts hill climbing can stall in local minima where no single change reduces conflicts, or wander on plateaus where many moves are equally good. Several randomization and memory techniques restore progress.</span></li>
+<li><strong>When Local Search Outperforms Systematic Search</strong> <span class="el-body">— Local search excels on large, loosely constrained problems and on instances where solutions are densely distributed, but it offers no completeness guarantee. Knowing the trade-offs guides algorithm selection.</span></li>
+<li><strong>Online Repair and Real-World Scheduling</strong> <span class="el-body">— Because local search starts from a complete assignment, it is ideal for repairing an existing solution after the problem changes. This makes it the method of choice for dynamic scheduling applications.</span></li>
+<li><strong>Combining Local Search with Constraint Propagation</strong> <span class="el-body">— Inference techniques such as forward checking and arc consistency can be applied before or during local search to shrink domains and improve move quality. This blends the strengths of propagation and iterative repair.</span></li>
+</ul>
+<h3 id="topic-7">7. Implementation Project and Evaluation</h3>
+<div class="summary">Guides learners through implementing forward checking, AC-3, and a local search solver, then benchmarking them on representative CSP instances. Covers experimental design, performance metrics, debugging strategies, and interpretation of results.</div>
+<p class="tm-jump"><a href="#materials-topic-7">Materials for topic 7 (3)</a></p>
+<ul>
+<li><strong>Project Scope and Solver Architecture</strong> <span class="el-body">— The implementation project asks you to build one CSP framework that can be configured with different inference and search strategies. A clean architecture makes it possible to swap forward checking, AC-3, and local search without rewriting the solver.</span></li>
+<li><strong>Implementing Forward Checking</strong> <span class="el-body">— Forward checking is added to backtracking as a post-assignment pruning step over unassigned neighbours of the variable just assigned. The main implementation risk is restoring domains correctly when the search backtracks.</span></li>
+<li><strong>Implementing AC-3 and Maintaining Arc Consistency</strong> <span class="el-body">— AC-3 processes a queue of arcs, revising domains until no further values can be removed. Running it as preprocessing and again at every node (MAC) gives two distinct configurations to benchmark.</span></li>
+<li><strong>Implementing a Min-Conflicts Local Search Solver</strong> <span class="el-body">— The local search component starts from a complete but possibly violating assignment and repeatedly repairs conflicted variables. It completes the comparison by contrasting a systematic solver with a stochastic one.</span></li>
+<li><strong>Experimental Design and Benchmark Instances</strong> <span class="el-body">— A meaningful comparison requires a benchmark suite that varies in structure and difficulty, plus controlled experimental conditions. Choose instances that expose the strengths and weaknesses of each technique.</span></li>
+<li><strong>Performance Metrics and Instrumentation</strong> <span class="el-body">— Wall-clock time alone can mislead because stronger inference trades search nodes for per-node cost. Instrument the solver to collect several complementary measures.</span></li>
+<li><strong>Debugging, Validation, and Interpreting Results</strong> <span class="el-body">— Propagation bugs tend to be silent: they produce wrong answers or lost solutions rather than crashes. Systematic validation and careful reading of the data turn raw numbers into conclusions.</span></li>
+</ul>
+<h2 id="outcomes">Student Learning Outcomes</h2>
+<p class="prefix">By the end of this module, students will be able to:</p>
+<div class="mo">
+<div class="code">MO1</div>
+<div class="statement">Explain how constraint propagation enforces local consistency to reduce variable domains within backtracking search</div>
+<div class="meta"><span>Level: Understand</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO2</div>
+<div class="statement">Trace the forward checking algorithm step by step on a binary CSP such as map colouring to show the resulting domain reductions</div>
+<div class="meta"><span>Level: Apply</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO3</div>
+<div class="statement">Implement the AC-3 algorithm, including its arc queue and REVISE subroutine, for enforcing arc consistency on a CSP</div>
+<div class="meta"><span>Level: Create</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO4</div>
+<div class="statement">Compare the pruning power and per-node cost of forward checking, maintaining arc consistency (MAC), and min-conflicts local search</div>
+<div class="meta"><span>Level: Analyze</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO5</div>
+<div class="statement">Evaluate benchmark results from a configurable CSP solver using complementary performance metrics such as nodes expanded and runtime</div>
+<div class="meta"><span>Level: Evaluate</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<h3>Course Outcomes (reference)</h3>
+<p class="empty">No course outcomes have been defined.</p>
+<h2 id="materials">Materials for Each Topic</h2>
+<p class="prefix">What has been made for each topic. Materials that cover the whole module are listed on the module page.</p>
+<h3 id="materials-topic-1">1. Foundations of Constraint Propagation and Inference</h3>
+<p class="tm-back"><a href="#topic-1">↑ Back to topic 1</a></p>
+<ul class="tm">
+<li><a href="content/Constraint_Propagation_Forwa_interactive_t1_detail-video.html">Foundations of Constraint Propagation and Inference — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Constraint_Propagation_Forwa_interactive_topics_t1.html">Foundations of Constraint Propagation and Inference</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Constraint_Propagation_Forwa_t1_videos.html">Foundations of Constraint Propagation and Inference — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-2">2. Forward Checking</h3>
+<p class="tm-back"><a href="#topic-2">↑ Back to topic 2</a></p>
+<ul class="tm">
+<li><a href="content/Constraint_Propagation_Forwa_interactive_t2_detail-video.html">Forward Checking — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Constraint_Propagation_Forwa_interactive_topics_t2.html">Forward Checking</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Constraint_Propagation_Forwa_t2_videos.html">Forward Checking — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-3">3. Arc Consistency and the AC-3 Algorithm</h3>
+<p class="tm-back"><a href="#topic-3">↑ Back to topic 3</a></p>
+<ul class="tm">
+<li><a href="content/Constraint_Propagation_Forwa_interactive_t3_detail-video.html">Arc Consistency and the AC-3 Algorithm — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Constraint_Propagation_Forwa_interactive_topics_t3.html">Arc Consistency and the AC-3 Algorithm</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Constraint_Propagation_Forwa_t3_videos.html">Arc Consistency and the AC-3 Algorithm — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-4">4. Integrating Propagation with Search and Heuristics</h3>
+<p class="tm-back"><a href="#topic-4">↑ Back to topic 4</a></p>
+<ul class="tm">
+<li><a href="content/Constraint_Propagation_Forwa_interactive_t4_detail-video.html">Integrating Propagation with Search and Heuristics — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Constraint_Propagation_Forwa_interactive_topics_t4.html">Integrating Propagation with Search and Heuristics</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Constraint_Propagation_Forwa_t4_videos.html">Integrating Propagation with Search and Heuristics — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-5">5. Exploiting Problem Structure</h3>
+<p class="tm-back"><a href="#topic-5">↑ Back to topic 5</a></p>
+<ul class="tm">
+<li><a href="content/Constraint_Propagation_Forwa_interactive_t5_detail-video.html">Exploiting Problem Structure — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Constraint_Propagation_Forwa_interactive_topics_t5.html">Exploiting Problem Structure</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Constraint_Propagation_Forwa_t5_videos.html">Exploiting Problem Structure — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-6">6. Local Search for CSPs</h3>
+<p class="tm-back"><a href="#topic-6">↑ Back to topic 6</a></p>
+<ul class="tm">
+<li><a href="content/Constraint_Propagation_Forwa_interactive_t6_detail-video.html">Local Search for CSPs — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Constraint_Propagation_Forwa_interactive_topics_t6.html">Local Search for CSPs</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Constraint_Propagation_Forwa_t6_videos.html">Local Search for CSPs — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-7">7. Implementation Project and Evaluation</h3>
+<p class="tm-back"><a href="#topic-7">↑ Back to topic 7</a></p>
+<ul class="tm">
+<li><a href="content/Constraint_Propagation_Forwa_interactive_t7_detail-video.html">Implementation Project and Evaluation — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Constraint_Propagation_Forwa_interactive_topics_t7.html">Implementation Project and Evaluation</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Constraint_Propagation_Forwa_t7_videos.html">Implementation Project and Evaluation — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

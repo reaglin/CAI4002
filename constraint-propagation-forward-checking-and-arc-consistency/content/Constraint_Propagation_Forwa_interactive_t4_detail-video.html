@@ -1,0 +1,277 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integrating Propagation with Search and Heuristics</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Propagation: Forward Checking and Arc Consistency</a></div>
+  <header>
+    <h1>Integrating Propagation with Search and Heuristics</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Integrating Propagation with Search and Heuristics</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Backtracking search on its own is a blunt instrument: it assigns a value, checks whether any constraint is already violated, and only discovers deeper trouble after many more assignments. Constraint propagation sharpens that instrument by deducing, before any further guessing takes place, which values can no longer appear in a solution. The real power of a constraint solver, however, comes from the <em>integration</em> of the two — inference running inside every node of the search tree, with ordering heuristics that read the propagated domains to decide what to try next, and intelligent backtracking that uses the reasons for failure to avoid repeating it. This topic develops that integration in detail: how Maintaining Arc Consistency (MAC) works inside backtracking, how variable and value ordering heuristics exploit the information propagation produces, how conflict-directed backjumping and no-good learning cut away unproductive regions of the tree, how to reason about the cost/benefit balance of all this machinery, and finally how to assemble the pieces into a single configurable solver that can be measured.</p>
+
+<p>Throughout, the running example is the familiar binary CSP of <strong>map colouring</strong>. Take the Australian states and territories: WA, NT, SA, Q, NSW, V and T, with the constraint that any two regions sharing a border must receive different colours from the domain {red, green, blue}. SA is adjacent to WA, NT, Q, NSW and V; T is adjacent to nothing. This tiny problem is enough to expose every mechanism below, and where a sharper illustration is needed, larger families such as <em>n</em>-queens, Sudoku and random binary CSPs are used.</p>
+
+<p><strong>Maintaining Arc Consistency (MAC) during search.</strong> MAC is simply this rule: after every assignment, re-establish arc consistency over the whole remaining problem before descending to the next variable. Concretely, when the solver assigns <code>WA = red</code>, it first reduces <code>D(WA)</code> to the singleton <code>{red}</code>. That singleton is not a cosmetic change — it is the trigger for propagation. Every arc pointing <em>into</em> WA from an unassigned neighbour is pushed onto the propagation queue, and the standard AC-3 <code>REVISE</code> loop runs from there. Revising <code>(NT, WA)</code> removes red from <code>D(NT)</code>; revising <code>(SA, WA)</code> removes red from <code>D(SA)</code>. Because those domains changed, arcs into NT and SA from <em>their</em> other neighbours — <code>(Q, NT)</code>, <code>(Q, SA)</code>, <code>(NSW, SA)</code>, <code>(V, SA)</code>, <code>(NT, SA)</code>, <code>(SA, NT)</code> — are enqueued in turn. This cascade is the essential difference from forward checking.</p>
+
+<p>Forward checking only ever revises arcs of the form (unassigned variable → just-assigned variable). It performs one layer of filtering and stops. MAC continues through <strong>unassigned-to-unassigned arcs</strong>, so a contradiction that lies two or three constraints away from the current assignment is detected now rather than after two or three more wrong guesses. A classic illustration: suppose the solver has reached a state where <code>D(NT) = {green, blue}</code>, <code>D(SA) = {green, blue}</code> and <code>D(Q) = {green, blue}</code>. Forward checking sees nothing wrong — every domain is non-empty. MAC also sees nothing wrong here, because arc consistency is a local, pairwise property and these three mutually adjacent variables are pairwise consistent (this is exactly the standard counter-example showing arc consistency is weaker than global consistency). But now assign <code>NSW = green</code>. Forward checking strikes green from <code>D(SA)</code> and <code>D(V)</code>, leaving <code>D(SA) = {blue}</code>, and halts. MAC goes further: the singleton <code>{blue}</code> in SA triggers revision of <code>(NT, SA)</code> and <code>(Q, SA)</code>, removing blue from both and leaving <code>D(NT) = {green}</code> and <code>D(Q) = {green}</code>; then arc <code>(Q, NT)</code> is revised, green is removed from <code>D(Q)</code>, and <code>D(Q)</code> becomes <strong>empty</strong>. The branch is refuted immediately, where forward checking would have wandered on and only failed after assigning NT and then Q.</p>
+
+<p>That is the second defining property of MAC inside search: <strong>an empty domain is an immediate, unconditional failure</strong>. There is no need to continue, because every value for some variable has been shown inconsistent with the current partial assignment. The solver undoes its prunings, tries the next value, and if the values run out it returns failure to its caller. Note also what MAC does <em>not</em> guarantee: a state in which every domain is non-empty and arc consistent may still have no solution (the three-variable, two-colour example above). Arc consistency is a necessary, not sufficient, condition, so search is still required.</p>
+
+<pre><code>function MAC-BACKTRACK(assignment, csp):
+    if assignment is complete: return assignment
+    X &lt;- SELECT-UNASSIGNED-VARIABLE(csp)          # e.g. MRV + degree tie-break
+    for each v in ORDER-DOMAIN-VALUES(X, csp):    # e.g. LCV
+        if v is consistent with assignment:
+            mark &lt;- trail.mark()                  # remember current trail position
+            assign X = v  and  prune D(X) to {v}
+            queue &lt;- { (Y, X) : Y is an unassigned neighbour of X }
+            if AC-3(csp, queue) != FAILURE:       # wipe-out detected?
+                result &lt;- MAC-BACKTRACK(assignment + {X=v}, csp)
+                if result != FAILURE: return result
+            trail.undo_to(mark)                   # restore all domains exactly
+            unassign X
+    return FAILURE</code></pre>
+
+<p>The <strong>trail</strong> deserves emphasis because it is where naive implementations go wrong. Propagation may remove dozens of values scattered across many domains, and the solver must be able to restore the state exactly as it was before the assignment. Copying every domain at every node is correct but wasteful in both time and memory. The standard technique is a trail: a stack of records such as <code>(variable, value, level)</code>, one per removal. Before an assignment the solver notes the current top-of-stack as a <em>mark</em>; on backtracking it pops entries back to that mark, re-inserting each value into its domain. Undo is then O(number of removals since the mark) and requires no copying. Two refinements are common: <em>timestamping</em>, so a value is only trailed the first time it is removed at a given level, and <em>sparse-set</em> or bitset domain representations, in which restoring a domain is a single size-pointer reset. Getting this wrong produces the most insidious class of solver bug — a search that silently loses values and reports "no solution" on satisfiable instances, or retains stale prunings and reports solutions that violate constraints.</p>
+
+<p>MAC is the default inference level in essentially all modern constraint solvers (Gecode, Choco, OR-Tools CP-SAT's presolve-and-propagate loop, MiniZinc backends) and has close analogues in SAT solving, where unit propagation plays the same role: assign a literal, propagate the consequences through the clause database, detect a conflict as early as possible. The reason is empirical and consistent across domains — the extra filtering almost always costs less than the subtrees it eliminates, provided propagation is implemented incrementally.</p>
+
+<p><strong>Variable ordering: minimum remaining values and degree.</strong> The order in which variables are assigned changes the size of the search tree by orders of magnitude, even though it does not change the set of solutions. The dominant heuristic is <strong>minimum remaining values (MRV)</strong>, also called "most constrained variable" or <em>dom</em>: choose the unassigned variable whose current domain is smallest. The justification is the <em>fail-first</em> principle. If a variable has only one legal value left, assigning it is forced and risk-free; if it has two, the branching factor is two rather than three, and if it has zero, the solver discovers failure now instead of after expanding a subtree rooted at some other variable. Fail-first is counter-intuitive at first glance — we are deliberately steering toward the hardest variable — but the arithmetic is clear: a dead end found at depth 2 prunes everything below depth 2, whereas the same dead end found at depth 6 has already cost four levels of fruitless branching.</p>
+
+<p>In the Australia example, suppose <code>SA = blue</code> has just been assigned and propagated, giving <code>D(WA) = D(NT) = D(Q) = D(NSW) = D(V) = {red, green}</code> and <code>D(T) = {red, green, blue}</code>. MRV will never select T, because its domain is largest; T is a disconnected variable whose assignment is irrelevant to everyone else, and postponing it is exactly right. Now assign <code>WA = red</code>; propagation gives <code>D(NT) = {green}</code>. MRV immediately selects NT, assigns the forced value green, propagates to give <code>D(Q) = {red}</code>, selects Q, and so on. On this instance MRV plus MAC solves the map with <strong>no backtracking whatsoever</strong> — the search degenerates into a chain of forced propagations.</p>
+
+<p>The crucial caveat is that <strong>MRV is only as good as the domain information available to it</strong>. Under pure chronological backtracking with no inference, every unassigned domain still holds all its original values, so "fewest remaining values" is meaningless and MRV degenerates into an arbitrary tie-break. MRV therefore pairs naturally — and only usefully — with forward checking or MAC, which keep domain sizes current. The stronger the propagation, the better the information MRV consumes; this is one of the quiet reasons MAC+MRV outperforms FC+MRV by more than the pruning difference alone would suggest.</p>
+
+<p>Ties under MRV are frequent, especially at the root where all domains have equal size. The <strong>degree heuristic</strong> breaks them: among the tied variables, select the one that participates in the most constraints with <em>unassigned</em> variables. The reasoning is complementary to MRV — assigning a high-degree variable propagates to many neighbours at once, shrinking several domains simultaneously and reducing the branching factor of the rest of the tree. In Australia, every domain starts at size 3, so MRV is silent; the degree heuristic breaks the tie in favour of SA, which has five unassigned neighbours while WA, NT, Q, NSW and V have two or three and T has none. Choosing SA first is demonstrably the best opening move, because colouring the hub of the graph constrains the entire periphery. Degree is also used as a standalone static ordering (sort variables once by degree) when propagation is weak or when a cheap deterministic ordering is wanted, and a popular refinement is the ratio heuristic <em>dom/deg</em> — minimise domain size divided by degree — which blends the two criteria into a single score rather than using one merely as a tie-break.</p>
+
+<table>
+  <thead>
+    <tr><th>Heuristic</th><th>Selection rule</th><th>Underlying principle</th><th>Depends on propagation?</th><th>Typical cost per node</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Static (lexicographic)</td><td>Next variable in a fixed order</td><td>None</td><td>No</td><td>O(1)</td></tr>
+    <tr><td>Degree (static)</td><td>Highest constraint degree, computed once</td><td>Reduce future branching</td><td>No</td><td>O(1) after preprocessing</td></tr>
+    <tr><td>MRV (<em>dom</em>)</td><td>Smallest current domain</td><td>Fail-first</td><td>Yes — essential</td><td>O(n) scan, or O(log n) with a heap</td></tr>
+    <tr><td>MRV + degree tie-break</td><td>Smallest domain; ties to highest dynamic degree</td><td>Fail-first, then reduce branching</td><td>Yes</td><td>O(n) scan plus degree lookup</td></tr>
+    <tr><td><em>dom/deg</em></td><td>Minimise |D(X)| / degree(X)</td><td>Combined criterion</td><td>Yes</td><td>O(n) scan</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Value ordering: least constraining value.</strong> Variable ordering and value ordering answer different questions and therefore follow opposite principles. Variable ordering asks "which subtree should I expand?" and the answer is fail-first, because every child of the chosen variable must eventually be examined if the subtree contains no solution. Value ordering asks "which child should I try first?" and here the answer is <strong>succeed-first</strong>, because on a satisfiable instance the solver only has to find one solution; trying a promising value first may mean the remaining values are never examined at all.</p>
+
+<p>The <strong>least constraining value (LCV)</strong> heuristic implements succeed-first: among the values still in <code>D(X)</code>, prefer the one that rules out the fewest values in the domains of X's unassigned neighbours — in other words, the value that leaves the rest of the problem with the most freedom. It is computed by tentatively assigning each candidate value, running propagation (at minimum, forward checking; at most, full MAC), summing the surviving domain sizes over neighbouring variables, undoing the trial, and then sorting values by that count in descending order of remaining freedom. A value whose trial causes a domain wipe-out is removed from consideration altogether, which makes LCV a mild form of singleton consistency as a side effect.</p>
+
+<p>A concrete illustration: suppose WA, NT and Q are already coloured, and the solver must choose a value for SA with <code>D(SA) = {green, blue}</code>, where the unassigned neighbours are NSW with <code>D(NSW) = {red, green, blue}</code> and V with <code>D(V) = {green, blue}</code>. Trial <code>SA = green</code> removes green from both, leaving sizes 2 + 1 = 3. Trial <code>SA = blue</code> removes blue from both, leaving 2 + 1 = 3. Here LCV is indifferent, which is typical of small uniform problems. Change V's domain to <code>{green}</code> and the picture sharpens: <code>SA = green</code> wipes out V entirely (score 0, value rejected), while <code>SA = blue</code> leaves 2 + 1 = 3. LCV correctly directs the search to blue and avoids an immediate backtrack.</p>
+
+<pre><code>function ORDER-DOMAIN-VALUES-LCV(X, csp):
+    scored &lt;- []
+    for each v in D(X):
+        mark &lt;- trail.mark()
+        tentatively set D(X) = {v}; run propagation
+        if no domain is empty:
+            score &lt;- sum of |D(Y)| over unassigned neighbours Y of X
+            scored.append((score, v))
+        trail.undo_to(mark)
+    return values from scored sorted by score descending</code></pre>
+
+<p>The cost is the obvious drawback: LCV performs |D(X)| extra propagation runs at every node, so the per-node cost may rise by a factor equal to the domain size. On easy or loosely constrained instances, where backtracking is rare anyway, this is pure overhead and LCV can make the solver measurably slower in wall-clock terms while barely changing the node count. On hard instances near the phase transition, where a single wrong value choice near the root can cost an exponentially large subtree, the investment pays for itself many times over. The standard, well-tested configuration is therefore <strong>MRV (with degree tie-breaking) for variables and LCV for values</strong>, applied on top of MAC — and when counting solutions or proving unsatisfiability, where the entire tree must be explored regardless, value ordering is switched off because it can save nothing.</p>
+
+<p><strong>Backjumping and conflict-directed strategies.</strong> Chronological backtracking always returns to the immediately preceding variable, even when that variable had nothing to do with the failure. Consider an ordering WA, NSW, T, NT, Q, SA in the Australia problem with a two-colour domain {red, blue}. Suppose WA and NSW are assigned, T is assigned (irrelevantly), and the search then fails deep inside the NT/Q/SA region. Chronological backtracking will dutifully retry every value of T, re-failing identically each time, because T's assignment is causally unrelated to the conflict. The wasted effort multiplies with the size of T's domain and the number of such irrelevant variables between the conflict and its true cause — a pathology known as <em>thrashing</em>.</p>
+
+<p><strong>Backjumping</strong> fixes this by maintaining a <strong>conflict set</strong> for each variable: the set of earlier assigned variables whose values eliminated at least one value from this variable's domain. When a variable X exhausts its domain, the solver does not return to the previous variable in the ordering; it jumps directly to the <em>deepest</em> (most recently assigned) variable in conf(X), because every intermediate assignment is provably irrelevant to this particular failure and no re-trial of those variables can repair it. In the example above, if the conflict set for the failing variable is {WA, NSW}, the search jumps straight back to NSW, bypassing T entirely.</p>
+
+<p><strong>Conflict-directed backjumping (CBJ)</strong> takes the further step of propagating conflict sets upward. When the solver backjumps from X to Y, it absorbs X's conflict set into Y's: <code>conf(Y) &lt;- conf(Y) ∪ conf(X) \ {Y}</code>. Consequently, if Y subsequently exhausts its own domain, the jump target is computed from the <em>accumulated</em> reasons for failure of the whole subtree below Y, not merely Y's own local conflicts. This lets entire regions of the tree be bypassed in a single leap and is what makes CBJ substantially stronger than plain backjumping.</p>
+
+<p><strong>No-good learning</strong> generalises the idea from "where to jump" to "what to remember". A <em>no-good</em> is a partial assignment, such as <code>{WA = red, NSW = red}</code>, that has been proved to extend to no solution. Recording it means that if the search ever reconstructs that combination along a different path — perhaps with a different ordering of intermediate variables — it is rejected immediately without re-derivation. This is precisely the mechanism that, in SAT solving, appears as <em>conflict-driven clause learning</em> (CDCL): the conflict analysis walks the implication graph back to a cut, derives a learned clause, and backjumps to the assertion level implied by that clause. The practical issues are the same in both worlds — the number of no-goods can grow explosively, so solvers bound the size of recorded no-goods, periodically delete low-activity ones, and index them for fast lookup.</p>
+
+<table>
+  <thead>
+    <tr><th>Strategy</th><th>Where it returns on failure</th><th>Information retained</th><th>Extra bookkeeping</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Chronological backtracking</td><td>Previous variable in the ordering</td><td>None</td><td>None</td></tr>
+    <tr><td>Backjumping</td><td>Deepest variable in the failing variable's conflict set</td><td>Per-variable conflict sets</td><td>Small</td></tr>
+    <tr><td>Conflict-directed backjumping</td><td>Deepest variable in the accumulated conflict set</td><td>Conflict sets merged upward on each jump</td><td>Moderate</td></tr>
+    <tr><td>No-good learning / CDCL</td><td>Assertion level implied by the learned constraint</td><td>Persistent learned no-goods or clauses</td><td>Large; needs deletion policy</td></tr>
+  </tbody>
+</table>
+
+<p>An important practical observation is that <strong>the benefits of MAC and backjumping overlap</strong>. Simple backjumping jumps back to the deepest variable that pruned a value from the dead variable's domain — but forward checking already computes exactly that information, and MAC already refutes many of those branches before they are ever entered. Russell and Norvig make this point explicitly: every branch pruned by simple backjumping is also pruned by forward checking, so adding plain backjumping to a forward-checking or MAC solver buys very little. Conflict-directed backjumping and no-good learning, by contrast, do add genuine power even on top of strong propagation, because they reason about the <em>accumulated</em> causes of failure in whole subtrees rather than single-level domain wipe-outs. The engineering judgement, therefore, is: adopt MAC first; add CBJ or learning only if profiling shows thrashing on structured instances.</p>
+
+<p><strong>Trade-offs between inference cost and search savings.</strong> Every technique above shifts work from the search tree into the node. The total runtime is roughly <em>nodes explored × cost per node</em>, and the design question is always whether the reduction in the first factor outweighs the increase in the second. The answer depends systematically on the structure of the instance.</p>
+
+<ul>
+  <li><strong>Loosely constrained problems with large domains.</strong> Here solutions are plentiful and dead ends rare. Forward checking is cheap — one pass over the neighbours of the assigned variable — and is often enough, because the extra arcs MAC revises almost never fail. MAC's cascade in this regime does a great deal of work and removes very few values.</li>
+  <li><strong>Tightly constrained problems near the phase transition.</strong> Here dead ends are everywhere and detecting them one or two levels earlier compounds exponentially. MAC routinely dominates, sometimes by orders of magnitude in node count, and the extra per-node work is trivial by comparison. Sudoku is the canonical teaching example: arc consistency alone (with the appropriate all-different propagator) solves most newspaper puzzles with little or no search.</li>
+  <li><strong>Higher levels of consistency.</strong> Path consistency (3-consistency) and <em>k</em>-consistency for k &gt; 2 prune strictly more than arc consistency, but at a cost that rises sharply: enforcing path consistency on a binary CSP is O(n<sup>3</sup>d<sup>3</sup>) and, worse, it may add new binary constraints between previously unconstrained pairs, destroying the sparse structure that made propagation fast in the first place. In practice it is almost never worth the overhead inside search; the main exception is specialised domains such as temporal reasoning, where path consistency over interval algebras is both cheap and decisive. Singleton arc consistency (SAC) and restricted forms of it sit in between and are occasionally used as a preprocessing step rather than at every node.</li>
+  <li><strong>Specialised global propagators.</strong> Rather than climbing the generic consistency ladder, modern solvers get extra pruning from <em>global constraints</em> with dedicated algorithms — for example <code>alldifferent</code> propagated to generalised arc consistency via Régin's matching algorithm. This delivers far more pruning than pairwise arc consistency on the decomposed ≠ constraints, at a cost that is polynomial and tightly engineered. The lesson is that stronger inference pays when it exploits structure, not when it is applied blindly and uniformly.</li>
+</ul>
+
+<p>Two implementation properties govern whether any of this is affordable. The first is <strong>incremental propagation</strong>: after an assignment, only the arcs affected by a changed domain should be re-examined, never the whole constraint graph. The AC-3 queue already captures this idea, and finer-grained algorithms (AC-4, AC-6, AC-2001) maintain support counters or last-support pointers so that a revision costs time proportional to the values actually removed. Event-driven propagator scheduling in industrial solvers goes further still, waking a constraint only on the specific events it subscribes to (a bound change, a value removal, a variable becoming fixed). The second is <strong>cheap state restoration</strong>: the trail discussed earlier, with timestamping and sparse-set domains, so that undoing a node's work costs no more than doing it. A solver with strong propagation and O(n·d) copy-based undo at every node can easily be slower than a plain forward-checking solver with O(1)-per-removal trailing.</p>
+
+<table>
+  <thead>
+    <tr><th>Configuration</th><th>Arcs revised per node</th><th>Pruning strength</th><th>Best suited to</th><th>Typical weakness</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Backtracking only</td><td>None (consistency checks only)</td><td>Very weak</td><td>Toy instances, teaching baselines</td><td>Massive thrashing; MRV becomes useless</td></tr>
+    <tr><td>Forward checking</td><td>Arcs into the assigned variable only</td><td>Moderate</td><td>Loose constraints, large domains</td><td>Misses failures more than one arc away</td></tr>
+    <tr><td>MAC (AC-3 / AC-2001)</td><td>Transitive closure of affected arcs</td><td>Strong</td><td>Tight constraints, phase-transition instances</td><td>Wasted cascades on easy instances</td></tr>
+    <tr><td>MAC + CBJ / no-goods</td><td>As MAC, plus conflict analysis</td><td>Strong + non-chronological recovery</td><td>Structured instances with isolated conflicts</td><td>Memory growth; overlap with MAC's pruning</td></tr>
+    <tr><td>Path consistency / k-consistency</td><td>All triples (or k-tuples)</td><td>Very strong</td><td>Preprocessing, temporal algebras</td><td>Cubic+ cost; densifies the constraint graph</td></tr>
+    <tr><td>Min-conflicts local search</td><td>None (repair-based)</td><td>No completeness guarantee</td><td>Very large, loosely constrained, satisfiable</td><td>Cannot prove unsatisfiability; local minima</td></tr>
+  </tbody>
+</table>
+
+<p>Because these interactions are instance-dependent and frequently counter-intuitive, <strong>empirical benchmarking is the only reliable selection method</strong>. The discipline that makes such benchmarking trustworthy is worth stating explicitly: use a representative suite rather than a single instance; include both satisfiable and unsatisfiable cases, since value ordering helps only on the former; generate random instances across a range of constraint tightness so the phase transition is covered; run multiple seeds and report medians or means with spread, because runtimes on hard instances are heavy-tailed; impose a timeout and report the number of timeouts separately rather than silently excluding them; and always report at least one machine-independent metric (nodes expanded, constraint checks, propagation calls) alongside wall-clock time, so that a configuration that explores fewer nodes but runs slower can be recognised as such rather than confused with a genuine algorithmic loss.</p>
+
+<p><strong>Assembling a complete CSP solver.</strong> All of the above fits into a surprisingly compact architecture. The core recursive loop is: check for completeness; select an unassigned variable with the configured variable-ordering heuristic; order its values with the configured value-ordering heuristic; for each value, mark the trail, assign, propagate at the configured strength, recurse if propagation did not fail, and on failure undo to the mark and continue; if all values are exhausted, return failure (or backjump, if conflict analysis is enabled).</p>
+
+<pre><code>class Solver:
+    def __init__(self, csp, var_order="mrv_deg", val_order="lcv",
+                 inference="mac", backjump=False):
+        self.csp = csp
+        self.select_var  = VAR_HEURISTICS[var_order]
+        self.order_vals  = VAL_HEURISTICS[val_order]
+        self.propagate   = INFERENCE[inference]      # none | fc | mac
+        self.backjump    = backjump
+        self.trail       = Trail()
+        self.stats       = Counters(nodes=0, checks=0, props=0,
+                                    backtracks=0, max_depth=0)
+
+    def search(self, assignment, depth=0):
+        self.stats.nodes += 1
+        self.stats.max_depth = max(self.stats.max_depth, depth)
+        if len(assignment) == len(self.csp.variables):
+            return assignment
+        X = self.select_var(self.csp, assignment)
+        for v in self.order_vals(self.csp, X, assignment):
+            mark = self.trail.mark()
+            assignment[X] = v
+            self.csp.assign(X, v, self.trail)         # D(X) &lt;- {v}, trailed
+            if self.propagate(self.csp, X, self.trail, self.stats):
+                result = self.search(assignment, depth + 1)
+                if result is not None:
+                    return result
+            self.trail.undo_to(mark)                  # exact restoration
+            del assignment[X]
+            self.stats.backtracks += 1
+        return None</code></pre>
+
+<p>Three design commitments make this skeleton useful for study rather than merely functional. The first is <strong>pluggability</strong>. Variable ordering, value ordering and inference strength are injected as strategy objects or function references, selected by configuration flags. This is what makes controlled experiments possible: hold the instance, the seed and the machine fixed, vary exactly one component, and attribute the difference to it. Hard-coding MAC and MRV into the recursion makes the solver faster to write and impossible to evaluate.</p>
+
+<p>The second is <strong>exact state restoration</strong>. The invariant to maintain and, ideally, to assert in debug builds is: after <code>undo_to(mark)</code>, every domain is bit-for-bit identical to its state immediately before the corresponding assignment. Every removal performed by assignment or propagation since the mark must be recorded on the trail, and nothing else may be undone. The common failure modes are forgetting to trail removals made during the cascading phase of MAC, trailing a value twice and re-inserting a duplicate into a list-based domain, and undoing past the mark because marks were stored in the wrong order. A cheap and highly effective regression test is to run the solver twice — once with inference enabled and once without — and verify that both return the same solution count on small instances.</p>
+
+<p>The third is <strong>instrumentation</strong>. The counters that matter are: nodes visited (calls to <code>search</code>, i.e. search-tree size), constraint checks (individual consistency tests, the classic machine-independent effort measure), propagation calls and arc revisions (the per-node inference cost), backtracks or backjumps, maximum depth reached, values pruned, and wall-clock time. These are complementary rather than redundant, and the interesting results live in the gaps between them. A MAC configuration might visit 95% fewer nodes than forward checking while performing five times as many constraint checks per node; whether that is a win is decided by runtime, but <em>why</em> it is a win or a loss is only visible in the other counters. Similarly, LCV will typically reduce nodes modestly while increasing propagation calls sharply — a pattern immediately recognisable in the instrumentation and easy to misdiagnose from runtime alone.</p>
+
+<table>
+  <thead>
+    <tr><th>Metric</th><th>What it measures</th><th>Machine-independent?</th><th>What it reveals</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Nodes visited</td><td>Size of the explored search tree</td><td>Yes</td><td>Pruning power of inference and heuristics</td></tr>
+    <tr><td>Constraint checks</td><td>Individual consistency tests performed</td><td>Yes</td><td>Raw inference effort; comparable across machines</td></tr>
+    <tr><td>Propagation calls / revisions</td><td>Work done inside each node</td><td>Yes</td><td>Per-node cost of the inference level</td></tr>
+    <tr><td>Backtracks / backjumps</td><td>Dead ends encountered and recovery distance</td><td>Yes</td><td>Thrashing; value of conflict-directed strategies</td></tr>
+    <tr><td>Values pruned</td><td>Domain reduction achieved</td><td>Yes</td><td>Whether propagation is doing anything useful</td></tr>
+    <tr><td>Wall-clock time</td><td>Actual end-to-end cost</td><td>No</td><td>The bottom line; sensitive to implementation quality</td></tr>
+    <tr><td>Timeouts / solved count</td><td>Instances completed within a budget</td><td>Partly</td><td>Robustness on hard instances with heavy-tailed runtimes</td></tr>
+  </tbody>
+</table>
+
+<p>Finally, a complete toolkit includes a <strong>complementary local-search fallback</strong>. Systematic backtracking with MAC is complete — it will find a solution or prove none exists — but its memory of the tree and its commitment to a fixed variable ordering make it ill-suited to very large, loosely constrained instances. <strong>Min-conflicts</strong> takes the opposite approach: start from a complete but possibly inconsistent assignment (often produced by a greedy constructive pass), repeatedly pick a variable currently involved in a conflict, and reassign it to the value that minimises the number of violated constraints, with random sideways moves or restarts to escape plateaux. On <em>n</em>-queens, min-conflicts solves instances with a million queens in seconds, essentially independently of <em>n</em>, whereas even a well-tuned MAC solver struggles far earlier. The trade-off is sharp and should be stated honestly: min-conflicts is incomplete, cannot prove unsatisfiability, and degrades badly on tightly constrained instances where conflicts cannot be repaired locally — exactly the regime in which MAC excels. A pragmatic solver therefore exposes both engines behind the same interface, uses the systematic engine by default, and switches to local search (or runs the two in parallel portfolios, as competition-winning solvers do) when the instance is large, loosely constrained and known or believed to be satisfiable.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1</strong> — Directly supported: the topic shows constraint propagation operating inside the backtracking loop, with MAC re-establishing local (arc) consistency after each assignment, cascading through unassigned-to-unassigned arcs, and reducing domains until a fixpoint or a wipe-out is reached.</li>
+  <li><strong>MO2</strong> — Partially supported: forward checking is traced and contrasted against MAC on the Australian map-colouring instance, showing the exact domain reductions each produces and the point at which forward checking misses a failure that MAC detects.</li>
+  <li><strong>MO3</strong> — Supported indirectly: the AC-3 arc queue and REVISE loop are invoked as the propagation engine inside the MAC pseudocode, including the queue seeding after an assignment and the failure condition, though the algorithm itself is specified rather than implemented line by line here.</li>
+  <li><strong>MO4</strong> — Directly supported: the trade-off discussion and comparison tables set out the pruning power and per-node cost of forward checking, MAC and min-conflicts local search, and identify the instance characteristics under which each configuration is preferable.</li>
+  <li><strong>MO5</strong> — Directly supported: the solver-assembly section specifies pluggable configurations plus instrumentation counters (nodes visited, constraint checks, propagation calls, backtracks, runtime, timeouts) and the benchmarking discipline needed to interpret them as complementary metrics.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The Australian map-colouring examples, the MAC/forward-checking contrast, the fail-first and succeed-first rationales, the overlap between simple backjumping and forward checking, and the min-conflicts n-queens result all follow the standard treatment in Russell &amp; Norvig, *Artificial Intelligence: A Modern Approach* (Ch. 6), and Dechter, *Constraint Processing*. Complexity figures quoted: path consistency O(n³d³); AC-3 O(ed³) for binary CSPs; Régin's alldifferent GAC via bipartite matching. Code blocks are deliberately language-neutral pseudocode/Python-like and are illustrative rather than runnable.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>So far in this module you have treated propagation and search as separate ideas: backtracking search assigns variables one at a time, while forward checking and AC-3 prune domains. This topic puts them together. Maintaining arc consistency (MAC) runs arc consistency after every assignment, so the search tree shrinks as inference removes values that can no longer participate in any solution. Layered on top are ordering heuristics — minimum remaining values (MRV) and the degree heuristic for choosing which variable to assign next, and least constraining value (LCV) for choosing which value to try first.</p>
+<p>The other half of the story is intelligent backtracking. Plain chronological backtracking undoes the most recent decision even when the real culprit lies much further up the tree; backjumping and conflict-directed strategies use the recorded conflict set to jump back to a decision that actually matters. All of these techniques cost something per node, so the practical question is always whether the inference you pay for buys more search savings than it costs.</p>
+<p>As you watch, keep a running comparison in mind: for each heuristic, ask what information it uses, when it is computed (statically once, or dynamically at each node), and what it would cost on a large CSP. Try to sketch how you would assemble these pieces — propagation level, variable order, value order, backtracking policy — into a single configurable solver you could benchmark.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Constraint Satisfaction Problems (CSPs) 4 - Dynamic Ordering | Stanford CS221: AI (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Lyu8VzbIe_A?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problems (CSPs) 4 - Dynamic Ordering | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 19:17 · 13,710 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=Lyu8VzbIe_A" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A segment from Stanford's CS221 lecture series on constraint satisfaction, focused on dynamic ordering. Based on its title and placement in the CSP sequence, it should cover how the order in which variables and values are considered is chosen during search rather than fixed in advance, which is exactly the idea behind most-constrained-variable (MRV) and least-constraining-value heuristics. Expect the discussion to connect ordering decisions to the lookahead/propagation machinery introduced earlier in the series.</p>
+<h3>Why this video</h3>
+<p>It comes from a graduate AI course taught at Stanford, so the treatment of ordering heuristics is rigorous and tied to the formal CSP framework, and it directly addresses the variable- and value-ordering subtopics of this page.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Constraint Satisfaction Problems (CSPs) 1 - Overview | Stanford CS221: AI (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/-IO4fPO0rxk?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problems (CSPs) 1 - Overview | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 13:50 · 56,216 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=-IO4fPO0rxk" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>The opening lecture segment of the same Stanford CS221 CSP series, giving an overview of constraint satisfaction problems. It should set up variables, domains, constraints and the factor-graph style formulation that the later segments build on, including the search procedures that propagation plugs into. Watch it first if the dynamic ordering video feels like it starts mid-conversation.</p>
+<h3>Why this video</h3>
+<p>It supplies the vocabulary and problem framing needed to make sense of MAC and ordering heuristics, and its popularity and source make it a reliable grounding piece for students who want the full context.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: The 4 Queens Problem, AI &amp; CSPs</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/X6m0DXt95bs?cc_load_policy=1&amp;rel=0" title="Video: The 4 Queens Problem, AI &amp; CSPs (a bit of intelligence)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>a bit of intelligence</strong> · 5:51 · 15,057 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=X6m0DXt95bs" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short, worked walkthrough of the 4-Queens problem as a CSP, with timestamps indicating segments on MRV, forward checking, LCV, backtracking and trade-offs. In under six minutes it demonstrates on a single concrete instance how each heuristic changes the choice made at a node and how forward checking prunes the remaining domains. It is the most hands-on of the three videos.</p>
+<h3>Why this video</h3>
+<p>It compresses almost every subtopic on this page into one traceable example, which is ideal practice for the kind of step-by-step tracing the module assessments require.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos extend the propagation ideas of MO1 into full search: the Stanford overview establishes the CSP formalism that local consistency operates within, the dynamic ordering segment explains how MRV, degree and LCV choose branches as domains change, and the 4-Queens walkthrough lets you trace forward checking and heuristic choices on a concrete instance in the manner required by MO2. The explicit discussion of trade-offs in the short video, plus the per-node cost framing in the Stanford material, supports the comparison of forward checking and MAC in MO4 and gives you the reasoning you will need to interpret nodes-expanded and runtime benchmarks for MO5. Note that AC-3's queue and REVISE subroutine (MO3) are covered in the module readings rather than in these videos; use the videos to understand where that algorithm is invoked during search.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

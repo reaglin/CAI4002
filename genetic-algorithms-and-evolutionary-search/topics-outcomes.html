@@ -1,0 +1,207 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genetic Algorithms and Evolutionary Search — Topics &amp; Learning Outcomes</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:880px;margin:0 auto;padding:32px 24px;color:#222;line-height:1.55}
+h1{font-size:1.6rem;border-bottom:2px solid #dcdcdc;padding-bottom:8px}
+h2{font-size:1.25rem;margin-top:30px;color:#1a3c6e;border-bottom:1px solid #ececec;padding-bottom:4px}
+h3{font-size:1.05rem;margin-top:22px;color:#1a3c6e}
+.toc{border:1px solid #c9d4e3;background:#f5f8fc;border-radius:8px;padding:10px 16px;margin:14px 0 6px;display:flex;gap:18px;flex-wrap:wrap}
+.toc a{color:#1a3c6e;font-weight:600;text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.summary{color:#555;font-style:italic;margin:4px 0 10px}
+ul{margin:6px 0 6px 4px}
+li{margin:5px 0}
+.el-body{color:#555}
+.prefix{color:#555;font-style:italic;margin:6px 0 14px}
+.mo{border:1px solid #e2e2e2;border-radius:6px;padding:12px 16px;margin:12px 0}
+.mo .code{font-size:.8rem;color:#595959;text-transform:uppercase;letter-spacing:.04em}
+.mo .statement{font-weight:600;margin:4px 0 8px}
+.meta span{display:inline-block;background:#eef2f8;color:#1a3c6e;border-radius:3px;padding:1px 8px;margin:0 6px 0 0;font-size:.85rem}
+.meta .map{background:#eaf6ec;color:#137333}
+.co{margin:7px 0}
+.co .code{font-weight:600;color:#1a3c6e;margin-right:6px}
+.empty{color:#595959}
+.tm-jump{margin:2px 0 8px;font-size:.92rem}
+.tm-jump a{color:#1a3c6e;font-weight:600}
+ul.tm li{margin:7px 0}
+ul.tm a{color:#1a3c6e;font-weight:600}
+.tm-kind{display:inline-block;background:#eef2f8;color:#1a3c6e;border-radius:3px;padding:1px 8px;margin-left:6px;font-size:.82rem}
+.tm-also{color:#555;font-size:.88rem}
+.tm-back{margin:0 0 4px;font-size:.88rem}
+.tm-back a{color:#1a3c6e}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Genetic Algorithms and Evolutionary Search</a></div>
+<h1>Genetic Algorithms and Evolutionary Search — Topics &amp; Learning Outcomes</h1>
+<div class="toc"><a href="#topics">📋 Module Topics</a><a href="#outcomes">🎯 Student Learning Outcomes</a><a href="#materials">📚 Materials for Each Topic</a></div>
+
+<h2 id="topics">Module Topics</h2>
+<h3 id="topic-1">1. Foundations of Evolutionary Computation</h3>
+<div class="summary">Introduces the biological inspiration behind evolutionary algorithms and how population-based search differs from classical and local search methods. Establishes core terminology such as individuals, populations, generations, and the generational cycle.</div>
+<p class="tm-jump"><a href="#materials-topic-1">Materials for topic 1 (3)</a></p>
+<ul>
+<li><strong>Biological Inspiration for Search</strong> <span class="el-body">— Evolutionary computation borrows its core mechanics from Darwinian natural selection, where better-adapted organisms reproduce more often and pass traits forward. Algorithms mimic this process to improve candidate solutions over time.</span></li>
+<li><strong>Core Terminology</strong> <span class="el-body">— Evolutionary algorithms use a consistent vocabulary that maps biological concepts onto computational objects. Understanding these terms is essential before examining operators.</span></li>
+<li><strong>Population-Based Versus Single-Point Search</strong> <span class="el-body">— Classical and local search methods typically track one current solution, whereas evolutionary algorithms maintain many solutions at once. This distinction changes how the search space is explored.</span></li>
+<li><strong>The Generational Cycle</strong> <span class="el-body">— Evolutionary algorithms repeat a fixed loop of steps until a stopping condition is met. Each pass through the loop produces a new generation of candidate solutions.</span></li>
+<li><strong>Exploration, Exploitation, and Termination</strong> <span class="el-body">— Effective evolutionary search balances the discovery of new regions against the refinement of promising ones. Termination criteria decide when that search ends.</span></li>
+<li><strong>When Evolutionary Methods Are Appropriate</strong> <span class="el-body">— Evolutionary algorithms are general-purpose optimisers suited to problems that defeat analytical or exhaustive techniques. They are not universally superior to specialised methods.</span></li>
+</ul>
+<h3 id="topic-2">2. Problem Encoding and Representation</h3>
+<div class="summary">Covers how candidate solutions are encoded as chromosomes using binary, integer, real-valued, permutation, and tree representations. Examines how representation choice shapes the search space and constrains the operators that can be applied.</div>
+<p class="tm-jump"><a href="#materials-topic-2">Materials for topic 2 (3)</a></p>
+<ul>
+<li><strong>The Role of Encoding in Genetic Algorithms</strong> <span class="el-body">— Encoding is the mapping between a real-world candidate solution (the phenotype) and the data structure a genetic algorithm manipulates (the genotype or chromosome). Every GA begins with this design decision because all operators act on the encoded form, not on the problem itself.</span></li>
+<li><strong>Binary Representation</strong> <span class="el-body">— Binary encoding represents each chromosome as a fixed-length string of 0s and 1s and is the classical representation used in early genetic algorithm work. It is simple, general, and supports the standard bit-flip mutation and single-point crossover operators.</span></li>
+<li><strong>Integer and Real-Valued Representations</strong> <span class="el-body">— Many problems are expressed more naturally using integer or floating-point genes rather than bit strings. These representations remove the decoding step and let operators work directly in the problem&#39;s own units.</span></li>
+<li><strong>Permutation Representation</strong> <span class="el-body">— Permutation encoding represents a solution as an ordering of a fixed set of elements and is used where sequence or assignment order determines quality. The travelling salesman problem and job-shop scheduling are the canonical examples.</span></li>
+<li><strong>Tree and Variable-Length Representations</strong> <span class="el-body">— Tree encoding represents solutions as hierarchical structures of functions and terminals, forming the basis of genetic programming. Chromosome size and shape vary across the population rather than being fixed.</span></li>
+<li><strong>Representation, Constraints, and Operator Choice</strong> <span class="el-body">— The representation chosen determines which operators are legal, how constraints are handled, and how smoothly fitness varies across neighbouring chromosomes. Matching representation to problem structure is often more decisive than tuning GA parameters.</span></li>
+</ul>
+<h3 id="topic-3">3. Fitness Functions and Evaluation</h3>
+<div class="summary">Explains how to design fitness functions that accurately measure solution quality and guide selective pressure. Addresses constraint handling through penalties and repair, along with multi-objective and noisy fitness considerations.</div>
+<p class="tm-jump"><a href="#materials-topic-3">Materials for topic 3 (3)</a></p>
+<ul>
+<li><strong>The Role of the Fitness Function</strong> <span class="el-body">— The fitness function is the only link between a genetic algorithm and the problem it is solving, translating a candidate solution into a numeric measure of quality. It defines what the search considers &#39;better&#39; and therefore determines the direction of evolution.</span></li>
+<li><strong>Designing a Discriminating Fitness Landscape</strong> <span class="el-body">— A good fitness function provides a graded signal that distinguishes partially good solutions from poor ones, rather than a flat or binary score. Smooth gradation lets selection accumulate useful building blocks incrementally.</span></li>
+<li><strong>Fitness Scaling and Selective Pressure</strong> <span class="el-body">— Raw objective values often need transformation so that selection pressure stays appropriate throughout the run. Scaling controls how strongly better individuals are favoured over weaker ones.</span></li>
+<li><strong>Constraint Handling: Penalties and Repair</strong> <span class="el-body">— Many real problems include constraints that random genetic operators will routinely violate. The fitness evaluation must decide how to treat infeasible individuals so the search is guided toward the feasible region.</span></li>
+<li><strong>Multi-Objective Fitness Evaluation</strong> <span class="el-body">— Practical problems usually involve several competing criteria, such as cost versus quality or speed versus reliability. Multi-objective evaluation must express these trade-offs without collapsing them prematurely.</span></li>
+<li><strong>Noisy and Uncertain Fitness</strong> <span class="el-body">— When evaluation involves simulation, sampling, or real-world measurement, the same chromosome may produce different fitness values on repeated evaluation. Noise can mislead selection into favouring lucky individuals.</span></li>
+<li><strong>Validating and Tuning the Fitness Function</strong> <span class="el-body">— Fitness design is iterative: initial runs frequently reveal that the algorithm is exploiting loopholes or stalling on uninformative scores. Systematic validation prevents wasted computation.</span></li>
+</ul>
+<h3 id="topic-4">4. Selection Strategies</h3>
+<div class="summary">Surveys selection mechanisms including roulette wheel, rank-based, tournament, and elitism, and how each controls selective pressure. Discusses the balance between exploration and exploitation and the risks of premature convergence.</div>
+<p class="tm-jump"><a href="#materials-topic-4">Materials for topic 4 (3)</a></p>
+<ul>
+<li><strong>The Role of Selection in Evolutionary Search</strong> <span class="el-body">— Selection is the operator that decides which individuals in the current population contribute genetic material to the next generation. It is the primary mechanism through which fitness information steers the search.</span></li>
+<li><strong>Roulette Wheel (Fitness-Proportionate) Selection</strong> <span class="el-body">— Roulette wheel selection assigns each individual a probability of being chosen that is proportional to its fitness relative to the population total. It is the classical selection method described in early GA literature.</span></li>
+<li><strong>Rank-Based Selection</strong> <span class="el-body">— Rank-based selection sorts the population by fitness and allocates selection probability according to rank position rather than raw fitness value. This decouples selective pressure from the scale of the fitness function.</span></li>
+<li><strong>Tournament Selection</strong> <span class="el-body">— Tournament selection repeatedly draws a small random subset of individuals and selects the fittest member of that subset. It is simple, efficient, and the most widely used scheme in practical GA implementations.</span></li>
+<li><strong>Elitism and Survivor Selection</strong> <span class="el-body">— Elitism copies a small number of the best individuals unchanged into the next generation, guaranteeing that the best-so-far solution is never lost to crossover or mutation. Survivor selection more generally decides which individuals persist across generations.</span></li>
+<li><strong>Balancing Exploration and Exploitation</strong> <span class="el-body">— Effective selection balances exploring new regions of the search space against exploiting promising regions already found. Selection pressure is the main dial for this trade-off.</span></li>
+<li><strong>Premature Convergence and Its Remedies</strong> <span class="el-body">— Premature convergence occurs when the population loses diversity and settles on a local optimum long before the search budget is exhausted. Recognising and countering it is a core practical skill in GA design.</span></li>
+</ul>
+<h3 id="topic-5">5. Crossover and Mutation Operators</h3>
+<div class="summary">Details recombination operators such as single-point, multi-point, uniform, and order-based crossover, together with mutation schemes for different encodings. Explores the roles of these operators in combining building blocks and maintaining diversity.</div>
+<p class="tm-jump"><a href="#materials-topic-5">Materials for topic 5 (3)</a></p>
+<ul>
+<li><strong>The Role of Crossover in Evolutionary Search</strong> <span class="el-body">— Crossover (recombination) combines genetic material from two or more parents to create offspring that inherit features from each. It is the primary exploitative operator in a genetic algorithm, assembling promising partial solutions discovered by different individuals.</span></li>
+<li><strong>Single-Point and Multi-Point Crossover</strong> <span class="el-body">— Point-based crossover operators cut two parent chromosomes at one or more randomly chosen loci and exchange the resulting segments. They are the classical operators for fixed-length binary or integer strings.</span></li>
+<li><strong>Uniform and Arithmetic Crossover</strong> <span class="el-body">— Uniform crossover decides the parent source of each gene independently, while arithmetic crossover blends real-valued genes numerically. Both reduce the positional bias inherent in point-based operators.</span></li>
+<li><strong>Order-Based Crossover for Permutation Encodings</strong> <span class="el-body">— Permutation problems such as scheduling and the travelling salesperson problem require operators that produce valid orderings with no duplicated or missing elements. Specialised order-based crossovers achieve this.</span></li>
+<li><strong>Mutation Schemes for Different Encodings</strong> <span class="el-body">— Mutation applies small random changes to individual chromosomes, introducing alleles that may be absent from the population. The specific scheme must match the representation used.</span></li>
+<li><strong>Balancing Exploration, Exploitation, and Diversity</strong> <span class="el-body">— Crossover and mutation play complementary roles: recombination exploits existing information while mutation supplies new information and prevents convergence to a single genotype. Operator rates control this balance.</span></li>
+</ul>
+<h3 id="topic-6">6. Algorithm Design, Tuning, and Convergence</h3>
+<div class="summary">Brings the components together into a complete genetic algorithm loop with parameter choices for population size, crossover and mutation rates, and termination criteria. Covers diagnosing convergence behaviour, maintaining diversity, and benchmarking performance.</div>
+<p class="tm-jump"><a href="#materials-topic-6">Materials for topic 6 (3)</a></p>
+<ul>
+<li><strong>The Complete Generational Loop</strong> <span class="el-body">— A genetic algorithm assembles encoding, fitness evaluation, selection, crossover, and mutation into a repeating generational cycle. Understanding the order and purpose of each stage is essential before tuning any parameter.</span></li>
+<li><strong>Choosing Population Size</strong> <span class="el-body">— Population size controls how much of the search space is sampled in parallel and directly affects both solution quality and runtime cost.</span></li>
+<li><strong>Setting Crossover and Mutation Rates</strong> <span class="el-body">— Crossover and mutation rates govern the balance between exploiting existing good material and exploring new regions of the search space.</span></li>
+<li><strong>Termination Criteria</strong> <span class="el-body">— A genetic algorithm has no natural stopping point, so an explicit termination condition must be defined in advance.</span></li>
+<li><strong>Diagnosing Convergence Behaviour</strong> <span class="el-body">— Plotting fitness and diversity over generations reveals whether the algorithm is exploring effectively or has stalled.</span></li>
+<li><strong>Maintaining Population Diversity</strong> <span class="el-body">— Diversity preservation techniques counteract the natural tendency of selection to drive the population towards a single genotype.</span></li>
+<li><strong>Benchmarking and Performance Evaluation</strong> <span class="el-body">— Because genetic algorithms are stochastic, performance claims require repeated runs and statistical comparison rather than single results.</span></li>
+</ul>
+<h3 id="topic-7">7. Case Studies in Scheduling, Design, and Optimization</h3>
+<div class="summary">Applies genetic algorithms to practical problems such as job-shop and timetable scheduling, engineering design, and combinatorial optimization. Compares outcomes against alternative methods and extracts practical lessons for real deployments.</div>
+<p class="tm-jump"><a href="#materials-topic-7">Materials for topic 7 (3)</a></p>
+<ul>
+<li><strong>Job-Shop Scheduling with Genetic Algorithms</strong> <span class="el-body">— Job-shop scheduling assigns operations of multiple jobs to machines in an order that minimises makespan or tardiness, and it is a classic proving ground for genetic algorithms.</span></li>
+<li><strong>Timetabling and Resource Allocation</strong> <span class="el-body">— University and staff timetabling involves assigning events to time slots and rooms while satisfying hard constraints and optimising soft preferences.</span></li>
+<li><strong>Engineering Design Optimisation</strong> <span class="el-body">— Genetic algorithms are widely used in parametric and structural design where objectives are non-linear, discontinuous, or evaluated by simulation.</span></li>
+<li><strong>Combinatorial Optimisation Problems</strong> <span class="el-body">— Routing, packing, and assignment problems have discrete search spaces that grow factorially, making them natural targets for evolutionary search.</span></li>
+<li><strong>Comparing Genetic Algorithms with Alternative Methods</strong> <span class="el-body">— A credible case study benchmarks the GA against other approaches on the same instances, budget, and objective definition.</span></li>
+<li><strong>Practical Lessons for Real Deployments</strong> <span class="el-body">— Case-study evidence points to recurring practical issues that determine whether a genetic algorithm succeeds outside the laboratory.</span></li>
+</ul>
+<h2 id="outcomes">Student Learning Outcomes</h2>
+<p class="prefix">By the end of this module, students will be able to:</p>
+<div class="mo">
+<div class="code">MO1</div>
+<div class="statement">Explain the stages of the generational cycle in an evolutionary algorithm, including selection, crossover, mutation, and evaluation</div>
+<div class="meta"><span>Level: Understand</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO2</div>
+<div class="statement">Select an appropriate chromosome representation (binary, integer, real-valued, permutation, or tree) for a given optimisation problem</div>
+<div class="meta"><span>Level: Apply</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO3</div>
+<div class="statement">Construct a fitness function that provides a graded quality signal and handles problem constraints through penalties or repair</div>
+<div class="meta"><span>Level: Create</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO4</div>
+<div class="statement">Compare selection strategies such as roulette wheel, rank-based, and tournament selection in terms of the selective pressure they generate</div>
+<div class="meta"><span>Level: Analyze</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO5</div>
+<div class="statement">Evaluate the convergence behaviour of a genetic algorithm applied to a scheduling or combinatorial optimisation problem using repeated runs and diversity diagnostics</div>
+<div class="meta"><span>Level: Evaluate</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<h3>Course Outcomes (reference)</h3>
+<p class="empty">No course outcomes have been defined.</p>
+<h2 id="materials">Materials for Each Topic</h2>
+<p class="prefix">What has been made for each topic. Materials that cover the whole module are listed on the module page.</p>
+<h3 id="materials-topic-1">1. Foundations of Evolutionary Computation</h3>
+<p class="tm-back"><a href="#topic-1">↑ Back to topic 1</a></p>
+<ul class="tm">
+<li><a href="content/Genetic_Algorithms_and_interactive_t1_detail-video.html">Foundations of Evolutionary Computation — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Genetic_Algorithms_and_interactive_topics_t1.html">Foundations of Evolutionary Computation</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Genetic_Algorithms_and_t1_videos.html">Foundations of Evolutionary Computation — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-2">2. Problem Encoding and Representation</h3>
+<p class="tm-back"><a href="#topic-2">↑ Back to topic 2</a></p>
+<ul class="tm">
+<li><a href="content/Genetic_Algorithms_and_interactive_t2_detail-video.html">Problem Encoding and Representation — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Genetic_Algorithms_and_interactive_topics_t2.html">Problem Encoding and Representation</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Genetic_Algorithms_and_t2_videos.html">Problem Encoding and Representation — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-3">3. Fitness Functions and Evaluation</h3>
+<p class="tm-back"><a href="#topic-3">↑ Back to topic 3</a></p>
+<ul class="tm">
+<li><a href="content/Genetic_Algorithms_and_interactive_t3_detail-video.html">Fitness Functions and Evaluation — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Genetic_Algorithms_and_interactive_topics_t3.html">Fitness Functions and Evaluation</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Genetic_Algorithms_and_t3_videos.html">Fitness Functions and Evaluation — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-4">4. Selection Strategies</h3>
+<p class="tm-back"><a href="#topic-4">↑ Back to topic 4</a></p>
+<ul class="tm">
+<li><a href="content/Genetic_Algorithms_and_interactive_t4_detail-video.html">Selection Strategies — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Genetic_Algorithms_and_interactive_topics_t4.html">Selection Strategies</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Genetic_Algorithms_and_t4_videos.html">Selection Strategies — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-5">5. Crossover and Mutation Operators</h3>
+<p class="tm-back"><a href="#topic-5">↑ Back to topic 5</a></p>
+<ul class="tm">
+<li><a href="content/Genetic_Algorithms_and_interactive_t5_detail-video.html">Crossover and Mutation Operators — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Genetic_Algorithms_and_interactive_topics_t5.html">Crossover and Mutation Operators</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Genetic_Algorithms_and_t5_videos.html">Crossover and Mutation Operators — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-6">6. Algorithm Design, Tuning, and Convergence</h3>
+<p class="tm-back"><a href="#topic-6">↑ Back to topic 6</a></p>
+<ul class="tm">
+<li><a href="content/Genetic_Algorithms_and_interactive_t6_detail-video.html">Algorithm Design, Tuning, and Convergence — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Genetic_Algorithms_and_interactive_topics_t6.html">Algorithm Design, Tuning, and Convergence</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Genetic_Algorithms_and_t6_videos.html">Algorithm Design, Tuning, and Convergence — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-7">7. Case Studies in Scheduling, Design, and Optimization</h3>
+<p class="tm-back"><a href="#topic-7">↑ Back to topic 7</a></p>
+<ul class="tm">
+<li><a href="content/Genetic_Algorithms_and_interactive_t7_detail-video.html">Case Studies in Scheduling, Design, and Optimization — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Genetic_Algorithms_and_interactive_topics_t7.html">Case Studies in Scheduling, Design, and Optimization</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Genetic_Algorithms_and_t7_videos.html">Case Studies in Scheduling, Design, and Optimization — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

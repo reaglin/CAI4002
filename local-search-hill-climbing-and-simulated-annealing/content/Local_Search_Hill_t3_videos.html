@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hill Climbing and Its Variants</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Local Search: Hill Climbing and Simulated Annealing</a></div>
+<h1>Hill Climbing and Its Variants</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: Hill Climbing Search</a>
+<a href="#sec3">Video 2: Traveling Salesman Problem (TSP) + Python + Hill Climbing (public version)</a>
+<a href="#sec4">Video 3: (CSE-4101) Hill Climbing Algorithm and Linear Programming concept short explanation.</a>
+<a href="#sec5">How These Videos Support the Learning Outcomes</a>
+<a href="#sec6">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>Most of the search methods you have seen so far build a path from a start state to a goal, keeping track of everything explored along the way. Local search works differently: it starts from a complete candidate solution — a full assignment such as all eight queens already placed on the board — and repeatedly tweaks it using a move operator, judging each candidate by an objective function. Because only the current state (and sometimes a few neighbors) is kept in memory, local search scales to very large problems where systematic search is hopeless.</p>
+<p>Hill climbing is the simplest local search strategy: look at the neighbors of the current state, move to one that is better, and stop when no neighbor improves. That greedy loop is fast but short-sighted — it gets stuck on local maxima, wanders on plateaus, and struggles along ridges. The variants in this topic are all attempts to patch those weaknesses: steepest-ascent evaluates all neighbors and takes the best, first-choice generates neighbors at random and takes the first improvement, stochastic hill climbing picks among uphill moves with probability weighted by steepness, and random-restart simply runs hill climbing many times from different random starting points.</p>
+<p>As you watch the videos below, keep three questions in mind. First, what exactly counts as a state and a neighbor in the problem being shown? Second, how does the algorithm decide which neighbor to move to, and how is that decision different across the variants? Third, what happens when no neighbor is better — does the algorithm stop, restart, or accept a sideways move? Being able to answer these for any given landscape is the core skill this topic builds toward.</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: Hill Climbing Search</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/VoUotaCmDk4?cc_load_policy=1&amp;rel=0" title="Video: Hill Climbing Search (Zareen Zulkarnain)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Zareen Zulkarnain</strong> · 5:20 · 26,025 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=VoUotaCmDk4" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A compact introduction to hill climbing as a search strategy, walking through the basic loop of evaluating neighboring states and moving to a better one. Based on its framing as an AI search lecture clip, expect coverage of the heuristic/objective function, the greedy move rule, and the conditions under which the search terminates. A version without background music is linked by the creator if you find the audio distracting.</p>
+<h3>Why this video</h3>
+<p>At just over five minutes it gives a clean first pass at the basic hill-climbing loop and the vocabulary of states, neighbors, and evaluation functions, which is the foundation every variant in this topic builds on.</p>
+</section>
+<section class="item" id="sec3">
+<h2>Video 2: Traveling Salesman Problem (TSP) + Python + Hill Climbing (public version)</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/pUIxHMlj5kU?cc_load_policy=1&amp;rel=0" title="Video: Traveling Salesman Problem (TSP) + Python + Hill Climbing (public version) (Prototype Project)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Prototype Project</strong> · 5:10 · 4,119 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=pUIxHMlj5kU" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This video applies hill climbing to the Traveling Salesman Problem using Python, showing how a tour is represented as a complete state and how small changes to that tour act as move operators. The channel&#39;s framework-based approach means you are likely to see the algorithm running on an actual instance, with tour length serving as the objective to minimize. It is part of a broader TSP series, so the code framework is introduced in companion videos.</p>
+<h3>Why this video</h3>
+<p>It grounds the abstract algorithm in a concrete, large-scale optimization problem, which is exactly the kind of complete-state formulation — states, neighbor moves, and an objective function — that this topic asks you to be able to specify yourself.</p>
+</section>
+<section class="item" id="sec4">
+<h2>Video 3: (CSE-4101) Hill Climbing Algorithm and Linear Programming concept short explanation.</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/e618KZpNMdY?cc_load_policy=1&amp;rel=0" title="Video: (CSE-4101) Hill Climbing Algorithm and Linear Programming concept short explanation. (Samiul Islam)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Samiul Islam</strong> · 5:17 · 68 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=e618KZpNMdY" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short classroom-style explanation that covers hill climbing in AI and then specifically addresses how the random-restart variant works. The description also indicates a brief detour into solving linear programming problems, so expect the hill-climbing portion to be the first and most relevant segment for this topic.</p>
+<h3>Why this video</h3>
+<p>It directly names and explains random-restart hill climbing, the variant that addresses the local-maximum problem, giving you a second perspective on why restarting beats continuing from a stuck state.</p>
+</section>
+<section class="item" id="sec5">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>Together these videos cover the arc of the topic: the first establishes the complete-state view of local search and the basic greedy loop (MO1, MO3), the TSP walkthrough shows a real problem cast as states, move operators, and an objective function you can trace step by step (MO2, MO3), and the third focuses on random restart as a response to getting stuck, which opens the discussion of local maxima and plateaus (MO3, MO4). None of the three fully compares all four variants or treats simulated annealing&#39;s cooling schedule, so use the module readings and lecture notes to complete the trade-off comparison and the cost-versus-quality reasoning behind algorithm selection (MO4, MO5).</p>
+</section>
+<section class="item" id="sec6">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

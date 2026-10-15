@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HMM Inference Tasks and Algorithms</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Probabilistic Reasoning with Bayesian Networks and HMMs</a></div>
+<h1>HMM Inference Tasks and Algorithms</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: Viterbi Algorithm</a>
+<a href="#sec3">Video 2: 26. The forward and backward algorithms</a>
+<a href="#sec4">Video 3: Week 9 Lecture 61 Hidden Markov Models</a>
+<a href="#sec5">How These Videos Support the Learning Outcomes</a>
+<a href="#sec6">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>A Hidden Markov Model (HMM) describes a system that changes over time through a sequence of hidden states that we cannot observe directly. Instead, at each time step we receive an observation (evidence) that depends probabilistically on the current hidden state. The model is specified by three pieces: an initial state distribution, a transition model giving the probability of moving from one state to the next, and an emission (sensor) model giving the probability of each observation given a state. Because the state at time t depends only on the state at time t-1, and the observation depends only on the current state, we can reason about long sequences efficiently with dynamic programming instead of enumerating every possible state path.</p>
+<p>This topic organizes HMM reasoning into four standard inference tasks. Filtering asks for the belief about the current state given all evidence so far, and is computed recursively by the forward algorithm. Prediction projects that belief forward past the last observation using only the transition model. Smoothing asks about a past state given all the evidence, including evidence that arrived later, and is handled by combining forward messages with backward messages (the forward-backward algorithm). Most likely explanation asks for the single best state sequence as a whole, which is the job of the Viterbi algorithm. These tasks matter in this course because they turn the general Bayesian-network machinery of the module into a practical, tractable procedure for sequential data such as speech, part-of-speech tagging, robot localization, and gene sequence analysis.</p>
+<p>As you watch, keep three questions in mind. First, which evidence is being conditioned on in each task, and how does that change the recursion? Second, what is stored in each cell of the dynamic programming table, and how is it computed from the previous column? Third, where does Viterbi differ from the forward algorithm: Viterbi replaces the sum over predecessor states with a maximum and keeps backpointers so the best path can be recovered. Tracking those differences will make the four tasks feel like variations on one pattern rather than four separate formulas.</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: Viterbi Algorithm</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Xh3mf9O5SL0?cc_load_policy=1&amp;rel=0" title="Video: Viterbi Algorithm (Natalie Parde)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Natalie Parde</strong> · 10:47 · 10,089 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=Xh3mf9O5SL0" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This video walks through the Viterbi algorithm for finding the most likely hidden state sequence in an HMM, following the treatment in Jurafsky and Martin&#39;s Speech and Language Processing. Expect the dynamic programming trellis to be set up explicitly, with transition and emission probabilities multiplied into each cell, a max taken over predecessor states, and backpointers used to recover the best path at the end. Since the source text is a natural language processing textbook, the example is likely framed in terms of a tagging or decoding problem.</p>
+<h3>Why this video</h3>
+<p>It gives focused, worked coverage of the Most Likely Explanation subtopic from a widely used and reliable textbook source, and the step-by-step trellis presentation makes the max-versus-sum distinction concrete.</p>
+</section>
+<section class="item" id="sec3">
+<h2>Video 2: 26. The forward and backward algorithms</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/LiyqBDGAMf0?cc_load_policy=1&amp;rel=0" title="Video: 26. The forward and backward algorithms (Kevin Bioinformatics)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Kevin Bioinformatics</strong> · 15:37 · 761 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=LiyqBDGAMf0" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This lecture covers both the forward and the backward algorithms for HMMs, including the definition of the dynamic programming table and a worked example that fills the table in step by step. The forward pass computes the probability of the evidence seen so far together with each possible current state, which is exactly what filtering requires; the backward pass computes the probability of future evidence given each state, which is the piece needed for smoothing.</p>
+<h3>Why this video</h3>
+<p>It is the most direct coverage of the filtering and forward-backward subtopics, and seeing the forward and backward recursions developed side by side with a shared example clarifies how smoothing combines the two messages.</p>
+</section>
+<section class="item" id="sec4">
+<h2>Video 3: Week 9 Lecture 61 Hidden Markov Models</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/qGtth60V6nM?cc_load_policy=1&amp;rel=0" title="Video: Week 9 Lecture 61 Hidden Markov Models (Machine Learning- Balaraman Ravindran)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Machine Learning- Balaraman Ravindran</strong> · 10:32 · 6,443 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=qGtth60V6nM" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A university lecture segment introducing Hidden Markov Models and situating the inference questions within a broader machine learning course. The description indicates it covers the Viterbi algorithm along with maximum a posteriori and MAP inference, so expect the HMM framework and notation to be set up first and the most-probable-sequence query to be framed as a MAP problem over state sequences.</p>
+<h3>Why this video</h3>
+<p>It supplies the framework-and-setup subtopic and connects HMM decoding back to the general probabilistic inference vocabulary used elsewhere in the module, which helps when comparing tasks and choosing an algorithm.</p>
+</section>
+<section class="item" id="sec5">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>Together these videos target MO5 most directly: the forward and backward algorithm lecture supplies the recursions for filtering and smoothing, the Viterbi video supplies the most-likely-explanation procedure with backpointer recovery, and the course lecture provides the HMM framework and notation that ties the queries together. Because every one of these algorithms is a structured application of marginalization, conditioning, and Bayes&#39; rule over a temporal Bayesian network, the videos also reinforce MO1 and show how the independence structure assumed in MO2 and MO3 is what makes these efficient recursions possible. Prediction and the comparison of tasks are best consolidated from the course notes and practice problems, using the videos as the computational backbone.</p>
+</section>
+<section class="item" id="sec6">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

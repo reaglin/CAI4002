@@ -1,0 +1,397 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>First-Order Logic: Objects, Relations, and Quantifiers</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Logical Agents: Propositional and First-Order Logic</a></div>
+  <header>
+    <h1>First-Order Logic: Objects, Relations, and Quantifiers</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>First-Order Logic: Objects, Relations, and Quantifiers</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Propositional logic gives us a clean, well-understood framework: a vocabulary of atomic symbols, five connectives, a truth-functional semantics, and complete inference procedures such as resolution refutation. What it does not give us is a way to talk about <em>things</em>. A propositional symbol like <code>KingJohnIsGreedy</code> is atomic — the logic cannot see inside it to notice that it concerns a particular individual (John) and a particular property (greed), and therefore it cannot relate that symbol to <code>KingRichardIsGreedy</code> in any systematic way. First-order logic (FOL), sometimes called first-order predicate calculus, repairs this by committing to a richer <strong>ontology</strong>: the world is assumed to contain <strong>objects</strong>, <strong>relations</strong> that hold among those objects, and <strong>functions</strong> that map objects to other objects. This single change in what the logic "sees" produces an enormous gain in expressive power while leaving the familiar machinery of connectives, models, and entailment intact.</p>
+
+<p><strong>Why first-order logic extends propositional logic</strong></p>
+
+<p>The central weakness of propositional logic is that it has no way to state a <em>general rule about a class of objects</em>. Consider the classic statement "All humans are mortal." In propositional logic, the only way to capture its content is to enumerate instances:</p>
+
+<pre><code>HumanSocrates ⇒ MortalSocrates
+HumanPlato   ⇒ MortalPlato
+HumanAristotle ⇒ MortalAristotle
+...</code></pre>
+
+<p>Every human in the domain needs its own sentence. If the domain has ten thousand humans, the knowledge base needs ten thousand sentences; if a new human appears, the knowledge base must be extended by hand; and if the domain is infinite (say, the natural numbers), no finite propositional knowledge base can express the rule at all. In first-order logic the same content is one sentence:</p>
+
+<pre><code>∀x Human(x) ⇒ Mortal(x)</code></pre>
+
+<p>This sentence <em>quantifies</em> over the domain: it asserts something about every object at once, without naming any of them. The saving is not merely one of typing. It means the knowledge base states the rule once and the inference procedure instantiates it on demand for whichever objects turn out to be relevant.</p>
+
+<p>The three ontological commitments of FOL map directly onto three kinds of symbol:</p>
+
+<ul>
+  <li><strong>Objects</strong> — people, numbers, times, wars, colours, countries, legs, centuries. Anything with an individual identity can be an object. Objects are denoted by constant symbols, variables, and function terms.</li>
+  <li><strong>Relations</strong> — properties and relationships that may hold among objects: <em>is a king</em>, <em>is the brother of</em>, <em>is between</em>. Relations are denoted by predicate symbols and evaluate to true or false.</li>
+  <li><strong>Functions</strong> — mappings in which each object (or tuple of objects) is associated with exactly one other object: <em>the father of</em>, <em>the left leg of</em>, <em>the successor of</em>. Functions are denoted by function symbols and evaluate to objects, not to truth values.</li>
+</ul>
+
+<p>Crucially, FOL <em>retains</em> everything propositional logic had. The connectives ¬, ∧, ∨, ⇒ and ⇔ behave exactly as before, with the same truth tables; the notions of model, entailment, validity and satisfiability are generalised rather than replaced. What is added is the layer of <strong>terms</strong> (expressions that denote objects) and <strong>quantifiers</strong> (operators that range over the domain).</p>
+
+<table>
+  <thead>
+    <tr><th>Feature</th><th>Propositional logic</th><th>First-order logic</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Ontological commitment</td><td>Facts hold or do not hold</td><td>Objects, relations among them, functions on them</td></tr>
+    <tr><td>Atomic unit</td><td>Proposition symbol (<code>P</code>, <code>W<sub>1,3</sub></code>)</td><td>Predicate applied to terms (<code>Brother(John, Richard)</code>)</td></tr>
+    <tr><td>Generalisation</td><td>Impossible — must enumerate</td><td>Quantifiers ∀ and ∃</td></tr>
+    <tr><td>Model</td><td>Assignment of true/false to each symbol</td><td>Domain of objects plus an interpretation of every symbol</td></tr>
+    <tr><td>Number of models</td><td>2<sup>n</sup> for n symbols — finite</td><td>Unboundedly many; domains may be infinite</td></tr>
+    <tr><td>Inference</td><td>Decidable (model checking, resolution always terminates)</td><td>Semi-decidable: entailment is provable, non-entailment may loop forever</td></tr>
+  </tbody>
+</table>
+
+<p>The last row is the price of admission. Because a first-order knowledge base may have infinitely many models over infinitely large domains, model checking by enumeration is no longer an option, and no algorithm can in general decide non-entailment. Church and Turing showed that first-order validity is undecidable; what remains is <em>semi-decidability</em> (a property sometimes called refutation completeness): if KB ⊨ α, a complete procedure such as first-order resolution will eventually find a proof, but if KB ⊭ α the procedure may never halt. Practical systems therefore restrict the language — for example to definite clauses, where forward and backward chaining are well behaved — or impose depth and time limits.</p>
+
+<p><strong>Syntax: constants, variables, predicates, and functions</strong></p>
+
+<p>A first-order vocabulary (or <em>signature</em>) consists of three classes of non-logical symbol, plus the logical apparatus shared by all first-order languages.</p>
+
+<ul>
+  <li><strong>Constant symbols</strong> name particular objects: <code>Richard</code>, <code>John</code>, <code>Crown</code>, <code>2</code>, <code>UK</code>. By convention they are capitalised. A constant always denotes exactly one object, though two different constants may denote the same object unless we say otherwise.</li>
+  <li><strong>Variable symbols</strong> — conventionally lower case: <code>x</code>, <code>y</code>, <code>z</code>, <code>p</code> — do not name any fixed object. They are placeholders that range over the domain and acquire meaning only when bound by a quantifier.</li>
+  <li><strong>Predicate symbols</strong> denote relations: <code>King(x)</code> (unary, so really a property), <code>Brother(x, y)</code> (binary), <code>Between(x, y, z)</code> (ternary). Each predicate has a fixed <em>arity</em>. A predicate applied to the right number of terms yields something that is true or false.</li>
+  <li><strong>Function symbols</strong> denote functions: <code>FatherOf(x)</code>, <code>LeftLeg(x)</code>, <code>Plus(x, y)</code>, <code>Capital(c)</code>. A function symbol applied to terms yields another <em>term</em> — it denotes an object, and so it is <strong>not</strong> truth-valued. Writing <code>LeftLeg(John) ∧ King(John)</code> is a syntax error, because <code>LeftLeg(John)</code> is a leg, not a truth value.</li>
+</ul>
+
+<p>Functions are the right choice whenever the relationship is <em>total and single-valued</em>: every person has exactly one biological father, so <code>FatherOf</code> can be a function; a person may have zero, one or many brothers, so <code>Brother</code> must be a predicate. One can always convert a function into a predicate with an extra argument (<code>Father(x, y)</code> meaning "y is the father of x") at the cost of needing extra axioms to say that such a y always exists and is unique.</p>
+
+<p>These pieces compose according to a simple recursive grammar. A <strong>term</strong> is an expression that denotes an object:</p>
+
+<pre><code>Term → Constant | Variable | Function(Term, ..., Term)</code></pre>
+
+<p>So <code>John</code>, <code>x</code>, <code>LeftLeg(John)</code> and <code>FatherOf(FatherOf(John))</code> are all terms; the last shows that function application nests arbitrarily deeply, which is how FOL can refer to infinitely many objects using a finite vocabulary. An <strong>atomic sentence</strong> (or <em>atom</em>) is a predicate symbol applied to the correct number of terms, or an equality between two terms:</p>
+
+<pre><code>AtomicSentence → Predicate(Term, ..., Term) | Term = Term</code></pre>
+
+<p>Examples: <code>King(John)</code>, <code>Brother(John, Richard)</code>, <code>Married(FatherOf(Richard), MotherOf(John))</code>, <code>FatherOf(John) = Henry</code>. An atomic sentence is true in a model exactly when the relation named by the predicate holds among the objects named by the terms.</p>
+
+<p><strong>Complex sentences</strong> are built from atoms using the propositional connectives, together with the quantifiers:</p>
+
+<pre><code>Sentence → AtomicSentence
+         | ¬ Sentence
+         | Sentence ∧ Sentence
+         | Sentence ∨ Sentence
+         | Sentence ⇒ Sentence
+         | Sentence ⇔ Sentence
+         | Quantifier Variable, ... Sentence
+         | ( Sentence )
+
+Quantifier → ∀ | ∃</code></pre>
+
+<p>Operator precedence follows the usual convention — ¬ binds tightest, then ∧, ∨, ⇒, ⇔ — and a quantifier extends as far to the right as possible, so <code>∀x P(x) ⇒ Q(x)</code> parses as <code>∀x (P(x) ⇒ Q(x))</code>, not <code>(∀x P(x)) ⇒ Q(x)</code>. When in doubt, parenthesise. Some illustrative well-formed sentences:</p>
+
+<pre><code>¬Brother(LeftLeg(Richard), John)
+King(John) ∧ ¬King(Richard)
+Brother(Richard, John) ⇒ Brother(John, Richard)
+∀x ∀y Brother(x, y) ⇒ Sibling(x, y)
+∃x Crown(x) ∧ OnHead(x, John)</code></pre>
+
+<p><strong>The universal quantifier (∀)</strong></p>
+
+<p>The sentence <code>∀x P(x)</code> — read "for all x, P of x" — is true in a model precisely when <code>P(x)</code> comes out true under <em>every</em> possible substitution of a domain object for the variable x. Conceptually, if the domain were the finite set {Richard, John, Crown, LeftLeg(Richard)}, then</p>
+
+<pre><code>∀x King(x) ⇒ Person(x)</code></pre>
+
+<p>would be equivalent to the conjunction of its four instances:</p>
+
+<pre><code>(King(Richard) ⇒ Person(Richard))
+∧ (King(John) ⇒ Person(John))
+∧ (King(Crown) ⇒ Person(Crown))
+∧ (King(LeftLeg(Richard)) ⇒ Person(LeftLeg(Richard)))</code></pre>
+
+<p>This "conjunction over the domain" reading is the best intuition pump for ∀, and it immediately explains the single most important stylistic rule in first-order logic: <strong>∀ goes with ⇒</strong>. The quantifier ranges over <em>everything</em> in the domain, including crowns and legs, so a universal sentence needs an antecedent to filter down to the objects we actually mean. In the example above, the instances about the crown and the leg are vacuously true because <code>King(Crown)</code> is false, and an implication with a false antecedent is true. The implication acts as a guard.</p>
+
+<p>Replacing ⇒ with ∧ is the classic beginner's error:</p>
+
+<pre><code>∀x King(x) ∧ Person(x)        ← WRONG</code></pre>
+
+<p>Expanded over the same domain, this says <code>(King(Richard) ∧ Person(Richard)) ∧ (King(John) ∧ Person(John)) ∧ (King(Crown) ∧ Person(Crown)) ∧ ...</code> — that is, <em>everything in the universe is a king and a person</em>, including the crown and Richard's left leg. It is a far stronger claim than intended and will be false in essentially every realistic model, poisoning the knowledge base.</p>
+
+<p>Universals nest freely. To say that the sibling relation is symmetric:</p>
+
+<pre><code>∀x ∀y Sibling(x, y) ⇒ Sibling(y, x)</code></pre>
+
+<p>and transitivity of ancestry, with three nested universals:</p>
+
+<pre><code>∀x ∀y ∀z Ancestor(x, y) ∧ Ancestor(y, z) ⇒ Ancestor(x, z)</code></pre>
+
+<p>A single quantifier symbol with a list of variables, as in <code>∀x, y, z</code>, is a common abbreviation for a run of quantifiers of the same type. Note also that the guard need not be a single predicate: <code>∀x Person(x) ∧ Adult(x) ⇒ CanVote(x)</code> uses a conjunctive antecedent, which is perfectly correct because the ∧ is <em>inside</em> the implication, not replacing it.</p>
+
+<p><strong>The existential quantifier (∃)</strong></p>
+
+<p>The sentence <code>∃x P(x)</code> — "there exists an x such that P of x" — is true in a model when there is <em>at least one</em> object which, substituted for x, makes <code>P(x)</code> true. The mirror-image intuition applies: ∃ behaves like a <strong>disjunction over the domain</strong>. For the four-object domain above,</p>
+
+<pre><code>∃x Crown(x) ∧ OnHead(x, John)</code></pre>
+
+<p>is equivalent to</p>
+
+<pre><code>(Crown(Richard) ∧ OnHead(Richard, John))
+∨ (Crown(John) ∧ OnHead(John, John))
+∨ (Crown(Crown) ∧ OnHead(Crown, John))
+∨ (Crown(LeftLeg(Richard)) ∧ OnHead(LeftLeg(Richard), John))</code></pre>
+
+<p>and exactly one disjunct — the third — needs to be true for the whole sentence to hold. Note also that ∃ asserts "at least one", not "exactly one"; the sentence remains true if John is wearing two crowns at once.</p>
+
+<p>Because ∃ is a disjunction, the natural partner connective is <strong>∧</strong>: we want to assert that a <em>single</em> object has several properties simultaneously. Using ⇒ with ∃ is the complementary classic error:</p>
+
+<pre><code>∃x Crown(x) ⇒ OnHead(x, John)    ← WRONG</code></pre>
+
+<p>Expanded, this is a disjunction of implications, and it is satisfied as soon as <em>any</em> object in the domain fails the antecedent. Richard is not a crown, so <code>Crown(Richard) ⇒ OnHead(Richard, John)</code> is vacuously true, so the whole sentence is true — even in a world with no crowns at all, or where John is bare-headed. The sentence is almost a tautology and asserts essentially nothing. The symmetry is worth memorising:</p>
+
+<table>
+  <thead>
+    <tr><th>Quantifier</th><th>Reading over the domain</th><th>Natural partner connective</th><th>Typical error and why it fails</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>∀x</td><td>Conjunction of all instances</td><td>⇒ (guards the class)</td><td>∀ with ∧ claims every object in the universe has the property</td></tr>
+    <tr><td>∃x</td><td>Disjunction of all instances</td><td>∧ (bundles properties on one object)</td><td>∃ with ⇒ is trivially satisfied by any object failing the antecedent</td></tr>
+  </tbody>
+</table>
+
+<p>When ∀ and ∃ are mixed, <strong>order matters enormously</strong>. Compare:</p>
+
+<pre><code>∀x ∃y Loves(x, y)     "Everybody loves somebody (possibly a different somebody each time)."
+∃y ∀x Loves(x, y)     "There is one particular person whom everybody loves."</code></pre>
+
+<p>The second entails the first — if a universally beloved individual exists, then certainly everyone loves someone — but not conversely. In a world with Alice loving Bob, Bob loving Carol, and Carol loving Alice, the first sentence is true and the second is false. The reason is scoping: in <code>∀x ∃y ...</code> the choice of y occurs <em>inside</em> the scope of x, so y may depend on x; in <code>∃y ∀x ...</code> the choice of y is made first and must work for all x. (This dependency is exactly what Skolemisation makes explicit when converting to clausal form: the inner existential becomes a Skolem <em>function</em> of the outer universally quantified variable, <code>Loves(x, F(x))</code>, whereas an outer existential becomes a Skolem <em>constant</em>, <code>Loves(x, B)</code>.)</p>
+
+<p><strong>Quantifier equivalences and nesting</strong></p>
+
+<p>Because ∀ is a generalised conjunction and ∃ a generalised disjunction, De Morgan's laws lift straight from propositional logic to the quantifiers. The two quantifiers are interdefinable through negation:</p>
+
+<table>
+  <thead>
+    <tr><th>Equivalence</th><th>Reading</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>∀x P(x) ≡ ¬∃x ¬P(x)</td><td>"Everyone likes ice cream" = "There is no one who does not like ice cream"</td></tr>
+    <tr><td>∃x P(x) ≡ ¬∀x ¬P(x)</td><td>"Someone likes broccoli" = "Not everyone dislikes broccoli"</td></tr>
+    <tr><td>¬∀x P(x) ≡ ∃x ¬P(x)</td><td>"Not everyone likes broccoli" = "Someone does not like broccoli"</td></tr>
+    <tr><td>¬∃x P(x) ≡ ∀x ¬P(x)</td><td>"No one likes broccoli" = "Everyone does not like broccoli"</td></tr>
+  </tbody>
+</table>
+
+<p>These mirror ¬(A ∧ B) ≡ ¬A ∨ ¬B and ¬(A ∨ B) ≡ ¬A ∧ ¬B exactly. Strictly speaking only one quantifier is primitive; the other is definable. Practically, the equivalences are the tool for pushing negations inward when converting sentences to conjunctive normal form for resolution.</p>
+
+<p>Regarding <strong>reordering</strong>: adjacent quantifiers of the <em>same</em> type commute freely, so <code>∀x ∀y S(x, y) ≡ ∀y ∀x S(x, y)</code> and <code>∃x ∃y S(x, y) ≡ ∃y ∃x S(x, y)</code>. <em>Mixed</em> quantifiers do not commute, as the <code>Loves</code> example showed; the only valid one-way relationship is <code>∃y ∀x S(x, y) ⊨ ∀x ∃y S(x, y)</code>.</p>
+
+<p><strong>Scope and binding.</strong> The scope of a quantifier is the sentence immediately following it (after precedence is resolved). An occurrence of a variable inside the scope of a quantifier for that variable is <strong>bound</strong>; an occurrence outside any such scope is <strong>free</strong>. In</p>
+
+<pre><code>(∀x P(x, y)) ∧ Q(x)</code></pre>
+
+<p>the x in <code>P</code> is bound, but the y and the x in <code>Q</code> are free. A formula containing free variables is an <em>open formula</em>, not a sentence: it has no truth value in a model until the free variables are assigned objects. Only closed formulas (sentences) can be asserted into a knowledge base. Renaming a bound variable consistently throughout its scope changes nothing — <code>∀x King(x)</code> and <code>∀z King(z)</code> are the same sentence (alphabetic variants).</p>
+
+<p><strong>Shadowing.</strong> Reusing the same variable name in nested scopes is legal but confusing, exactly as in a programming language:</p>
+
+<pre><code>∀x [Person(x) ⇒ (∃x Dog(x) ∧ Owns(x, x))]</code></pre>
+
+<p>Here the inner ∃x re-binds x, so the outer x is invisible inside the brackets and <code>Owns(x, x)</code> says the dog owns itself — certainly not the intended "every person owns a dog". Rewriting with fresh names makes the intent unambiguous:</p>
+
+<pre><code>∀x Person(x) ⇒ (∃y Dog(y) ∧ Owns(x, y))</code></pre>
+
+<p>The practical rule is simple: give every quantifier its own variable name (standardising apart), which is also a mandatory preprocessing step in CNF conversion for first-order resolution.</p>
+
+<p><strong>Semantics: interpretations and models</strong></p>
+
+<p>In propositional logic a model is just a truth assignment. In first-order logic a model is a richer structure with two components:</p>
+
+<ul>
+  <li>A <strong>domain</strong> (or universe of discourse) <em>D</em>: a non-empty set of objects. Non-emptiness is required so that <code>∀x P(x) ⇒ ∃x P(x)</code> remains valid and quantified sentences behave sensibly. Objects in the domain are mathematical abstractions — they need not be nameable by any constant in the vocabulary.</li>
+  <li>An <strong>interpretation</strong> <em>I</em>: a mapping that assigns a meaning to every non-logical symbol:
+    <ul>
+      <li>each <strong>constant symbol</strong> to exactly one object in <em>D</em>;</li>
+      <li>each <strong>predicate symbol</strong> of arity <em>n</em> to a set of <em>n</em>-tuples of domain objects — the tuples for which the relation holds (the relation's <em>extension</em>);</li>
+      <li>each <strong>function symbol</strong> of arity <em>n</em> to a <em>total</em> function from <em>D</em><sup>n</sup> to <em>D</em>, so that every input tuple has exactly one output object.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Consider a tiny model of the Richard-and-John world. Let the domain be <em>D</em> = {r, j, c, l}, where r is Richard the Lionheart, j is King John, c is a crown and l is Richard's left leg. An interpretation might be:</p>
+
+<table>
+  <thead>
+    <tr><th>Symbol</th><th>Kind</th><th>Interpretation in this model</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>Richard</code></td><td>Constant</td><td>r</td></tr>
+    <tr><td><code>John</code></td><td>Constant</td><td>j</td></tr>
+    <tr><td><code>King</code></td><td>Unary predicate</td><td>{ ⟨j⟩ }</td></tr>
+    <tr><td><code>Person</code></td><td>Unary predicate</td><td>{ ⟨r⟩, ⟨j⟩ }</td></tr>
+    <tr><td><code>Crown</code></td><td>Unary predicate</td><td>{ ⟨c⟩ }</td></tr>
+    <tr><td><code>Brother</code></td><td>Binary predicate</td><td>{ ⟨r, j⟩, ⟨j, r⟩ }</td></tr>
+    <tr><td><code>OnHead</code></td><td>Binary predicate</td><td>{ ⟨c, j⟩ }</td></tr>
+    <tr><td><code>LeftLeg</code></td><td>Unary function</td><td>r ↦ l, j ↦ l, c ↦ l, l ↦ l</td></tr>
+  </tbody>
+</table>
+
+<p>Two points deserve emphasis. First, the interpretation of <code>LeftLeg</code> must be <em>total</em>: even though crowns have no legs, the function symbol must return something for every argument, so the model simply maps the awkward cases somewhere (here, to l). Modellers often introduce a dummy "invisible object" for this purpose, or avoid the issue by using a predicate instead. Second, nothing forces distinct constants to denote distinct objects, and nothing forces every object to have a name — l is unnamed by any constant and is reachable only through the term <code>LeftLeg(Richard)</code>.</p>
+
+<p>Truth is then defined compositionally. A term denotes an object: a constant denotes whatever <em>I</em> assigns it, a bound variable denotes the object currently substituted for it, and <code>f(t₁,…,tₙ)</code> denotes the result of applying <em>I</em>(f) to the objects denoted by t₁,…,tₙ. An atomic sentence <code>P(t₁,…,tₙ)</code> is true exactly when the tuple of denoted objects lies in <em>I</em>(P). Complex sentences are evaluated by the usual truth tables, and quantified sentences by the conjunction/disjunction-over-the-domain rules described earlier. So in our model:</p>
+
+<ul>
+  <li><code>Brother(Richard, John)</code> is <strong>true</strong>, because ⟨r, j⟩ ∈ <em>I</em>(Brother).</li>
+  <li><code>King(Richard)</code> is <strong>false</strong>, because ⟨r⟩ ∉ <em>I</em>(King).</li>
+  <li><code>∃x Crown(x) ∧ OnHead(x, John)</code> is <strong>true</strong>, witnessed by c.</li>
+  <li><code>∀x King(x) ⇒ Person(x)</code> is <strong>true</strong>: the only king is j, and ⟨j⟩ ∈ <em>I</em>(Person); the other three objects satisfy the implication vacuously.</li>
+  <li><code>∀x King(x) ∧ Person(x)</code> is <strong>false</strong>, since c is neither.</li>
+  <li><code>Brother(LeftLeg(Richard), John)</code> is <strong>false</strong>, because ⟨l, j⟩ ∉ <em>I</em>(Brother).</li>
+</ul>
+
+<p>With truth-in-a-model defined, the remaining semantic notions carry over unchanged from propositional logic, which is one of the great economies of the first-order framework:</p>
+
+<ul>
+  <li><strong>Entailment.</strong> KB ⊨ α when α is true in <em>every</em> model in which every sentence of KB is true. Equivalently, there is no model that satisfies KB ∪ {¬α} — the fact exploited by resolution refutation.</li>
+  <li><strong>Validity.</strong> α is valid when it is true in every model under every interpretation: for example <code>∀x P(x) ⇒ P(A)</code>, or <code>∀x (P(x) ∨ ¬P(x))</code>. Valid first-order sentences are the theorems of pure logic.</li>
+  <li><strong>Satisfiability.</strong> α is satisfiable when some model makes it true; unsatisfiable sentences such as <code>∃x (P(x) ∧ ¬P(x))</code> are true in none. As before, KB ⊨ α if and only if KB ∧ ¬α is unsatisfiable.</li>
+</ul>
+
+<p>The difference from the propositional case is purely computational. There, "every model" meant one of 2<sup>n</sup> rows of a truth table and could be enumerated. Here, "every model" means every choice of domain — of every finite size and infinite ones too — and every interpretation over it. Enumeration is impossible, so first-order reasoning must proceed by proof (unification, resolution, chaining) rather than by model checking.</p>
+
+<p><strong>Translating natural language into first-order sentences</strong></p>
+
+<p>Formalisation is a design task, not a mechanical one, and it is where most practical errors originate. A workable discipline is:</p>
+
+<ul>
+  <li><strong>Fix the ontology first.</strong> Decide what the objects are (people? courses? time intervals? events?), then which properties and relationships you need as predicates, then which single-valued mappings are better expressed as functions. Write down the intended meaning of every symbol in English before writing any sentences — an undocumented predicate is a future bug.</li>
+  <li><strong>Watch the quantifier cues.</strong> "Every", "all", "any", "each", "whoever" and bare plurals ("dogs bark") signal ∀. "Some", "a", "there is", "at least one", "someone" signal ∃.</li>
+  <li><strong>Apply the connective rule.</strong> ∀ with ⇒, ∃ with ∧ — the overwhelmingly common pattern.</li>
+  <li><strong>Test against small models.</strong> Invent a two- or three-object world, evaluate the candidate sentence, and ask whether its truth value matches your intuition. This catches both <em>over-commitment</em> (the sentence says more than the English, e.g. ∀ with ∧) and <em>under-commitment</em> (the sentence is vacuously true, e.g. ∃ with ⇒).</li>
+</ul>
+
+<p>Worked examples, with a domain of people and animals:</p>
+
+<table>
+  <thead>
+    <tr><th>English</th><th>First-order sentence</th><th>Comment</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Every student passed the exam.</td><td><code>∀x Student(x) ⇒ Passed(x, Exam1)</code></td><td>Universal guarded by implication.</td></tr>
+    <tr><td>Some student passed the exam.</td><td><code>∃x Student(x) ∧ Passed(x, Exam1)</code></td><td>Existential bundled with conjunction.</td></tr>
+    <tr><td>Every person owns a dog.</td><td><code>∀x Person(x) ⇒ (∃y Dog(y) ∧ Owns(x, y))</code></td><td>Mixed quantifiers; the dog may differ per person.</td></tr>
+    <tr><td>There is a dog that everyone owns.</td><td><code>∃y Dog(y) ∧ (∀x Person(x) ⇒ Owns(x, y))</code></td><td>Stronger claim: one shared dog.</td></tr>
+    <tr><td>Everyone's father is a person.</td><td><code>∀x Person(x) ⇒ Person(FatherOf(x))</code></td><td>Function term used in the consequent.</td></tr>
+    <tr><td>Brothers are siblings.</td><td><code>∀x ∀y Brother(x, y) ⇒ Sibling(x, y)</code></td><td>Bare plural reads as a universal.</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Negative quantification.</strong> "No", "none", "nobody" and "never" have two equally correct renderings, related by the equivalences above. "No student failed" becomes either</p>
+
+<pre><code>¬∃x Student(x) ∧ Failed(x)           (negated existential)
+∀x Student(x) ⇒ ¬Failed(x)           (universal with negated consequent)</code></pre>
+
+<p>Both are logically equivalent; the second is usually preferred in knowledge bases because it is already close to clause form. A sanity check: do <em>not</em> write <code>¬∀x Student(x) ⇒ Failed(x)</code>, which merely denies that all students failed — a far weaker claim.</p>
+
+<p><strong>Equality.</strong> The equality symbol is a built-in binary predicate whose interpretation is fixed in every model: <code>t₁ = t₂</code> is true exactly when t₁ and t₂ denote the <em>same</em> object. It is indispensable for several idioms:</p>
+
+<ul>
+  <li><em>Asserting identity:</em> <code>FatherOf(John) = Henry</code>.</li>
+  <li><em>Asserting distinctness:</em> <code>¬(Richard = John)</code>, often written <code>Richard ≠ John</code>. Without such axioms a model is free to make two constants denote the same object — a "unique names" assumption must be stated explicitly in pure FOL.</li>
+  <li><em>Defining relations:</em> <code>∀x ∀y Sibling(x, y) ⇔ (¬(x = y) ∧ ∃m ∃f ¬(m = f) ∧ Parent(m, x) ∧ Parent(f, x) ∧ Parent(m, y) ∧ Parent(f, y))</code> — note the explicit inequalities, without which a person would count as their own sibling.</li>
+  <li><em>Counting:</em> "John has at least two brothers" is <code>∃x ∃y Brother(x, John) ∧ Brother(y, John) ∧ ¬(x = y)</code>; "exactly one" is <code>∃x P(x) ∧ (∀y P(y) ⇒ x = y)</code>.</li>
+</ul>
+
+<p>Finally, a note on <em>over- and under-commitment</em> in practice. Under-commitment leaves out information the English conveys: translating "Spouses are of legal age" as <code>∀x ∀y Spouse(x, y) ⇒ Adult(x)</code> forgets to say anything about y. Over-commitment asserts more than was meant: translating "Students take courses" as <code>∀x ∀y Student(x) ∧ Course(y) ⇒ Takes(x, y)</code> claims every student takes every course, when the intended reading is <code>∀x Student(x) ⇒ (∃y Course(y) ∧ Takes(x, y))</code>. Both failures are invisible on inspection and obvious the moment you evaluate the sentence in a three-object test model — which is exactly why the testing step belongs in the workflow.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Not directly addressed. This topic concerns the representation language rather than agent architecture, although the first-order sentences developed here are precisely the content that would be TELLed to, and ASKed of, a knowledge-based agent's knowledge base.</li>
+  <li><strong>MO2</strong> — Partially supported. The topic reuses the propositional connectives (¬, ∧, ∨, ⇒, ⇔) and presents a BNF-style grammar for terms, atomic sentences and complex sentences, extending the propositional grammar with terms and quantifiers.</li>
+  <li><strong>MO3</strong> — Partially supported. Entailment, validity and satisfiability are re-stated for first-order models, and the discussion of semi-decidability, standardising variables apart and Skolemisation prepares the ground for CNF conversion and resolution refutation in the first-order setting; model checking by enumeration is shown to be infeasible here.</li>
+  <li><strong>MO4</strong> — Directly supported. The topic covers the choice of objects, predicates and functions, the ∀/⇒ and ∃/∧ idioms, negative quantification, equality, quantifier scope and ordering, and a method of testing translations against small models — the core skills of rendering natural language in first-order logic.</li>
+  <li><strong>MO5</strong> — Not addressed. Forward and backward chaining over definite clauses are inference procedures taken up elsewhere; this topic supplies only the underlying language in which such clauses are written.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Illustrative models (the Richard/John domain) are deliberately tiny so that quantified sentences can be expanded into explicit conjunctions and disjunctions; instructors may wish to have students evaluate each example sentence row by row. The Skolemisation remark is included only to motivate why mixed-quantifier order matters and can be deferred to the inference module. The totality requirement on function interpretations (the "crown's left leg" problem) is a frequent source of student confusion and is worth an in-class discussion.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Propositional logic treats each statement as an indivisible atom: "Socrates is mortal" is just a symbol P, with no internal structure. That makes it impossible to express the fact that whatever holds for every human also holds for Socrates. First-order logic (also called predicate logic) fixes this by looking inside sentences, introducing constants that name objects, predicates that assert properties and relations, functions that map objects to objects, variables that stand for unspecified objects, and the two quantifiers — the universal quantifier for "for all" and the existential quantifier for "there exists."</p>
+<p>This added expressive power is what lets a knowledge-based agent say general things about a world rather than enumerating every case. In this course it underpins everything that follows: once you can write first-order sentences, you can describe domains compactly, reason about them with inference procedures, and connect logical representation to the agent architectures introduced earlier in the module. The semantic side matters just as much as the syntax — an interpretation fixes a domain of objects and assigns meaning to each symbol, and a model is an interpretation in which your sentences come out true.</p>
+<p>As you watch the videos below, pay attention to three things. First, the grammar: which symbols can legally appear where, and why a predicate applied to a term is a sentence while a function applied to a term is not. Second, the pairing of quantifier and connective — universal quantifiers normally go with implication, existential quantifiers with conjunction — and what goes wrong if you swap them. Third, quantifier order in nested sentences, since reversing two quantifiers usually changes the meaning entirely. Try translating a few English sentences yourself before the video gives its answer.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Master Predicate Logic in 15 Minutes</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/XN8-mcGxge8?cc_load_policy=1&amp;rel=0" title="Video: Master Predicate Logic in 15 Minutes (Let's Get Logical)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Let's Get Logical</strong> · 15:00 · 13,654 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=XN8-mcGxge8" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A compact, step-by-step walkthrough of predicate logic that, based on its title and description, builds up the notation of predicates, variables and quantifiers and then works through translation examples. Expect coverage of how universal and existential quantifiers are written and read, and rules of thumb for turning English sentences into symbolic form. It is paced as an overview rather than a deep dive, so it works well as a first pass over the whole topic.</p>
+<h3>Why this video</h3>
+<p>It maps directly onto most of the subtopics at once — syntax, both quantifiers, and natural-language translation — making it a good single starting point before you study the pieces individually.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Contemporary Logic Part 3: Current Predicate Logic</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Vzhi6y8rS5s?cc_load_policy=1&amp;rel=0" title="Video: Contemporary Logic Part 3: Current Predicate Logic (Professor Dave Explains)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Professor Dave Explains</strong> · 9:18 · 10,531 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=Vzhi6y8rS5s" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>Part of Professor Dave's contemporary logic series, this installment picks up after the notation of post-Fregean predicate logic has been introduced and turns to the concepts behind it. The description suggests it works with the symbolism already in place, so expect discussion of how quantified sentences are interpreted and used rather than a first introduction to the symbols. It is useful for seeing why predicate logic was developed as an extension of earlier propositional treatments.</p>
+<h3>Why this video</h3>
+<p>Professor Dave Explains is a well-established educational channel with a careful, sequential presentation, and this video's focus on concepts rather than notation supports the "why first-order logic extends propositional logic" and semantics subtopics.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: Master Predicate Logic: Nested Quantifiers in 5 Minutes</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/npIS3x12fvU?cc_load_policy=1&amp;rel=0" title="Video: Master Predicate Logic: Nested Quantifiers in 5 Minutes (Let's Get Logical)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Let's Get Logical</strong> · 5:47 · 2,627 views · 11mo ago · captions — <a href="https://www.youtube.com/watch?v=npIS3x12fvU" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short, targeted video on nested or stacked quantifiers — sentences in which one quantifier appears inside the scope of another. Based on the title and description, it addresses the common confusion about what overlapping quantifiers mean and how to read them correctly in just a few minutes. This is the single hardest mechanical skill in the topic, and the video isolates it.</p>
+<h3>Why this video</h3>
+<p>It zooms in on quantifier nesting and ordering, the subtopic students most often get wrong, and complements the same channel's broader predicate logic video with focused practice.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These three videos concentrate on MO4: translating natural-language statements into first-order sentences using appropriate predicates, functions, and quantifiers. The first gives a full-topic overview covering syntax, both quantifiers, and translation rules; the second supplies the conceptual grounding for why predicate logic extends the propositional system you studied for MO2 and MO3, including how quantified sentences are interpreted; the third drills the nesting and ordering of quantifiers that complex translations demand. Together they take you from recognizing well-formed first-order syntax to producing accurate translations of your own, which is the representational step that any knowledge-based agent (MO1) relies on before inference procedures such as forward and backward chaining (MO5) can be applied.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

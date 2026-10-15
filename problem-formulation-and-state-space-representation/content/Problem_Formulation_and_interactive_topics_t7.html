@@ -1,0 +1,256 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Applying the Framework to New Problems</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Problem Formulation and State Space Representation</a></div>
+  <header>
+    <h1>Applying the Framework to New Problems</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Applying the Framework to New Problems</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Most real scenarios arrive as prose: a paragraph from a stakeholder, a ticket in an issue tracker, a description of a warehouse floor. None of that is a search problem yet. A search problem is a precise mathematical object — a set of states, a designated starting point, a set of actions with a deterministic successor rule, a predicate that recognises success, and a numeric cost attached to each step. The work of <em>formulation</em> is the disciplined translation from the prose to that object. This translation is where most of the intellectual difficulty of applied search lives: once a problem is formulated well, the algorithms are off-the-shelf; formulated badly, no algorithm can rescue it. The sections below give a repeatable procedure for performing that translation, a way of choosing the level of detail to keep, a validation routine to run before writing any search code, and a catalogue of the three failure modes that account for the majority of broken formulations in practice.</p>
+
+<p><strong>A step-by-step formulation procedure</strong></p>
+
+<p>The procedure below is deliberately ordered. Each step constrains the next, and skipping ahead — in particular, inventing a state representation before you know who the agent is and what it controls — is the usual root cause of bloated or unusable models.</p>
+
+<p><em>Step 1 — Identify the decision-making agent and the aspects of the world it can actually change.</em> Write down, in one sentence, whose decisions the search is producing. Then split the world into three buckets: things the agent changes by acting, things that change on their own, and things that never change. Only the first bucket belongs in the state; the third bucket is background knowledge that can be hard-coded or stored in the problem object; the second bucket signals that you may have a non-deterministic or dynamic problem and may need to either fix it by assumption or move to a different framework.</p>
+
+<p>Consider a hospital delivery robot. The stakeholder says: <em>"The robot collects medication trays from the pharmacy on level 2 and delivers them to nurse stations. It should not keep patients waiting and the battery should not run flat."</em> The agent is the robot's route planner. It changes its own location, which trays it is carrying, and its battery level. It does not change the building layout, the positions of the lifts' shafts, or the contents of a tray. Corridor congestion changes on its own — a candidate for abstraction away, or for an assumption such as "corridors are modelled as always traversable at a fixed average speed".</p>
+
+<p><em>Step 2 — Choose a state representation that captures exactly the information needed to decide the next action.</em> The operational test is the <em>Markov question</em>: if I handed you only this state description and nothing about how it was reached, could you determine the legal actions and their outcomes? If yes, the representation is sufficient. If it contains anything you would never consult to answer that question, it is excessive. For the delivery robot, a reasonable state is:</p>
+
+<pre><code>State = (location, carried_trays, battery_level)
+  location      ∈ {pharmacy, lift_L2, lift_L3, ward_A, ward_B, ward_C, charger}
+  carried_trays ⊆ {t1, t2, t3}        # a set, not a list
+  battery_level ∈ {0, 1, ..., 100}    # integer percentage
+</code></pre>
+
+<p>Note the deliberate choices already made: <code>carried_trays</code> is a <em>set</em> because the order in which trays were picked up never affects anything; battery is an integer percentage rather than a float voltage because a one-percent resolution is enough to decide whether to detour to the charger.</p>
+
+<p><em>Step 3 — Specify the initial state from the scenario's starting conditions.</em> The initial state must be a single, fully-instantiated member of the state space — not a description of a class of situations. "The robot starts its shift" is not an initial state. <code>(pharmacy, {}, 100)</code> is. If the scenario genuinely admits several starting configurations, you either run one search per starting configuration, or you add a dummy initial state whose actions are "choose starting configuration <em>i</em>" at zero cost.</p>
+
+<p><em>Step 4 — Define the action set and the transition model.</em> Actions are named, discrete, and parameterised; the transition model <code>RESULT(s, a)</code> maps a state and an applicable action to exactly one successor state. Alongside <code>RESULT</code> you need <code>ACTIONS(s)</code>, the applicability test, which is what keeps illegal successors out of the search tree.</p>
+
+<pre><code>ACTIONS(s):
+  for each neighbour n of s.location in corridor_graph:
+      if s.battery_level >= cost_watts(s.location, n):
+          yield Move(n)
+  for each tray t at s.location awaiting pickup:
+      if |s.carried_trays| &lt; 2: yield Pickup(t)
+  for each tray t in s.carried_trays with destination == s.location:
+      yield Deliver(t)
+  if s.location == charger: yield Charge
+
+RESULT(s, Move(n))    = (n, s.carried_trays, s.battery_level - cost_watts(s.location, n))
+RESULT(s, Pickup(t))  = (s.location, s.carried_trays ∪ {t}, s.battery_level - 1)
+RESULT(s, Deliver(t)) = (s.location, s.carried_trays \ {t}, s.battery_level - 1)
+RESULT(s, Charge)     = (s.location, s.carried_trays, 100)
+</code></pre>
+
+<p>Two properties are worth checking at this point. First, <code>RESULT</code> is a <em>total function</em> on applicable pairs: every legal action yields a state, never an error and never "nothing happens". Second, successor states are built fresh rather than by mutating the parent — a state that is mutated after being placed on the frontier corrupts the search.</p>
+
+<p><em>Step 5 — Write the goal test as a checkable predicate over states.</em> Translate "all deliveries complete and the robot parked" into code that looks only at a state:</p>
+
+<pre><code>GOAL_TEST(s)  ≡  s.carried_trays == {} and all_trays_delivered(s) and s.location == charger</code></pre>
+
+<p>If <code>all_trays_delivered</code> cannot be answered from <code>s</code> alone, the representation is incomplete — which is a signal to add a <code>delivered</code> set to the state, or to re-define <code>carried_trays</code> as a vector of tray statuses. This is the healthy direction of influence: the goal test exposes a missing field, rather than the state hoarding fields "just in case".</p>
+
+<p><em>Step 6 — Attach a path cost function reflecting the quantity actually to be minimised.</em> The stakeholder said patients should not wait, so the objective is elapsed time, not distance and not energy. Energy belongs in the <em>constraints</em> (via the applicability test on battery level), not the objective. So <code>STEP_COST(s, a, s')</code> returns seconds: corridor traversal time for <code>Move</code>, a fixed handling time for <code>Pickup</code>/<code>Deliver</code>, and the full recharge duration for <code>Charge</code>. Path cost is the sum of step costs, and the search now genuinely optimises the thing the hospital cares about.</p>
+
+<table>
+  <thead>
+    <tr><th>Component</th><th>Formal role</th><th>Delivery robot</th><th>8-puzzle</th><th>Route finding</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>State space</td><td>Set of all representable configurations</td><td>(location, carried set, battery)</td><td>Permutations of 8 tiles + blank in 9 cells</td><td>The set of road junctions</td></tr>
+    <tr><td>Initial state</td><td>One designated member of that set</td><td><code>(pharmacy, {}, 100)</code></td><td>The given scrambled board</td><td>Current junction</td></tr>
+    <tr><td>Actions</td><td>Named, applicable operations</td><td>Move / Pickup / Deliver / Charge</td><td>Slide blank Up, Down, Left, Right</td><td>Take road <em>r</em> out of this junction</td></tr>
+    <tr><td>Transition model</td><td><code>RESULT(s, a) → s'</code></td><td>Field-by-field update rules above</td><td>Swap blank with the adjacent tile</td><td>Arrive at the road's other endpoint</td></tr>
+    <tr><td>Goal test</td><td>Boolean predicate on a state</td><td>All delivered, hands empty, at charger</td><td>Board equals the sorted arrangement</td><td>Junction is the destination</td></tr>
+    <tr><td>Path cost</td><td>Additive sum of step costs</td><td>Elapsed seconds</td><td>1 per move (fewest moves)</td><td>Kilometres or minutes — pick one</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Choosing the right level of abstraction</strong></p>
+
+<p>Abstraction is the act of deciding what the real world contains that your state will not mention. Every usable formulation is an abstraction: a real robot has a continuous pose, wheel slip, a camera buffer and a battery chemistry curve, yet the state above mentions none of it. The question is never "should I abstract?" but "how far, and is this particular abstraction legitimate?"</p>
+
+<p><em>Include a detail only if it can change which action is optimal.</em> This is the sharpest available filter. Apply it as a counterfactual: imagine two runs of the system identical except for the detail in question. Does the best next action differ? If the robot's exact millimetre offset within a corridor never changes whether it should turn left or right at the next junction, the offset does not belong in the state. If, however, the robot carries trays for two different wards and the better route depends on which wards, then the set of carried trays <em>does</em> change the optimal action and must stay. Note that the test is about <em>optimality of action</em>, not about realism: a detail can be perfectly real and still irrelevant.</p>
+
+<p><em>Collapse sequences of fine-grained real actions into single abstract actions.</em> Real execution of "move from the pharmacy to ward A" involves hundreds of motor commands, obstacle avoidance manoeuvres and door-opening sub-behaviours. Modelling them explicitly would inflate the state space by many orders of magnitude without ever changing the route chosen. So they are packaged into one abstract action whose cost is the expected duration of the whole package. Similarly, a flight-booking formulation uses the abstract action "take flight BA117" rather than "walk to gate, board, taxi, take off…"; an 8-puzzle formulation uses "slide tile left" rather than the physics of a finger pushing plastic.</p>
+
+<p><em>A valid abstraction must guarantee that abstract solutions remain executable.</em> This is the correctness condition, and it is easy to state: for every abstract action in the plan, there must exist some real sequence of low-level actions that carries the agent from any real state consistent with the abstract source state to some real state consistent with the abstract successor state. If "move to ward A" is sometimes impossible — because a fire door is locked at night, say — then the abstraction is <em>invalid</em> as written, and must be repaired, either by adding a time-of-day field to the state, or by removing that corridor edge from the graph, or by restricting the problem to daytime shifts. An abstraction that produces plans the agent cannot carry out is worse than no plan at all, because the failure surfaces only at execution time.</p>
+
+<p><em>Test the abstraction by asking whether two states you called identical would ever require different behaviour.</em> This is the dual of the first test and catches over-abstraction. Suppose, trying to shrink the state space, you drop <code>battery_level</code>. Now the state <code>(ward_C, {t3})</code> covers both a robot with 95% battery and a robot with 3% battery. Would those two situations ever require different behaviour? Obviously yes — one should deliver, the other should divert to the charger. The merge is therefore illegitimate and the field must return. Run this test on every field you are tempted to delete and every pair of situations you are tempted to collapse; it is the single most reliable guard against an abstraction that is too aggressive.</p>
+
+<p><strong>Validating a formulation</strong></p>
+
+<p>A formulation should be validated <em>before</em> it is handed to a search algorithm, because almost every formulation defect manifests as the same unhelpful symptom — "the search returns failure" or "the search never terminates" — and debugging it from that symptom alone is slow. Five concrete checks catch most problems.</p>
+
+<p><em>Confirm the initial state satisfies the same representation rules as all other states.</em> Write an <code>is_valid_state(s)</code> invariant checker and run it on the initial state first. Typical catches: the initial state is given as a list where successors are sets; it omits a field that <code>RESULT</code> always writes; a puzzle's initial board is supplied with a <code>0</code> for the blank while successors use <code>None</code>. These mismatches break equality and hashing, so the initial state never matches a later-generated identical state and the explored set silently stops working.</p>
+
+<pre><code>assert is_valid_state(initial)
+for a in ACTIONS(initial):
+    assert is_valid_state(RESULT(initial, a))
+</code></pre>
+
+<p><em>Check that every action produces a state the goal test can legally evaluate.</em> Generate a few hundred random reachable states (random walks from the initial state are fine) and call <code>GOAL_TEST</code> on each. It should return <code>True</code> or <code>False</code> every time — never raise an exception, never return <code>None</code>, never depend on a field that some successors lack. A goal test that crashes on an unusual successor is a latent bug that will appear only after a long search.</p>
+
+<p><em>Verify that at least one path from the initial state to a goal exists in small instances.</em> Shrink the problem until you can solve it by hand — two trays and three rooms; a 2×2 sliding puzzle; four queens instead of eight — and confirm both that your hand solution is a legal action sequence under <code>RESULT</code>, and that breadth-first search finds <em>some</em> solution. This separates "my formulation is unsolvable" from "my algorithm is broken", which is otherwise very hard to distinguish.</p>
+
+<p><em>Count the reachable states to confirm the state space size is what you expected.</em> Run an exhaustive breadth-first enumeration on the small instance and compare the count against a hand calculation. If you predicted <code>7 locations × 2³ tray subsets = 56</code> reachable states (ignoring battery) and the enumeration reports 448, you have an extra factor of 8 somewhere — perhaps the tray set is being stored as an ordered list, so <code>{t1,t2}</code> and <code>{t2,t1}</code> count as different states. If the enumeration reports 12, some actions are not applicable where you thought they were. A mismatch in either direction is a genuine finding, and this check frequently exposes over-rich states before they cause performance problems.</p>
+
+<p><em>Confirm the cost of a hand-computed optimal path matches your intuition about the real problem.</em> Take the small instance, compute the optimal path by hand, and compare its cost with reality. If a route you know takes about six minutes comes out as cost 420, your units are inconsistent somewhere. If two obviously different-quality routes come out with identical cost, your cost function is not discriminating on the dimension you care about. This final check validates the objective, which none of the earlier checks touch.</p>
+
+<p><strong>Common error: over-rich states</strong></p>
+
+<p>An over-rich state carries information that the transition model never reads and the goal test never consults. It is the most common formulation error because it feels safe — "I will include the timestamp, just in case" — and because its damage is invisible until the search runs.</p>
+
+<p><em>Redundant attributes multiply the state space without improving solution quality.</em> State space size is the product of the ranges of the fields. Adding a <code>steps_taken</code> counter to a 10<sup>4</sup>-state problem where paths can be up to 200 steps long multiplies the space by 200, to 2×10<sup>6</sup>, and the solutions found are exactly the same ones. Adding a timestamp with second resolution over an eight-hour shift multiplies it by nearly 29,000. The table below shows how quickly this compounds for the delivery robot.</p>
+
+<table>
+  <thead>
+    <tr><th>Representation</th><th>Fields</th><th>Approximate reachable states</th><th>Solution quality</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Minimal</td><td>location, tray set</td><td>7 × 8 = 56</td><td>Optimal</td></tr>
+    <tr><td>Necessary</td><td>+ battery (0–100)</td><td>≈ 5,656</td><td>Optimal, and battery-safe</td></tr>
+    <tr><td>Over-rich</td><td>+ step counter (0–200)</td><td>≈ 1.1 million</td><td>Identical to the above</td></tr>
+    <tr><td>Badly over-rich</td><td>+ full visit history</td><td>Effectively unbounded</td><td>Identical, but search fails to terminate in practice</td></tr>
+  </tbody>
+</table>
+
+<p><em>Over-rich states defeat repeated-state detection because equivalent situations no longer compare as equal.</em> Graph search depends on the explored set recognising that a newly generated state has been seen before. If the state carries a step counter, then reaching ward A in 4 moves and reaching ward A in 6 moves produce <em>different</em> states, both are expanded, and the search degenerates from a graph search over a small space to a tree search over an exponentially larger one. A state containing the full path history is the pathological case: no two states are ever equal, the explored set never fires, and a problem that should solve in milliseconds runs forever. This is why "add the path to the state so I can print it later" is always wrong — the path belongs to the <em>node</em>, a bookkeeping wrapper in the search tree, not to the <em>state</em>, which is a description of the world.</p>
+
+<p><em>Remove any attribute derivable from the rest of the state or never read by the transition model.</em> Two mechanical tests. First, derivability: if <code>blank_position</code> can be computed from the tile array, do not store it as part of the identity of the state (cache it outside the equality/hash definition if you want the speed). Second, read-usage: instrument <code>ACTIONS</code>, <code>RESULT</code>, <code>GOAL_TEST</code> and <code>STEP_COST</code>, run a few thousand expansions, and list which fields were ever read. Any field read by none of them is dead weight and should be deleted.</p>
+
+<p><em>Symmetry often signals that several state descriptions should be merged into one.</em> In the 8-queens problem, a board is unchanged in difficulty under reflection and rotation, and column-by-column placement already removes the symmetry of queen ordering — placing queens as a set rather than a sequence shrinks the space from roughly 1.8×10<sup>14</sup> ordered placements to about 2,057 reachable configurations under incremental column assignment. In the delivery robot, representing carried trays as a set rather than a list merges all orderings of the same load. In a puzzle with interchangeable identical pieces, treating the pieces as distinguishable multiplies the space by the factorial of the number of duplicates for no benefit. Whenever you notice that two state descriptions "mean the same thing operationally", canonicalise: define a normal form (sorted tuple, lexicographically smallest rotation, frozen set) and map every state into it before hashing.</p>
+
+<p><strong>Common error: ill-defined goal tests</strong></p>
+
+<p><em>Avoid goal conditions that depend on the path taken rather than the state reached.</em> "Visit every ward and return to the charger" is not a predicate over the states defined earlier: given <code>(charger, {})</code>, you cannot tell whether every ward was visited. Two legitimate repairs exist. Either enrich the state with a <code>visited</code> set, accepting the resulting 2<sup><em>n</em></sup> blow-up because the information genuinely is needed (this is what turns route-finding into a travelling-salesman-style problem); or re-express the objective so it is state-checkable, for example by tracking undelivered trays rather than unvisited rooms. What you must not do is write a goal test that peeks at the node's parent chain while pretending the problem is a plain state-space search — that quietly invalidates the explored set, since two nodes with the same state but different histories are no longer interchangeable.</p>
+
+<p><em>Make sure the goal test is cheap, since it runs on every generated node.</em> If the goal test re-solves a constraint satisfaction problem or queries a database, it will dominate runtime. A test like "is the board sorted?" is <em>O(n)</em> and fine. A test like "is this configuration reachable from the target by some other planner?" is not. Where a natural goal condition is expensive, cache aggressively or maintain an incremental counter in the state — for example, store <code>num_misplaced</code> and update it by ±1 in <code>RESULT</code>, so the goal test becomes <code>num_misplaced == 0</code>, an <em>O(1)</em> comparison.</p>
+
+<p><em>Handle multiple acceptable goal states with a predicate, not a single enumerated target.</em> Many problems have a large or implicit goal set. In 8-queens there are 92 solutions, and nobody enumerates them in advance; the goal test is "eight queens placed and no two attacking". In route finding where any of several car parks is acceptable, the goal test is <code>s.location ∈ acceptable_parks</code>. Writing the test as <code>s == specific_goal_state</code> when the problem actually accepts a family of states makes the search work harder than necessary and can make a solvable problem look unsolvable.</p>
+
+<pre><code># Brittle: only one target accepted
+GOAL_TEST(s) ≡ (s == (charger, {}, 100))        # battery must be exactly 100?!
+
+# Robust: a predicate over the properties that matter
+GOAL_TEST(s) ≡ (s.location == charger and s.carried_trays == {} and s.undelivered == {})
+</code></pre>
+
+<p>The brittle version above also illustrates a subtler trap: over-specifying irrelevant fields. Demanding an exact battery level turns a reachable goal into an almost-unreachable one.</p>
+
+<p><em>An unreachable orcontradictory goal condition causes a complete algorithm to exhaust the space and report failure.</em> Breadth-first search on a finite state space will eventually enumerate everything reachable from the initial state and then return failure — correct behaviour, but expensive and uninformative. Contradictions are often accidental: requiring <code>s.carried_trays == {}</code> and simultaneously <code>t3 ∈ s.carried_trays</code>; requiring a sliding puzzle to reach a configuration in the opposite parity class from the initial board (exactly half of all 8-puzzle configurations are unreachable from any given start, because a legal move always preserves the parity of the permutation plus blank row distance); requiring the robot to end at a charger that no corridor edge reaches. Before concluding "no solution exists", always (a) run the goal test directly on a few hand-built states you believe should qualify, and confirm it returns <code>True</code>, and (b) check that the goal condition is satisfiable by <em>some</em> syntactically valid state at all, independently of reachability. If no valid state satisfies it, the bug is in the predicate; if valid states satisfy it but search cannot reach them, the bug is in the actions, the transition model, or the problem instance itself.</p>
+
+<p><strong>Common error: inconsistent cost functions</strong></p>
+
+<p>The cost function is the least-scrutinised component and the one most likely to make a technically correct search produce an answer the stakeholder rejects. Three classes of defect recur: mixed units, illegal cost values, and a mismatch between the modelled objective and the real one.</p>
+
+<p><em>Use one consistent unit for all action costs across the whole problem.</em> Costs are summed, so they must be commensurable. A formulation that charges kilometres for <code>Move</code>, 5 for <code>Pickup</code> and 30 for <code>Charge</code> is adding kilometres to unnamed integers; the resulting "optimal" path is optimal with respect to a quantity that does not exist. Pick a unit — seconds, metres, pounds, number of actions — declare it in a comment next to the cost function, and convert every action's cost into that unit explicitly.</p>
+
+<table>
+  <thead>
+    <tr><th>Action</th><th>Inconsistent costs</th><th>Consistent costs (seconds)</th><th>Conversion applied</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Move along corridor</td><td>42 (metres)</td><td>42 m ÷ 1.4 m/s ≈ 30</td><td>distance ÷ speed</td></tr>
+    <tr><td>Pickup tray</td><td>1 (a "unit")</td><td>15</td><td>measured handling time</td></tr>
+    <tr><td>Deliver tray</td><td>1 (a "unit")</td><td>20</td><td>measured handling time</td></tr>
+    <tr><td>Charge to full</td><td>0 ("it's free")</td><td>900</td><td>recharge duration</td></tr>
+    <tr><td>Take lift one floor</td><td>5 (metres? seconds?)</td><td>45</td><td>measured wait + travel</td></tr>
+  </tbody>
+</table>
+
+<p>Under the inconsistent column, charging appears free and the planner will happily top up the battery between every delivery; under the consistent column, a 900-second recharge is correctly treated as the major commitment it is.</p>
+
+<p><em>Non-negative step costs are required for standard uniform-cost and heuristic search guarantees.</em> Uniform-cost search pops the cheapest frontier node and relies on the fact that extending a path can never make it cheaper; A* relies on the same property plus admissibility. Introduce a negative step cost — "delivering a tray earns −10 because it pleases the ward" — and that reasoning collapses: a node popped as cheapest may later be reachable more cheaply, and the first goal node popped need not be optimal. If the problem genuinely has rewards as well as costs, model it as maximisation of utility with an appropriate algorithm, or re-scale so every step cost is non-negative (for example, cost = baseline_time − bonus, with the baseline chosen so the result is never below zero), being explicit about what the re-scaling does to the ordering of solutions.</p>
+
+<p><em>Zero-cost cycles can let an algorithm loop indefinitely without increasing path cost.</em> A step cost of exactly zero is legal for uniform-cost search's optimality argument but dangerous for termination: if a cycle of zero-cost actions exists — "rotate in place", "toggle a flag and toggle it back", "re-scan the shelf" — then infinitely many distinct paths share the same cost, and a tree search can expand them forever without the cost bound ever advancing. Two defences: run graph search with an explored set so repeated states are discarded, and insist on a small strictly positive cost ε for every action unless you have a specific reason not to. Formally, optimal search algorithms are usually stated as complete only when every step cost is at least some ε &gt; 0 and the branching factor is finite.</p>
+
+<p><em>If the stated objective is "fewest actions", every action should cost exactly one.</em> This sounds trivial but is violated constantly, usually by importing a plausible-looking distance metric into a problem that did not ask for it. In the 8-puzzle the task is to solve the puzzle in the fewest moves, so every slide costs 1, and breadth-first search is then optimal. If instead you charge each slide by the Manhattan distance the moved tile travels — always 1, so no harm here — or by some invented "difficulty" value, the search minimises the wrong total and may return a 24-move sequence in preference to a 22-move one. Conversely, if the real objective is driving time, do <em>not</em> fall back on unit costs: with unit costs, a route-finder prefers a path with three 80-kilometre motorway legs over a path with four 2-kilometre urban legs, which is plainly wrong. Match the cost to the stated objective, and when the objective is "fewest actions" resist the urge to be clever.</p>
+
+<p><em>Check that the cost you minimise is genuinely the quantity the stakeholder cares about.</em> This is the final and most important validation. The hospital said "patients should not be kept waiting", which is a statement about <em>delivery latency</em>, not about total route duration — and those differ. A plan that delivers all three trays at minute 30 has a worse average wait than a plan that delivers them at minutes 8, 16 and 32, even though the second plan takes longer overall. If average wait is what matters, the cost model must accumulate per-tray waiting time, which in turn means the state needs enough information to compute it (elapsed time, and which trays remain). Notice the cascade: fixing the objective forced a change in the state representation. This is normal and healthy, and it is precisely why the cost function should be settled before the state is frozen, and why the validation step "does the hand-computed optimal cost match intuition?" is worth the effort. Common mismatches to look for include optimising distance when money matters (tolls and fuel are not proportional to distance), optimising expected time when worst-case reliability matters, and optimising a single trip when throughput across a shift is what the business measures.</p>
+
+<p><strong>Putting it together: a worked micro-example</strong></p>
+
+<p>Scenario: <em>"A warehouse picker starts at the packing bench, must fetch items A and B from shelves, and return to the bench. Minimise walking time."</em> Applying the procedure: the agent is the picker; it changes its location and what it holds. State = <code>(location, held)</code> with <code>held ⊆ {A, B}</code>; the initial state is <code>(bench, {})</code>; actions are <code>Walk(x)</code> for adjacent nodes and <code>Grab(i)</code> when the item is at the current shelf; the goal test is <code>s.location == bench and s.held == {A, B}</code>; step cost is walking seconds, with <code>Grab</code> costing a fixed 3 seconds. Validation: the state space has 4 locations × 4 subsets = 16 states — small enough to enumerate and check by hand; breadth-first finds a path; the hand-optimal route takes 46 seconds, matching a stopwatch estimate. Error checks: no step counter or visit history in the state (not over-rich); <code>held</code> is a set, collapsing the symmetric "grabbed A then B" and "grabbed B then A" descriptions; the goal test reads only state fields (well-defined, and cheap); all costs are in seconds and strictly positive (consistent). The formulation is ready for search.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — The step-by-step procedure walks through each standard component in turn (agent and state representation, initial state, actions and transition model, goal test, path cost) and the comparison table shows those components instantiated side by side for several tasks, giving a repeatable method for defining them for any new task description.</li>
+  <li><strong>MO2</strong> — The abstraction section supplies explicit tests for removing irrelevant detail (include a detail only if it can change the optimal action; collapse fine-grained action sequences) together with the executability condition that keeps the abstraction solvable in the real world.</li>
+  <li><strong>MO3</strong> — Classic problems appear as worked reference points: the 8-puzzle and route finding in the component table and cost discussion, 8-queens in the symmetry and multiple-goal material, and the delivery-robot and warehouse-picker examples demonstrate the same formulation discipline applied end to end.</li>
+  <li><strong>MO4</strong> — The topic distinguishes the state (a description of the world) from the node (a search-tree wrapper holding path information), and shows how over-rich states break the explored set and collapse graph search into tree search; it does not otherwise develop frontier mechanics in detail.</li>
+  <li><strong>MO5</strong> — The validation routine and the three error catalogues directly address critique: over-rich states are analysed for their effect on state-space size and repeated-state detection (space and time complexity), ill-defined goal tests are linked to completeness and spurious failure, and inconsistent cost functions are linked to the optimality guarantees of uniform-cost and A* search.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The 8-queens figure of ~2,057 refers to the number of states generated by incremental column-by-column placement with the no-attack constraint enforced at each step; the unconstrained ordered-placement figure of ~1.8&#215;10^14 is 64&#215;63&#215;…&#215;57. Instructors may wish to have students re-derive both. The 8-puzzle parity remark (only half of the 9! = 362,880 configurations are mutually reachable, i.e. 181,440) is a useful concrete instance of an &quot;unreachable goal&quot; for in-class diagnosis exercises. The delivery-robot state counts in the over-rich table are deliberately approximate and ignore battery-feasibility pruning; they are intended to show orders of magnitude rather than exact reachable-set sizes.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

@@ -1,0 +1,234 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Reflex Agents</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Agent Architectures: Reflex to Learning Agents</a></div>
+  <header>
+    <h1>Simple Reflex Agents</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Simple Reflex Agents</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>The simple reflex agent is the most austere of the standard agent architectures: it looks at what it is sensing <em>right now</em> and acts. Nothing is remembered, nothing is predicted, and nothing is weighed against alternatives. Despite this poverty of mechanism, the architecture is far from a toy. It describes thermostats, over-current trip circuits, collision-avoidance bumpers on warehouse robots, spam filters that act on a single message's features, and the low-level reflex layers inside otherwise sophisticated autonomous systems. Studying it carefully is valuable for two reasons: it isolates the minimum machinery needed for rational behaviour in a restricted class of environments, and its failure modes motivate, with unusual clarity, every more elaborate architecture that follows.</p>
+
+<p><strong>Definition and core principle.</strong> A simple reflex agent implements an agent program that is a <em>direct mapping from the current percept to an action</em>. The mapping is expressed as a set of condition–action rules, conventionally written <code>if &lt;condition&gt; then &lt;action&gt;</code> and also called production rules or situation–action rules. Formally, where a general agent function has the signature <code>f : P* → A</code> (mapping a whole percept <em>sequence</em> to an action), a simple reflex agent collapses this to <code>f : P → A</code>, mapping only the most recent percept. That collapse is the defining commitment of the architecture, and every advantage and every limitation flows from it.</p>
+
+<p>Three consequences follow immediately:</p>
+<ul>
+  <li><strong>The agent is memoryless.</strong> No internal state persists between perception–action cycles. If the agent visits the same percept twice, separated by an hour or by a single tick, it behaves identically on both occasions. It cannot know that it has "already tried that", that a door was open a moment ago, or that it is halfway through a multi-step procedure.</li>
+  <li><strong>The agent needs no world model.</strong> It carries no transition model describing how the environment evolves on its own, and no action model describing the effects of its own behaviour. It never asks "what will happen if I do this?" — the rule simply fires. This is why the architecture is cheap, and also why it cannot plan.</li>
+  <li><strong>The rules are authored, not learned.</strong> In the classical formulation, the designer writes the condition–action rules by hand, encoding domain knowledge directly into the program. The agent performs no credit assignment and has no learning element, so its competence is fixed at design time and is exactly as good as its designer's analysis of the task.</li>
+</ul>
+
+<p>The canonical illustration is the two-square vacuum world. The agent perceives a pair <code>(location, status)</code> and the whole agent program is three rules:</p>
+
+<pre><code>function REFLEX-VACUUM-AGENT([location, status]) returns an action
+    if status = Dirty      then return Suck
+    else if location = A   then return Right
+    else if location = B   then return Left</code></pre>
+
+<p>This program is rational — it maximises the expected performance measure of "squares cleaned per time step, penalising movement" — in the specific environment for which it was designed. Note how little it knows: it has no idea how many squares exist, whether dirt reappears, or what it did on the previous step. It simply cleans what is under it and otherwise shuttles.</p>
+
+<p><strong>The implementation pattern.</strong> Textbook pseudocode for the architecture separates perception, matching, and action into three crisp stages:</p>
+
+<pre><code>function SIMPLE-REFLEX-AGENT(percept) returns an action
+    persistent: rules, a set of condition-action rules
+
+    state ← INTERPRET-INPUT(percept)
+    rule  ← RULE-MATCH(state, rules)
+    action ← rule.ACTION
+    return action</code></pre>
+
+<p>Each stage carries real engineering weight:</p>
+<ul>
+  <li><strong>INTERPRET-INPUT</strong> turns raw sensor data into a symbolic state description that rules can talk about. A camera frame of 2 million pixels is reduced to <code>CarInFrontIsBraking = true</code>; a 12-bit ADC reading becomes <code>Temperature = Too-Hot</code>. This abstraction step is where most of the engineering difficulty actually lives: the rules are trivial, but defining the features that make them expressible is not. Note that <code>state</code> here means a description of the <em>current percept</em>, not a remembered state of the world — it is derived afresh each cycle and discarded.</li>
+  <li><strong>RULE-MATCH</strong> scans the rule base and returns the first rule whose condition is satisfied by the interpreted state. Matching may be a simple linear scan over predicates, or something far more efficient (see below).</li>
+  <li><strong>Conflict resolution.</strong> When several conditions match simultaneously, the agent needs a deterministic policy for choosing among them. The simplest scheme is <em>textual ordering</em>: the first matching rule wins, so the designer places specific and safety-critical rules above general ones. Alternatives include explicit numeric priorities, specificity ordering (the rule with the most conditions wins), and recency. Whatever the scheme, it must be stated, because without it the agent's behaviour is underspecified and therefore unverifiable. In an autonomous vehicle's reflex layer, <code>if obstacle_within_2m then emergency_brake</code> must dominate <code>if lane_clear then accelerate</code>, and ordering is what guarantees it.</li>
+  <li><strong>Default/fallback rule.</strong> A well-formed rule base ends with a catch-all condition that matches anything, so that no percept can leave the agent without an action. The fallback should be the safe action for the domain — <code>halt</code>, <code>maintain_current_output</code>, <code>raise_alarm</code> — never an undefined or null return. Omitting the default is one of the most common defects in practice: the system behaves correctly for months and then encounters an unanticipated sensor combination and silently does nothing.</li>
+  <li><strong>Lookup implementation.</strong> Logically the rule set is a function from percepts to actions, so it can be realised in several ways with very different cost profiles. A full <em>lookup table</em> indexes every possible percept and gives O(1) access, but its size is the product of the ranges of all percept variables and becomes intractable fast. A <em>hashed rule index</em> keys rules on a discriminating feature so only a handful are ever tested. A <em>decision tree</em> evaluates a logarithmic number of tests and is the usual compromise. A <em>linear scan</em> over an ordered list is simplest and fine when there are tens of rules. In hardware, the whole thing may be compiled into combinational logic or a programmable logic array, giving a decision in a single clock cycle.</li>
+</ul>
+
+<p>A small worked example — a reflex rule base for an automatic door controller — shows the pattern end to end:</p>
+
+<table>
+  <thead>
+    <tr><th>Order</th><th>Condition (interpreted percept)</th><th>Action</th><th>Rationale</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>obstruction_in_doorway</td><td>HoldOpen</td><td>Safety rule, must dominate all others</td></tr>
+    <tr><td>2</td><td>motion_detected AND door_closed</td><td>Open</td><td>Primary service behaviour</td></tr>
+    <tr><td>3</td><td>no_motion AND door_open</td><td>Close</td><td>Energy conservation</td></tr>
+    <tr><td>4</td><td>fire_alarm_active</td><td>HoldOpen</td><td>Would be unreachable if placed below rule 3 — ordering matters</td></tr>
+    <tr><td>5</td><td>true (default)</td><td>NoOp</td><td>Fallback so every percept yields a defined action</td></tr>
+  </tbody>
+</table>
+
+<p>Rule 4 deliberately illustrates a defect: because rule 3 can fire first in a no-motion situation, the fire-alarm rule may never be reached. In a real design it belongs at position 1 or 2. Detecting this class of bug by inspection is easy with five rules and essentially impossible with five hundred — a point we return to under scaling.</p>
+
+<p><strong>Advantages: speed and simplicity.</strong> The architecture's virtues are exactly the ones you want in embedded and safety-critical control:</p>
+<ul>
+  <li><strong>Bounded, predictable decision latency.</strong> With a table or hashed index the decision is O(1); with a decision tree it is O(log n); with a linear scan it is O(n) over a small fixed n. In all cases the worst case is known at design time, which is precisely what a <em>hard real-time</em> system requires. A deliberative planner, by contrast, may take milliseconds or seconds depending on how hard the search instance turns out to be, and such variability is unacceptable for an airbag trigger or a motor-current trip.</li>
+  <li><strong>Minimal memory footprint.</strong> No history buffer, no belief state, no search frontier. The agent needs storage for the rules and one percept. This makes the architecture viable on 8-bit microcontrollers with kilobytes of RAM, and it eliminates an entire class of memory-growth and stale-state bugs.</li>
+  <li><strong>Transparency and verifiability.</strong> Behaviour is a finite, inspectable mapping. One can enumerate the percept space (when it is small), exhaustively test every input, prove coverage and non-contradiction with simple static analysis, and present the rule table to a certification authority. In regulated domains — avionics (DO-178C), medical devices (IEC 62304), industrial safety (IEC 61508) — this auditability is worth more than cleverness. "I can show you every input and the action it produces" is an argument that a neural policy or an online planner cannot easily make.</li>
+  <li><strong>Graceful degradation as a safety layer.</strong> Reflex agents compose well <em>beneath</em> deliberative components in a layered or subsumption-style architecture. The planner proposes a trajectory; the reflex layer retains authority to veto it when a proximity sensor trips. If the planner hangs, crashes, or produces nonsense, the reflex layer still brakes. Nearly every fielded autonomous system — industrial robots, drones, self-driving cars — has this structure, which is why the architecture remains practically important rather than merely historically interesting.</li>
+</ul>
+
+<p><strong>The requirement of full observability.</strong> The sharpest statement of the architecture's precondition is this: <em>a simple reflex agent can be rational only if the correct action is a function of the current percept alone</em>. That requires the environment to be fully observable with respect to the task — the percept must carry all the information needed to choose correctly.</p>
+
+<p>When that fails, we get <strong>perceptual aliasing</strong>: two distinct world states produce the same percept but demand different actions, and the agent, having no way to distinguish them, must get at least one of them wrong. Examples:</p>
+<ul>
+  <li>A vacuum agent with a local dirt sensor but no location sensor perceives only <code>[Dirty]</code> or <code>[Clean]</code>. On perceiving <code>[Clean]</code> it cannot tell whether it is in square A (where the right action is <code>Right</code>) or square B (where it is <code>Left</code>). Any fixed rule is wrong half the time.</li>
+  <li>A delivery robot in a building with identical corridors sees the same camera view at two junctions that require opposite turns.</li>
+  <li>A car's automatic braking system that perceives only "object ahead" cannot distinguish a stationary vehicle from a steam plume or an overhead sign — states that are visually aliased at low resolution but call for very different responses.</li>
+  <li>A thermostat reading 20°C cannot tell whether the room is warming or cooling; that distinction requires the <em>previous</em> reading, i.e. memory.</li>
+</ul>
+
+<p>Note the characteristic pathology: the agent does not hesitate or report uncertainty. It matches a rule and acts <em>confidently and wrongly</em>. Hidden variables and missing sensors do not produce visible error signals; they produce silent misclassification. This is why "the system seemed fine in testing" is such a common prelude to reflex-agent failure — the aliased state simply did not arise during test.</p>
+
+<p>There are two routes out. The first is <em>architectural</em>: add internal state, which abandons the simple reflex design. The second is <em>sensory</em>: add sensors until the percept disambiguates the states. Giving the vacuum agent a location sensor restores full observability and the three-rule program becomes rational again; giving the delivery robot an RFID reader or a ceiling-fiducial camera makes the identical corridors distinguishable. This second route is often the right engineering answer, because a cheap sensor is usually cheaper than a state-estimation subsystem and preserves all the verifiability benefits. The design question is therefore not merely "which architecture?" but "can I buy observability instead of complexity?"</p>
+
+<p><strong>Failure mode: infinite loops.</strong> Determinism plus memorylessness has a structural consequence. If the agent returns to a percept it has seen before, and the environment is deterministic, it will take the same action and arrive at the same successor state, and so on forever. The behaviour is not a bug in any individual rule; it is a theorem about the architecture.</p>
+
+<p>The classic case is a reflex agent in the aliased vacuum world described above. Suppose its rule is <code>if Clean then Right</code>. Starting in square B (clean), it moves right, bumps the wall, stays in B, perceives <code>[Clean]</code> again, and moves right again — forever, never discovering the dirt in A. A wall-following robot whose rules are <code>if wall_on_left then forward; if no_wall_on_left then turn_left</code> will circle a free-standing pillar indefinitely. A trading bot keyed to a single price threshold can thrash buy/sell around that threshold.</p>
+
+<p>Three responses, in increasing order of principle:</p>
+<ul>
+  <li><strong>Randomisation.</strong> Replace a deterministic rule with a stochastic one: <code>if Clean then choose uniformly from {Left, Right}</code>. This breaks the symmetry that sustains the loop. In the aliased vacuum world the randomised agent will reach and clean every square with probability 1, and its expected performance strictly dominates the deterministic agent's. Randomised reflex agents are genuinely useful — they also make an agent harder to exploit in adversarial settings such as game playing or security patrolling, where a predictable policy can be gamed.</li>
+  <li><strong>But randomisation is a workaround, not a solution.</strong> It adds no knowledge. The agent still does not know where it is or where it has been; it merely stumbles out of traps eventually rather than never. Expected completion time can be poor (a random walk's expected cover time grows quadratically in the number of states for a line, and worse in general), and the behaviour is no longer deterministically verifiable — a serious cost in certified systems. It converts a guaranteed failure into a probabilistic, slow success.</li>
+  <li><strong>The principled fix is internal state.</strong> If the agent keeps even a single bit of memory — "the last direction I moved" or "I have already visited A" — the loop dissolves, because the agent's decision now depends on the percept <em>sequence</em> rather than the percept. Adding that persistent state, together with a model of how the world evolves and how the agent's own actions change it, is exactly the definition of the <em>model-based reflex agent</em>. The infinite-loop failure mode is thus the standard pedagogical bridge from the simplest architecture to the next one.</li>
+</ul>
+
+<p><strong>Scaling limits of rule sets.</strong> Even in a fully observable, deterministic world, the architecture runs into a representational ceiling.</p>
+<ul>
+  <li><strong>Combinatorial growth.</strong> The number of distinct percepts is the product of the ranges of the percept variables. Ten Boolean sensors give 2<sup>10</sup> = 1,024 percepts; twenty give over a million; a modest robot with a dozen continuous sensors discretised into ten bins each gives 10<sup>12</sup>. A full lookup table is then physically impossible, and even a compact rule set must cover the space with generalising conditions that the designer must get right. This is why Russell and Norvig note that a table-driven agent for even a trivial task such as chess would need more entries than there are atoms in the observable universe.</li>
+  <li><strong>Maintainability collapse.</strong> Large rule bases suffer from <em>conflicts</em> (two rules match and prescribe incompatible actions), <em>gaps</em> (percepts no rule covers), <em>subsumption</em> (an earlier general rule shadows a later specific one, as in the fire-alarm example above), and <em>unintended interactions</em> that emerge only in rare percept combinations. The complexity of checking these properties grows far faster than the rule count. Expert-system history is full of knowledge bases that became unmaintainable at a few thousand rules, and modern "business rules engines" rediscover the same wall regularly.</li>
+  <li><strong>No representation of goals.</strong> A reflex agent's objective is implicit in its rules; it is nowhere written down. Consequently, changing the objective means rewriting the rule base, not editing a goal. A delivery robot whose reflex rules encode "go to room 12" cannot be redirected to room 7 by changing a variable — the routing behaviour is spread across dozens of condition–action pairs. Goal-based agents separate "what I want" from "how the world works", which is precisely what makes them reconfigurable.</li>
+  <li><strong>No lookahead and no trade-offs.</strong> Lacking a model of action effects, the agent cannot evaluate consequences, cannot compare two plans, and cannot sacrifice immediate reward for a better outcome later. It also cannot weigh competing desiderata — speed versus energy, safety margin versus throughput — because it has no utility function over outcomes. Any apparent trade-off must be pre-computed by the designer and frozen into the rule ordering.</li>
+</ul>
+
+<p><strong>When to choose this architecture.</strong> A disciplined design justification names the environment properties that make the choice defensible, rather than appealing to simplicity in the abstract. The architecture is appropriate when:</p>
+<ul>
+  <li>the environment is <strong>fully observable</strong> for the task, so no hidden variable determines the correct action;</li>
+  <li>it is <strong>deterministic</strong> (or near enough) so the same action reliably has the same effect, and <strong>episodic</strong>, so the current decision does not depend on earlier ones;</li>
+  <li>the <strong>percept space is small</strong> or compressible into a few discriminating features, keeping the rule base inspectable;</li>
+  <li>there is a <strong>single, fixed objective</strong> with no outcome trade-offs to weigh;</li>
+  <li>the <strong>latency budget</strong> forbids search or inference at decision time — microsecond-scale control loops, interrupt handlers, hardware interlocks;</li>
+  <li><strong>certifiability</strong> and exhaustive testability are first-order requirements.</li>
+</ul>
+
+<p>It is inappropriate when history matters (sequential tasks, state estimation, tracking), when the objective changes or must be specified declaratively, when outcomes must be traded off against one another under uncertainty, or when the environment is partially observable in ways that cannot be fixed by adding sensors. The following table summarises the mapping from environment property to architectural verdict:</p>
+
+<table>
+  <thead>
+    <tr><th>Environment property</th><th>Favourable to simple reflex?</th><th>Reason</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Fully observable</td><td>Yes</td><td>Percept contains everything needed for a correct decision</td></tr>
+    <tr><td>Partially observable</td><td>No</td><td>Perceptual aliasing causes confident wrong actions</td></tr>
+    <tr><td>Deterministic</td><td>Yes</td><td>Rule outcomes are reliable; no need to reason about uncertainty</td></tr>
+    <tr><td>Stochastic</td><td>Caution</td><td>Workable only if a fixed action is acceptable on average; no utility reasoning available</td></tr>
+    <tr><td>Episodic</td><td>Yes</td><td>Each decision is independent, matching the memoryless design</td></tr>
+    <tr><td>Sequential</td><td>No</td><td>Current action affects future outcomes, requiring lookahead or memory</td></tr>
+    <tr><td>Static</td><td>Yes</td><td>No time pressure, but the speed advantage is then less decisive</td></tr>
+    <tr><td>Dynamic with hard deadlines</td><td>Yes</td><td>Bounded O(1)–O(log n) decision time is exactly what is required</td></tr>
+    <tr><td>Small discrete percept space</td><td>Yes</td><td>Rule base stays enumerable and verifiable</td></tr>
+    <tr><td>Large or continuous percept space</td><td>No</td><td>Combinatorial rule growth; coverage and conflict checking become infeasible</td></tr>
+    <tr><td>Single fixed objective</td><td>Yes</td><td>Objective can be compiled into rules at design time</td></tr>
+    <tr><td>Changing goals or competing objectives</td><td>No</td><td>No explicit goal or utility representation to modify</td></tr>
+  </tbody>
+</table>
+
+<p>A fully worked justification reads something like: <em>"A reflex architecture is selected for the conveyor-sorting task because the task environment is fully observable (a single barcode scanner at a fixed position yields the item class with no hidden variables), deterministic (the diverter actuator reliably routes to the selected chute), episodic (each parcel's classification is independent of previous parcels), and subject to a 5 ms decision deadline at line speed. The percept space is 40 item classes, so the rule base is a 40-entry table that can be exhaustively tested. A model-based or goal-based design was rejected because it would add state-estimation and planning machinery with no behavioural benefit, while complicating safety certification."</em> That is the shape of the argument: environment properties first, architecture second, rejected alternatives named.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> The topic defines percepts and percept sequences explicitly, and contrasts the general agent function <code>f : P* → A</code> with the reflex agent's restricted <code>f : P → A</code>, while presenting the agent program (the <code>SIMPLE-REFLEX-AGENT</code> pseudocode) and its architectural context as a layer beneath deliberative components.</li>
+  <li><strong>MO2:</strong> This topic does not address the four components of a learning agent; it only notes, by contrast, that reflex rules are authored by the designer rather than produced by a learning element.</li>
+  <li><strong>MO3:</strong> The topic does not build full PEAS specifications, but it supplies the environment and performance-measure reasoning that a PEAS table depends on — the conveyor-sorting and vacuum-world examples identify performance measures, environments, actuators, and sensors informally.</li>
+  <li><strong>MO4:</strong> The topic characterises the simple reflex architecture in detail and sets out the environment properties it does and does not handle, explicitly flagging where perceptual aliasing and infinite loops force a move to model-based reflex, goal-based, utility-based, or learning designs.</li>
+  <li><strong>MO5:</strong> The closing section models the justification pattern the outcome requires — citing observability, determinism, episodic structure, latency budget, percept-space size, and certifiability, and naming the rejected alternatives and the complexity and maintainability trade-offs behind the rejection.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Suggested teaching aids: (1) have students run the two-square vacuum program by hand from all four initial configurations to see where it is rational and where it fails; (2) remove the location sensor and ask them to find a deterministic rule that works — they cannot, which demonstrates perceptual aliasing constructively; (3) add randomisation and compare expected cleaning time against the deterministic agent. The automatic-door rule table contains a deliberate ordering defect (rule 4 is shadowed by rule 3) and works well as a short in-class debugging exercise. The topic deliberately ends on the internal-state fix so it hands off cleanly to the model-based reflex agent topic.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>A simple reflex agent is the most basic agent architecture in AI: it looks at the current percept, matches it against a set of condition-action rules, and acts. There is no memory of past percepts, no model of how the world works, and no explicit goal — just "if this condition holds, do that." The classic implementation pattern is a rule table or a chain of if-then statements wrapped around an interpretation of the current sensor reading.</p>
+<p>This architecture matters in the course because it sets the baseline against which every richer design is judged. It is fast, cheap, and easy to verify, and it works well when the environment is fully observable and the right action really is determined by what the agent can sense right now. When observability is partial, the same percept can require different actions, and the agent either stalls or cycles forever in an infinite loop — the standard motivation for adding internal state in a model-based reflex agent. Rule sets also scale badly: every new situation adds rules, and interactions between rules get hard to maintain.</p>
+<p>The videos below are short industry overviews of the agent type taxonomy. While watching, listen for how the simple reflex agent is defined, what examples are used, and especially what limitation the presenter cites as the reason to move to the next architecture in the list — that transition point is the heart of this topic. Treat the videos as orientation; the formal definitions of agent function, percept sequence, and full observability come from your textbook readings.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/fXizBc03D7E?cc_load_policy=1&amp;rel=0" title="Video: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 10:22 · 430,733 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=fXizBc03D7E" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A walkthrough of five agent architectures, beginning with the simple reflex agent at the 0:50 mark and moving through model-based reflex, goal-based, utility-based, and learning agents. The simple reflex segment should cover the condition-action rule idea and give concrete examples, and the transition to model-based agents will likely explain why an agent without internal state struggles in environments it cannot fully observe. The sequencing lets you see exactly which limitation each successive architecture is designed to remove.</p>
+<h3>Why this video</h3>
+<p>This is the most directly on-topic video for the module: it devotes a dedicated timestamped segment to simple reflex agents and places them within the standard taxonomy, which supports both the definition subtopic and the question of when to choose this architecture over a richer one.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: 7 AI Terms You Need to Know: Agents, RAG, ASI &amp; More</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/VSFuqMh4hus?cc_load_policy=1&amp;rel=0" title="Video: 7 AI Terms You Need to Know: Agents, RAG, ASI &amp; More (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 11:04 · 1,343,386 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=VSFuqMh4hus" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A vocabulary-focused explainer from IBM covering seven commonly used AI terms, including agents, retrieval-augmented generation, and artificial superintelligence. The agent portion should establish what makes a system an agent — perceiving an environment and acting on it — which is the frame that condition-action rules sit inside. The remaining terms give context for where agent-based systems fit in the wider modern AI landscape.</p>
+<h3>Why this video</h3>
+<p>Useful as a vocabulary anchor before the architecture comparison, since precise use of terms like percept, agent, and environment is required to describe a simple reflex agent correctly.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: What are AI Agents?</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/F8NKVhkZZWI?cc_load_policy=1&amp;rel=0" title="Video: What are AI Agents? (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 12:29 · 1,787,980 views · 2y ago · captions — <a href="https://www.youtube.com/watch?v=F8NKVhkZZWI" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A longer introduction to AI agents that explains what an agent is, how it perceives and acts, and what distinguishes agentic systems from ordinary programs or models. Expect discussion of the perceive-decide-act cycle and the kinds of tasks agents are deployed on, likely with contemporary LLM-based examples. It provides the general framing that the simple reflex pattern is the simplest instance of.</p>
+<h3>Why this video</h3>
+<p>From the same well-regarded IBM Technology channel, it gives the broader agent concept in enough depth that you can see the simple reflex agent as a stripped-down special case — helpful for reasoning about the trade-off between speed, simplicity, and capability.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos reinforce the vocabulary of percepts, actions, and agent programs needed for MO1, and the taxonomy walkthrough in the five-types video maps directly onto MO4 by contrasting simple reflex agents with model-based, goal-based, utility-based, and learning architectures. Because each architecture is introduced as a response to a limitation of the previous one, the videos also model the kind of trade-off reasoning MO5 asks you to produce when justifying an architecture choice. They do not cover PEAS specification (MO3) or the internal structure of a learning agent (MO2) in detail, so rely on the assigned readings and in-class exercises for those outcomes.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

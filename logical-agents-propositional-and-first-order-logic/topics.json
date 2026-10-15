@@ -1,0 +1,1942 @@
+{
+  "ModuleFolderName": "Logical_Agents_Propositional",
+  "CourseName": "CAI4002 - Intro to AI",
+  "GeneratedDate": "2026-10-14T20:12:50.3154408-04:00",
+  "ModifiedDate": "2026-10-14T20:16:10.4599134-04:00",
+  "Outcomes": [],
+  "Topics": [
+    {
+      "Id": "03fe1d48-270a-42a0-be5f-4a7bfa2f8047",
+      "Title": "Knowledge-Based Agents and Knowledge Bases",
+      "Summary": "Introduces the architecture of logical agents that maintain a knowledge base of sentences and act using TELL and ASK operations. Explains the distinction between the knowledge level and implementation level, and why declarative knowledge representation is useful for intelligent behavior.",
+      "SortOrder": 0,
+      "CreatedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "ModifiedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "Elements": [
+        {
+          "Id": "054b25c1-b015-4ddf-be33-6b8a1f39017d",
+          "TopicId": "03fe1d48-270a-42a0-be5f-4a7bfa2f8047",
+          "Title": "What Is a Knowledge-Based Agent?",
+          "BodyText": "A knowledge-based agent is an agent whose central component is a knowledge base: a set of sentences expressed in a formal knowledge representation language. Rather than acting purely from hard-coded reflexes, it reasons over what it knows to decide what to do.",
+          "Notes": "Contrast with simple reflex or purely reactive agents, which map percepts directly to actions without any explicit representation of the world.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:13:11.3558543-04:00",
+          "ModifiedDate": "2026-10-14T20:13:11.3558543-04:00",
+          "Items": [
+            {
+              "Id": "067f0628-e194-4ed9-bc16-2578ea775ae3",
+              "Text": "Each sentence in the knowledge base asserts something taken to be true about the world.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6e8d397c-01bd-47bc-b2e2-e57b229e12da",
+              "Text": "Sentences may be supplied in advance as background knowledge or acquired through perception.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5d76fb44-6419-4b2b-b4d7-b47313f87ef6",
+              "Text": "The agent derives new conclusions from stored sentences using an inference mechanism.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a65741a5-70e6-4f1e-b45f-e852d1c6735b",
+              "Text": "This design lets the same reasoning machinery serve many different tasks and environments.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "0c9dd54f-89e1-4525-a109-9a38c7317627",
+          "TopicId": "03fe1d48-270a-42a0-be5f-4a7bfa2f8047",
+          "Title": "The TELL and ASK Interface",
+          "BodyText": "Agents interact with their knowledge base through two standard operations: TELL adds new sentences, and ASK queries what follows from what is already known.",
+          "Notes": "A third operation, often called RETRACT, is sometimes used to remove sentences that no longer hold.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:13:11.3558543-04:00",
+          "ModifiedDate": "2026-10-14T20:13:11.3558543-04:00",
+          "Items": [
+            {
+              "Id": "fdde9635-469d-478a-a765-aeff6be4b17d",
+              "Text": "TELL is used to record percepts and newly inferred facts in the knowledge base.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "1880235f-ba54-47a5-9fe9-d30569ddfa89",
+              "Text": "ASK returns answers that follow from the knowledge base, not merely sentences stored verbatim.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "e872514e-db1b-4721-9965-2f96dcb6f6d2",
+              "Text": "Answers to ASK must be entailed by the knowledge base, so the agent never invents unsupported claims.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "edf361b9-d5b0-478a-b4c2-8a73771cc81d",
+              "Text": "Both operations may trigger inference, since derived conclusions may be needed to answer a query.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "e368eb93-0b36-4b36-b5cb-80e5d8cfdac6",
+          "TopicId": "03fe1d48-270a-42a0-be5f-4a7bfa2f8047",
+          "Title": "The Agent Control Loop",
+          "BodyText": "A generic knowledge-based agent repeats a simple cycle each time it receives a percept, combining perception, reasoning, and action recording.",
+          "Notes": "The functions MAKE-PERCEPT-SENTENCE, MAKE-ACTION-QUERY, and MAKE-ACTION-SENTENCE translate between the agent\u0027s world and the logical language.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:13:11.3558543-04:00",
+          "ModifiedDate": "2026-10-14T20:13:11.3558543-04:00",
+          "Items": [
+            {
+              "Id": "1d2c67b9-254a-49ff-9922-8f022a790fd2",
+              "Text": "First, TELL the knowledge base the sentence describing the current percept and the time step.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "ae4205eb-975c-432f-838b-b9131562147d",
+              "Text": "Second, ASK the knowledge base which action should be taken now.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "851bee0e-352e-463d-bc45-adea07b8a226",
+              "Text": "Third, TELL the knowledge base that the chosen action has been executed.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9d1c490b-d7fa-4f3a-9d3c-dcf186d3b6bf",
+              "Text": "Finally, return the action to the agent\u0027s actuators and increment the time counter.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a6a23bf4-3a0d-4fb9-8514-0efad7222c52",
+              "Text": "The details of how the answer is computed are hidden inside the inference procedure.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "6a1f97f1-bf28-4b49-8b01-4905454819f9",
+          "TopicId": "03fe1d48-270a-42a0-be5f-4a7bfa2f8047",
+          "Title": "Knowledge Level Versus Implementation Level",
+          "BodyText": "A knowledge-based agent can be described at two distinct levels of abstraction, which separates what the agent knows from how that knowledge is stored and manipulated.",
+          "Notes": "Newell\u0027s knowledge level analysis lets designers specify agent behaviour without committing to data structures or algorithms.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:13:11.3558543-04:00",
+          "ModifiedDate": "2026-10-14T20:13:11.3558543-04:00",
+          "Items": [
+            {
+              "Id": "3a3f3240-35f8-4813-8108-d134f9693c73",
+              "Text": "At the knowledge level we specify only what the agent knows and what goals it has.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "98fc3246-f565-4672-8943-b8ed894dc4e1",
+              "Text": "Behaviour at the knowledge level is predicted by assuming the agent acts on what its knowledge entails.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "461b190e-a905-4f2b-8c58-862f5daf5a91",
+              "Text": "At the implementation level we specify the data structures and inference algorithms used.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a64d9d13-688f-4662-a0af-45d090ca7b8f",
+              "Text": "Many different implementations can realise the same knowledge-level description.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "cc4e9405-dbeb-450e-92df-5b6df7829e13",
+              "Text": "This separation lets designers reason about correctness independently of efficiency concerns.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "d193c0e4-2b6e-4693-bbb7-2b3a7b5a5b32",
+          "TopicId": "03fe1d48-270a-42a0-be5f-4a7bfa2f8047",
+          "Title": "Declarative Versus Procedural Approaches",
+          "BodyText": "Knowledge can be built into an agent declaratively, by asserting sentences, or procedurally, by encoding behaviour directly in program code. Logical agents favour the declarative approach.",
+          "Notes": "Successful real systems typically blend both: declarative knowledge for flexibility, procedural encoding for speed in well-understood cases.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:13:11.3558543-04:00",
+          "ModifiedDate": "2026-10-14T20:13:11.3558543-04:00",
+          "Items": [
+            {
+              "Id": "02254aef-dcf5-4f91-a5b9-9d21cc19a127",
+              "Text": "In the declarative approach the designer TELLs the agent facts one sentence at a time until it knows enough to act.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "85d12dbb-ab0d-4a46-a88f-5dd7f36cc3aa",
+              "Text": "In the procedural approach desired behaviours are compiled directly into program code.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "67f26859-651c-4914-9fde-e86a5fff6745",
+              "Text": "Declarative knowledge is easier to inspect, debug, extend, and reuse across tasks.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "93705446-902c-4a47-af1d-42b78de41182",
+              "Text": "New information can be added without rewriting the agent\u0027s reasoning machinery.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "95b6fcd7-bce4-4862-bdec-2fdc223a9d5d",
+              "Text": "A fully declarative agent can even learn new sentences about a previously unknown environment.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "cd969fac-d14f-4c1f-acf3-c58d297b9f6f",
+          "TopicId": "03fe1d48-270a-42a0-be5f-4a7bfa2f8047",
+          "Title": "Why Declarative Representation Supports Intelligence",
+          "BodyText": "Explicit, declarative knowledge gives an agent flexibility that hard-wired behaviour cannot match, which is central to general intelligent behaviour.",
+          "Notes": "The Wumpus World is a standard testbed showing how an agent can safely infer the location of pits and the wumpus from indirect percepts.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:13:11.3558543-04:00",
+          "ModifiedDate": "2026-10-14T20:13:11.3558543-04:00",
+          "Items": [
+            {
+              "Id": "8439667c-3e1a-4e35-ab69-b345e3687ac1",
+              "Text": "The agent can handle novel situations by combining existing knowledge in new ways.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "04e40be7-82ad-484e-89c5-4f0116fba26f",
+              "Text": "Partial information can be represented and reasoned about rather than ignored.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c262d22b-c5ad-4c57-a5b7-da8a1f98a685",
+              "Text": "Knowledge acquired for one purpose can be applied to unanticipated goals.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "82a6ff35-cc45-4058-823b-f48bcdbc3996",
+              "Text": "Explanations of agent decisions can be produced by tracing the inference steps.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ba6e73eb-1fa3-41d0-8614-edb4da9bf5c9",
+              "Text": "Autonomy grows as the agent learns and TELLs itself new sentences over time.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "d70bd974-6bdc-4841-96d4-4916b6b068af",
+      "Title": "Propositional Logic: Syntax and Semantics",
+      "Summary": "Covers the formal grammar of propositional logic, including atomic sentences, logical connectives, and well-formed formulas. Defines models, truth assignments, and truth tables that give meaning to sentences.",
+      "SortOrder": 1,
+      "CreatedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "ModifiedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "Elements": [
+        {
+          "Id": "8db1d628-2ed0-4065-abd9-0a94a8c580da",
+          "TopicId": "d70bd974-6bdc-4841-96d4-4916b6b068af",
+          "Title": "Atomic Sentences and Propositional Symbols",
+          "BodyText": "Propositional logic is built from the simplest possible units: proposition symbols that stand for facts that are either true or false. These atomic sentences form the vocabulary of the knowledge base.",
+          "Notes": "Example: in the Wumpus World, P1,2 means \u0027there is a pit in square [1,2]\u0027 and B2,1 means \u0027there is a breeze in square [2,1]\u0027.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:13:37.7756451-04:00",
+          "ModifiedDate": "2026-10-14T20:13:37.7756451-04:00",
+          "Items": [
+            {
+              "Id": "d23a52af-657c-4ced-82a9-957bfd36d4a3",
+              "Text": "A proposition symbol represents a single indivisible fact about the world, such as P1,2 or Rain.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "068d0521-0ecc-4d37-8101-5ca4a848724b",
+              "Text": "Each symbol is atomic because it has no internal structure that logic can inspect.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "36eaae03-8bb6-4d5f-bc4e-80a2ed3f4227",
+              "Text": "The two special constants True and False are also atomic sentences with fixed meanings.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "6e665157-8284-4ef7-927a-670eaa7dc022",
+              "Text": "Symbol names are arbitrary labels; the logic assigns no meaning beyond the truth value given by a model.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6af3be17-6c0a-47c9-93c9-755b61c2010b",
+              "Text": "A fixed vocabulary of symbols determines the entire space of possible worlds for the knowledge base.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "58775ff2-c843-4a56-8ebd-917dde68e63f",
+          "TopicId": "d70bd974-6bdc-4841-96d4-4916b6b068af",
+          "Title": "Logical Connectives",
+          "BodyText": "Complex sentences are constructed from atomic sentences using five standard logical connectives. Each connective has a fixed arity and a precise truth-functional meaning.",
+          "Notes": "Operator precedence from highest to lowest is: \u00AC, \u2227, \u2228, \u21D2, \u21D4. Parentheses override the default precedence.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:13:37.7756451-04:00",
+          "ModifiedDate": "2026-10-14T20:13:37.7756451-04:00",
+          "Items": [
+            {
+              "Id": "174f972b-8025-46ac-8965-ee3676234e09",
+              "Text": "Negation (\u00AC) is the only unary connective; \u00ACP is called a literal, as is P itself.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "7d34531b-1aea-4109-aa97-6e21d6fc9e7d",
+              "Text": "Conjunction (\u2227) joins two conjuncts and is true only when both are true.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "be0528b5-afaf-4faf-a814-b4cc9177a948",
+              "Text": "Disjunction (\u2228) joins two disjuncts and is true when at least one is true.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b8425443-083f-40be-bdee-96dc3ec7baa7",
+              "Text": "Implication (\u21D2) connects a premise to a conclusion and is false only when the premise is true and the conclusion is false.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b515c44f-249f-4228-a759-bd0d6b760086",
+              "Text": "Biconditional (\u21D4) asserts that both sides always share the same truth value.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "c2070320-1ec5-468d-9ac1-82ac58814861",
+          "TopicId": "d70bd974-6bdc-4841-96d4-4916b6b068af",
+          "Title": "Well-Formed Formulas and the Formal Grammar",
+          "BodyText": "The syntax of propositional logic is defined by a recursive BNF grammar that specifies exactly which strings count as legal sentences. Only well-formed formulas can be evaluated or used in inference.",
+          "Notes": "BNF: Sentence \u2192 AtomicSentence | ComplexSentence; AtomicSentence \u2192 True | False | P | Q | R | \u2026; ComplexSentence \u2192 (Sentence) | \u00ACSentence | Sentence \u2227 Sentence | Sentence \u2228 Sentence | Sentence \u21D2 Sentence | Sentence \u21D4 Sentence.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:13:37.7756451-04:00",
+          "ModifiedDate": "2026-10-14T20:13:37.7756451-04:00",
+          "Items": [
+            {
+              "Id": "6b349392-3fec-487b-bb3b-573602e547a2",
+              "Text": "Every atomic sentence is a well-formed formula by the base case of the grammar.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f5b21968-aebf-4495-8888-f1334bb56b9a",
+              "Text": "If \u03B1 and \u03B2 are well-formed, then \u00AC\u03B1, (\u03B1 \u2227 \u03B2), (\u03B1 \u2228 \u03B2), (\u03B1 \u21D2 \u03B2), and (\u03B1 \u21D4 \u03B2) are also well-formed.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "98e0d455-ad9d-4813-bad4-977dd4da2917",
+              "Text": "The recursive definition allows sentences of arbitrary nesting depth.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "fc8ac769-6e4c-4d0f-a2c9-9bc0a1ae8338",
+              "Text": "Strings such as \u0027P \u2227 \u2228 Q\u0027 are ungrammatical and have no meaning in the logic.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ea2da450-ae8e-49b1-9efd-15b0f758635c",
+              "Text": "Syntax alone says nothing about truth; it only determines which expressions are legal.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "8542ad30-3ad6-4af9-b41b-3ecd671b3c0e",
+          "TopicId": "d70bd974-6bdc-4841-96d4-4916b6b068af",
+          "Title": "Models and Truth Assignments",
+          "BodyText": "Semantics is given by models, which are mathematical abstractions of possible worlds. A model in propositional logic is simply an assignment of true or false to every proposition symbol in the vocabulary.",
+          "Notes": "Example: with symbols P1,2, P2,2, P3,1 the model m = {P1,2 = false, P2,2 = false, P3,1 = true} is one of 8 possible worlds.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:13:37.7756451-04:00",
+          "ModifiedDate": "2026-10-14T20:13:37.7756451-04:00",
+          "Items": [
+            {
+              "Id": "6f247243-850a-459f-9c7f-abfaa673af5a",
+              "Text": "A model fixes the truth value of each symbol, leaving nothing undetermined.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "41042f97-6fdb-4356-b7f0-fd35ffb63e63",
+              "Text": "With n proposition symbols there are exactly 2^n distinct models.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3f7bc784-b5ac-4d47-ae55-d1b0092dc94e",
+              "Text": "A sentence is said to be satisfied by a model if it evaluates to true in that model.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d06f89bd-2db0-4d10-997f-ce51260272bf",
+              "Text": "The notation M(\u03B1) denotes the set of all models in which sentence \u03B1 is true.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a8411478-fe41-4c92-b0c6-bf19cf55f381",
+              "Text": "Models provide the bridge between syntax and the world, making entailment and inference well defined.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "8d4ed658-0dee-4d93-a3dc-4f75ff3f3ee1",
+          "TopicId": "d70bd974-6bdc-4841-96d4-4916b6b068af",
+          "Title": "Truth Tables for the Connectives",
+          "BodyText": "The meaning of each connective is defined by a truth table that specifies the output truth value for every combination of input values. These tables give propositional logic its truth-functional semantics.",
+          "Notes": "Note the counterintuitive case: P \u21D2 Q is true whenever P is false, regardless of Q. Implication does not require causal or relevance connection between premise and conclusion.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:13:37.7756451-04:00",
+          "ModifiedDate": "2026-10-14T20:13:37.7756451-04:00",
+          "Items": [
+            {
+              "Id": "544ee329-ac1b-4f69-a0fc-267fd891083a",
+              "Text": "\u00ACP is true exactly when P is false.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "87b31af1-3253-44b7-8b17-46c947558cc7",
+              "Text": "P \u2227 Q is true in only one of four rows \u2014 when both P and Q are true.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "378f152a-9e8e-464b-9bf1-2c221b60f013",
+              "Text": "P \u2228 Q is inclusive: it is true in three of four rows, false only when both disjuncts are false.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "dd432c09-d5ab-42a2-9c43-45974a7a7c33",
+              "Text": "P \u21D2 Q is logically equivalent to \u00ACP \u2228 Q.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "40f13a3b-2104-4f0b-ab86-7786a166ae8c",
+              "Text": "P \u21D4 Q is true in the two rows where P and Q agree.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "f9fb9eeb-8640-49df-8559-679d0106d57a",
+          "TopicId": "d70bd974-6bdc-4841-96d4-4916b6b068af",
+          "Title": "Evaluating Complex Sentences Recursively",
+          "BodyText": "The truth value of any sentence in a given model is computed bottom-up from its atomic parts using the connective truth tables. This recursive evaluation procedure is the heart of propositional semantics.",
+          "Notes": "Example: evaluating \u00ACP1,2 \u2227 (P2,2 \u2228 P3,1) in m = {P1,2 = false, P2,2 = false, P3,1 = true} gives true \u2227 (false \u2228 true) = true \u2227 true = true.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:13:37.7756451-04:00",
+          "ModifiedDate": "2026-10-14T20:13:37.7756451-04:00",
+          "Items": [
+            {
+              "Id": "c937cfe3-6caa-4a04-b90f-b17a3ecb555e",
+              "Text": "Start by looking up the truth value of each proposition symbol in the model.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "2dbdad34-6d30-494c-a7f6-7c07931ef413",
+              "Text": "Apply the truth table of each connective to the values of its immediate subsentences.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "817992ea-944e-4b40-8e34-19b20d5a3318",
+              "Text": "Work outward through the parse tree until the top-level connective is evaluated.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "408ac1ad-9d10-48a0-8e7c-4ff4f9468834",
+              "Text": "Every well-formed sentence receives exactly one truth value in every model \u2014 the logic is unambiguous.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "e3bb23ef-4c8e-4908-9c96-6ee67d61746b",
+              "Text": "Because evaluation is truth-functional, the meaning of a whole depends only on the truth values of its parts.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "02da5f3f-0e69-4b25-8152-ed9e6e444821",
+          "TopicId": "d70bd974-6bdc-4841-96d4-4916b6b068af",
+          "Title": "Validity, Satisfiability, and Logical Equivalence",
+          "BodyText": "Sentences can be classified according to the set of models in which they are true. These semantic categories underpin later work on entailment and inference.",
+          "Notes": "Deduction theorem: \u03B1 entails \u03B2 if and only if (\u03B1 \u21D2 \u03B2) is valid; equivalently, \u03B1 \u2227 \u00AC\u03B2 is unsatisfiable \u2014 the basis of proof by refutation.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T20:13:37.7756451-04:00",
+          "ModifiedDate": "2026-10-14T20:13:37.7756451-04:00",
+          "Items": [
+            {
+              "Id": "c33a6b74-9d46-4408-920d-b4753822d6e9",
+              "Text": "A valid sentence (a tautology) is true in all models, such as P \u2228 \u00ACP.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0238f5d6-b1e6-48f6-858e-ab1bd37c87b3",
+              "Text": "A satisfiable sentence is true in at least one model; checking satisfiability is the classic SAT problem.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9053b9d0-3cc7-4274-84bc-ef69efb4b0de",
+              "Text": "An unsatisfiable sentence (a contradiction) is true in no model, such as P \u2227 \u00ACP.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "6a5e1e77-e4c5-4419-b07b-8c8a11495833",
+              "Text": "Two sentences are logically equivalent when they are true in exactly the same set of models.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "5337a1c4-dad3-47d8-aa40-7f3f15228f76",
+              "Text": "Useful equivalences include De Morgan\u0027s laws, distributivity, and contraposition, all verifiable by truth tables.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "7290e39f-babf-4026-a58b-f2b5964be139",
+      "Title": "Entailment, Validity, and Satisfiability",
+      "Summary": "Explains the logical entailment relation and how it formalizes correct reasoning, along with the related notions of validity, satisfiability, and logical equivalence. Introduces soundness and completeness as criteria for evaluating inference procedures.",
+      "SortOrder": 2,
+      "CreatedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "ModifiedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "Elements": [
+        {
+          "Id": "6fc05ad8-e510-4b31-9152-204642bf304c",
+          "TopicId": "7290e39f-babf-4026-a58b-f2b5964be139",
+          "Title": "Models and the Semantics of Entailment",
+          "BodyText": "Entailment is defined in terms of models \u2014 the possible worlds in which sentences are true. A knowledge base entails a sentence when the sentence holds in every model of the knowledge base.",
+          "Notes": "Written KB \u22A8 \u03B1, read as \u0027KB entails alpha\u0027. In propositional logic a model is simply an assignment of true or false to every proposition symbol.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:13:58.708491-04:00",
+          "ModifiedDate": "2026-10-14T20:13:58.708491-04:00",
+          "Items": [
+            {
+              "Id": "3c5a5bab-955b-435d-bc36-2f879ea3e5f8",
+              "Text": "A model is a mathematical abstraction of a possible world that fixes the truth value of every relevant sentence.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "7b08948d-dad4-4639-9ec9-091b21d72a08",
+              "Text": "M(\u03B1) denotes the set of all models in which \u03B1 is true.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "28955017-e72b-4e2e-be0f-3f05fe4170e7",
+              "Text": "KB \u22A8 \u03B1 holds exactly when M(KB) \u2286 M(\u03B1).",
+              "SortOrder": 2
+            },
+            {
+              "Id": "03f489bb-ceec-49ae-ad4c-4d09292836c0",
+              "Text": "Entailment is a relation between sentences, independent of any particular algorithm that computes it.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ee250496-25ce-4a6a-b76d-5deb6aeea2e1",
+              "Text": "Adding more sentences to a KB shrinks its model set, so it can only increase what is entailed (monotonicity).",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "dee38da0-8c40-4993-9c76-b50300a36d2f",
+          "TopicId": "7290e39f-babf-4026-a58b-f2b5964be139",
+          "Title": "Entailment as Formal Correct Reasoning",
+          "BodyText": "Entailment formalizes the intuitive idea that a conclusion follows necessarily from what is known. It is the standard against which any inference procedure is judged.",
+          "Notes": "Example: from \u0027the Wumpus world rules\u0027 plus percepts of no breeze in [1,1] and [2,1], the KB entails that [2,2] contains no pit.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:13:58.708491-04:00",
+          "ModifiedDate": "2026-10-14T20:13:58.708491-04:00",
+          "Items": [
+            {
+              "Id": "0f3caac7-afe3-4cad-81bf-572ffea575db",
+              "Text": "If KB \u22A8 \u03B1, then \u03B1 must be true whenever the KB is true \u2014 no counterexample world exists.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d826f501-114e-46d9-9dcb-602bb99276ca",
+              "Text": "Model checking enumerates all possible models and verifies \u03B1 holds in every model where the KB holds.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4553e891-e769-4f4f-ab61-7b6ec4cf31e6",
+              "Text": "The number of models grows as 2^n for n proposition symbols, making naive enumeration exponential.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "34485ee2-0351-40e4-ba38-ca6b746f39ba",
+              "Text": "Entailment captures necessity, not mere plausibility or statistical likelihood.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "d7168d5f-2ff5-4e7e-8749-248a0c52dae3",
+              "Text": "Writing KB \u22A2\u1D62 \u03B1 indicates \u03B1 was derived from KB by inference procedure i.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "67c9fb93-4fc8-4d11-b5b6-a4155f66cde3",
+          "TopicId": "7290e39f-babf-4026-a58b-f2b5964be139",
+          "Title": "Validity and the Deduction Theorem",
+          "BodyText": "A sentence is valid if it is true in all possible models. Validity links entailment to the truth of a single implication sentence.",
+          "Notes": "Valid sentences are also called tautologies; examples include P \u2228 \u00ACP and (P \u2227 (P \u21D2 Q)) \u21D2 Q.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:13:58.708491-04:00",
+          "ModifiedDate": "2026-10-14T20:13:58.708491-04:00",
+          "Items": [
+            {
+              "Id": "737dfb3b-ae33-4faa-87b7-7644a2881e35",
+              "Text": "Validity means truth under every possible assignment of truth values.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "70e7d24d-098d-4490-b013-22b57c1f8a40",
+              "Text": "The deduction theorem states KB \u22A8 \u03B1 if and only if (KB \u21D2 \u03B1) is valid.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "b4e1d8cd-d1be-4a62-8304-5b7e1360fc66",
+              "Text": "Validity lets entailment questions be reduced to a property of one sentence.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "2e443c31-2eeb-4556-9b30-b3706257df4a",
+              "Text": "Valid sentences carry no information about the world because they exclude no model.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "4a2c2898-7c36-4d50-add1-c8fd9853c94f",
+          "TopicId": "7290e39f-babf-4026-a58b-f2b5964be139",
+          "Title": "Satisfiability and Proof by Refutation",
+          "BodyText": "A sentence is satisfiable if it is true in at least one model. Satisfiability underpins the refutation strategy used by resolution provers.",
+          "Notes": "SAT \u2014 deciding propositional satisfiability \u2014 was the first problem proven NP-complete.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:13:58.708491-04:00",
+          "ModifiedDate": "2026-10-14T20:13:58.708491-04:00",
+          "Items": [
+            {
+              "Id": "159daccb-ba2a-4c9f-9343-3ff1faea9b99",
+              "Text": "\u03B1 is satisfiable if some model makes it true; it is unsatisfiable if no model does.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "3efa99ab-6cee-4d38-a0ee-d9e554fbd94a",
+              "Text": "\u03B1 is valid exactly when \u00AC\u03B1 is unsatisfiable.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d52297fa-ad5d-4a31-9bfb-937b10d2a962",
+              "Text": "KB \u22A8 \u03B1 if and only if (KB \u2227 \u00AC\u03B1) is unsatisfiable.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "404feefb-42e2-47f2-9f0a-806afcbf673d",
+              "Text": "Refutation proofs assume the negation of the goal and derive a contradiction.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "87bdb257-db7c-4251-ad4e-976eadc8ecb4",
+              "Text": "Modern SAT solvers make this reduction practically useful despite worst-case intractability.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "bfd8811d-888f-4c27-a04c-4cdbf89b8369",
+          "TopicId": "7290e39f-babf-4026-a58b-f2b5964be139",
+          "Title": "Logical Equivalence",
+          "BodyText": "Two sentences are logically equivalent when they are true in exactly the same set of models. Equivalences license rewriting sentences into more convenient forms.",
+          "Notes": "Common equivalences include De Morgan\u0027s laws, distributivity, contraposition, and implication elimination (\u03B1 \u21D2 \u03B2 \u2261 \u00AC\u03B1 \u2228 \u03B2).",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:13:58.708491-04:00",
+          "ModifiedDate": "2026-10-14T20:13:58.708491-04:00",
+          "Items": [
+            {
+              "Id": "91d80bc8-fd6d-4c77-a546-5950f7c32100",
+              "Text": "\u03B1 \u2261 \u03B2 holds if and only if \u03B1 \u22A8 \u03B2 and \u03B2 \u22A8 \u03B1.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "5eb463f1-f913-4388-96d4-ff5c9c50655d",
+              "Text": "Equivalences justify conversion of arbitrary sentences into conjunctive normal form.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "682bf590-5150-415f-87d0-fd649c5643a3",
+              "Text": "Double-negation elimination, commutativity, and associativity are standard rewriting rules.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f193e8e7-bc7e-4896-9724-ffe87432203e",
+              "Text": "Equivalence preserves meaning exactly, unlike mere implication in one direction.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "7c1072ea-5b4b-4302-acc6-e53ae6989262",
+          "TopicId": "7290e39f-babf-4026-a58b-f2b5964be139",
+          "Title": "Soundness and Completeness of Inference",
+          "BodyText": "Soundness and completeness are the two criteria that evaluate whether an inference procedure correctly computes entailment. Together they guarantee that derivation and entailment coincide.",
+          "Notes": "Resolution applied to propositional logic is both sound and complete; first-order logic is semidecidable, so complete procedures may not terminate on non-entailed queries.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:13:58.708491-04:00",
+          "ModifiedDate": "2026-10-14T20:13:58.708491-04:00",
+          "Items": [
+            {
+              "Id": "03efc821-db4d-4a9e-b0ba-fa1097ac2e33",
+              "Text": "An inference algorithm is sound (truth-preserving) if it derives only sentences that are entailed.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "75d7b812-2f7a-459c-8ad6-273a57ce222f",
+              "Text": "An algorithm is complete if it can derive every sentence that is entailed.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a6d61874-6b90-4f21-a6f1-c5290ebaa564",
+              "Text": "Unsound procedures may announce false conclusions; incomplete ones may fail to find valid answers.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "defa6149-9885-4e65-85cd-59a6ee04dd6c",
+              "Text": "Model checking is sound and complete for propositional logic but scales poorly.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "4b2b3673-ae03-40e9-af53-fda58e066af1",
+              "Text": "Grounding results in the real world requires that the KB\u0027s sentences themselves be true of the environment.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "30dc0314-20ea-4a61-bb2a-40f7e1dd1a98",
+      "Title": "Propositional Inference: Model Checking and Resolution",
+      "Summary": "Presents model checking (enumeration and DPLL-style search) as a method for determining entailment. Develops conjunctive normal form, the resolution rule, and proof by refutation, along with specialized algorithms such as forward and backward chaining on Horn clauses.",
+      "SortOrder": 3,
+      "CreatedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "ModifiedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "Elements": [
+        {
+          "Id": "d6a01643-d44d-4bed-b2d4-9aed55c317a0",
+          "TopicId": "30dc0314-20ea-4a61-bb2a-40f7e1dd1a98",
+          "Title": "Entailment and the Inference Problem",
+          "BodyText": "Inference in propositional logic answers the question of whether a knowledge base entails a query sentence. Entailment is a semantic relation defined over models, while inference algorithms are the computational procedures that detect it.",
+          "Notes": "Notation: KB \u22A8 \u03B1 means every model of KB is also a model of \u03B1.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:14:22.4292758-04:00",
+          "ModifiedDate": "2026-10-14T20:14:22.4292758-04:00",
+          "Items": [
+            {
+              "Id": "43a5476a-d2c2-4d16-987d-f6f4b0c33bab",
+              "Text": "KB \u22A8 \u03B1 holds when \u03B1 is true in every model in which KB is true.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "96c033a1-1040-4038-8fc9-b2815565fecc",
+              "Text": "An inference procedure is sound if everything it derives is entailed by the KB.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9fbb0afb-e95d-4820-a924-de79228a1e1d",
+              "Text": "A procedure is complete if it can derive every sentence that is entailed.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "8f4dfcba-ec7a-46ac-af26-2b39b770a954",
+              "Text": "Deciding entailment for propositional logic is decidable but co-NP-complete in the general case.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "0054a0bf-2331-4ef6-b8c4-34376bc0a4e5",
+              "Text": "The deduction theorem links entailment to validity: KB \u22A8 \u03B1 if and only if (KB \u21D2 \u03B1) is valid.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "5cfbef75-4b91-49d6-81fe-ee48ffeabd86",
+          "TopicId": "30dc0314-20ea-4a61-bb2a-40f7e1dd1a98",
+          "Title": "Model Checking by Truth-Table Enumeration",
+          "BodyText": "Model checking determines entailment by enumerating all possible assignments of truth values to the proposition symbols and checking the query in those models where the KB is true. It is a direct implementation of the semantic definition of entailment.",
+          "Notes": "The TT-ENTAILS? algorithm recursively assigns true and false to each symbol in turn.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:14:22.4292758-04:00",
+          "ModifiedDate": "2026-10-14T20:14:22.4292758-04:00",
+          "Items": [
+            {
+              "Id": "9fee52e9-1524-41af-b56f-0864ac472699",
+              "Text": "Enumerate all 2^n models for n proposition symbols in the knowledge base and query.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b0b0f43a-61da-4e58-9164-87f082d8ef33",
+              "Text": "For every model in which the KB evaluates to true, verify that the query is also true.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3baa8bc3-433c-48d6-96fb-e4aa51456df0",
+              "Text": "If any model satisfies the KB but falsifies the query, entailment fails and that model is a counterexample.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "41ad68cd-2321-4701-b24d-366a25e0f768",
+              "Text": "The method is sound and complete because it directly implements the semantics.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ad5a5b7b-fa4d-4aac-944e-26a3a298e4a8",
+              "Text": "Time complexity is O(2^n) and space is O(n) with depth-first recursion, making it impractical for large KBs.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "08e67d40-ef28-4872-9e61-f9728fd0dd6d",
+          "TopicId": "30dc0314-20ea-4a61-bb2a-40f7e1dd1a98",
+          "Title": "Satisfiability and DPLL-Style Search",
+          "BodyText": "Entailment can be reduced to satisfiability: KB \u22A8 \u03B1 exactly when KB \u2227 \u00AC\u03B1 is unsatisfiable. The Davis\u2013Putnam\u2013Logemann\u2013Loveland (DPLL) algorithm performs a backtracking search over partial assignments with powerful pruning heuristics.",
+          "Notes": "Modern SAT solvers extend DPLL with clause learning, watched literals, and random restarts.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:14:22.4292758-04:00",
+          "ModifiedDate": "2026-10-14T20:14:22.4292758-04:00",
+          "Items": [
+            {
+              "Id": "672aaeee-b508-4db2-9aa2-50439ef8040b",
+              "Text": "Early termination stops as soon as a clause is falsified or all clauses are satisfied by the partial model.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "3c6f04eb-88cc-4cb5-ab41-44976678ddb5",
+              "Text": "Unit propagation assigns the forced value to any clause with a single unassigned literal, often cascading.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "dc4855b6-9e22-4ccd-a12c-0d30c0bc20d9",
+              "Text": "The pure symbol heuristic fixes symbols that appear with only one polarity across all remaining clauses.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "43439507-20f0-48cd-a893-d921c5321310",
+              "Text": "Local search methods such as WALKSAT flip symbols to satisfy clauses but cannot prove unsatisfiability.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "cfa8d6f4-af43-475e-91af-f3ef1cecc21f",
+              "Text": "DPLL handles problems with millions of variables in practice despite worst-case exponential behaviour.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "16ae0129-bf45-480c-a081-bcf87e44fdb5",
+          "TopicId": "30dc0314-20ea-4a61-bb2a-40f7e1dd1a98",
+          "Title": "Conjunctive Normal Form",
+          "BodyText": "Resolution requires sentences in conjunctive normal form (CNF): a conjunction of clauses, where each clause is a disjunction of literals. Every propositional sentence can be converted to an equivalent CNF sentence.",
+          "Notes": "Example: (A \u21D4 B) becomes (\u00ACA \u2228 B) \u2227 (\u00ACB \u2228 A).",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:14:22.4292758-04:00",
+          "ModifiedDate": "2026-10-14T20:14:22.4292758-04:00",
+          "Items": [
+            {
+              "Id": "4786b78a-c202-467a-8a74-25b41d64703b",
+              "Text": "Eliminate biconditionals by rewriting \u03B1 \u21D4 \u03B2 as (\u03B1 \u21D2 \u03B2) \u2227 (\u03B2 \u21D2 \u03B1).",
+              "SortOrder": 0
+            },
+            {
+              "Id": "287641c0-c7ca-42dc-bab6-b5c3b54349ae",
+              "Text": "Eliminate implications by rewriting \u03B1 \u21D2 \u03B2 as \u00AC\u03B1 \u2228 \u03B2.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3ee5d7a2-85df-4a6f-830d-e74fdf31fc68",
+              "Text": "Move negations inward using De Morgan\u0027s laws and remove double negations.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "0f40ddd8-012c-45d8-9e96-727f4edf5044",
+              "Text": "Distribute \u2228 over \u2227 to produce a flat conjunction of disjunctions.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "da2dd44f-219d-4fd4-be88-4b223d2ea5ce",
+              "Text": "The resulting CNF is logically equivalent, though conversion can expand the sentence exponentially in the worst case.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "0b899929-bfa4-4b6c-9510-d95f20921337",
+          "TopicId": "30dc0314-20ea-4a61-bb2a-40f7e1dd1a98",
+          "Title": "The Resolution Rule and Proof by Refutation",
+          "BodyText": "Resolution is a single inference rule that, applied to CNF sentences, yields a complete inference procedure for propositional logic. It is used in a refutation style: assume the negation of the query and derive a contradiction.",
+          "Notes": "Resolution is refutation-complete: it will derive the empty clause whenever the clause set is unsatisfiable.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:14:22.4292758-04:00",
+          "ModifiedDate": "2026-10-14T20:14:22.4292758-04:00",
+          "Items": [
+            {
+              "Id": "826f3a7e-0644-42f6-8ebb-e66f8c3b069a",
+              "Text": "The rule resolves two clauses containing complementary literals, producing the union of the remaining literals.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d6ba0ed4-c6cc-4966-b7dd-57f91209dab2",
+              "Text": "Example: from (A \u2228 B) and (\u00ACB \u2228 C) infer (A \u2228 C).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "706464a8-ba52-4777-ac92-e3d8e03a1a6c",
+              "Text": "To prove KB \u22A8 \u03B1, convert KB \u2227 \u00AC\u03B1 to CNF and apply resolution until no new clauses can be generated.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f4e23cbc-418a-4855-ab9f-44f730e80dce",
+              "Text": "Deriving the empty clause signals a contradiction, confirming entailment.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "68df06dc-9d84-4d15-84cb-7a2797f93eab",
+              "Text": "If resolution saturates without producing the empty clause, KB \u2227 \u00AC\u03B1 is satisfiable and \u03B1 is not entailed.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "dcbb4b47-b96d-4283-af2d-1911936dc5df",
+              "Text": "Factoring removes duplicate literals in a resolvent to keep clauses in canonical form.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "6d2d7916-e08e-4da7-aec2-c34cd2805b02",
+          "TopicId": "30dc0314-20ea-4a61-bb2a-40f7e1dd1a98",
+          "Title": "Horn Clauses, Forward and Backward Chaining",
+          "BodyText": "Restricting the knowledge base to Horn clauses \u2014 disjunctions with at most one positive literal \u2014 enables inference in time linear in the size of the KB. Definite clauses correspond naturally to implication rules with a single conclusion.",
+          "Notes": "Definite clause form: P1 \u2227 P2 \u2227 ... \u2227 Pn \u21D2 Q.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:14:22.4292758-04:00",
+          "ModifiedDate": "2026-10-14T20:14:22.4292758-04:00",
+          "Items": [
+            {
+              "Id": "b63bd8cc-a2f4-4e24-8a6e-611846d6a17d",
+              "Text": "Horn clauses can be written as implications whose premises are conjunctions of positive literals.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f40b23b7-e4ce-4f1e-8910-6a65fa7764dc",
+              "Text": "Forward chaining is data-driven: it starts from known facts and fires rules whose premises are all satisfied until the query appears or no new facts are derived.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "22a8030d-3747-4fb5-9021-d2d80f5de0dd",
+              "Text": "A count of unsatisfied premises per rule lets forward chaining run in linear time.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "2ff8c7bc-80dc-406e-a710-7df036986d19",
+              "Text": "Backward chaining is goal-driven: it works from the query back through rules to known facts, exploring only relevant parts of the KB.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ee54b3c2-7db6-4298-9e74-868634edd8be",
+              "Text": "Both procedures are sound and complete for Horn knowledge bases.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "451f38c6-0fb3-4f3a-a0cf-ef083afb7376",
+              "Text": "Forward chaining computes all entailed atoms, whereas backward chaining is usually more efficient for answering a specific query.",
+              "SortOrder": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "83662d01-17e2-41d3-9775-458aeb45d3ff",
+      "Title": "First-Order Logic: Objects, Relations, and Quantifiers",
+      "Summary": "Extends propositional logic with constants, variables, predicates, functions, and the universal and existential quantifiers. Covers the semantics of interpretations and models, and the practice of translating natural language statements into first-order sentences.",
+      "SortOrder": 4,
+      "CreatedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "ModifiedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "Elements": [
+        {
+          "Id": "96616329-14a1-45a3-8203-c97c47d9821e",
+          "TopicId": "83662d01-17e2-41d3-9775-458aeb45d3ff",
+          "Title": "Why First-Order Logic Extends Propositional Logic",
+          "BodyText": "Propositional logic treats each fact as an indivisible symbol, which forces a separate proposition for every object and situation. First-order logic adds internal structure so that general knowledge can be stated once and applied to many objects.",
+          "Notes": "Example: in propositional logic \u0027SocratesIsMortal\u0027 and \u0027PlatoIsMortal\u0027 are unrelated symbols; in first-order logic a single rule about all humans covers both.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:14:49.509919-04:00",
+          "ModifiedDate": "2026-10-14T20:14:49.509919-04:00",
+          "Items": [
+            {
+              "Id": "92beb0af-7125-4c8f-be40-85362999a399",
+              "Text": "Propositional logic lacks the expressive power to state general rules about classes of objects.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "3e22dcc1-bf5a-4209-994b-4e41d98786d8",
+              "Text": "First-order logic assumes the world consists of objects, relations among them, and functions on them.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a32fbbe5-0e24-4907-bca5-7ea6bd5842dc",
+              "Text": "Representing \u0027all humans are mortal\u0027 requires one sentence in FOL but one sentence per human in propositional logic.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "33b76725-67f9-4567-a32d-8987f6fe34ef",
+              "Text": "FOL retains the propositional connectives (\u00AC, \u2227, \u2228, \u21D2, \u21D4) and adds terms and quantifiers.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "5c019ccc-7458-434a-b011-f9b8cd934566",
+              "Text": "The gain in expressiveness comes at the cost of harder, sometimes semi-decidable, inference.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "0e66b64d-8b87-462b-a5eb-e839e3f8bf54",
+          "TopicId": "83662d01-17e2-41d3-9775-458aeb45d3ff",
+          "Title": "Syntax: Constants, Variables, Predicates, and Functions",
+          "BodyText": "The vocabulary of first-order logic is built from symbols that name objects, properties, and mappings. Combining these symbols produces terms and atomic sentences.",
+          "Notes": "Convention: constants and predicates are often capitalised (Richard, King), variables lowercase (x, y).",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:14:49.509919-04:00",
+          "ModifiedDate": "2026-10-14T20:14:49.509919-04:00",
+          "Items": [
+            {
+              "Id": "e8b273fd-4c16-4ea4-944d-e1fe9edd79f4",
+              "Text": "Constant symbols such as Richard or John name specific objects in the domain.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "58658881-a644-436e-9201-02589be4a095",
+              "Text": "Variable symbols such as x and y range over objects and are bound by quantifiers.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "545ad481-8932-4053-9636-432d5ae7e981",
+              "Text": "Predicate symbols such as Brother(x, y) or King(x) denote relations or properties that are true or false.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "138bbd0e-3cef-4f63-8290-925cfc8379d4",
+              "Text": "Function symbols such as FatherOf(x) or LeftLeg(x) map objects to other objects and are not truth-valued.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a7a39577-3d7f-4516-aeeb-0b4e1ccb2958",
+              "Text": "A term is a constant, a variable, or a function applied to terms; an atomic sentence is a predicate applied to terms.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "34a8be79-5efd-47f8-ada2-6a68669b546c",
+              "Text": "Complex sentences combine atomic sentences with connectives and quantifiers.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "20e7402e-a3c9-4384-af30-10c984d0b127",
+          "TopicId": "83662d01-17e2-41d3-9775-458aeb45d3ff",
+          "Title": "The Universal Quantifier (\u2200)",
+          "BodyText": "The universal quantifier asserts that a sentence holds for every object in the domain. It is the primary tool for expressing general rules.",
+          "Notes": "Example: \u2200x King(x) \u21D2 Person(x) reads \u0027for all x, if x is a king then x is a person\u0027.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:14:49.509919-04:00",
+          "ModifiedDate": "2026-10-14T20:14:49.509919-04:00",
+          "Items": [
+            {
+              "Id": "2f5fed59-78f2-4009-b791-87fd236a56e2",
+              "Text": "\u2200x P(x) is true when P holds for every possible substitution of an object for x.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6993470c-bc3f-4f4c-98ed-214aedae0f65",
+              "Text": "Universal quantification is naturally paired with implication (\u21D2) to restrict the scope to a relevant class.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3b6f2981-9cd5-490c-8d95-66cc3d10363d",
+              "Text": "Using \u2227 with \u2200 is a common error: \u2200x King(x) \u2227 Person(x) wrongly claims everything is a king.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "36d3d39b-a6c6-4d5a-9ce5-d4c5859cdb54",
+              "Text": "Conceptually, \u2200x P(x) is equivalent to the conjunction of P applied to every object in the domain.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "302754b2-88e6-40b9-9773-0e4941b20750",
+              "Text": "Multiple universals can be nested, as in \u2200x \u2200y Sibling(x, y) \u21D2 Sibling(y, x).",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "3f286f48-98db-4c22-8b6d-700be06ad129",
+          "TopicId": "83662d01-17e2-41d3-9775-458aeb45d3ff",
+          "Title": "The Existential Quantifier (\u2203)",
+          "BodyText": "The existential quantifier asserts that at least one object satisfies a sentence. It expresses the existence of something without naming it.",
+          "Notes": "Example: \u2203x Crown(x) \u2227 OnHead(x, John) says there is a crown on John\u0027s head.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:14:49.509919-04:00",
+          "ModifiedDate": "2026-10-14T20:14:49.509919-04:00",
+          "Items": [
+            {
+              "Id": "98d9eab6-57b8-436c-8bba-b46b88996b12",
+              "Text": "\u2203x P(x) is true if P holds for at least one substitution of an object for x.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c7a93766-2172-42b5-9615-271613193b4e",
+              "Text": "Existential quantification is naturally paired with conjunction (\u2227) to assert multiple properties of the same object.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "6f9bbd3f-46c8-4771-8c07-6df1b539bd90",
+              "Text": "Using \u21D2 with \u2203 is a common error, since it is trivially satisfied by any object failing the antecedent.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "57549406-98d8-4375-8a6b-04448ab0c6cc",
+              "Text": "Conceptually, \u2203x P(x) is equivalent to the disjunction of P over every object in the domain.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "059c4c55-cbbf-42d1-bb04-c5bf89969307",
+              "Text": "Quantifier order matters: \u2200x \u2203y Loves(x, y) differs from \u2203y \u2200x Loves(x, y).",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "8cafa765-ace1-4500-8de1-57e909314b76",
+          "TopicId": "83662d01-17e2-41d3-9775-458aeb45d3ff",
+          "Title": "Quantifier Equivalences and Nesting",
+          "BodyText": "The two quantifiers are duals of each other through negation, and nested quantifiers must be read in order. Understanding these relationships prevents subtle translation errors.",
+          "Notes": "De Morgan-style dualities: \u2200x \u00ACP \u2261 \u00AC\u2203x P and \u00AC\u2200x P \u2261 \u2203x \u00ACP.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:14:49.509919-04:00",
+          "ModifiedDate": "2026-10-14T20:14:49.509919-04:00",
+          "Items": [
+            {
+              "Id": "633567b1-6a30-4f00-b515-204fd0358ab2",
+              "Text": "\u2200x P(x) is equivalent to \u00AC\u2203x \u00ACP(x).",
+              "SortOrder": 0
+            },
+            {
+              "Id": "2de5a7de-128c-41ce-a0fe-99be4ec5ae5f",
+              "Text": "\u2203x P(x) is equivalent to \u00AC\u2200x \u00ACP(x).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2bbb7b6d-b694-436b-b328-2aaf18b61dca",
+              "Text": "Adjacent quantifiers of the same type can be reordered freely, but mixed quantifiers cannot.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "06ea2e71-09f8-4d22-84b9-0430c1001552",
+              "Text": "A variable\u0027s scope is the sentence following its quantifier; variables outside any scope are free, not bound.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "863767e1-307d-439c-8ff3-fb3f89e813cf",
+              "Text": "Reusing the same variable name in nested scopes causes shadowing and should be avoided for clarity.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "fcf1031a-a225-45fd-a4aa-c31da8e94d14",
+          "TopicId": "83662d01-17e2-41d3-9775-458aeb45d3ff",
+          "Title": "Semantics: Interpretations and Models",
+          "BodyText": "The meaning of a first-order sentence is fixed by an interpretation that links symbols to a domain of objects. A model is an interpretation under which a sentence is true.",
+          "Notes": "Unlike propositional logic, where models are finite truth assignments, FOL admits infinitely many models of varying domain size.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:14:49.509919-04:00",
+          "ModifiedDate": "2026-10-14T20:14:49.509919-04:00",
+          "Items": [
+            {
+              "Id": "5998815c-7ac7-46dd-8350-755f95c7ff28",
+              "Text": "A model consists of a non-empty domain of objects plus an interpretation of each symbol.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "5700f7ac-a376-4b79-994f-96879d611b8c",
+              "Text": "Constant symbols are mapped to domain objects, predicate symbols to sets of tuples, and function symbols to total mappings.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "66373cd4-5042-419d-b5e1-5890eccea38e",
+              "Text": "A sentence is true in a model if its structure evaluates to true under that interpretation.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a8f4ab8a-5bd5-451e-ab4d-a1c40dc8e0fd",
+              "Text": "Entailment is defined as before: KB \u22A8 \u03B1 when \u03B1 is true in every model where KB is true.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ce2cc5f6-019d-4d30-91a8-1a6382fdb424",
+              "Text": "Validity means truth in all models; satisfiability means truth in at least one model.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "299c4745-71e4-40a9-95bd-4bc9b4fb6958",
+          "TopicId": "83662d01-17e2-41d3-9775-458aeb45d3ff",
+          "Title": "Translating Natural Language into First-Order Sentences",
+          "BodyText": "A key practical skill is converting English statements into precise first-order sentences. This requires choosing a vocabulary and then selecting the right quantifiers and connectives.",
+          "Notes": "Example translations: \u0027Every student takes some course\u0027 \u2192 \u2200x Student(x) \u21D2 \u2203y Course(y) \u2227 Takes(x, y). \u0027No dog is a cat\u0027 \u2192 \u2200x Dog(x) \u21D2 \u00ACCat(x).",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T20:14:49.509919-04:00",
+          "ModifiedDate": "2026-10-14T20:14:49.509919-04:00",
+          "Items": [
+            {
+              "Id": "f642a4ce-5061-4468-84ae-4a6f7d6cda31",
+              "Text": "Begin by deciding which objects, predicates, and functions the domain requires.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "39bf280f-6c54-4a97-9382-d37ab78b05bf",
+              "Text": "Phrases like \u0027every\u0027, \u0027all\u0027, and \u0027any\u0027 signal the universal quantifier; \u0027some\u0027, \u0027a\u0027, and \u0027there exists\u0027 signal the existential.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4b0dab70-71a8-41ed-b9c0-4f073ecdfad4",
+              "Text": "\u0027No\u0027 and \u0027none\u0027 are rendered as a universal with a negated consequent or a negated existential.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f3ed5862-9646-439c-b8fb-d2dbe755f7d2",
+              "Text": "Check translations by testing them against small example models to catch over- or under-commitment.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "7301f1db-5794-421c-a3fe-e34f2b1a5428",
+              "Text": "Equality (=) can be used to assert that two terms refer to the same object or, with negation, to distinct objects.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "9648a943-0266-4dd2-a7f7-ad6aa9645da1",
+      "Title": "Knowledge Engineering in First-Order Logic",
+      "Summary": "Describes the process of building a first-order knowledge base for a domain, from identifying the task and vocabulary to encoding axioms and debugging the result. Illustrates representation choices through worked domain examples and queries.",
+      "SortOrder": 5,
+      "CreatedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "ModifiedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "Elements": [
+        {
+          "Id": "498304dc-adce-4967-bb91-47f19c258e14",
+          "TopicId": "9648a943-0266-4dd2-a7f7-ad6aa9645da1",
+          "Title": "What Knowledge Engineering Is",
+          "BodyText": "Knowledge engineering is the process by which a knowledge engineer investigates a domain, decides what concepts matter, and builds a formal encoding of them in first-order logic. It parallels software engineering, but the product is a declarative knowledge base rather than procedural code.",
+          "Notes": "The engineer need not be a domain expert; they interview experts to extract the knowledge, much as a systems analyst elicits requirements.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:15:20.1383928-04:00",
+          "ModifiedDate": "2026-10-14T20:15:20.1383928-04:00",
+          "Items": [
+            {
+              "Id": "e2db2f2a-f1f3-4f9a-bee1-10875bd912d2",
+              "Text": "The result is a knowledge base that an inference engine can use to answer many different queries, not just one.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d689bba4-29e5-4694-810b-c6bf42c25d30",
+              "Text": "Declarative knowledge is reusable: the same axioms support multiple tasks without rewriting the reasoning procedure.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "41f1dbc3-1016-4d36-8c28-be8d9611d75c",
+              "Text": "Special-purpose knowledge bases are built for one domain; general ontologies aim to cover many domains at once.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "3b61047f-2122-4a24-9eb9-d89d5a3f5ce2",
+              "Text": "Quality depends less on logical cleverness than on choosing representations that match how the domain actually behaves.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "1f7aef93-357d-419f-b461-9ab4d5c7542b",
+          "TopicId": "9648a943-0266-4dd2-a7f7-ad6aa9645da1",
+          "Title": "Step 1: Identify the Task and Gather Knowledge",
+          "BodyText": "The first steps delimit the range of questions the knowledge base must answer and the kinds of facts available to answer them. This scoping decision drives every later representation choice.",
+          "Notes": "Example: for digital circuits, will the KB answer only about functional behaviour, or also about timing, cost, and physical layout? The answer determines what must be represented.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:15:20.1383928-04:00",
+          "ModifiedDate": "2026-10-14T20:15:20.1383928-04:00",
+          "Items": [
+            {
+              "Id": "cdf6a9a3-7a77-4e5a-ac81-71aec712b0c5",
+              "Text": "Identify the task: list the queries the KB will be asked and the facts that will be supplied with each query.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "09b10b36-7bf1-4ffc-aac9-19a2670ffcb0",
+              "Text": "Assemble the relevant knowledge by consulting domain experts or documentation \u2014 this stage is informal knowledge acquisition.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "eed822c8-668a-4ff5-9f28-89dfe848b044",
+              "Text": "Decide explicitly what to leave out; omitting timing delays or wire gauge is legitimate if no query depends on them.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "21320614-c409-433d-a625-c4576c4b0939",
+              "Text": "Under-scoping leads to a KB that cannot answer real questions; over-scoping wastes effort and complicates inference.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "6f8c6a2d-8cfa-4ea6-adaf-d862a2e59a5e",
+          "TopicId": "9648a943-0266-4dd2-a7f7-ad6aa9645da1",
+          "Title": "Step 2: Decide on a Vocabulary of Predicates, Functions, and Constants",
+          "BodyText": "The engineer translates informal domain concepts into a formal vocabulary \u2014 the ontology of the domain. Choosing whether something is an object, a function, or a predicate shapes how easily axioms can be written.",
+          "Notes": "For example, in the circuits domain one may use Type(X1, XOR) as a predicate applied to a constant type, or Type(X1) = XOR as a function \u2014 the latter makes the unique type of each gate automatic.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:15:20.1383928-04:00",
+          "ModifiedDate": "2026-10-14T20:15:20.1383928-04:00",
+          "Items": [
+            {
+              "Id": "d28a5265-03a5-42a5-b48f-ae195202f316",
+              "Text": "Objects become constants and terms; properties and relations become predicates; single-valued attributes are naturally functions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "2f976b87-aa85-493e-b847-a9d7e4b8a53b",
+              "Text": "Using a function rather than a predicate automatically enforces that an attribute has exactly one value.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "53ef05a5-ae81-4485-8da0-1c2dd6ae30d4",
+              "Text": "Reifying a concept as an object lets you state properties about it that a bare predicate cannot express.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a05179c1-2481-4388-80f5-b5ace75d43ad",
+              "Text": "A poor vocabulary choice shows up later as awkward, repetitive, or unwriteable axioms \u2014 expect to revise it.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "938df869-29b0-4ff3-9de2-ddd81c1875d6",
+          "TopicId": "9648a943-0266-4dd2-a7f7-ad6aa9645da1",
+          "Title": "Step 3: Encode General Knowledge as Axioms",
+          "BodyText": "General axioms state truths that hold across the whole domain, usually as universally quantified implications. They constitute the reusable core of the knowledge base.",
+          "Notes": "Circuit example: \u2200g Type(g) = XOR \u21D2 Signal(Out(1,g)) = 1 \u21D4 Signal(In(1,g)) \u2260 Signal(In(2,g)). Connectivity: \u2200t1,t2 Connected(t1,t2) \u21D2 Signal(t1) = Signal(t2).",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:15:20.1383928-04:00",
+          "ModifiedDate": "2026-10-14T20:15:20.1383928-04:00",
+          "Items": [
+            {
+              "Id": "e5aba92d-54b5-428b-bd6f-5c98ce6fc79d",
+              "Text": "Write definitions that fully specify the meaning of each predicate wherever possible.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6129bc12-9084-4fbe-a83c-59406f17dc7c",
+              "Text": "Capture structural facts such as connectivity, part-of relations, and type hierarchies.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "323a87b2-f31d-450b-99fd-b4d5025dc00b",
+              "Text": "Include obvious background truths the system cannot infer, such as symmetry of connection or distinctness of named objects.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "ee15bae3-f0bd-4c80-8e76-ad69535969df",
+              "Text": "Keep axioms general \u2014 quantify over all instances rather than enumerating cases one by one.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "7956dfcd-732b-41d5-ace1-b1c76abf6781",
+          "TopicId": "9648a943-0266-4dd2-a7f7-ad6aa9645da1",
+          "Title": "Step 4: Encode the Specific Problem Instance",
+          "BodyText": "With the general theory in place, the particular problem is described by adding ground atomic sentences naming the individual objects and their relationships. This separates the reusable theory from the throwaway instance data.",
+          "Notes": "For a one-bit full adder, this means naming gates X1, X2, A1, A2, O1, asserting each gate\u0027s type, and asserting every wire connection between terminals.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:15:20.1383928-04:00",
+          "ModifiedDate": "2026-10-14T20:15:20.1383928-04:00",
+          "Items": [
+            {
+              "Id": "6279de7f-3d56-45ec-986a-fe7f680a0f11",
+              "Text": "Introduce constants for each individual object in the instance.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "90d3e26d-a120-43eb-8847-d6a509cbbbc1",
+              "Text": "Assert each object\u0027s type and attributes using the vocabulary chosen in step 2.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "504cbec4-128b-489c-9232-86c17c3a0b66",
+              "Text": "Assert the relations linking instances, such as which terminals are connected to which.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e5955e9f-1fe0-46d0-ba0e-339ff0359889",
+              "Text": "The same general axioms can then be reused with a different instance description for a different circuit.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "73b42375-cfb2-48f6-8dcf-d8cc8b90723d",
+          "TopicId": "9648a943-0266-4dd2-a7f7-ad6aa9645da1",
+          "Title": "Step 5: Pose Queries and Interpret Answers",
+          "BodyText": "The payoff of the knowledge base is obtained by posing existential queries to the inference procedure and reading the substitutions it returns. A well-built KB answers many queries beyond those originally anticipated.",
+          "Notes": "Example query: \u2203 i1,i2,i3 Signal(In(1,C1)) = i1 \u2227 Signal(In(2,C1)) = i2 \u2227 Signal(In(3,C1)) = i3 \u2227 Signal(Out(1,C1)) = 0 \u2227 Signal(Out(2,C1)) = 1 \u2014 returning the input combinations producing that output.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:15:20.1383928-04:00",
+          "ModifiedDate": "2026-10-14T20:15:20.1383928-04:00",
+          "Items": [
+            {
+              "Id": "59b0ef64-805d-4120-85c6-422b9a393802",
+              "Text": "Queries are existentially quantified sentences; the answer is the set of substitutions that make them entailed.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "3f7653c7-ead1-4f01-b461-cdd8732378c3",
+              "Text": "Circuit verification asks which input vectors produce a given output pattern, effectively deriving the truth table.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "413b9bb2-14d9-46c7-acb2-5cc545612b46",
+              "Text": "Queries can also be structural, such as asking which gates are connected to a given terminal.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f289cb51-326f-4e1f-abfb-e12f6233bf88",
+              "Text": "If the inference engine returns no answer, the problem may be a missing axiom rather than an unanswerable question.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "7fb0b496-54d8-4edf-8262-8c0688337219",
+          "TopicId": "9648a943-0266-4dd2-a7f7-ad6aa9645da1",
+          "Title": "Step 6: Debug and Refine the Knowledge Base",
+          "BodyText": "The initial knowledge base is almost never correct, so the engineer tests it against known cases and repairs the axioms that produce wrong or missing conclusions. Debugging logic differs from debugging programs because errors are usually omissions.",
+          "Notes": "A classic symptom: the KB fails to prove something obviously true because a background fact such as 1 \u2260 0 was never asserted.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T20:15:20.1383928-04:00",
+          "ModifiedDate": "2026-10-14T20:15:20.1383928-04:00",
+          "Items": [
+            {
+              "Id": "decb9358-16a5-4415-bea7-70a3231f2ddd",
+              "Text": "Missing axioms produce queries that simply return no answer, rather than an error message.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "fed31257-9690-4346-821c-17c97ada0ac4",
+              "Text": "Overly strong axioms produce false conclusions or contradictions that can be traced to their source.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5d1f1deb-6f31-483e-8052-555b28f03bbb",
+              "Text": "Test with cases whose correct answers are known independently, then widen coverage.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "cff5a615-3292-4973-a6ab-617e8f693d20",
+              "Text": "Expect iteration: debugging often forces revisiting the vocabulary chosen in step 2.",
+              "SortOrder": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "081e1c56-8b1f-4fc0-a87a-eb4a2efbe63e",
+      "Title": "Unification and Lifted Inference",
+      "Summary": "Introduces substitution and the unification algorithm that matches first-order expressions and computes most general unifiers. Shows how unification lifts propositional inference rules to generalized Modus Ponens and first-order resolution.",
+      "SortOrder": 6,
+      "CreatedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "ModifiedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "Elements": [
+        {
+          "Id": "f77b4a51-854f-495b-84c9-e991b9c19c4d",
+          "TopicId": "081e1c56-8b1f-4fc0-a87a-eb4a2efbe63e",
+          "Title": "Substitutions: Binding Variables to Terms",
+          "BodyText": "A substitution is a mapping from variables to terms that can be applied to a logical expression to produce an instance of it. Substitutions are the basic machinery that lets general first-order sentences be specialized to particular cases.",
+          "Notes": "Notation: SUBST({x/John, y/Mother(John)}, Knows(x, y)) = Knows(John, Mother(John)).",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:15:45.8855565-04:00",
+          "ModifiedDate": "2026-10-14T20:15:45.8855565-04:00",
+          "Items": [
+            {
+              "Id": "0d6715b7-73f9-4968-bbd3-d5dc111085a0",
+              "Text": "A substitution \u03B8 is written as a set of variable/term pairs such as {x/John, y/Richard}.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "040cdb93-2006-4e41-8c4d-c6fb4cb4a14e",
+              "Text": "Applying \u03B8 to a sentence \u03B1, written SUBST(\u03B8, \u03B1) or \u03B1\u03B8, replaces every occurrence of each bound variable with its term.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9a0dd606-f9c8-460f-b61e-e402245393df",
+              "Text": "A substitution is legal only if no variable is bound to a term containing that same variable (the occur-check condition).",
+              "SortOrder": 2
+            },
+            {
+              "Id": "1983b9aa-30ec-4e12-8251-202837114434",
+              "Text": "Ground substitutions bind all variables to terms with no variables, yielding a fully instantiated propositional-like sentence.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "3a71ee02-eb33-4cca-a7e7-7884ddc49dbe",
+              "Text": "Composing substitutions lets inference chain results together, applying one binding set after another.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "d14fd3af-fbc7-4389-9e41-5edbfa76050b",
+          "TopicId": "081e1c56-8b1f-4fc0-a87a-eb4a2efbe63e",
+          "Title": "The Unification Problem",
+          "BodyText": "Unification is the process of finding a substitution that makes two first-order expressions syntactically identical. It is the key operation that allows an inference engine to match a query against facts and rules in the knowledge base.",
+          "Notes": "Example: UNIFY(Knows(John, x), Knows(y, Mother(y))) = {y/John, x/Mother(John)}.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:15:45.8855565-04:00",
+          "ModifiedDate": "2026-10-14T20:15:45.8855565-04:00",
+          "Items": [
+            {
+              "Id": "5d1b7a88-4b09-402f-84cf-61d86d4fe108",
+              "Text": "UNIFY(p, q) returns \u03B8 such that SUBST(\u03B8, p) = SUBST(\u03B8, q), or failure if no such \u03B8 exists.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "4f120967-edc7-4b57-be04-46a3df73af26",
+              "Text": "Knows(John, x) and Knows(John, Jane) unify with {x/Jane}, letting a rule about x apply to Jane.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1b41dd42-81fe-435f-a4e3-6deeaee304d2",
+              "Text": "Knows(John, x) and Knows(x, Elizabeth) fail to unify unless variables are standardized apart, because x cannot be both John and Elizabeth.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "ff34c236-18e0-4e7a-8137-ea877a11c2fa",
+              "Text": "Standardizing apart renames variables in one sentence (e.g., x becomes x17) so that accidental name clashes do not block legitimate matches.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "1f8f2faa-12df-4268-bbf2-67bed2586c21",
+              "Text": "Constants unify only with themselves or with a variable; function terms unify only if their function symbols match and their arguments unify pairwise.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "17b3da33-c54c-412c-a9a2-d9e4cfc01fe7",
+          "TopicId": "081e1c56-8b1f-4fc0-a87a-eb4a2efbe63e",
+          "Title": "Most General Unifier (MGU)",
+          "BodyText": "When two expressions can be unified, there may be many unifying substitutions, but one of them is more general than all the others. The unification algorithm is designed to return this most general unifier.",
+          "Notes": "{y/John, x/Mother(John)} is more general than {y/John, x/Mother(John), z/Bill} because it commits to fewer bindings.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:15:45.8855565-04:00",
+          "ModifiedDate": "2026-10-14T20:15:45.8855565-04:00",
+          "Items": [
+            {
+              "Id": "d478e71d-02ae-4973-952e-98ab482fb4dd",
+              "Text": "A unifier \u03B81 is more general than \u03B82 if \u03B82 can be obtained by applying further substitutions to \u03B81.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "ab3bcbb9-ba4e-4bf5-bd22-f3c7f56fbfb3",
+              "Text": "The MGU places the fewest possible restrictions on the variables, keeping later inference options open.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "0f9daf6d-8f40-431b-b09d-8ffe2dd63876",
+              "Text": "For any two unifiable expressions, the MGU is unique up to renaming of variables.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "4c407c6f-b9e1-4d6a-9342-52bbf9d2c63d",
+              "Text": "Returning the MGU prevents the inference engine from committing prematurely to overly specific bindings.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "257ba105-f83c-4bce-adbd-9e01755e3a3d",
+          "TopicId": "081e1c56-8b1f-4fc0-a87a-eb4a2efbe63e",
+          "Title": "The Unification Algorithm",
+          "BodyText": "The standard unification algorithm compares two expressions recursively, building up a substitution as it descends through their structure. It handles variables, constants, compound terms, and lists of arguments.",
+          "Notes": "Naive implementations are O(n\u00B2) in expression size; indexing and more sophisticated algorithms achieve near-linear performance.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:15:45.8855565-04:00",
+          "ModifiedDate": "2026-10-14T20:15:45.8855565-04:00",
+          "Items": [
+            {
+              "Id": "57368c9e-cac3-4b59-af1b-5266bd3e26a2",
+              "Text": "The algorithm recurses on pairs of expressions, accumulating bindings in \u03B8 and passing them along.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6136cf9d-a008-49a9-be9f-a45f23015878",
+              "Text": "If one side is a variable, UNIFY-VAR checks whether it is already bound and either follows the existing binding or adds a new one.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9a6f4434-fa23-4b6e-bfe8-9c10fc7e74dc",
+              "Text": "The occur-check tests whether a variable appears inside the term it would be bound to (e.g., x with F(x)), rejecting such bindings to avoid infinite terms.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9b7cee28-767e-45c5-a5f3-a19ce4154e5b",
+              "Text": "Compound expressions unify by matching operators/predicates and then unifying argument lists element by element.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "96f52b9e-c943-43f8-a8df-f963ac2504d0",
+              "Text": "Failure at any step propagates upward, causing the whole unification to fail.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "be33ead1-2d23-4361-aa93-ae8006e99a97",
+              "Text": "Predicate indexing and subsumption lattices speed up retrieval of candidate sentences to unify against.",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "Id": "f966add3-6b70-44e0-97d6-ce9d51b3e6e4",
+          "TopicId": "081e1c56-8b1f-4fc0-a87a-eb4a2efbe63e",
+          "Title": "Generalized Modus Ponens: Lifting Propositional Inference",
+          "BodyText": "Unification allows propositional inference rules to be \u0027lifted\u0027 to first-order logic, so rules apply directly to quantified sentences without exhaustive instantiation. Generalized Modus Ponens is the lifted version of Modus Ponens.",
+          "Notes": "Example: from King(x) \u2227 Greedy(x) \u21D2 Evil(x), King(John), and Greedy(y), infer Evil(John) with \u03B8 = {x/John, y/John}.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:15:45.8855565-04:00",
+          "ModifiedDate": "2026-10-14T20:15:45.8855565-04:00",
+          "Items": [
+            {
+              "Id": "37662e06-4139-42a8-8069-04faa9eff947",
+              "Text": "Given atomic sentences p1\u0027\u2026pn\u0027 and an implication (p1 \u2227 \u2026 \u2227 pn \u21D2 q), if SUBST(\u03B8, pi\u0027) = SUBST(\u03B8, pi) for all i, then infer SUBST(\u03B8, q).",
+              "SortOrder": 0
+            },
+            {
+              "Id": "da9ddb0d-6adf-42ae-b7e6-808261e83655",
+              "Text": "Lifting avoids propositionalization, which would generate an enormous or infinite number of ground instances.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ac1f47bb-8a37-49f9-8ba7-cd3221e65bb5",
+              "Text": "Generalized Modus Ponens is a sound inference rule: every conclusion it draws is entailed by the premises.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "76133420-57c5-4c30-a6ea-b5d7f5f35859",
+              "Text": "It works on definite clauses and underlies forward chaining and backward chaining in first-order systems.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "68d78cec-688e-4d0b-952b-544420171bfb",
+              "Text": "A single lifted inference step can stand in for many propositional steps, giving a large efficiency gain.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "cb10fa8a-23d6-4261-9f22-4291cbb2fbfc",
+          "TopicId": "081e1c56-8b1f-4fc0-a87a-eb4a2efbe63e",
+          "Title": "First-Order Resolution with Unification",
+          "BodyText": "Resolution also lifts to first-order logic by using unification to match complementary literals before resolving. This yields a complete refutation procedure for first-order logic in clausal form.",
+          "Notes": "Sentences must first be converted to conjunctive normal form, including Skolemization to eliminate existential quantifiers.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:15:45.8855565-04:00",
+          "ModifiedDate": "2026-10-14T20:15:45.8855565-04:00",
+          "Items": [
+            {
+              "Id": "c2556831-6fd2-4e88-9dba-7d441c596a81",
+              "Text": "Two clauses resolve when a literal in one and a complementary literal in the other unify under MGU \u03B8.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "fee0fdba-b526-4684-98a0-6825fe93fd30",
+              "Text": "The resolvent is the union of the remaining literals with \u03B8 applied to all of them.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "743b369d-5b49-4791-8877-73e608b8f387",
+              "Text": "Clauses must be standardized apart before resolution so that shared variable names do not cause false conflicts.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "895836d1-61a8-4a46-a01b-bcdc2fecc6d4",
+              "Text": "Factoring removes redundant literals that become identical after substitution.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "68fb83f9-b4bd-4da1-a16f-3caf05bdc880",
+              "Text": "Resolution refutation proves KB \u22A8 \u03B1 by converting KB \u2227 \u00AC\u03B1 to CNF and deriving the empty clause.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "4b132482-e65b-4f51-811c-7a841e17b508",
+              "Text": "First-order resolution is refutation-complete: if a set of clauses is unsatisfiable, resolution will eventually derive the empty clause.",
+              "SortOrder": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "cd53e917-886a-4a79-9d5d-d39e4a265625",
+      "Title": "Forward and Backward Chaining in First-Order Logic",
+      "Summary": "Compares data-driven forward chaining with goal-driven backward chaining for definite-clause knowledge bases. Discusses efficiency considerations, pattern matching, and the connection to logic programming systems such as Prolog.",
+      "SortOrder": 7,
+      "CreatedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "ModifiedDate": "2026-10-14T20:12:50.3154408-04:00",
+      "Elements": [
+        {
+          "Id": "ac238aa1-6b7f-4e20-ac7b-cbcdb7886352",
+          "TopicId": "cd53e917-886a-4a79-9d5d-d39e4a265625",
+          "Title": "Definite Clauses and the Chaining Setting",
+          "BodyText": "Forward and backward chaining operate on knowledge bases restricted to definite clauses, a subset of first-order logic that trades expressiveness for efficient inference.",
+          "Notes": "Example: King(x) \u2227 Greedy(x) \u21D2 Evil(x) is a definite clause; so is the fact King(John).",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:16:10.4598436-04:00",
+          "ModifiedDate": "2026-10-14T20:16:10.4598436-04:00",
+          "Items": [
+            {
+              "Id": "82cd425e-ef55-46be-8665-800a49136ebc",
+              "Text": "A definite clause is a disjunction of literals with exactly one positive literal, usually written as an implication with a conjunction of positive atoms on the left.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c7fc9370-aded-4bef-92d3-bde8146082a0",
+              "Text": "Facts are definite clauses with an empty body, such as Greedy(John).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "08ddbf45-ceb2-40ef-9830-a01d0889d553",
+              "Text": "Variables in definite clauses are assumed to be universally quantified over the whole clause.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "2129e915-a914-4379-8971-340ed9bd7e43",
+              "Text": "Because negation and disjunctive conclusions are excluded, inference is sound and complete for this fragment and far cheaper than full resolution.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "e6a7238b-ae91-4437-aa7b-ea90701bb9ff",
+              "Text": "Many real knowledge bases \u2014 product rules, diagnostic rules, Prolog programs \u2014 fit naturally into this form.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "f5d29c42-e4e5-4f18-a2a4-794221512573",
+          "TopicId": "cd53e917-886a-4a79-9d5d-d39e4a265625",
+          "Title": "Forward Chaining: Data-Driven Inference",
+          "BodyText": "Forward chaining starts from known facts and repeatedly applies rules whose premises are satisfied, adding newly derived facts until the goal appears or no new facts can be inferred.",
+          "Notes": "This is the bottom-up direction: from data to conclusions.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:16:10.4598436-04:00",
+          "ModifiedDate": "2026-10-14T20:16:10.4598436-04:00",
+          "Items": [
+            {
+              "Id": "4bf585ae-fd73-4e77-84cb-0eeda46e0048",
+              "Text": "Each iteration finds all rules whose premises unify with facts in the knowledge base and asserts the substituted conclusions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "189af9bf-e1d0-47df-b93d-406b4d77226f",
+              "Text": "The process reaches a fixed point when an iteration produces no new facts, at which point the derived set is the closure of the knowledge base.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "181348ea-91f1-465d-a7c3-898b9abfa186",
+              "Text": "Forward chaining is sound and complete for definite-clause knowledge bases with no function symbols (Datalog), and terminates in finite time.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "ee2aaea6-aaee-4bec-a654-89ec845f2eba",
+              "Text": "It suits situations where new perceptions arrive continuously and the agent should draw all available conclusions.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "72400d1c-e5a4-480c-86d0-a7cb5293c252",
+              "Text": "A drawback is that it may derive many facts irrelevant to the current goal.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "3c6ff051-7570-4891-8dcd-a0018ee8e90e",
+          "TopicId": "cd53e917-886a-4a79-9d5d-d39e4a265625",
+          "Title": "Backward Chaining: Goal-Driven Inference",
+          "BodyText": "Backward chaining begins with a query and works backwards, finding rules whose conclusion unifies with the goal and recursively proving their premises as subgoals.",
+          "Notes": "This is the top-down direction: from goal to supporting data.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:16:10.4598436-04:00",
+          "ModifiedDate": "2026-10-14T20:16:10.4598436-04:00",
+          "Items": [
+            {
+              "Id": "2b7a0a23-da7e-41e6-9793-ad534217be3e",
+              "Text": "A goal succeeds when it unifies with a known fact or when every premise of some matching rule can itself be proved.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0168f62b-616d-4fab-8144-45f9fdd870be",
+              "Text": "Search proceeds depth-first, so memory requirements are linear in the size of the proof rather than the size of the knowledge base.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "48cfe465-8adb-49b1-a288-436c457cca78",
+              "Text": "Substitutions produced by unification are composed and propagated as subgoals are solved, yielding answer bindings for the query\u0027s variables.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "56a8a260-e5ae-40d0-b205-07013b72d15e",
+              "Text": "Only clauses potentially relevant to the query are considered, avoiding irrelevant derivations.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b3b37c2f-e130-458c-a500-e69e31b97404",
+              "Text": "Depth-first search makes backward chaining incomplete in the presence of loops or infinite recursion, and it may repeat work on identical subgoals.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "da60b3a4-9bc1-44ea-aae6-614a7cb08dc1",
+          "TopicId": "cd53e917-886a-4a79-9d5d-d39e4a265625",
+          "Title": "Efficiency Considerations and Pattern Matching",
+          "BodyText": "The cost of chaining is dominated by matching rule premises against the facts in the knowledge base, so practical systems invest heavily in efficient pattern matching.",
+          "Notes": "Matching a conjunctive premise against a database is equivalent to a constraint satisfaction problem and is NP-hard in general.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:16:10.4598436-04:00",
+          "ModifiedDate": "2026-10-14T20:16:10.4598436-04:00",
+          "Items": [
+            {
+              "Id": "e7902925-2e8c-4934-9b0a-da274740bc55",
+              "Text": "Conjunct ordering heuristics \u2014 testing the most constrained premise first \u2014 can drastically reduce the search space.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "594331e5-20ad-4fa6-a09c-70e5eeb229e3",
+              "Text": "Incremental forward chaining only considers rules whose premises involve newly added facts, avoiding repeated rederivation.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "31ecb163-1014-48ad-b599-3d04a5e24577",
+              "Text": "The rete algorithm compiles rule premises into a shared network so that partial matches are cached and updated incrementally as facts change.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "8028fa38-05c5-4c42-b3cd-6d9b09741de3",
+              "Text": "Indexing facts by predicate and argument values speeds up the retrieval of candidate unifiers.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "d2f1455e-df47-47ee-ba65-11d95452eaf2",
+              "Text": "Magic sets rewrite rules with goal-derived filters so that forward chaining gains some of backward chaining\u0027s goal-directedness.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "434e945f-9474-4e0b-8ba8-caa9788e2124",
+          "TopicId": "cd53e917-886a-4a79-9d5d-d39e4a265625",
+          "Title": "Logic Programming and Prolog",
+          "BodyText": "Prolog is the best-known realisation of backward chaining, treating a set of definite clauses as a program executed by resolution and unification.",
+          "Notes": "Prolog\u0027s efficiency comes partly from compiling clauses to the Warren Abstract Machine rather than interpreting them.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:16:10.4598436-04:00",
+          "ModifiedDate": "2026-10-14T20:16:10.4598436-04:00",
+          "Items": [
+            {
+              "Id": "12ef055e-aaf8-4338-91dc-5127b6af5725",
+              "Text": "Clauses are tried in the order written, and premises are solved left to right, giving a predictable depth-first search with backtracking.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e76ef590-90ef-4cf1-a41e-8e763521a5d0",
+              "Text": "Prolog omits the occur check in unification for speed, which makes it unsound in rare cases.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f8d70438-aeeb-497d-a347-d2b1c131b55e",
+              "Text": "Negation is implemented as negation-as-failure under the closed-world assumption rather than true logical negation.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c56c815b-d20f-42ea-ac9b-27a71152cdac",
+              "Text": "Programmers must order clauses and add cuts to control search and prevent non-termination.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "3cbe49d2-7149-4c61-b9bd-25dcd835a7c4",
+              "Text": "Applications include natural language parsing, expert systems, deductive databases, and automated reasoning tools.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "a7cb0e0e-8001-4ec0-9af5-116ad28ac10c",
+          "TopicId": "cd53e917-886a-4a79-9d5d-d39e4a265625",
+          "Title": "Choosing Between Forward and Backward Chaining",
+          "BodyText": "Neither direction dominates; the right choice depends on the branching structure of the rules and on how the agent uses its conclusions.",
+          "Notes": "Some systems combine both, using forward chaining to maintain derived state and backward chaining to answer specific queries.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:16:10.4598436-04:00",
+          "ModifiedDate": "2026-10-14T20:16:10.4598436-04:00",
+          "Items": [
+            {
+              "Id": "3aab0b93-6ab9-4d8b-9e07-01b27d461756",
+              "Text": "Forward chaining is preferable when there are few facts and many possible queries, as all consequences are precomputed.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "7db39e87-b8df-493d-81ee-30ac9af63947",
+              "Text": "Backward chaining is preferable when the knowledge base is large but each query touches only a small relevant portion.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1a82d48b-e9b0-4b9a-9000-749e3ff7fbda",
+              "Text": "Production systems and real-time monitoring agents typically use forward chaining to react to incoming data.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f05f45ec-8e39-44cb-8350-b97f710edc94",
+              "Text": "Question-answering systems and logic programming languages typically use backward chaining to focus on the asked goal.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "e74db42b-8231-43b1-8a97-6565c4006b2b",
+              "Text": "Both are complete for definite clauses, so the decision is about computational cost rather than what can be proved.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "TotalElementCount": 51
+}

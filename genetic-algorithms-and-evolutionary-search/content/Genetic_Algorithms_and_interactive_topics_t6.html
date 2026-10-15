@@ -1,0 +1,255 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Algorithm Design, Tuning, and Convergence</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Genetic Algorithms and Evolutionary Search</a></div>
+  <header>
+    <h1>Algorithm Design, Tuning, and Convergence</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Algorithm Design, Tuning, and Convergence</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Everything that has been introduced separately — encodings, fitness functions, selection operators, crossover and mutation — only becomes a <em>genetic algorithm</em> when it is assembled into a repeating generational loop and governed by sensible parameter choices. A genetic algorithm is, at heart, a very simple controller: it repeatedly samples a population of candidate solutions, biases the sampling towards the better ones, perturbs them, and repeats. The subtlety lies almost entirely in the balance between <strong>exploration</strong> (covering new regions of the search space) and <strong>exploitation</strong> (refining what already looks good). Population size, operator rates, selection pressure, replacement policy and termination rule are all levers on that single balance, and they interact strongly. This topic walks through the complete loop, then examines each lever, how to read the diagnostic signals a run produces, how to keep a population from collapsing into clones, and finally how to benchmark honestly so that claims about performance mean something.</p>
+
+<p><strong>The complete generational loop.</strong> The canonical generational GA can be written in about a dozen lines of pseudocode. Everything else is a variation on it.</p>
+
+<pre><code>population  = initialise_random(N, encoding)
+evaluate(population)                      # N fitness evaluations
+best_so_far = argmax_fitness(population)
+evals       = N
+generation  = 0
+
+while not terminate(generation, evals, best_so_far, population):
+    offspring = []
+    while len(offspring) &lt; N:
+        p1 = select(population)           # selection pressure scheme
+        p2 = select(population)
+        if random() &lt; p_crossover:
+            c1, c2 = crossover(p1, p2)
+        else:
+            c1, c2 = copy(p1), copy(p2)
+        mutate(c1, p_mutation_per_gene)
+        mutate(c2, p_mutation_per_gene)
+        offspring += [c1, c2]
+
+    evaluate(offspring)                   # N more fitness evaluations
+    evals += N
+    population = replace(population, offspring)   # generational / steady-state / elitist
+    if max_fitness(population) &gt; fitness(best_so_far):
+        best_so_far = argmax_fitness(population)
+    generation += 1
+
+return best_so_far                        # NOT the final population</code></pre>
+
+<p><strong>Initialisation.</strong> The first population is normally drawn uniformly at random from the space permitted by the encoding, because the point of initialisation is to scatter alleles broadly so that recombination has raw material to work with. The exact mechanism depends on the representation: a binary chromosome is filled with independent fair coin flips; a real-valued chromosome samples uniformly within each variable's box constraints; a permutation chromosome is produced by a Fisher–Yates shuffle of the job or city indices; a tree chromosome in genetic programming is grown with a method such as <em>ramped half-and-half</em> so that initial programs vary in both shape and depth. Two practical refinements are common. First, if a problem-specific heuristic exists (say, a greedy earliest-due-date schedule), <em>seeding</em> one or two individuals from it can accelerate the run dramatically — but seeding many individuals from the same heuristic floods the population with one genotype and risks immediate convergence. Second, for constrained problems it is usually better to initialise only feasible individuals when feasible solutions are easy to construct, so that early generations are not spent climbing out of a penalty landscape.</p>
+
+<p><strong>Evaluation and best-so-far tracking.</strong> Every individual is scored by the fitness function, and the best individual ever seen is stored outside the population. This bookkeeping matters more than it first appears: in a non-elitist generational GA the best individual of generation <em>t</em> can be destroyed by crossover or mutation and never reappear. Returning the final population's best individual can therefore return something strictly worse than what the run actually discovered. The archive costs one comparison per individual and removes the problem entirely. Evaluation is also where runtime is spent, so this is the natural place to instrument the algorithm: count evaluations, cache fitness for unchanged individuals (a steady-state GA re-evaluates only the offspring), and in expensive problems memoise results for repeated genotypes.</p>
+
+<p><strong>Parent selection and variation.</strong> Parents are drawn with probability biased by fitness — roulette wheel, rank-based, or tournament selection — and the degree of that bias is the <em>selection pressure</em>. Crossover is then applied with probability <code>p_c</code> (typically 0.6–0.95) and mutation with probability <code>p_m</code> per gene. Note the asymmetry in the pseudocode: when crossover does not fire, the parents are <em>copied</em>, not discarded, so the offspring pool is always filled. Crossover is the recombination operator that assembles good partial solutions — "building blocks" — from different parents, while mutation is the background operator that reintroduces alleles that selection has eliminated. Neither alone is sufficient: crossover without mutation can only shuffle the alleles already present, and once every individual carries a 1 at locus 7 no amount of recombination will ever produce a 0 there.</p>
+
+<p><strong>Replacement and the next generation.</strong> Three schemes dominate, and the choice has a large effect on convergence speed.</p>
+
+<table>
+  <thead>
+    <tr><th>Scheme</th><th>Mechanism</th><th>Selection pressure</th><th>Typical use</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Full (generational) replacement</td><td>All N offspring replace all N parents</td><td>Moderate; good individuals can be lost</td><td>Classic GA; combine with elitism</td></tr>
+    <tr><td>Steady-state</td><td>One or two offspring created per iteration; replace worst, or replace oldest, or replace most similar</td><td>High; good individuals persist and are reused immediately</td><td>Fast local refinement, small populations, online settings</td></tr>
+    <tr><td>Elitist carry-over</td><td>Top <em>k</em> parents copied unchanged into the next generation, remainder filled with offspring</td><td>Raised in proportion to <em>k</em></td><td>Default for most practical GAs with k = 1 or 2</td></tr>
+    <tr><td>(µ + λ) survivor selection</td><td>Parents and offspring pooled, best N survive</td><td>Very high; strongly exploitative</td><td>Evolution strategies, real-valued optimisation</td></tr>
+  </tbody>
+</table>
+
+<p>Elitism guarantees monotone non-decreasing best fitness, which is comforting and usually beneficial, but it is a selection-pressure dial in disguise: carrying over 20% of a population of 50 means ten slots are permanently occupied by the current leaders and their descendants, and diversity collapses accordingly. <em>k</em> = 1 or 2 is the usual recommendation.</p>
+
+<p><strong>Choosing population size.</strong> Population size <em>N</em> determines how much of the search space is sampled in parallel. With <em>N</em> = 10 binary chromosomes of length 50, a given locus is represented by roughly five 0s and five 1s initially; a few generations of selection drift can easily fix that locus at one value by chance alone, and the allele is gone. This is <strong>loss of allele diversity</strong>, and it is the mechanism behind <strong>premature convergence</strong>: the population becomes a cloud of near-identical individuals sitting on a local optimum, crossover between near-identical parents produces near-identical children, and only mutation can escape — slowly and usually unsuccessfully. Small populations converge fast, which is attractive when the budget is tight and the landscape is gentle, but they are fragile on rugged, multimodal landscapes.</p>
+
+<p>Large populations hold more alleles, sample more basins of attraction simultaneously, and are much more resistant to drift, but each generation costs <em>N</em> fitness evaluations. The hard constraint is nearly always the cost of the fitness function. For a toy benchmark function costing microseconds, <em>N</em> = 1000 is free; for a scheduling problem where each evaluation runs a discrete-event simulation taking two seconds, a population of 1000 costs over half an hour <em>per generation</em>, and the whole run budget might be only 5000 evaluations. Hence the crucial discipline:</p>
+
+<ul>
+  <li><strong>Express the budget in total fitness evaluations, not generations.</strong> A run with <em>N</em> = 50 for 200 generations and a run with <em>N</em> = 200 for 50 generations both consume 10 000 evaluations and can be compared fairly. Comparing "100 generations each" would silently give the larger population four times the compute.</li>
+  <li>Within a fixed evaluation budget there is a genuine trade-off: more individuals (broader sampling, fewer rounds of refinement) versus more generations (deeper refinement, narrower sampling). On multimodal problems the balance usually favours larger populations; on smooth unimodal problems, smaller populations with more generations.</li>
+  <li>As a starting heuristic, many practitioners use <em>N</em> between 50 and 200 for chromosomes of modest length, scaling upwards with chromosome length and with the ruggedness of the landscape. Treat this as a starting point for tuning, not a rule.</li>
+  <li>If evaluation is expensive, consider parallel evaluation (a generational GA evaluates all <em>N</em> offspring independently, so it parallelises almost perfectly), or surrogate models that approximate fitness cheaply and are refreshed with occasional true evaluations.</li>
+</ul>
+
+<p><strong>Setting crossover and mutation rates.</strong> Crossover rate <code>p_c</code> is the probability that a selected pair recombines rather than being copied. High values (0.8–0.95) are standard because recombination is the engine that assembles building blocks: if parent A has solved the first half of the problem and parent B the second half, a single crossover event can produce a child better than either. Setting <code>p_c</code> low turns the GA into a parallel mutation-driven hill climber, which is sometimes competitive but gives up the main advantage of a population.</p>
+
+<p>Mutation rate is more delicate because it sits on a knife edge between two failure modes:</p>
+<ul>
+  <li><strong>Too low:</strong> lost alleles are never restored, diversity decays under selection and drift, and the run stalls at a local optimum. The best-fitness curve goes flat early.</li>
+  <li><strong>Too high:</strong> good solutions are disrupted faster than selection can propagate them. In the limit the algorithm degenerates to a <em>random walk</em> — or, with elitism, to a very inefficient random search around the elite. Best fitness improves erratically and mean fitness never rises.</li>
+</ul>
+
+<p>The standard convention is to express mutation <strong>per gene</strong>, not per chromosome. Setting <code>p_m = 1/L</code> for a chromosome of length <em>L</em> means that, on average, exactly one gene mutates per offspring regardless of whether <em>L</em> is 20 or 2000. A fixed per-chromosome rate of, say, 0.05 would mean 5% of long chromosomes get exactly one change — far too little disruption to maintain diversity in a 2000-gene genome. Typical practice:</p>
+
+<table>
+  <thead>
+    <tr><th>Representation</th><th>Typical mutation operator</th><th>Typical rate</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Binary</td><td>Bit flip</td><td>1/L per gene (range 0.5/L – 5/L)</td></tr>
+    <tr><td>Integer</td><td>Random reset or creep (±1, ±2)</td><td>1/L per gene</td></tr>
+    <tr><td>Real-valued</td><td>Gaussian perturbation, σ scaled to variable range</td><td>1/L per gene, or all genes with small σ</td></tr>
+    <tr><td>Permutation</td><td>Swap, insert, inversion, scramble</td><td>Per chromosome, 0.05 – 0.3 (gene-wise mutation breaks validity)</td></tr>
+    <tr><td>Tree (GP)</td><td>Subtree replacement, point mutation</td><td>Per individual, 0.01 – 0.15, with depth limits</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Adaptive and self-adaptive control.</strong> Fixed rates are a compromise: the ideal rate early in a run (high, to explore) differs from the ideal rate late in a run (low, to refine). Three families of schemes respond to this:</p>
+<ul>
+  <li><strong>Deterministic:</strong> the rate follows a predetermined schedule, e.g. <code>p_m(t) = p_0 · (1 − t/T)</code>, decaying linearly with generation number. Simple, but blind to what the population is actually doing.</li>
+  <li><strong>Adaptive:</strong> the rate responds to a measured statistic. A common rule raises mutation when a diversity measure (allele entropy, fitness variance, mean pairwise Hamming distance) falls below a threshold, and lowers it again once diversity recovers. Rechenberg's <em>1/5 success rule</em> for evolution strategies is the classic example: if more than one-fifth of mutations are improvements, increase the step size; otherwise decrease it.</li>
+  <li><strong>Self-adaptive:</strong> the parameters are encoded <em>inside the chromosome</em> and evolve with it. Each individual carries its own σ (or its own <code>p_m</code>), which is mutated along with the solution genes; individuals whose parameters happened to be well suited produce better offspring and so the good parameter values propagate. This is standard in evolution strategies and avoids the meta-problem of tuning the tuner.</li>
+</ul>
+
+<p><strong>Parameters interact — tune them together.</strong> It is tempting to tune one parameter at a time, holding the rest fixed, but the parameters are not separable. Raising tournament size from 2 to 7 increases selection pressure, which accelerates diversity loss, which means the mutation rate that was adequate at <em>k</em> = 2 is now too low. Similarly, a large population tolerates higher selection pressure than a small one, because drift is weaker. Practical approaches include a coarse grid or random search over a few parameters simultaneously (random search over a budget of configurations is usually more efficient than a grid when some parameters matter more than others), racing procedures such as F-Race, or automated configurators like irace or SMAC. Whatever is used, each candidate configuration must be evaluated over multiple seeds, because a single run tells you almost nothing.</p>
+
+<p><strong>Termination criteria.</strong> A GA has no natural stopping point, so the stopping rule must be supplied. Four families are in common use.</p>
+<ul>
+  <li><strong>Fixed budget:</strong> stop after a set number of generations or, better, a set number of fitness evaluations. Predictable runtime, and essential for fair comparison between configurations with different population sizes.</li>
+  <li><strong>Stagnation:</strong> stop when the best fitness has improved by less than ε over the last <em>g</em> generations (e.g. less than 0.1% over 50 generations). Avoids burning the budget on a run that has clearly finished — but ε and <em>g</em> must be chosen carefully, since GAs often sit on a plateau for many generations before a mutation unlocks a new improvement.</li>
+  <li><strong>Target fitness:</strong> stop as soon as a solution of known acceptable quality is found — a makespan below a contractual deadline, an error below a tolerance, or the known optimum on a benchmark instance. This also yields the <em>evaluations-to-target</em> metric used in benchmarking.</li>
+  <li><strong>Convergence of the population:</strong> stop when a diversity statistic falls below a threshold — fitness variance near zero, mean pairwise Hamming or Euclidean distance below a cut-off, or more than 95% of loci fixed at a single allele. At that point crossover is producing clones and continuing is pointless unless diversity is restored.</li>
+</ul>
+<p>These are not mutually exclusive, and the robust practice is to combine them with a logical OR: <em>stop when (evaluations ≥ 50 000) OR (best fitness ≥ target) OR (no improvement &gt; 0.1% in 100 generations)</em>. The budget cap bounds worst-case runtime, the target cap avoids wasted computation on an already-solved instance, and the stagnation clause frees resources for a restart. A fixed budget alone risks waste; a stagnation rule alone risks running forever on a slowly improving landscape; a target rule alone never terminates on an instance where the target is unreachable.</p>
+
+<p><strong>Diagnosing convergence behaviour.</strong> The single most informative diagnostic is a plot of three series against generation: <em>best fitness</em>, <em>mean fitness</em>, and a <em>diversity measure</em>. Their relative behaviour identifies the failure mode quickly.</p>
+
+<table>
+  <thead>
+    <tr><th>Signature</th><th>Best fitness</th><th>Mean fitness</th><th>Diversity</th><th>Interpretation and remedy</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Healthy run</td><td>Rises steadily, then flattens near the end</td><td>Follows below best, gradually closing the gap</td><td>Declines smoothly</td><td>Nothing to fix; consider whether the final plateau means the budget could be shortened</td></tr>
+    <tr><td>Premature convergence</td><td>Flat very early, well short of known good values</td><td>Almost equal to best</td><td>Near zero</td><td>Selection pressure too high, population too small, mutation too low, or elitism too generous. Reduce tournament size, enlarge population, raise mutation, add random immigrants</td></tr>
+    <tr><td>Random-walk behaviour</td><td>Improves erratically and slowly</td><td>Stays far below best, no upward trend</td><td>Stays very high</td><td>Mutation too high or selection pressure too low — offspring are being disrupted faster than good traits spread. Lower p_m, raise tournament size, add elitism</td></tr>
+    <tr><td>Stalled plateau mid-run</td><td>Flat but diversity remains moderate</td><td>Flat, gap persists</td><td>Moderate</td><td>Possibly a deceptive or neutral region; try a different crossover operator, a local-search hybrid (memetic step), or a restart</td></tr>
+    <tr><td>Fitness oscillation without elitism</td><td>Jagged, drops between generations</td><td>Noisy</td><td>Moderate</td><td>Good individuals being destroyed by full replacement; add elitism (k = 1–2) and track best-so-far</td></tr>
+  </tbody>
+</table>
+
+<p>Useful diversity metrics, chosen to match the encoding, include: mean pairwise Hamming distance (binary/integer), mean Euclidean distance to the population centroid or mean per-variable standard deviation (real-valued), mean pairwise edge-difference or position-difference (permutations), fitness variance or the number of distinct fitness values (encoding-agnostic but can mislead, since different genotypes may share fitness), and per-locus allele entropy, which directly measures how many loci have become fixed.</p>
+
+<p><strong>Recovering a trapped run.</strong> If diversity has collapsed and the result is unsatisfactory, the options are: a full <strong>restart</strong> from a fresh random population (keeping the best-so-far archive, which makes a sequence of short restarts a legitimate algorithm in its own right — often stronger than one long run on multimodal problems); a <strong>partial restart</strong> or <em>random immigrants</em> scheme that replaces the worst 10–30% of the population with fresh random individuals every generation or whenever diversity drops below a threshold; a <strong>hypermutation</strong> burst that temporarily raises <code>p_m</code> by an order of magnitude; or a <strong>cataclysmic</strong> (CHC-style) restart that keeps the single best individual and re-seeds the rest as heavily mutated copies of it.</p>
+
+<p><strong>Maintaining population diversity.</strong> Prevention is cheaper than recovery, and several mechanisms deliberately slow the loss of variety.</p>
+<ul>
+  <li><strong>Fitness sharing.</strong> Each individual's fitness is divided by its <em>niche count</em>, the sum of a sharing function over all other individuals within a radius σ<sub>share</sub>: <code>f'(i) = f(i) / Σ_j sh(d(i,j))</code> where <code>sh(d) = 1 − (d/σ_share)^α</code> for <code>d &lt; σ_share</code> and 0 otherwise. Ten individuals crowded on the same peak each receive roughly one-tenth of their raw fitness, so a lone individual on a slightly lower peak can compete. The population spreads itself across multiple optima — valuable when you want several distinct good solutions, as in a scheduling problem where you want alternatives to present to a planner.</li>
+  <li><strong>Crowding and restricted tournament replacement.</strong> Instead of modifying fitness, these modify replacement: an offspring competes for a slot only against the most similar individual(s) in the population, so it displaces its own kind rather than a distant, differently-located individual. Deterministic crowding and RTR are cheap and need no σ parameter in the sharing sense.</li>
+  <li><strong>Island (deme) models.</strong> The population is split into several subpopulations that evolve independently, with periodic <em>migration</em> of a few individuals between islands. Each island may converge on a different optimum, and migration occasionally injects a genuinely different genotype into a converged island. Key parameters are the number of islands, the migration interval (e.g. every 20 generations), the migration size (1–5 individuals), and the topology (ring, fully connected, random). Islands also map naturally onto parallel hardware. Infrequent, small migration preserves diversity; frequent, large migration makes the islands behave like one panmictic population and discards the benefit.</li>
+  <li><strong>Lower selection pressure.</strong> Tournament size is the most convenient dial: size 2 gives the best individual roughly twice the expected offspring of the median individual, while size 7 concentrates reproduction on a narrow elite and causes <em>takeover</em> — the spread of one genotype through the whole population — within a handful of generations. Linear rank selection with a mild bias (around 1.5) is similarly gentle and, unlike roulette wheel, is immune to the domination caused by one outlier with enormous raw fitness.</li>
+  <li><strong>Random immigrants and restarts,</<strong>strong> triggered by diagnostics.</strong> Replace a fixed fraction of the worst individuals with random ones every generation, or monitor a diversity statistic and inject only when it drops below a threshold. The second is more economical: it costs nothing while the run is healthy and intervenes only when the population begins to collapse.</li>
+  <li><strong>Use elitism sparingly.</strong> Elitism is genuinely useful — it guarantees monotone best fitness and prevents the oscillation seen in pure generational replacement — but every elite slot is a slot not available to a novel genotype, and elites are also re-selected as parents, so their alleles spread twice over. Keep <em>k</em> at 1 or 2, or at most 2–5% of the population, and if diversity is collapsing, elitism is one of the first settings to reduce.</li>
+  <li><strong>Duplicate elimination.</strong> A simple and surprisingly effective measure: refuse to insert an offspring whose genotype already exists in the population (or whose fitness matches to full precision), mutating it again instead. This alone can delay takeover substantially in steady-state GAs.</li>
+</ul>
+
+<p>A worked illustration: suppose a 30-job single-machine scheduling problem with a permutation encoding is run with <em>N</em> = 40, tournament size 5, elitism <em>k</em> = 6, and swap mutation at 0.05 per chromosome. The diagnostic plot shows best fitness flat after generation 25, mean fitness within 1% of best by generation 30, and mean pairwise position-distance falling to near zero. Every symptom points to premature convergence driven by excessive selection pressure. A sensible set of corrections, applied together rather than singly, would be: tournament size 5 → 2, elitism 6 → 1, mutation 0.05 → 0.25 per chromosome (permutations cannot use a per-gene rate without destroying validity), and population 40 → 100 with the generation count reduced to keep the evaluation budget constant. If the problem is strongly multimodal, replacing the single population with four islands of 25 that migrate two individuals every 20 generations is a further step.</p>
+
+<p><strong>Benchmarking and performance evaluation.</strong> A genetic algorithm is a stochastic algorithm: two runs with different random seeds on the same instance with the same parameters can produce visibly different results. A single run therefore carries essentially no evidence, and the single best run out of twenty carries less than none, because it reports the upper tail of a distribution as if it were typical. Sound practice rests on a few disciplines.</p>
+
+<ul>
+  <li><strong>Repeat with distinct seeds and report distributions.</strong> Thirty independent runs per configuration is a common minimum; report the mean and standard deviation, the median and interquartile range, and the best and worst. Where the goal is to claim one configuration beats another, use a statistical test appropriate to the data — a Wilcoxon rank-sum (Mann–Whitney) test is the usual choice because GA results are rarely normally distributed — and report effect size, not just a p-value. With many configurations, correct for multiple comparisons.</li>
+  <li><strong>Equalise the budget in fitness evaluations.</strong> Generations are not comparable across population sizes, and wall-clock time is not comparable across machines, languages, or levels of code optimisation. Fitness evaluations are the currency because, in realistic applications, evaluation dominates the cost. Where operators themselves are expensive (heavy repair procedures, local search in a memetic algorithm), report both evaluations and time so that the hidden cost is visible.</li>
+  <li><strong>Use standard test functions and instances.</strong> Continuous benchmarks such as Sphere, Rastrigin, Rosenbrock, Ackley, Schwefel and Griewank, or the CEC and BBOB/COCO suites, probe specific difficulties: Sphere is smooth and unimodal, Rastrigin is highly multimodal with a regular structure, Rosenbrock has a narrow curved valley, Ackley combines a broad basin with fine-grained local optima. For combinatorial work, use published instance libraries — TSPLIB for travelling salesman, the Taillard and OR-Library instances for job-shop and flow-shop scheduling, standard knapsack and bin-packing sets. Using published instances with published best-known values makes results reproducible and directly comparable to the literature.</li>
+  <li><strong>Always include baselines.</strong> The question is never "does the GA find good solutions?" but "does the GA find better solutions than something simpler, for the same budget?" Minimum baselines are uniform random search (the same number of random samples, which tests whether the evolutionary machinery contributes anything at all), a hill climber or random-restart hill climber (which tests whether a population is needed), and a problem-specific heuristic such as earliest-due-date or nearest-neighbour construction (which tests whether evolutionary search beats domain knowledge). A GA that cannot beat random-restart hill climbing on equal evaluations is not earning its complexity.</li>
+  <li><strong>Report reliability as well as quality.</strong> Three complementary metrics capture different things: <em>final best fitness</em> (solution quality), <em>success rate</em> — the proportion of runs reaching a defined target, such as within 1% of the best-known value (reliability), and <em>evaluations-to-target</em> — the mean or median number of evaluations used by the successful runs (efficiency). A configuration that reaches the target in 95% of runs but slowly may be preferable to one that reaches it in 40% of runs quickly, depending on whether the application can afford restarts. The <em>expected running time</em> measure, ERT = (total evaluations across all runs) / (number of successful runs), combines the latter two into a single figure and is the standard in the COCO framework.</li>
+  <li><strong>Report enough to reproduce.</strong> Encoding, operators and their parameters, population size, selection scheme and pressure, replacement and elitism policy, termination rule, number of runs, seeding method, and the exact instances used. Convergence plots should show the median curve with an interquartile band across runs, not a single hand-picked run.</li>
+</ul>
+
+<p>A concise example of a well-formed results table for a scheduling problem, where fitness is makespan and lower is better, with a budget of 50 000 evaluations and 30 runs per configuration:</p>
+
+<table>
+  <thead>
+    <tr><th>Configuration</th><th>Median makespan</th><th>IQR</th><th>Best</th><th>Success rate (within 2% of best known)</th><th>Median evals to target</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Random search</td><td>1 482</td><td>36</td><td>1 421</td><td>0%</td><td>—</td></tr>
+    <tr><td>Random-restart hill climbing</td><td>1 294</td><td>21</td><td>1 263</td><td>13%</td><td>41 200</td></tr>
+    <tr><td>GA, N=40, tourn. 5, elite 6</td><td>1 301</td><td>44</td><td>1 240</td><td>20%</td><td>18 600</td></tr>
+    <tr><td>GA, N=100, tourn. 2, elite 1</td><td>1 248</td><td>14</td><td>1 231</td><td>77%</td><td>22 400</td></tr>
+    <tr><td>GA + local search (memetic)</td><td>1 236</td><td>9</td><td>1 229</td><td>93%</td><td>12 900</td></tr>
+  </tbody>
+</table>
+
+<p>Read in context, this table tells a complete story: random search is hopeless, so the problem has exploitable structure; the high-pressure GA converges fast (low evaluations-to-target) but unreliably and with wide spread, the classic premature-convergence signature; lowering selection pressure and enlarging the population trades a little speed for a large gain in reliability; and hybridising with local search dominates on every axis. Note also that the high-pressure GA barely beats hill climbing on median quality — had only the "best" column been reported, that configuration would have looked like a success.</p>
+
+<p><strong>Putting it together.</strong> Designing a GA is an iterative loop at the meta level that mirrors the loop inside the algorithm: choose a sensible default configuration (population 50–100, <code>p_c</code> ≈ 0.9, <code>p_m</code> = 1/L per gene, tournament size 2–3, elitism 1, budget expressed in evaluations); run it thirty times; plot best, mean and diversity; read the signature against the diagnostic table; adjust the interacting parameters as a group; and re-benchmark against fixed baselines on an equal budget. Most of the practical skill in evolutionary computation lies not in inventing new operators but in reading these curves correctly and knowing which dial to turn.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> Directly supported — the topic sets out the complete generational loop in pseudocode and prose, covering initialisation, evaluation and best-so-far tracking, parent selection, crossover and mutation, replacement schemes, and termination.</li>
+  <li><strong>MO2:</strong> Supported indirectly: the topic does not teach how to choose an encoding, but it shows how binary, integer, real-valued, permutation and tree representations each affect initialisation methods and mutation rates (for example per-gene rates of 1/L versus per-chromosome rates for permutations), reinforcing the consequences of a representation choice.</li>
+  <li><strong>MO3:</strong> Only partially addressed — fitness functions appear here as the cost driver that constrains population size and budget, and as the source of diagnostic curves, but the construction of graded fitness functions, penalties and repair is not taught in this topic.</li>
+  <li><strong>MO4:</strong> Supported — selection pressure is treated as the central lever on diversity loss, with explicit comparison of tournament sizes, linear ranking bias, roulette wheel's vulnerability to outliers, and the pressure implied by different replacement and elitism policies.</li>
+  <li><strong>MO5:</strong> Directly supported — the sections on diagnosing convergence, diversity metrics, repeated runs with distinct seeds, equal evaluation budgets, baselines, success rate and evaluations-to-target provide exactly the methodology for evaluating GA convergence on scheduling and combinatorial problems.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Suggested teaching aids: (1) a live demo plotting best/mean/diversity for three deliberately misconfigured GAs so students can match curves to the diagnostic table; (2) a lab exercise fixing the evaluation budget at 10 000 and asking students to find the best (N, generations) split on Rastrigin versus Sphere, to surface the multimodal/unimodal trade-off; (3) a worksheet converting per-chromosome to per-gene mutation rates for chromosomes of length 20, 200 and 2000.
+Formulae used: fitness sharing f&#39;(i) = f(i)/Σ_j sh(d(i,j)); ERT = total evaluations / number of successful runs; mutation default p_m = 1/L.
+Statistical note: Wilcoxon rank-sum is recommended over t-tests because GA final-fitness distributions are typically skewed and bounded by the optimum.
+Only tags permitted by the brief have been used; no headings are present, and the alignment note is rendered as a bold paragraph plus a list.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

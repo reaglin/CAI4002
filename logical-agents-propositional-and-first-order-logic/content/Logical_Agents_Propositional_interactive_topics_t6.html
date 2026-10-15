@@ -1,0 +1,388 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Knowledge Engineering in First-Order Logic</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Logical Agents: Propositional and First-Order Logic</a></div>
+  <header>
+    <h1>Knowledge Engineering in First-Order Logic</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Knowledge Engineering in First-Order Logic</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Knowledge engineering is the craft of turning what people know about a domain into a formal, machine-usable body of sentences. In first-order logic (FOL) this means choosing a vocabulary of constants, functions and predicates, writing axioms that constrain how that vocabulary behaves, and then letting a general-purpose inference engine answer questions by deduction rather than by running hand-written procedures. The engineer is not writing an algorithm for a single question; they are writing a <em>theory</em> of a domain. The pay-off, and the discipline required, both follow from that distinction.</p>
+
+<p><strong>What knowledge engineering is</strong></p>
+
+<p>A knowledge engineer investigates a domain, decides what concepts matter in it, and produces a formal representation of the objects, relations and laws of that domain. The result is a <strong>knowledge base</strong> (KB) — a set of first-order sentences — that is handed to an inference engine. Crucially, the KB is not tied to one question. Once the behaviour of logic gates, connectivity and signals has been axiomatised, the same KB can answer "what output does input vector ⟨1,1,0⟩ produce?", "which input vectors make the sum bit 0 and the carry bit 1?", "which gates feed terminal <code>In(2, X2)</code>?" and "is this circuit's output independent of input 3?" without a single line of new reasoning code.</p>
+
+<p>This is the practical meaning of the <strong>declarative</strong> approach. In a procedural program, knowledge about adders is fused with the control flow that uses it; to ask a new question you write a new program. In a declarative system, knowledge and inference are separated:</p>
+
+<table>
+  <thead>
+    <tr><th>Aspect</th><th>Procedural program</th><th>Declarative knowledge base</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>What is stored</td><td>Steps to compute one answer</td><td>Facts and laws about the domain</td></tr>
+    <tr><td>New query</td><td>Write new code</td><td>Pose a new sentence to the same KB</td></tr>
+    <tr><td>Direction of use</td><td>Inputs → outputs only</td><td>Inputs → outputs, outputs → inputs, partial information</td></tr>
+    <tr><td>Who can maintain it</td><td>Programmer</td><td>Domain expert (with the vocabulary fixed)</td></tr>
+    <tr><td>Error mode</td><td>Wrong output</td><td>No answer (missing axiom) or false answer (wrong axiom)</td></tr>
+  </tbody>
+</table>
+
+<p>Reusability is the headline benefit. The axiom "the output of an AND gate is 0 if and only if some input is 0" is used identically when simulating a circuit, when verifying it against a specification, when diagnosing a fault, and when searching for an input that triggers a given output. The reasoning procedure — unification, chaining, resolution — never changes.</p>
+
+<p>Knowledge bases come in two broad flavours. A <strong>special-purpose</strong> KB covers one narrow domain: digital circuits, a family tree, the rules of a card game, the drug interactions of one pharmacological class. Its vocabulary is small, its axioms are tailored, and it is usually built by a single engineer in days or weeks. A <strong>general ontology</strong> (sometimes called an upper ontology) aims to provide concepts that recur across <em>all</em> domains — objects, events, time, space, substances, categories, measures, beliefs — so that special-purpose knowledge bases can be bolted onto a shared skeleton rather than reinventing "is a part of" and "happens before" each time. General ontologies are far harder: they must accommodate many different special-purpose views at once, which means no single view can be baked in. A useful rule of thumb is that a general ontology must unify at least two distinct domains before it has earned the name.</p>
+
+<p>Finally, the quality of a knowledge base depends much more on the <em>representation</em> chosen than on logical virtuosity. Experienced engineers spend most of their time deciding what the objects are, not deriving clever lemmas. A representation that matches the structure of the domain makes the axioms short, general and obviously correct; a mismatched one makes them long, repetitive, riddled with special cases, or simply unwriteable. The six steps below are a disciplined way of arriving at a good representation — and of noticing early when you have a bad one.</p>
+
+<table>
+  <thead>
+    <tr><th>Step</th><th>Question answered</th><th>Typical output</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>What will the KB be asked, and what will it be told?</td><td>A list of query forms and input forms; a scope boundary</td></tr>
+    <tr><td>2</td><td>What exists in this domain?</td><td>Constants, functions, predicates with stated meanings</td></tr>
+    <tr><td>3</td><td>What is always true?</td><td>General axioms and definitions</td></tr>
+    <tr><td>4</td><td>What is true of this particular case?</td><td>Instance-specific ground facts</td></tr>
+    <tr><td>5</td><td>What is the answer?</td><td>Existential queries plus substitutions</td></tr>
+    <tr><td>6</td><td>Why is the answer wrong or missing?</td><td>Revised axioms, often a revised vocabulary</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Step 1: Identify the task and gather knowledge</strong></p>
+
+<p>The first job is to pin down the <strong>task</strong> precisely, and the sharpest way to do that is to write down the queries the KB will have to answer together with the facts that will accompany each query. Vague goals like "represent digital circuits" are useless; "given a gate-level netlist, determine the output values for any input vector, and determine which input vectors produce a specified output" is a task. The difference matters because the queries determine the vocabulary. If the task is circuit <em>simulation and verification</em>, you need signals, gates, terminals and connections. If the task were <em>timing analysis</em>, you would also need propagation delays, clock edges and real-valued durations — a different ontology altogether.</p>
+
+<p>A good way to make the task concrete is to tabulate it:</p>
+
+<table>
+  <thead>
+    <tr><th>Query the KB must answer</th><th>Facts supplied with the query</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>What are the circuit's outputs for inputs ⟨1,0,1⟩?</td><td>The netlist; the three input signal values</td></tr>
+    <tr><td>Which input vectors give sum=0, carry=1?</td><td>The netlist; the desired output values</td></tr>
+    <tr><td>Which terminals are connected to <code>In(1, C1)</code>?</td><td>The netlist only</td></tr>
+    <tr><td>Does the circuit compute one-bit addition?</td><td>The netlist; the specification as a set of queries</td></tr>
+  </tbody>
+</table>
+
+<p>Next comes <strong>knowledge acquisition</strong>: finding out how the domain actually works. This stage is deliberately informal. The knowledge engineer interviews domain experts, reads manuals and standards, examines worked examples, and takes notes in English, diagrams and tables. Nothing is written in logic yet. For a circuit KB, a hardware engineer will explain that a gate's output is determined by its inputs, that wires carry a single value, that an XOR gate outputs 1 exactly when its inputs differ, and — a point outsiders often miss — that a "connection" between two terminals is symmetric and transitive, so a fan-out node forces several terminals to share one value. Acquisition is where most domain errors are prevented; a misunderstood sentence here becomes a wrong axiom in step 3.</p>
+
+<p>The acquisition stage must also decide, explicitly and in writing, <strong>what to leave out</strong>. Real logic gates have propagation delays, fan-out limits, supply voltages, physical sizes, wire gauges, temperature coefficients and prices. For the stated task, none of these appear in any query, so none of them need appear in the ontology. Omitting them is not sloppiness; it is the modelling decision that makes the KB tractable. The criterion is simple: <em>if no query and no supplied fact mentions a property, leave it out — but record the omission, because tomorrow's task may need it.</em></p>
+
+<p>Scoping errors run in both directions:</p>
+
+<ul>
+  <li><strong>Under-scoping.</strong> You omit something real queries depend on. A circuit KB with no notion of terminal connection can describe gates individually but cannot compute a circuit's output at all; a medical KB that records diagnoses but not dosages cannot answer the questions clinicians actually ask. The symptom is a KB that is elegant and useless.</li>
+  <li><strong>Over-scoping.</strong> You model timing, geometry and cost "in case they're needed". Every extra predicate must be axiomatised, every instance must be annotated with values for it, and every inference step now has more clauses to consider, so the search space grows. Worse, half-modelled extras tend to be inconsistently populated, which produces mysterious failures later.</li>
+</ul>
+
+<p><strong>Step 2: Decide on a vocabulary of predicates, functions and constants</strong></p>
+
+<p>This step translates the informal concepts of step 1 into FOL vocabulary — the <strong>ontology</strong> of the domain. The basic mapping is:</p>
+
+<ul>
+  <li><strong>Objects → constants and terms.</strong> Individual gates, terminals and circuits become constants (<code>X1</code>, <code>A2</code>, <code>C1</code>) or compound terms built by functions.</li>
+  <li><strong>Properties and relations → predicates.</strong> "<code>x</code> is a gate" becomes <code>Gate(x)</code>; "<code>t1</code> and <code>t2</code> are wired together" becomes <code>Connected(t1, t2)</code>.</li>
+  <li><strong>Single-valued attributes → functions.</strong> "The value on terminal <code>t</code>" becomes <code>Signal(t)</code>; "the <code>i</code>th input terminal of gate <code>g</code>" becomes <code>In(i, g)</code>; "the type of gate <code>g</code>" becomes <code>Type(g)</code>.</li>
+</ul>
+
+<p>The function-versus-predicate choice deserves care because it is where a lot of hidden knowledge gets encoded for free. Compare two ways of saying what kind of gate <code>X1</code> is:</p>
+
+<pre><code>Predicate version:  Type(X1, XOR)
+Function version:   Type(X1) = XOR</code></pre>
+
+<p>With the predicate version, nothing stops the KB from also containing <code>Type(X1, AND)</code>; to rule that out you must add an explicit uniqueness axiom:</p>
+
+<pre><code>∀ g,t1,t2  Type(g,t1) ∧ Type(g,t2) ⇒ t1 = t2</code></pre>
+
+<p>With the function version, the uniqueness is guaranteed by the semantics of FOL: a function symbol denotes a total function, so <code>Type(X1)</code> has exactly one value in every model. Using a function therefore <em>enforces single-valuedness for free</em>. The same reasoning applies to <code>Signal(t)</code> (a wire carries one value), <code>Mother(x)</code> (a person has one biological mother) and <code>Arity(g)</code>. Conversely, use a predicate when the attribute can hold of several things at once: <code>Sibling(x, y)</code>, <code>Connected(t1, t2)</code>, <code>Likes(x, y)</code>.</p>
+
+<table>
+  <thead>
+    <tr><th>Domain notion</th><th>Best encoded as</th><th>Why</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Value on a wire</td><td>Function <code>Signal(t)</code></td><td>Exactly one value per terminal</td></tr>
+    <tr><td>Kind of a gate</td><td>Function <code>Type(g)</code></td><td>Exactly one type per gate</td></tr>
+    <tr><td>ith input of a gate</td><td>Function <code>In(i, g)</code></td><td>Names a unique terminal; no need to invent constants</td></tr>
+    <tr><td>Wiring between terminals</td><td>Predicate <code>Connected(t1,t2)</code></td><td>A terminal may connect to many others</td></tr>
+    <tr><td>Being a gate / terminal / circuit</td><td>Predicates <code>Gate(x)</code>, <code>Terminal(x)</code>, <code>Circuit(x)</code></td><td>Category membership, many instances</td></tr>
+  </tbody>
+</table>
+
+<p>Notice how much work <code>In(i, g)</code> and <code>Out(i, g)</code> do. Instead of inventing constants <code>X1In1</code>, <code>X1In2</code>, <code>X1Out1</code>, … for every terminal of every gate, one function pair names them all systematically, and axioms can quantify over indices. This is typical: a well-chosen function turns an unbounded list of constants into a compact, generalisable term structure.</p>
+
+<p>A further representational device is <strong>reification</strong> — promoting something that might naively be a predicate into a first-class object so that you can say things <em>about</em> it. Consider marriage. If marriage is only the predicate <code>Married(x, y)</code>, you cannot say when it took place, where, who officiated, or that it was later annulled, because FOL does not allow predicates to take predicates as arguments or to be given properties. Reify instead:</p>
+
+<pre><code>Marriage(M17) ∧ Spouse(M17, John) ∧ Spouse(M17, Mary)
+  ∧ Date(M17) = Jan-12-2019 ∧ Officiant(M17) = Rev-Smith
+  ∧ Location(M17) = StMarys</code></pre>
+
+<p>The same move is used for events, measurements, purchases, diagnoses and categories. In the circuit domain, gate <em>types</em> are reified as objects (<code>AND</code>, <code>OR</code>, <code>XOR</code>, <code>NOT</code>) rather than being left as predicates <code>AndGate(x)</code>. That lets the KB state <code>Type(X1) = Type(X2)</code> ("these two gates are the same kind"), compare types, count them, or quantify over types — all impossible if "AND-ness" were only a predicate. The cost of reification is an extra layer of indirection; the benefit is expressive power, so reify when the task's queries need to talk about the thing itself.</p>
+
+<p>Expect the vocabulary to be wrong the first time. The diagnostic signal is the shape of the axioms you then have to write. Symptoms of a poor vocabulary include axioms that must be restated once per gate type, axioms containing long disjunctions over named individuals, facts that must be entered twice to keep two representations in step, and — the worst case — a true statement about the domain that simply cannot be written down. Any of these is a cue to return to step 2 rather than to patch step 3.</p>
+
+<p><strong>Step 3: Encode general knowledge as axioms</strong></p>
+
+<p>Now the domain laws are written in FOL using the chosen vocabulary. The best axioms are <strong>definitions</strong>: biconditionals that fully specify when a predicate or function value holds, so that the inference engine can reason in both directions. For the circuit domain, the behaviour of each gate type is given definitionally:</p>
+
+<pre><code>1. Connected terminals share a signal:
+   ∀ t1,t2  Connected(t1,t2) ⇒ Signal(t1) = Signal(t2)
+
+2. Signals are binary:
+   ∀ t  Terminal(t) ⇒ Signal(t) = 1 ∨ Signal(t) = 0
+   1 ≠ 0
+
+3. Connection is commutative:
+   ∀ t1,t2  Connected(t1,t2) ⇔ Connected(t2,t1)
+
+4. OR gate: output is 1 iff some input is 1
+   ∀ g  Type(g) = OR ⇒
+        (Signal(Out(1,g)) = 1 ⇔ ∃ n  Signal(In(n,g)) = 1)
+
+5. AND gate: output is 0 iff some input is 0
+   ∀ g  Type(g) = AND ⇒
+        (Signal(Out(1,g)) = 0 ⇔ ∃ n  Signal(In(n,g)) = 0)
+
+6. XOR gate: output is 1 iff its inputs differ
+   ∀ g  Type(g) = XOR ⇒
+        (Signal(Out(1,g)) = 1 ⇔ Signal(In(1,g)) ≠ Signal(In(2,g)))
+
+7. NOT gate: output differs from input
+   ∀ g  Type(g) = NOT ⇒
+        Signal(Out(1,g)) ≠ Signal(In(1,g))</code></pre>
+
+<p>Each of these is a <em>bidirectional</em> statement where possible, which is exactly what allows the KB to run "backwards": from a desired output back to the inputs that could produce it. Had axiom 6 been written only as "if the inputs differ then the output is 1", the engine could simulate but not verify.</p>
+
+<p>Alongside behavioural definitions, a KB needs <strong>structural facts</strong>: how things are composed, what is part of what, and how categories relate. In the circuit domain the structural axioms describe arity and the gate/terminal/circuit type hierarchy:</p>
+
+<pre><code>8. Gates have the right number of terminals:
+   ∀ g  Gate(g) ∧ Type(g) = NOT ⇒ Arity(g,1,1)
+   ∀ g  Gate(g) ∧ (Type(g) = AND ∨ Type(g) = OR ∨ Type(g) = XOR)
+        ⇒ Arity(g,2,1)
+
+9. Terminals exist for the declared arity:
+   ∀ c,i,j  Circuit(c) ∧ Arity(c,i,j) ⇒
+        (∀ n  n ≤ i ⇒ Terminal(In(n,c))) ∧
+        (∀ n  n > i ⇒ In(n,c) = Nothing) ∧
+        (∀ n  n ≤ j ⇒ Terminal(Out(n,c))) ∧
+        (∀ n  n > j ⇒ Out(n,c) = Nothing)
+
+10. Gates are circuits; circuits and terminals are distinct things:
+    ∀ g  Gate(g) ⇒ Circuit(g)
+    ∀ x  ¬(Gate(x) ∧ Terminal(x))</code></pre>
+
+<p>In other domains the same category of axiom shows up as part-of hierarchies (<code>PartOf(Engine7, Car3)</code> with transitivity), taxonomies (<code>∀x Dog(x) ⇒ Mammal(x)</code>) and containment or adjacency relations.</p>
+
+<p>The third category is the one novices forget: <strong>obvious background truths that the system cannot infer for itself</strong>. Logic has no common sense. If you do not state that <code>Connected</code> is symmetric, then asserting <code>Connected(Out(1,X1), In(1,A2))</code> does not license <code>Connected(In(1,A2), Out(1,X1))</code>, and half your signal propagation silently fails. Similarly, FOL does not assume that distinct names denote distinct objects, so unless you say so, a model may identify <code>AND</code> with <code>OR</code>, or <code>X1</code> with <code>X2</code>, and axiom 4 will then fire on XOR gates:</p>
+
+<pre><code>11. Distinctness of names:
+    AND ≠ OR,  AND ≠ XOR,  AND ≠ NOT,
+    OR  ≠ XOR, OR  ≠ NOT,  XOR ≠ NOT
+    1 ≠ 0</code></pre>
+
+<p>(Some systems adopt a <em>unique names assumption</em> that supplies these automatically; if yours does not, write them.) Other commonly omitted background truths include irreflexivity (<code>∀x ¬Parent(x,x)</code>), mutual exclusivity of categories, and the fact that an object's parts are not identical to the whole.</p>
+
+<p>Finally, keep axioms <strong>general</strong>. The whole point of quantification is that one sentence covers unboundedly many cases. An axiom written as
+
+<pre><code>Signal(Out(1,X1)) = 1 ⇔ Signal(In(1,X1)) ≠ Signal(In(2,X1))
+Signal(Out(1,X2)) = 1 ⇔ Signal(In(1,X2)) ≠ Signal(In(2,X2))</code></pre>
+
+<p>says about the two XOR gates of one adder exactly what axiom 6 says about every XOR gate in every circuit anyone will ever describe. Enumerated axioms are a maintenance disaster: adding a third XOR gate means editing the general knowledge instead of just the instance description, and a correction must be applied in <em>n</em> places. The test is whether the sentence mentions any instance constant. General axioms should mention only type constants (<code>AND</code>, <code>XOR</code>, <code>1</code>, <code>0</code>) and variables; instance constants (<code>X1</code>, <code>C1</code>) belong in step 4.</p>
+
+<p><strong>Step 4: Encode the specific problem instance</strong></p>
+
+<p>With the general theory in place, describing a particular circuit is mechanical — it is essentially transcribing a diagram. Take the standard one-bit full adder <code>C1</code>, built from two XOR gates (<code>X1</code>, <code>X2</code>), two AND gates (<code>A1</code>, <code>A2</code>) and one OR gate (<code>O1</code>). The instance description has three parts.</p>
+
+<p>First, <strong>introduce a constant for each individual object</strong> and assert its category:</p>
+
+<pre><code>Circuit(C1) ∧ Arity(C1, 3, 2)
+Gate(X1) ∧ Gate(X2) ∧ Gate(A1) ∧ Gate(A2) ∧ Gate(O1)</code></pre>
+
+<p>Note that the terminals need no constants of their own: the functions <code>In</code> and <code>Out</code> from step 2 name them (<code>In(1,C1)</code>, <code>Out(1,X1)</code>, …). That is the payoff of the earlier vocabulary decision.</p>
+
+<p>Second, <strong>assert each object's attributes</strong> using the chosen functions and predicates:</p>
+
+<pre><code>Type(X1) = XOR   Type(X2) = XOR
+Type(A1) = AND   Type(A2) = AND
+Type(O1) = OR</code></pre>
+
+<p>Third, <strong>assert the relations that link the instances</strong> — here, the wiring:</p>
+
+<pre><code>Connected(Out(1,X1), In(1,X2))   Connected(In(1,C1), In(1,X1))
+Connected(Out(1,X1), In(2,A2))   Connected(In(1,C1), In(1,A1))
+Connected(Out(1,A2), In(1,O1))   Connected(In(2,C1), In(2,X1))
+Connected(Out(1,A1), In(2,O1))   Connected(In(2,C1), In(2,A1))
+Connected(Out(1,X2), Out(1,C1))  Connected(In(3,C1), In(2,X2))
+Connected(Out(1,O1), Out(2,C1))  Connected(In(3,C1), In(1,A2))</code></pre>
+
+<table>
+  <thead>
+    <tr><th>Instance element</th><th>Sentence form</th><th>Example</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Existence of an object</td><td>Category predicate on a new constant</td><td><code>Gate(A1)</code></td></tr>
+    <tr><td>Attribute of an object</td><td>Function equation</td><td><code>Type(A1) = AND</code></td></tr>
+    <tr><td>Link between objects</td><td>Relation predicate on terms</td><td><code>Connected(Out(1,A1), In(2,O1))</code></td></tr>
+    <tr><td>Externally supplied data</td><td>Function equation on a terminal</td><td><code>Signal(In(1,C1)) = 1</code></td></tr>
+  </tbody>
+</table>
+
+<p>The division of labour between steps 3 and 4 is what makes the KB reusable. To reason about a four-bit ripple-carry adder, a multiplexer or a parity checker, you discard the instance block and write a new one; axioms 1–11 are untouched. The same pattern recurs everywhere: a general theory of kinship plus one family's facts; a general theory of drug interaction plus one patient's medication list; a general theory of taxation plus one taxpayer's return. If you ever find yourself editing step 3 to accommodate a new instance, something in the general theory was not general enough.</p>
+
+<p><strong>Step 5: Pose queries and interpret answers</strong></p>
+
+<p>Queries are posed as <strong>existentially quantified sentences</strong>, and the answer is not merely "yes" but the set of <strong>substitutions</strong> (bindings for the existential variables) under which the KB entails the sentence. This is why a logical KB is more useful than a yes/no theorem prover: the proof carries the answer with it.</p>
+
+<p>Suppose we add the input facts <code>Signal(In(1,C1)) = 1</code>, <code>Signal(In(2,C1)) = 1</code>, <code>Signal(In(3,C1)) = 0</code> and ask:</p>
+
+<pre><code>∃ i1,i2  Signal(Out(1,C1)) = i1 ∧ Signal(Out(2,C1)) = i2</code></pre>
+
+<p>Inference chains through axioms 1 and 6 (both XOR gates), 5 (the ANDs) and 4 (the OR), returning the single substitution <code>{i1/0, i2/1}</code>: sum 0, carry 1 — correct for 1+1+0.</p>
+
+<p>The more interesting direction is <strong>verification</strong>, which runs the circuit backwards. Remove the input assertions and ask which input vectors produce a given output pattern:</p>
+
+<pre><code>∃ i1,i2,i3  Signal(In(1,C1)) = i1 ∧ Signal(In(2,C1)) = i2 ∧ Signal(In(3,C1)) = i3
+            ∧ Signal(Out(1,C1)) = 0 ∧ Signal(Out(2,C1)) = 1</code></pre>
+
+<p>Because the gate axioms are biconditionals and signals are constrained to <code>{0,1}</code>, the engine returns three substitutions: <code>{i1/1, i2/1, i3/0}</code>, <code>{i1/1, i2/0, i3/1}</code> and <code>{i1/0, i2/1, i3/1}</code> — precisely the input vectors with exactly two ones. Repeating the query for each of the four possible output patterns enumerates the complete truth table, which <em>is</em> the specification of a one-bit adder:</p>
+
+<table>
+  <thead>
+    <tr><th>In(1,C1)</th><th>In(2,C1)</th><th>In(3,C1)</th><th>Out(1,C1) (sum)</th><th>Out(2,C1) (carry)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+    <tr><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+    <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>0</td></tr>
+    <tr><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>
+    <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+    <tr><td>1</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+    <tr><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+    <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+  </tbody>
+</table>
+
+<p>Verification then amounts to checking that this derived table matches the intended one. Notice that no simulator was written: the same axioms that computed outputs from inputs computed inputs from outputs, simply by leaving different variables unbound.</p>
+
+<p>Queries need not be about behaviour at all. <strong>Structural queries</strong> interrogate the wiring itself:</p>
+
+<pre><code>∃ t  Connected(t, In(1,A2))          → {t / Out(1,X1)}, {t / In(3,C1)}
+∃ g,t  Type(g) = XOR ∧ Connected(Out(1,g), t)
+∃ g  Gate(g) ∧ ¬∃t Connected(Out(1,g), t)   (an unconnected output — a design bug)</code></pre>
+
+<p>These are the queries that matter for design-rule checking, netlist navigation and fault isolation, and they come free with the same KB.</p>
+
+<p>Interpreting answers requires care about one point: in classical FOL, "no answer returned" means "not entailed", not "false". Because the KB makes no closed-world assumption, failure to find a substitution may equally mean that a necessary axiom is missing. If the adder query returned nothing, the most likely explanations are a forgotten <code>Connected</code> fact, a missing symmetry axiom, an absent "signals are binary" axiom (so the engine cannot do case analysis), or a missing distinctness axiom such as <code>1 ≠ 0</code>. Treat silence as a bug report about the KB, not a verdict about the world.</p>
+
+<p><strong>Step 6: Debug and refine the knowledge base</strong></p>
+
+<p>Knowledge bases are rarely right first time, and the final step — debugging — usually consumes more effort than the writing. Logical debugging has a distinctive character: errors come in two clean flavours, and each has its own signature.</p>
+
+<table>
+  <thead>
+    <tr><th>Fault</th><th>Symptom</th><th>Typical cause</th><th>Diagnosis technique</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Axiom too weak / missing</td><td>Query silently returns no answer</td><td>Forgotten background truth, forgotten connection, one-directional implication where a biconditional was needed</td><td>Ask progressively smaller sub-queries until one fails; the first failure localises the gap</td></tr>
+    <tr><td>Axiom too strong / wrong</td><td>False conclusion, or an outright contradiction</td><td>Over-general quantification, missing precondition, wrong direction of an implication</td><td>Inspect the proof tree for the false conclusion; every leaf is an asserted sentence, so the culprit is among them</td></tr>
+  </tbody>
+</table>
+
+<p>The <strong>missing-axiom</strong> case is treacherous because logic gives no error message. Asking "what is the output of <code>X1</code>?" when the KB lacks <code>Type(X1) = XOR</code> does not raise an exception; it simply produces nothing, exactly as a well-posed but unprovable query would. The remedy is systematic narrowing. If <code>Signal(Out(1,C1))</code> cannot be derived, ask for <code>Signal(Out(1,X2))</code>, then <code>Signal(In(1,X2))</code>, then <code>Signal(Out(1,X1))</code>, and so on back toward the inputs. The first query in that chain that <em>does</em> succeed brackets the fault: the gap lies between it and its failing successor. Classic culprits are an omitted <code>Connected</code> fact for one wire, an axiom stated for <code>AND</code> but never for <code>XOR</code>, or an implication written <code>⇒</code> where the query needs the converse.</p>
+
+<p>The <strong>over-strong-axiom</strong> case is noisier but easier. Suppose someone writes</p>
+
+<pre><code>∀ g  Signal(Out(1,g)) = 1 ⇔ ∃n Signal(In(n,g)) = 1</code></pre>
+
+<p>forgetting the guard <code>Type(g) = OR</code>. Now every gate behaves like an OR gate, and the adder's derived truth table is wrong; worse, combined with axiom 5 the KB may become inconsistent, from which anything follows. Because the conclusion was reached by a proof, the proof itself is the diagnostic artefact: walk it from the false conclusion back to its leaves, and the offending sentence is one of them. Contradictions are detected the same way — a refutation proof names exactly the premises it used.</p>
+
+<p>Testing should proceed from cases whose answers are <strong>independently known</strong> and then widen:</p>
+
+<ul>
+  <li>Start with ground sanity checks whose answers you can verify by hand (all-zero inputs; a single NOT gate).</li>
+  <li>Move to the full specification — all eight input vectors of the adder — comparing against the published truth table.</li>
+  <li>Add <em>negative</em> tests: deliberately mis-wire a copy of the circuit and confirm the KB no longer entails the specification. A KB that "verifies" a broken circuit is over-strong somewhere.</li>
+  <li>Test structural queries and boundary cases: a gate with an unconnected input, an index out of arity range, two circuits sharing a terminal name.</li>
+  <li>Re-run the whole suite after every change; a fix to one axiom routinely breaks another.</li>
+</ul>
+
+<p>Expect <strong>iteration</strong>, and expect it to reach back further than step 3. Many debugging sessions end with the realisation that the vocabulary chosen in step 2 was wrong. Suppose the adder KB must now handle gates with three or more inputs, or tri-state outputs with a third signal value, or faults in which a wire is stuck at 0 regardless of its driver. Each of these breaks an assumption baked into the ontology: that <code>Arity</code> is fixed per type, that <code>Signal</code> ranges over <code>{0,1}</code>, that <code>Connected</code> terminals always share a value. Patching axioms to work around an ontological mismatch produces the symptoms listed in step 2 — proliferating special cases, duplicated facts, statements that cannot be expressed at all — and the right response is to redesign the vocabulary (for instance, reifying a <em>driver</em> relation separate from <em>connection</em>, or introducing a <code>Fault</code> object per component) and re-encode. This loop — task, vocabulary, axioms, instance, query, debug, back to vocabulary — is the normal rhythm of knowledge engineering, and recognising when to go backwards rather than patch forwards is the main skill the six-step discipline is meant to teach.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> Supported indirectly. The six-step process assumes the knowledge-based agent architecture: step 4 and the supplying of input signals are TELL operations that add sentences to the knowledge base, while step 5's queries are ASK operations answered by an inference engine that is kept entirely separate from the knowledge it uses.</li>
+  <li><strong>MO2:</strong> Only lightly addressed. The topic works in first-order rather than propositional syntax, but every axiom shown is a well-formed sentence built from the standard connectives (<code>∧</code>, <code>∨</code>, <code>¬</code>, <code>⇒</code>, <code>⇔</code>), reinforcing correct use of those connectives and of nesting and scope.</li>
+  <li><strong>MO3:</strong> Not directly addressed. The topic treats entailment at the level of posing queries and interpreting returned substitutions; it does not cover model checking, CNF conversion or resolution refutation, though step 5's "no answer means not entailed" discussion depends on the notion of entailment those methods compute.</li>
+  <li><strong>MO4:</strong> Directly and centrally addressed. Steps 2, 3 and 4 are precisely the activity of translating informal domain statements into first-order sentences, with explicit guidance on choosing predicates (<code>Connected</code>, <code>Gate</code>), functions (<code>Signal</code>, <code>Type</code>, <code>In</code>) and constants, and on quantifying generally over all instances rather than enumerating cases.</li>
+  <li><strong>MO5:</strong> Supported by example rather than by comparison. The adder queries illustrate both directions of inference — deriving outputs from inputs (the forward, data-driven pattern) and deriving admissible inputs from a specified output (the goal-directed, backward pattern) — but the topic does not analyse the two chaining algorithms or their relative suitability.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The worked example follows the standard one-bit full-adder circuit used in the classic knowledge-engineering treatment (Russell &amp; Norvig, &quot;Knowledge Engineering in First-Order Logic&quot;), with gate constants X1, X2, A1, A2, O1 in circuit C1; the truth table and the three two-ones input vectors for sum=0/carry=1 have been checked for correctness. Logical symbols are rendered as Unicode characters inside &lt;code&gt;/&lt;pre&gt; blocks since markup for formulae was not available. Instructors may wish to supplement with a non-engineering second domain (kinship or a shopping ontology) to show that the six steps are domain-independent, and with an exercise asking students to extend the circuit ontology to stuck-at faults — which forces the step-2 revision discussed at the end.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foundations of Constraint Propagation and Inference</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Propagation: Forward Checking and Arc Consistency</a></div>
+  <header>
+    <h1>Foundations of Constraint Propagation and Inference</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Foundations of Constraint Propagation and Inference</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Constraint satisfaction is one of the few places in artificial intelligence where the <em>structure</em> of a problem is exposed to the solver rather than hidden inside an opaque state. In a classical search problem — the sliding-tile puzzle, route finding, a game tree — a state is an atomic blob. The solver can test whether it is a goal and can generate its successors, but it cannot look inside and ask <em>why</em> a particular state is bad. A constraint satisfaction problem (CSP) breaks that opacity. States are factored into variables and the values assigned to them, and the goal test is decomposed into a set of explicit constraints. That single change in representation unlocks a whole family of techniques collectively called <strong>inference</strong> or <strong>constraint propagation</strong>: reasoning that removes impossible values from consideration <em>before</em> the search ever tries them. The remainder of this topic builds the vocabulary and the intuitions that every propagation algorithm depends on.</p>
+
+<p><strong>What is a constraint satisfaction problem?</strong> Formally, a CSP is a triple <code>(X, D, C)</code>:</p>
+
+<ul>
+  <li><code>X = {X₁, X₂, …, Xₙ}</code> is a finite set of <strong>variables</strong>.</li>
+  <li><code>D = {D₁, D₂, …, Dₙ}</code> associates with each variable <code>Xᵢ</code> a <strong>domain</strong> <code>Dᵢ</code> — the finite set of candidate values that variable may take. Domains need not be the same size or even the same type; one variable may range over colours, another over integers 1–9, another over the booleans.</li>
+  <li><code>C = {C₁, C₂, …, C_m}</code> is a set of <strong>constraints</strong>. Each constraint <code>C_j</code> is a pair <code>⟨scope, relation⟩</code>, where the scope is the tuple of variables the constraint talks about and the relation specifies which combinations of values for those variables are permitted. The relation may be given extensionally, as an explicit list of allowed tuples, or intensionally, as a predicate such as <code>X ≠ Y</code> or <code>X + Y ≤ 10</code>.</li>
+</ul>
+
+<p>An <strong>assignment</strong> maps variables to values drawn from their domains. A <strong>partial assignment</strong> leaves some variables unassigned; a <strong>complete assignment</strong> gives every variable a value. An assignment is <strong>consistent</strong> if it violates no constraint whose variables are all assigned. A <strong>solution</strong> is a complete assignment that is consistent — in other words, every constraint is satisfied simultaneously. Note the word <em>simultaneously</em>: constraints are conjunctive. There is no notion of satisfying most of them, and no partial credit. (Variants such as MAX-CSP and weighted CSP relax this, but the classical problem is all-or-nothing.)</p>
+
+<p>The canonical teaching example is <strong>map colouring</strong>. Consider colouring the mainland states and territories of Australia so that no two adjacent regions share a colour, using only red, green and blue:</p>
+
+<pre><code>X = {WA, NT, SA, Q, NSW, V, T}
+D_i = {red, green, blue}   for every i
+C = { WA≠NT, WA≠SA, NT≠SA, NT≠Q, SA≠Q, SA≠NSW, SA≠V, Q≠NSW, NSW≠V }</code></pre>
+
+<p>Tasmania (T) is an island, so it participates in no constraints at all and may take any colour. One solution is <code>{WA=red, NT=green, SA=blue, Q=red, NSW=green, V=red, T=red}</code>. The search space contains 3⁷ = 2187 complete assignments, of which only a handful are solutions; the point of propagation is to avoid enumerating most of the 2187.</p>
+
+<p><strong>The arity of constraints</strong> matters enormously for algorithm design. Constraints are classified by how many variables appear in their scope:</p>
+
+<table>
+  <thead>
+    <tr><th>Type</th><th>Arity</th><th>Example</th><th>How solvers usually handle it</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Unary</td><td>1</td><td><code>SA ≠ green</code>; <code>StartTime ≥ 9</code></td><td>Eliminated once, up front, by pruning the domain directly (node consistency)</td></tr>
+    <tr><td>Binary</td><td>2</td><td><code>WA ≠ NT</code>; <code>X + 3 = Y</code></td><td>Handled natively by arc-consistency algorithms such as AC-3</td></tr>
+    <tr><td>Ternary / higher-order</td><td>3+</td><td><code>A + B = C</code>; <code>Between(X, Y, Z)</code></td><td>Decomposed into binary constraints, or given a dedicated propagator</td></tr>
+    <tr><td>Global</td><td>n (variable)</td><td><code>AllDifferent(X₁ … Xₙ)</code>; <code>Sum</code>; <code>Cumulative</code></td><td>Specialised propagators exploiting the combinatorial structure of the whole relation</td></tr>
+  </tbody>
+</table>
+
+<p>Unary constraints are trivial: simply delete the forbidden values from the domain before search begins, and the constraint never needs to be looked at again. Binary constraints are the sweet spot for theory and for most textbook algorithms, because a binary CSP can be drawn as a <strong>constraint graph</strong> — one node per variable, one edge per constraint — and many results about tractability depend on graph properties such as tree-width.</p>
+
+<p>Higher-order and global constraints are where real modelling power lives. <code>AllDifferent(X₁, …, Xₖ)</code> asserts that all k variables take pairwise distinct values. It can be <em>decomposed</em> into k(k−1)/2 binary disequalities, and the decomposition has exactly the same set of solutions. But the decomposition is weaker for inference. Suppose three variables all have domain <code>{1, 2}</code>. Every pairwise disequality is individually satisfiable — pick 1 for one variable and 2 for another — so binary propagation detects nothing. A dedicated <code>AllDifferent</code> propagator reasons about the whole group at once: three variables cannot fit into a two-value pool (a <em>Hall set</em> argument), so it reports failure immediately. This is a recurring theme: decomposition preserves <em>solutions</em> but loses <em>pruning strength</em>.</p>
+
+<p>There is also a general-purpose reduction from arbitrary finite constraints to binary ones, the <strong>dual graph</strong> transformation: create one new variable per original constraint, whose domain is the set of tuples that constraint permits, and add a binary constraint between any two new variables that share original variables, requiring them to agree on the shared components. Combined with the <strong>hidden variable</strong> encoding, this means that any CSP can in principle be run through binary machinery. In practice the encoded domains can be huge, so production solvers prefer specialised propagators.</p>
+
+<p><strong>Why factored states matter.</strong> The practical consequence of writing a problem as (X, D, C) is that failure becomes <em>explanatory</em>. When a classical search algorithm reaches a dead end it knows only "this state has no useful successors". When a CSP solver reaches a dead end it knows "the domain of NSW became empty because SA=blue, Q=red and V=green between them ruled out every colour". That explanation can be used in at least four ways: to prune siblings (propagation), to decide which variable to branch on next (heuristics), to jump back more than one level (backjumping), and to record a new constraint that prevents the same conflict recurring elsewhere (clause learning / nogood recording). All of these are impossible without a factored representation.</p>
+
+<p><strong>Inference versus search.</strong> These are the two complementary engines of any CSP solver, and it helps to state their difference sharply.</p>
+
+<ul>
+  <li><strong>Search</strong> makes <em>commitments</em>. It picks an unassigned variable, picks a value from its domain, and recurses. If the commitment leads to a violated constraint, it undoes the choice and tries the next value; if all values fail, it undoes the previous commitment too. Search is <em>complete</em> — given enough time it will find a solution or prove none exists — but it explores a tree whose size is O(d<sup>n</sup>) for n variables with domains of size d.</li>
+  <li><strong>Inference</strong> makes <em>deductions</em>. It examines the constraints and removes values that cannot participate in any solution given what is currently known, without ever selecting a value for a variable. Inference does not grow the search tree at all; it shrinks the branching factor of nodes that have yet to be created.</li>
+</ul>
+
+<p><strong>Propagation</strong> is the repeated, cascading application of local inference until nothing more can be deduced. Each deduction may enable further deductions — removing a value from D(SA) may destroy the last support some value in D(NSW) had — so propagation loops until it reaches a <strong>fixed point</strong>: a state of the domains from which the inference rules derive no further deletions. Because domains are finite and propagation only ever removes values, the process is guaranteed to terminate; it is a monotonically decreasing sequence in a finite lattice.</p>
+
+<p>Consider what happens with <em>no</em> inference at all. Pure <strong>chronological backtracking</strong> assigns variables in some fixed order and checks, after each assignment, only the constraints whose variables are now all assigned. Its characteristic pathology is <em>thrashing</em>: rediscovering the same conflict over and over in different parts of the tree. Suppose the variable order is <code>Q, NSW, V, T, SA, NT, WA</code> and we set <code>Q=red, NSW=green, V=blue</code>. SA is adjacent to all three, so its domain is already empty — but a plain backtracker does not look at SA until it is reached. It will first enumerate all three values of T, and for each of those try all three values of SA, failing each time, before backtracking. Multiply this by every combination of irrelevant variables between the cause and the symptom, and the waste becomes exponential.</p>
+
+<p>Conversely, pure inference almost never finishes the job. Enforcing arc consistency on the Australia map-colouring CSP with three colours deletes <em>nothing</em>: every colour of every region has a supporting different colour in each neighbour. The domains remain full and no solution has been identified. There exist CSPs — those whose constraint graph is a tree, or those in certain tractable classes such as 2-SAT or problems with max-closed constraints — where a single consistency-enforcement pass is enough to decide satisfiability, but these are special cases. The practical conclusion is simply stated: <strong>effective solvers interleave search and inference</strong>, using search to make the commitments inference cannot make, and inference to shrink the consequences of each commitment.</p>
+
+<p><strong>Local consistency and domain reduction.</strong> "Consistency" in the CSP literature is always <em>local</em>: it is a property of a small neighbourhood of the constraint graph that is necessary, but not sufficient, for global solvability. Local consistency properties form a hierarchy; the two most fundamental are node consistency and arc consistency.</p>
+
+<p><strong>Node consistency</strong> concerns a single variable. A variable <code>Xᵢ</code> is node-consistent if every value in <code>Dᵢ</code> satisfies all of <code>Xᵢ</code>'s unary constraints. A CSP is node-consistent if all its variables are. Enforcing it is a single linear sweep: for each unary constraint, delete the values that violate it. If a Tasmanian regulation says Tasmania may not be green, we simply set <code>D(T) = {red, blue}</code> and discard the constraint. Node consistency is so cheap and so routine that most solvers perform it during model construction and never mention it again.</p>
+
+<p><strong>Arc consistency</strong> concerns a directed pair of variables. The arc <code>(Xᵢ, Xⱼ)</code> is arc-consistent if, for <em>every</em> value <code>a ∈ Dᵢ</code>, there exists <em>at least one</em> value <code>b ∈ Dⱼ</code> such that the pair <code>(a, b)</code> satisfies the constraint between them. The value <code>b</code> is called a <strong>support</strong> for <code>a</code>. A value with no support can be deleted without losing any solution, because any solution containing <code>Xᵢ = a</code> would have to assign <em>something</em> to <code>Xⱼ</code>, and nothing works.</p>
+
+<p>Two points about arc consistency catch people out. First, it is <strong>directional</strong>: making <code>(X, Y)</code> consistent says nothing about <code>(Y, X)</code>, so a CSP with m binary constraints has 2m arcs to consider. Second, it is <strong>local</strong>: a fully arc-consistent CSP may still have no solution. The classic counterexample is three variables <code>X, Y, Z</code> with domains <code>{red, green}</code> and mutual disequality constraints. Every arc is consistent — red in X is supported by green in Y, and so on — yet three mutually-adjacent regions cannot be 2-coloured. Detecting this requires a stronger property, <strong>path consistency</strong> (3-consistency), which reasons about triples. The general notion is <strong>k-consistency</strong>: any consistent assignment to k−1 variables can be extended to any k-th variable. Stronger consistency prunes more but costs exponentially more to enforce, which is precisely the trade-off that makes arc consistency the industry default.</p>
+
+<p>Let us make the arc-consistency computation concrete with an arithmetic example. Let <code>D(X) = D(Y) = {1, 2, 3, 4, 5}</code> with the constraint <code>Y = X²</code>.</p>
+
+<ul>
+  <li>Revise arc <code>(X, Y)</code>: X=1 needs Y=1 ✓. X=2 needs Y=4 ✓. X=3 needs Y=9 ✗ — delete 3. X=4 needs Y=16 ✗ — delete 4. X=5 needs Y=25 ✗ — delete 5. Now <code>D(X) = {1, 2}</code>.</li>
+  <li>Revise arc <code>(Y, X)</code>: Y=1 needs X=1 ✓. Y=2 needs X=√2 ✗. Y=3 ✗. Y=4 needs X=2 ✓. Y=5 ✗. Now <code>D(Y) = {1, 4}</code>.</li>
+  <li>Re-revise <code>(X, Y)</code> to be safe: X=1 still supported by Y=1, X=2 still supported by Y=4. Nothing changes. Fixed point reached.</li>
+</ul>
+
+<p>From 25 candidate pairs we are down to 2, with no search and no backtracking. Note that this CSP is now arc-consistent but <em>not solved</em> — there are two solutions, (1,1) and (2,4), and only search can choose between them.</p>
+
+<p><strong>Monotonicity.</strong> Within a single propagation episode, domain reduction is strictly monotonic: values are only ever removed, never added. This is what guarantees termination, and it is also what makes the fixed point unique — enforcing arc consistency by any order of operations yields exactly the same final domains, so AC-3, AC-4, AC-6 and AC-2001 differ in efficiency but never in result. Values come back only when the solver <em>backtracks</em> and undoes the assignment that triggered the deletions. This is why propagation and backtracking must be tightly coordinated, as discussed below.</p>
+
+<p><strong>Cascading deletions.</strong> Because support is defined relative to the current domains, deleting a value from one domain can destroy the support of values elsewhere. Suppose <code>X ≠ Y</code>, <code>Y ≠ Z</code>, <code>D(X) = {red}</code>, <code>D(Y) = {red, green}</code>, <code>D(Z) = {green}</code>. Enforcing arc <code>(Y, X)</code> deletes red from D(Y), leaving <code>D(Y) = {green}</code>. That deletion is not the end: we must now revisit arc <code>(Y, Z)</code>, where green in Y has lost its only support, so D(Y) becomes empty. The cascade is the essential dynamic of propagation, and it is why every arc-consistency algorithm maintains a worklist or queue of arcs to re-examine: when <code>Dⱼ</code> changes, every arc <code>(Xₖ, Xⱼ)</code> pointing into it must be re-queued.</p>
+
+<p><strong>The empty-domain condition.</strong> If propagation empties any domain, we have a proof — not a heuristic hunch, a proof — that the current partial assignment cannot be extended to any solution. The variable in question must receive some value, every candidate value has been shown to be unsupportable, therefore no solution lies below this node. This is the single most valuable product of propagation, because it converts an expensive subtree exploration into an immediate failure. A closely related signal is the opposite: when a domain is reduced to a <em>singleton</em>, the variable's value is effectively forced, and many solvers immediately assign it and propagate again. In Sudoku this is exactly the "naked single" rule, and a solver that propagates <code>AllDifferent</code> over rows, columns and boxes can crack easy puzzles with no search whatsoever.</p>
+
+<p><strong>Interleaving propagation with backtracking search.</strong> The standard architecture is a depth-first recursive backtracking search with a propagation step injected after every assignment. In pseudocode:</p>
+
+<pre><code>function BACKTRACK(assignment, csp):
+    if assignment is complete: return assignment
+    var = SELECT-UNASSIGNED-VARIABLE(csp)          # MRV, degree, ...
+    for value in ORDER-DOMAIN-VALUES(var, csp):    # LCV, ...
+        if value is consistent with assignment:
+            add {var = value} to assignment
+            trail = PROPAGATE(csp, var, value)     # returns record of deletions
+            if no domain is empty:
+                result = BACKTRACK(assignment, csp)
+                if result != failure: return result
+            UNDO(trail)                            # restore every deleted value
+            remove {var = value} from assignment
+    return failure</code></pre>
+
+<p>Three design points deserve emphasis.</p>
+
+<p><em>First, propagate before recursing.</em> The whole value of inference lies in doing it before the subtree is expanded. Assigning <code>WA = red</code> and immediately pushing red out of <code>D(NT)</code> and <code>D(SA)</code> means that every node beneath this one branches on two colours instead of three for those variables. The saving compounds multiplicatively with depth.</p>
+
+<p><em>Second, fail fast and fail loudly.</em> The moment any domain is empty, abandon the branch. Do not continue to assign other variables "just in case"; the proof of failure is already complete. Early detection is the dominant source of speed-up in practice, far more so than the raw number of values pruned, because it avoids expanding doomed subtrees whose size is exponential in the remaining depth.</p>
+
+<p><em>Third, deletions must be undone exactly.</em> Because propagation mutates shared domain data structures, the solver must be able to restore them precisely on backtracking. The standard mechanism is a <strong>trail</strong>: a stack onto which every (variable, value) deletion is pushed, together with a mark recording the stack height at each decision point. On backtracking, the solver pops the trail down to the mark, reinserting each value. This is O(number of deletions) rather than O(size of the problem), which matters when the CSP is large and each decision touches only a few domains. The naïve alternative — copying all domains at every node — is simpler to implement but wastes memory and time proportional to the whole model at every node. Hybrid schemes such as <em>timestamped domains</em> or <em>sparse sets with backtrackable size counters</em> are common in production solvers. Getting this wrong produces a spectacularly confusing class of bug: a value that was deleted on one branch stays deleted on a sibling branch, and the solver silently reports "no solution" for satisfiable problems.</p>
+
+<p><em>Fourth, how much to propagate is a dial, not a constant.</em> At one extreme, <strong>backtracking with simple consistency checking</strong> does no inference at all. A step up, <strong>forward checking</strong> propagates only one level deep: when <code>X</code> is assigned, remove inconsistent values from the domains of unassigned variables directly connected to <code>X</code>, and stop. Stronger still, <strong>maintaining arc consistency (MAC)</strong> runs full arc-consistency propagation to a fixed point after each assignment, so deletions cascade arbitrarily far through the constraint graph. Stronger yet are path consistency, singleton arc consistency and generalised k-consistency, which are rarely worth their cost. The trade-off is uniform: more inference per node means fewer nodes but more work at each one.</p>
+
+<table>
+  <thead>
+    <tr><th>Strategy</th><th>Inference performed per assignment</th><th>Typical cost per node</th><th>Typical nodes explored</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Chronological backtracking</td><td>Check constraints among assigned variables only</td><td>Very low</td><td>Very high; heavy thrashing</td></tr>
+    <tr><td>Forward checking</td><td>One-step pruning of neighbours' domains</td><td>Low</td><td>Substantially reduced</td></tr>
+    <tr><td>MAC (AC to fixed point)</td><td>Full cascading arc-consistency closure</td><td>Moderate to high</td><td>Lowest of the three</td></tr>
+    <tr><td>Higher consistencies</td><td>Path / singleton arc consistency</td><td>Often prohibitive</td><td>Marginally fewer than MAC</td></tr>
+  </tbody>
+</table>
+
+<p>There is no universally correct setting. On loosely constrained problems, cheap inference wins because there is little to prune and the overhead dominates. On tightly constrained problems near the phase transition, strong inference wins because each deduction eliminates vast subtrees. This is precisely why configurable solvers expose the inference level as a parameter and why empirical benchmarking across problem families is the only reliable way to choose.</p>
+
+<p><strong>Heuristics that exploit reduced domains.</strong> Propagation has a second, less obvious payoff beyond pruning: it produces <em>information</em> that ordering heuristics can exploit. The size of a current domain is a measurement of how constrained a variable is <em>right now</em>, and that measurement only exists if domains shrink.</p>
+
+<p><strong>Minimum Remaining Values (MRV)</strong>, also called the most-constrained-variable or fail-first heuristic, selects next the unassigned variable with the smallest current domain. The name "fail-first" captures the logic: if some branch of the tree is doomed, we want to discover that as high up as possible, because a failure detected at depth 3 prunes everything below it while the same failure detected at depth 12 has already cost nine levels of fruitless expansion. Choosing the variable with fewest options maximises the chance of hitting an empty or near-empty domain immediately. A secondary benefit is that branching on a small domain creates few children, so the effective branching factor of the tree falls.</p>
+
+<p>Return to Australia and suppose we have assigned <code>WA = red</code> and <code>Q = green</code>, with forward checking in force. The domains are now:</p>
+
+<table>
+  <thead>
+    <tr><th>Variable</th><th>Current domain</th><th>Size</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>NT</td><td>{blue}</td><td>1</td></tr>
+    <tr><td>SA</td><td>{blue}</td><td>1</td></tr>
+    <tr><td>NSW</td><td>{red, blue}</td><td>2</td></tr>
+    <tr><td>V</td><td>{red, green, blue}</td><td>3</td></tr>
+    <tr><td>T</td><td>{red, green, blue}</td><td>3</td></tr>
+  </tbody>
+</table>
+
+<p>MRV will branch on NT or SA, each of which has exactly one legal value left. That is the right call: those assignments are forced, they generate no branching, and propagating them immediately shrinks NSW and V. A solver that instead picked T — which is unconstrained and therefore maximally "free" — would multiply the tree by three for no information gain whatsoever. Note too that MRV here is effectively performing <em>unit propagation</em>: branching on a singleton domain is not really a choice at all.</p>
+
+<p>MRV frequently produces ties, especially at the root where every domain is still full. The <strong>degree heuristic</strong> (also called most-constraining-variable) breaks ties by choosing the variable with the largest number of constraints connecting it to still-<em>unassigned</em> variables. The rationale is structural: assigning a high-degree variable injects constraint into the largest part of the remaining graph, so it produces the most propagation and the fastest reduction in the problem's connectivity. In the Australian map at the very start of search, all seven domains have size 3, so MRV is silent; the degree heuristic picks SA, which borders five other regions, over T, which borders none. Assigning SA first immediately strips one colour from five neighbours' domains, and in fact after that choice the rest of the map can be coloured with backtrack-free propagation. The degree heuristic is also useful as a standalone tie-break at the root for solvers that cache a static ordering.</p>
+
+<p>Where MRV and degree choose <em>which variable</em>, the <strong>Least Constraining Value (LCV)</strong> heuristic chooses <em>which value first</em>. For the selected variable, LCV tries values in increasing order of how many values they eliminate from the domains of neighbouring unassigned variables — in other words, the value that rules out the fewest options elsewhere is tried first. The intuition is the mirror image of fail-first: variable ordering should fail fast, because every variable must eventually be assigned and we want to detect dead ends early, but value ordering should <em>succeed</em> fast, because we only need one value to work. Leaving neighbours maximum flexibility maximises the probability that the first value tried leads to a solution.</p>
+
+<p>A worked LCV example: suppose <code>WA = red</code> and <code>NT = green</code> are assigned and we must now choose a value for Q, whose current domain is <code>{red, blue}</code>. Q neighbours NT (assigned), SA and NSW.</p>
+
+<ul>
+  <li>Choosing <code>Q = red</code> removes red from <code>D(SA)</code>. But <code>D(SA)</code> is currently <code>{blue}</code> — red is already gone — so the net additional pruning on SA is zero, and it removes red from <code>D(NSW)</code>, leaving two values there.</li>
+  <li>Choosing <code>Q = blue</code> removes blue from <code>D(SA)</code>, which empties it immediately — a guaranteed dead end.</li>
+</ul>
+
+<p>LCV therefore orders red before blue, and in this instance it steers the solver straight past a failure. The counting is cheap but not free: evaluating LCV requires a trial scan over every neighbouring domain for every candidate value, which is O(d · degree · d) work at each node. This is why LCV is often disabled when the goal is to prove unsatisfiability — if there is no solution, every value must be tried anyway, so ordering them carefully is pure overhead. LCV pays off when solutions are plentiful and we want the first one quickly.</p>
+
+<p>The crucial observation tying this section back to the rest of the topic is that <strong>all three heuristics are starved of information without propagation</strong>. In a solver that performs no inference, domains never shrink: every unassigned variable has the same domain it started with, MRV cannot distinguish between them, and LCV's "values eliminated from neighbours" count is based on constraint checks against values that have never been pruned. MRV degenerates into an arbitrary tie-break, and what is left is the static degree heuristic computed once from the constraint graph. Propagation and heuristics are therefore not two independent optimisations that happen to be used together — they are symbiotic. Propagation generates the dynamic signal; the heuristics convert that signal into better decisions; better decisions trigger more propagation. Modern solvers push this further with heuristics such as <em>dom/wdeg</em>, which divides the current domain size by the accumulated weight of constraints that have caused failures, learning from the search's own history which parts of the model are hardest.</p>
+
+<p>The combined effect can be dramatic. On the n-queens problem, plain chronological backtracking becomes impractical well before n = 50, whereas MRV plus forward checking routinely solves instances in the thousands. On Sudoku, constraint propagation with <code>AllDifferent</code> plus MRV solves the overwhelming majority of published puzzles with a handful of backtracks or none at all. The theoretical worst case remains exponential — CSP is NP-complete, and no heuristic changes that — but on structured, real-world instances good ordering plus strong propagation frequently yields near-linear behaviour, because each decision propagates to force a cascade of other decisions and the search simply walks down a nearly deterministic path. That is the payoff that justifies everything in this topic: representation that exposes structure, inference that exploits it, search that commits only where inference cannot decide, and heuristics that read the state of the domains to decide where to commit next.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Directly supported. The topic defines node and arc consistency, support and domain reduction, explains the monotonic cascading fixed-point nature of propagation, and shows how empty domains prove a partial assignment unextendable within backtracking search.</li>
+  <li><strong>MO2</strong> — Partially supported. Forward checking is introduced as one-step propagation and illustrated on the Australia map-colouring CSP with explicit domain tables after assignments, providing the conceptual grounding for a full step-by-step trace covered in later material.</li>
+  <li><strong>MO3</strong> — Foundationally supported. The arc, the notion of support, the revise operation (illustrated on <code>Y = X²</code>), and the need for an arc worklist to handle cascading deletions are all established here as the prerequisites for implementing AC-3; the algorithm itself is specified in a later topic.</li>
+  <li><strong>MO4</strong> — Partially supported. The topic frames inference strength as a tunable dial and tabulates chronological backtracking, forward checking and MAC against per-node cost versus nodes explored, though min-conflicts local search is not treated here.</li>
+  <li><strong>MO5</strong> — Indirectly supported. The discussion of nodes explored versus per-node cost, and the observation that the best inference level depends on problem family and must be settled empirically, motivates the use of complementary benchmark metrics, but no benchmarking methodology or solver results are presented in this topic.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Worked examples used: Australia map colouring (3-colour), &lt;code&gt;Y = X&#178;&lt;/code&gt; arc revision, a three-variable AllDifferent over a two-value domain (Hall set), and a cascading-deletion chain. Tables cover constraint arity, inference strategy trade-offs, and post-forward-checking domains for MRV. Terminology beyond the supplied subtopics (dual graph encoding, k-consistency, trailing vs. copying, dom/wdeg) is standard CSP material included to deepen the explanations; it can be trimmed if the module prefers a tighter scope.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

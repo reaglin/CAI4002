@@ -1,0 +1,253 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model-Based Reflex Agents</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Agent Architectures: Reflex to Learning Agents</a></div>
+  <header>
+    <h1>Model-Based Reflex Agents</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Model-Based Reflex Agents</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>A simple reflex agent is the most economical design in the agent taxonomy: it reads the current percept, matches it against a set of condition–action rules, and fires the first rule that applies. Its entire decision procedure can be summarised as <code>action ← RULE-MATCH(INTERPRET-INPUT(percept), rules)</code>. This works beautifully — but only under a demanding assumption: that the current percept contains everything the agent needs to know in order to act correctly. In formal terms, the environment must be <strong>fully observable</strong> with respect to the agent's task, so that the percept uniquely identifies the relevant world state. The moment that assumption breaks, the reflex design degrades from "elegant" to "broken". The <strong>model-based reflex agent</strong> is the minimal repair: keep the condition–action machinery, but give the agent an <strong>internal state</strong> that summarises the percept history, and the <strong>models</strong> it needs to keep that state honest as the world and the agent itself change.</p>
+
+<p><strong>Why reflex agents fail in partially observable worlds.</strong> A percept is a snapshot — a thin slice of the world, taken through whatever sensors the agent happens to possess, at one instant. It is not the world state. Consider the classic two-square vacuum world, where the agent perceives <code>[location, status]</code>, e.g. <code>[A, Dirty]</code>. Here the percept actually does reveal the agent's location, so a simple reflex agent can succeed. Now remove the location sensor, so the agent only perceives <code>[Dirty]</code> or <code>[Clean]</code>. The agent in square A with a clean square A and the agent in square B with a clean square B produce the <em>identical</em> percept <code>[Clean]</code>, yet they demand different actions (move Right versus move Left). This is the defining pathology of partial observability: <strong>perceptual aliasing</strong> — distinct world states that collapse to the same sensory signature.</p>
+
+<p>Perceptual aliasing has two consequences worth separating. The first is simply <em>choosing the wrong action</em>: with no way to tell A from B, any fixed rule <code>if Clean then Right</code> is correct half the time and wrong the other half. The second is more insidious: <strong>infinite loops</strong>. Because a deterministic simple reflex agent maps percept to action with a fixed function, the same percept always yields the same action. If <code>[Clean] → Right</code> and the agent is already in the rightmost square, it bumps the wall, perceives <code>[Clean]</code> again, and moves Right again — forever. The agent cannot escape because the information needed to break the symmetry (which square am I in? have I already cleaned the other one?) is <em>simply not being sensed</em>. Randomisation (<code>[Clean] → Right or Left with probability ½</code>) can rescue the agent from the loop and is a genuinely useful trick, but it is a blunt instrument: it trades a guaranteed failure for an expected-time-to-success that may be exponentially bad, and it still never lets the agent <em>know</em> anything.</p>
+
+<p>Other everyday examples of the same failure mode:</p>
+<ul>
+  <li><strong>Blind-spot lane change.</strong> A car's side camera sees empty road because the overtaking vehicle is momentarily occluded. The percept "lane clear" is identical whether the lane is truly clear or whether a car is hidden alongside. A pure reflex agent merges into a collision.</li>
+  <li><strong>Brake-light ambiguity.</strong> A single camera frame showing a car's rear lights illuminated cannot distinguish "the car just started braking" from "the car has been braking for two seconds and is nearly stopped". The appropriate deceleration differs sharply between the two.</li>
+  <li><strong>Corridor navigation.</strong> Every junction in an office building looks alike to a laser scanner. Without memory the robot cannot tell junction 3 from junction 7 and will wander.</li>
+  <li><strong>Thermostat without memory.</strong> A naive thermostat sees 20 °C and does nothing — unaware that the temperature has been falling at 2 °C per hour and that the room will be uncomfortably cold in fifteen minutes.</li>
+</ul>
+
+<p>The remedy in every case is the same and is almost obvious once stated: the agent should <strong>remember something about what it has seen and done before</strong>. The information that disambiguates the present is often available in the past.</p>
+
+<p><strong>Internal state: remembering what sensors cannot see.</strong> The internal state is a data structure held inside the agent program that carries information forward across decision cycles. Three properties make it practical rather than merely conceptual.</p>
+
+<ul>
+  <li><strong>It is updated incrementally, not recomputed.</strong> On each cycle the agent takes the previous state and revises it in light of the last action and the new percept. It does not replay the entire percept history from the beginning. This keeps the per-cycle cost constant rather than growing without bound, which matters enormously for an agent that runs for hours or years.</li>
+  <li><strong>It compresses the percept history.</strong> In principle the ideal agent function maps the <em>whole</em> percept sequence to an action; storing that sequence verbatim is infeasible. The internal state is a <strong>sufficient summary</strong>: a compact representation that preserves whatever the decision rules actually need. A robot does not store ten million laser scans; it stores an <code>(x, y, θ)</code> pose estimate. A vacuum does not store its whole movement log; it stores a bit-vector of which rooms are clean.</li>
+  <li><strong>It restores distinguishability.</strong> Two world states that look alike to the sensors become distinguishable in the agent's extended description <code>(percept, internal state)</code>. Returning to the sensorless-location vacuum: if the agent remembers "I started in A and have executed one Right", then percept <code>[Clean]</code> now means "B is clean", which is different from the same percept with state "I am in A". The rule set can key on the pair, and the loop dissolves.</li>
+</ul>
+
+<p>Concrete internal states look like this:</p>
+
+<table>
+  <thead>
+    <tr><th>Agent</th><th>What the sensors cannot directly see</th><th>Internal state representation</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Indoor delivery robot</td><td>Its own position in the building</td><td>Estimated pose <code>(x, y, θ)</code>, or a probability distribution over poses</td></tr>
+    <tr><td>Self-driving car</td><td>Vehicles currently in the blind spot</td><td>A list of tracked objects with last-known position, velocity and time-since-seen</td></tr>
+    <tr><td>Vacuum robot</td><td>Which rooms have already been cleaned</td><td>A coverage map / set of visited cells</td></tr>
+    <tr><td>Occupancy-aware thermostat</td><td>Whether the house is occupied right now (PIR only fires on motion)</td><td>Timestamp of last motion plus an "occupied" flag with a timeout</td></tr>
+    <tr><td>Network intrusion monitor</td><td>Whether this packet is part of an ongoing scan</td><td>Per-source connection counters over a sliding time window</td></tr>
+  </tbody>
+</table>
+
+<p>Note that internal state is not the same thing as a <em>goal</em>. The vacuum's coverage map says "B is already clean"; it does not say "I want the whole house clean". The distinction matters and we return to it below.</p>
+
+<p><strong>The transition model: how the world evolves.</strong> Memory alone is not enough, because the world does not politely freeze while the agent is not looking. A remembered fact decays in value: "there was a cyclist on my left" is actionable one second later and almost meaningless thirty seconds later. To keep stored state useful the agent needs knowledge of <strong>how the world changes</strong>. This knowledge is traditionally split into two parts, and the split is conceptually important.</p>
+
+<ul>
+  <li><strong>"How the world evolves independently of the agent."</strong> These are exogenous dynamics — things that happen whether or not the agent acts. Other cars continue along their trajectories; a braking vehicle decelerates at roughly the rate observed; dirt reappears in rooms over time; the outdoor temperature drops after sunset; a stock price drifts. For example, a car-tracking module can propagate a tracked vehicle forward with a constant-velocity assumption: <code>x' = x + v·Δt</code>. The tracked object persists in the internal state through an occlusion precisely because the model says where it should have gone.</li>
+  <li><strong>"What my actions do."</strong> These are endogenous effects — the consequences of the agent's own behaviour. Executing <code>Right</code> in the vacuum world changes the current square from A to B (unless the agent is already at the right edge, in which case nothing changes — a detail the model must capture or the state estimate drifts). Turning the steering wheel 10° changes heading. Commanding <code>Suck</code> makes the current square clean. Placing a buy order reduces available cash and increases held inventory.</li>
+</ul>
+
+<p>Together these two bodies of knowledge constitute the <strong>transition model</strong> of the environment. Its representation can be chosen to suit the domain:</p>
+
+<ul>
+  <li><strong>Symbolic rules:</strong> <code>IF action = Suck THEN status(current_square) ← Clean</code>. Readable, easy to author, brittle under noise.</li>
+  <li><strong>Equations / difference equations:</strong> dead-reckoning for a wheeled robot, <code>θ' = θ + (v_right − v_left)·Δt / L</code>. Compact and precise, but accumulates drift.</li>
+  <li><strong>Probabilistic transitions:</strong> <code>P(s′ | s, a)</code>, the conditional distribution over next states. This is the formulation used in Markov decision processes and in Bayesian filters such as the Kalman filter and particle filter. It is the honest choice when actions sometimes fail — wheels slip, grippers drop objects, a <code>Right</code> command succeeds 90% of the time.</li>
+  <li><strong>Learned models:</strong> a neural network or regression model trained on logged <code>(state, action, next state)</code> triples, used when the dynamics are too complex to write down.</li>
+</ul>
+
+<p>Why insist on a transition model at all? Because <strong>without it the stored state goes stale and becomes worse than no state</strong>. An agent that remembers "the road ahead was clear" and never ages that belief will drive confidently into a queue of traffic. Stale memory is actively dangerous because it carries the same authority as fresh observation. The transition model is what converts memory from a snapshot archive into a continuously maintained <em>estimate of the present</em>.</p>
+
+<p><strong>The sensor model: interpreting percepts.</strong> The third ingredient answers a different question: given that I received this percept, what does it tell me about the world? The <strong>sensor model</strong> encodes the relationship between underlying world states and the raw observations the hardware delivers — in probabilistic form, <code>P(percept | state)</code>.</p>
+
+<ul>
+  <li><strong>It says what a percept reveals.</strong> A bank of pixels is not a fact about the world until something interprets it. "The region of the image corresponding to the vehicle ahead has become significantly redder and brighter, therefore its brake lights are on, therefore it is decelerating" is a chain of sensor-model reasoning. Likewise "the ultrasonic sensor returned 0.4 m, therefore there is an obstacle roughly 0.4 m in front" — the word "roughly" is doing real work.</li>
+  <li><strong>It says what a percept leaves ambiguous.</strong> This is just as important. A forward-facing camera says nothing about the blind spot; a motion sensor that is silent is consistent with both "room empty" and "occupant sitting still"; a bump sensor fires identically for a wall and a chair leg. A good sensor model makes these limitations explicit so that the agent does not over-interpret silence as evidence of absence.</li>
+  <li><strong>It is the mechanism for reconciling prediction with observation.</strong> The transition model produces a <em>prediction</em> of the current state; the sensor model converts the new percept into <em>evidence</em>; the update step fuses the two. In Bayesian terms this is predict-then-correct: <code>belief⁻ = Σ P(s′|s,a)·belief(s)</code> followed by <code>belief(s′) ∝ P(percept|s′)·belief⁻(s′)</code>. A Kalman filter is exactly this loop with Gaussian assumptions; a particle filter is the same loop with sampled hypotheses. Even a non-probabilistic implementation performs an informal version: "I predicted I'd be at the third doorway; I see a doorway; good, confidence up."</li>
+  <li><strong>It forces honesty about uncertainty.</strong> Because sensors are noisy, partial, biased, and occasionally broken, the resulting internal state is a <strong>best estimate, not ground truth</strong>. Robust designs represent this explicitly — a covariance matrix, a confidence score, a set of candidate hypotheses — and let the decision rules degrade gracefully when confidence is low (e.g. slow down when the obstacle estimate is uncertain rather than steering aggressively on a guess).</li>
+</ul>
+
+<p><strong>The agent program: update state, then match rule.</strong> The model-based reflex agent program is the simple reflex program with a state-maintenance stage bolted on the front. Its canonical form:</p>
+
+<pre><code>function MODEL-BASED-REFLEX-AGENT(percept) returns an action
+    persistent: state,          the agent's current conception of the world
+                transition_model, how the world evolves and what my actions do
+                sensor_model,     how the world is reflected in percepts
+                rules,            a set of condition-action rules
+                action,           the most recent action, initially none
+
+    state  &lt;- UPDATE-STATE(state, action, percept, transition_model, sensor_model)
+    rule   &lt;- RULE-MATCH(state, rules)
+    action &lt;- rule.ACTION
+    return action
+
+function UPDATE-STATE(state, action, percept, transition_model, sensor_model)
+    predicted &lt;- PREDICT(state, action, transition_model)   // step 1
+    state     &lt;- CORRECT(predicted, percept, sensor_model)  // step 2
+    return state</code></pre>
+
+<p>The four steps of each cycle, spelled out:</p>
+<ul>
+  <li><strong>Step 1 — Predict.</strong> Using the <em>previous action</em> and the transition model, project the stored state forward to the current instant. "I commanded Right, so I am probably now in square B." "0.1 s has elapsed, so the tracked car ahead has advanced about 2 m." This step applies both halves of the transition model: the agent's own effects and the world's independent evolution.</li>
+  <li><strong>Step 2 — Correct.</strong> Fold in the new percept through the sensor model, refining or overriding the prediction. "I predicted B, and I see a wall on my right — consistent, confidence up." Or: "I predicted B, but the floor pattern matches A — my Right action must have failed; revise." Disagreement between prediction and percept is information, not an error to be suppressed.</li>
+  <li><strong>Step 3 — Match.</strong> Run the <em>updated internal state</em> (typically together with the current percept) against the condition–action rules and select an action. Note the crucial difference from a simple reflex agent: the rules are conditioned on <code>state</code>, not on <code>percept</code>. That single substitution is what buys the extra power.</li>
+  <li><strong>Step 4 — Record.</strong> Store the chosen action in the persistent variable so that the <em>next</em> cycle's prediction step can account for its effects. Omitting this step is a classic bug: the agent then predicts as though it had been standing still, and its state estimate drifts away from reality in exactly the way the model was meant to prevent.</li>
+</ul>
+
+<p>A worked micro-example — the vacuum with no location sensor, in a two-square world, starting in A with the rule set below:</p>
+
+<table>
+  <thead>
+    <tr><th>Cycle</th><th>Previous action</th><th>Predicted state</th><th>Percept</th><th>Corrected state</th><th>Rule fired → action</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>none</td><td>loc = A, clean = { }</td><td>Dirty</td><td>loc = A, A dirty</td><td>if dirty → Suck</td></tr>
+    <tr><td>2</td><td>Suck</td><td>loc = A, clean = {A}</td><td>Clean</td><td>loc = A, clean = {A}</td><td>if clean and B unknown → Right</td></tr>
+    <tr><td>3</td><td>Right</td><td>loc = B, clean = {A}</td><td>Dirty</td><td>loc = B, B dirty</td><td>if dirty → Suck</td></tr>
+    <tr><td>4</td><td>Suck</td><td>loc = B, clean = {A,B}</td><td>Clean</td><td>loc = B, clean = {A,B}</td><td>if all known clean → NoOp</td></tr>
+  </tbody>
+</table>
+
+<p>The agent terminates cleanly. The identical percept <code>[Clean]</code> at cycles 2 and 4 produced different actions, because the internal state distinguished the two situations. A simple reflex agent, seeing only <code>[Clean]</code> both times, could not have done this.</p>
+
+<p>A second example — adaptive cruise control through an occlusion. At <code>t=0</code> the camera sees a vehicle 40 m ahead at 25 m/s. At <code>t=1</code> a truck momentarily occludes it and the percept contains no vehicle. The prediction step propagates the tracked vehicle to ≈ 40 m using constant velocity; the correction step, guided by a sensor model that says "occlusion produces absence of detection, which is <em>not</em> evidence of absence", leaves the track alive with reduced confidence. The rule <code>if gap &lt; safe_gap then decelerate</code> continues to fire sensibly. A simple reflex agent, seeing "no vehicle detected", would have accelerated.</p>
+
+<p><strong>Strengths, limits, and when to choose this architecture.</strong> The model-based reflex agent occupies a well-defined sweet spot in the design space.</p>
+
+<p><em>Choose it when</em>: the environment is <strong>partially observable</strong> or the sensors are noisy, <em>and yet</em> the correct action is still a direct function of current conditions rather than of some desired future outcome. If you can write down "in situation X, do Y" rules — and you only need memory to work out reliably which situation X you are actually in — this is the right architecture. It is substantially cheaper than planning: there is no search, no lookahead, no goal expansion, just one state update and one rule match per cycle, which makes it realisable in hard real-time loops running at tens or hundreds of hertz.</p>
+
+<p><em>Its principal limit is the absence of goals.</em> The agent has a model of how the world works but no explicit representation of how the world <strong>ought</strong> to be. It cannot reason "if I take this action, I will be closer to a state I desire", and it therefore cannot plan, cannot handle novel objectives without rewriting rules, and cannot trade off competing considerations. A model-based reflex taxi at a junction knows exactly where it is, what the other cars are doing, and what turning left would do — but nothing in its architecture tells it where the passenger wants to go. That requires a <strong>goal-based</strong> agent; ranking partial successes requires a <strong>utility-based</strong> one.</p>
+
+<p><em>Scalability of the rule set</em> is the second limit. Giving the agent more internal state increases the number of distinguishable situations, and the rule table must cover them. Rule sets grow combinatorially, develop overlaps and gaps, and become difficult to test and maintain; conflicting rules require arbitration schemes; and a change to the state representation can ripple through hundreds of conditions. This is a real engineering cost, and it is often the practical trigger for migrating to a goal- or utility-based design where behaviour is <em>derived</em> rather than enumerated.</p>
+
+<p><em>Third, everything rests on model quality.</em> The internal state is only as good as the transition and sensor models that maintain it. A wrong model does not produce visible confusion — it produces <strong>confidently wrong</strong> actions, which is the most dangerous failure mode of all. Dead reckoning with a slightly mis-measured wheel radius yields a robot that is certain it is in the corridor while it is actually in a wall. Mitigations include periodic re-grounding against unambiguous landmarks, explicit confidence tracking with fallback to cautious behaviour, divergence detection (flagging persistent prediction/percept disagreement), and model learning from logged data.</p>
+
+<table>
+  <thead>
+    <tr><th>Dimension</th><th>Simple reflex agent</th><th>Model-based reflex agent</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Input to decision</td><td>Current percept only</td><td>Current percept + internal state summarising percept history</td></tr>
+    <tr><td>Required observability</td><td>Fully observable w.r.t. the task</td><td>Partially observable is acceptable</td></tr>
+    <tr><td>Knowledge required</td><td>Condition–action rules</td><td>Rules + transition model + sensor model</td></tr>
+    <tr><td>Handles perceptual aliasing</td><td>No (wrong actions, infinite loops)</td><td>Yes, to the extent memory disambiguates</td></tr>
+    <tr><td>Represents goals</td><td>No</td><td>No</td></tr>
+    <tr><td>Per-cycle cost</td><td>Very low</td><td>Low (one update + one match)</td></tr>
+    <tr><td>Main failure mode</td><td>Insufficient information</td><td>Incorrect or stale model</td></tr>
+  </tbody>
+</table>
+
+<p>Typical deployments span exactly this profile of "partial observability, reactive decisions":</p>
+<ul>
+  <li><strong>Automatic emergency braking and adaptive cruise control</strong> — maintain tracks of surrounding vehicles through occlusion and sensor dropout; brake according to current estimated gap and closing speed.</li>
+  <li><strong>Occupancy-aware thermostats</strong> — remember the last motion event and model how a house cools, rather than reacting only to the instantaneous sensor reading.</li>
+  <li><strong>Vacuum and lawn-mowing robots</strong> — maintain a coverage map so that already-cleaned regions are not revisited endlessly, and odometry-based pose so that the map stays aligned.</li>
+  <li><strong>Industrial process controllers</strong> —estimate unmeasured internal variables (tank levels, reactor temperature profiles) from a handful of sensors plus a process model, and actuate valves on the resulting estimate.</li>
+  <li><strong>Object-tracking modules in surveillance and sports analytics</strong> — persist identities across frames in which a subject is hidden behind another.</li>
+  <li><strong>Stateful network firewalls and intrusion detectors</strong> — classify a packet using remembered connection state rather than the packet alone.</li>
+</ul>
+
+<p>In short, the model-based reflex agent is the smallest architectural step that makes reactive behaviour viable in the real world. It keeps the speed and simplicity of condition–action rules, but replaces the naive assumption "what I see is what there is" with a maintained, model-driven best estimate of what there <em>actually</em> is. Everything above it in the hierarchy — goal-based, utility-based, and learning agents — builds on this same state-estimation core, and merely changes how the action is chosen once the state is known.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> The topic exercises the core vocabulary directly — percepts and percept sequences appear in the discussion of snapshots and perceptual aliasing, while the agent program, its persistent internal state, and the supporting architecture are laid out explicitly in the <code>MODEL-BASED-REFLEX-AGENT</code> pseudocode and its surrounding explanation.</li>
+  <li><strong>MO2:</strong> This topic does not address the four components of a learning agent; the performance element, critic, learning element, and problem generator are outside its scope, although the closing remarks on model quality and model learning from logged data point toward why a learning element is eventually needed.</li>
+  <li><strong>MO3:</strong> PEAS specification is not constructed here. The topic contributes indirectly by characterising environment properties — particularly partial observability and sensor noise — that a PEAS environment description must capture for tasks such as the vacuum world or a delivery robot.</li>
+  <li><strong>MO4:</strong> The topic supports this outcome strongly, contrasting simple reflex and model-based reflex agents in a dedicated comparison table and identifying the environment property (partial observability) that motivates the latter; it also marks the boundary where goal-based and utility-based architectures become necessary because the model-based reflex agent has no explicit goals.</li>
+  <li><strong>MO5:</strong> The "Strengths, limits, and when to choose this architecture" discussion gives the justification criteria required — per-cycle performance cost, rule-set growth and maintainability, dependence on model quality, and the absence of goal representation — so that the architecture can be argued for or rejected against named alternatives in a given scenario.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Key emphases if this is taught live: (1) perceptual aliasing is the single idea that motivates the whole architecture — the sensorless-location vacuum is the cheapest demonstration; (2) students routinely forget Step 4 (recording the action), so the drift bug is worth demonstrating; (3) stress that transition model and sensor model answer different questions (how does the world change vs. what does an observation mean) and that the update is predict-then-correct; (4) the Kalman/particle filter connection can be mentioned as the probabilistic instantiation without requiring the mathematics. Useful follow-on reading: Russell &amp; Norvig, *Artificial Intelligence: A Modern Approach*, Chapter 2 (agent structures) and Chapter 4.4 (searching with partial observations / belief states).</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>A simple reflex agent chooses an action by matching its current percept against a set of condition-action rules. That works well only when the percept tells the agent everything it needs to know. In most realistic environments it does not: a sensor sees one room but not the next, a camera sees the car ahead but not whether the brake lights were on a second ago, a robot loses track of where it has already cleaned. These are partially observable environments, and a purely reactive agent either thrashes, loops, or acts on dangerously incomplete information.</p>
+<p>The model-based reflex agent fixes this by adding internal state: a stored summary of the percept history that stands in for the parts of the world the sensors cannot currently see. Keeping that state useful requires two pieces of knowledge. The transition model answers "how does the world evolve on its own, and what do my actions do to it?" The sensor model answers "given the state of the world, what percepts should I expect to see?" The agent program then runs a two-step loop: update the internal state using the previous state, the last action, and the new percept, then match a rule against that updated state and act.</p>
+<p>As you watch, keep the architecture ladder in view. Notice exactly where each video draws the line between simple reflex and model-based reflex, listen for the phrase "internal state" or "model of the world," and ask yourself what extra cost the model imposes — more memory, more engineering, more ways to be wrong when the model drifts from reality. That cost is the heart of the final subtopic: knowing when this architecture is the right choice and when a goal-based or utility-based agent is warranted instead.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/fXizBc03D7E?cc_load_policy=1&amp;rel=0" title="Video: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 10:22 · 430,733 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=fXizBc03D7E" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>IBM Technology walks through the five classic agent types in order, with timestamped sections for simple reflex agents (0:50) and model-based reflex agents (2:49) before moving on to goal-based, utility-based, and learning agents. The model-based segment should show why a stored internal state is needed when percepts are incomplete and how that state extends reflex-style rule matching. Real-world application examples are used throughout to ground each architecture.</p>
+<h3>Why this video</h3>
+<p>This is the most directly on-topic video in the set: it devotes a dedicated, timestamped segment to model-based reflex agents and places them exactly where this module does, between simple reflex and goal-based architectures. IBM Technology is a well-produced, technically reliable channel, and the side-by-side ordering makes the simple-versus-model-based distinction easy to internalize.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: AI Agents vs. LLMs: Choosing the Right Tool for AI Tasks</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/I9z-nrk9cw0?cc_load_policy=1&amp;rel=0" title="Video: AI Agents vs. LLMs: Choosing the Right Tool for AI Tasks (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 7:51 · 50,354 views · 8mo ago · captions — <a href="https://www.youtube.com/watch?v=I9z-nrk9cw0" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This IBM Technology video contrasts AI agents with large language models and discusses when each is the appropriate tool for a task. Expect discussion of what an agent adds beyond a single-shot model response — things like state, memory of prior steps, and the ability to act and observe the result. It is framed as a selection and decision guide rather than a taxonomy lecture.</p>
+<h3>Why this video</h3>
+<p>It supports the final subtopic, strengths and limits and when to choose an architecture, by modeling the kind of trade-off reasoning this course asks for. It also connects the classical notion of maintained internal state to the modern agentic systems students are likely to encounter.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: AI AGENTS | Reflex | Model-Based | Goal-Based | Learning | Utility | LLM AGT | MULTI AGT: Explained</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/lmlu93LTJH0?cc_load_policy=1&amp;rel=0" title="Video: AI AGENTS | Reflex | Model-Based | Goal-Based | Learning | Utility | LLM AGT | MULTI AGT: Explained (Pay4WatchTime-The Creators Forum)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Pay4WatchTime-The Creators Forum</strong> · 5:52 · 305 views · 7mo ago · captions — <a href="https://www.youtube.com/watch?v=lmlu93LTJH0" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A compact five-minute tour of agent types that begins with the simple reflex agent and moves through model-based, goal-based, utility-based, and learning agents, then extends to LLM-based and multi-agent setups. The channel describes the approach as explaining each type in the simplest possible way using real-world examples. Its short runtime makes it suitable as a quick review pass rather than a first exposure.</p>
+<h3>Why this video</h3>
+<p>It gives you a second, differently worded explanation of the same reflex-to-model-based progression, which is useful for checking whether you have actually grasped the distinction or merely memorized one presenter's phrasing. The brisk format works well as a pre-exam refresher across the whole architecture ladder.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos reinforce the vocabulary of percepts, agent programs, and agent architecture (MO1) and give you two independent passes over the full architecture ladder, which is what MO4 requires: being able to say which environment property each architecture addresses, and specifically that model-based reflex agents exist to handle partial observability. The IBM taxonomy video also previews goal-based, utility-based, and learning agents, supporting the broader module outcome on learning-agent components (MO2). The AI agents versus LLMs video models the comparative, trade-off-driven reasoning behind MO5, where you must justify choosing one architecture and explain why you rejected the alternatives. The videos do not build PEAS specifications (MO3); you will practice that in the course readings and assignments, using the environment properties these videos highlight as your starting point.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

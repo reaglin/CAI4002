@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Local Search: Hill Climbing and Simulated Annealing — Module Topics</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:880px;margin:0 auto;padding:32px 24px;color:#222;line-height:1.55}
+h1{font-size:1.6rem;border-bottom:2px solid #dcdcdc;padding-bottom:8px}
+h2{font-size:1.2rem;margin-top:28px;color:#1a3c6e}
+.summary{color:#555;font-style:italic;margin:4px 0 10px}
+ul{margin:6px 0 6px 4px}
+li{margin:5px 0}
+.el-body{color:#555}
+.empty{color:#595959}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Local Search: Hill Climbing and Simulated Annealing</a></div>
+<h1>Local Search: Hill Climbing and Simulated Annealing — Module Topics</h1>
+<h2>Foundations of Local Search</h2>
+<div class="summary">Introduces local search as optimization over complete states, where only the final configuration matters and the path to it is irrelevant. Contrasts this approach with systematic path-finding search in terms of memory use, completeness, and suitability for very large or infinite state spaces.</div>
+<ul>
+<li><strong>What Local Search Is</strong> <span class="el-body">— Local search is an optimization-style approach that operates on complete candidate states rather than partial paths. It moves from one full configuration to a neighbouring one, trying to improve a quality measure.</span></li>
+<li><strong>When the Path Does Not Matter</strong> <span class="el-body">— Local search is appropriate when only the final configuration is a solution, not the sequence of moves that produced it. This is the defining distinction from classical path-finding search.</span></li>
+<li><strong>The State-Space Landscape</strong> <span class="el-body">— Local search is often visualised as navigating a landscape where location represents a state and elevation represents the objective function value. The algorithm tries to find the highest peak or lowest valley.</span></li>
+<li><strong>Memory and Efficiency Advantages</strong> <span class="el-body">— Because local search retains only the current state and its immediate neighbours, memory use is typically constant. This makes it practical where systematic search would exhaust available resources.</span></li>
+<li><strong>Completeness and Optimality Trade-offs</strong> <span class="el-body">— The efficiency of local search comes at a cost: it offers no guarantee of finding a solution or of finding the best one. Understanding these limitations is essential when choosing the method.</span></li>
+</ul>
+<h2>State Spaces, Objective Functions, and Landscapes</h2>
+<div class="summary">Explains how problems are framed for local search using complete-state formulations, neighbor/move operators, and objective or heuristic cost functions. Uses the state-space landscape metaphor of peaks, valleys, ridges, shoulders, and plateaus to visualize search behavior.</div>
+<ul>
+<li><strong>Complete-State Formulation</strong> <span class="el-body">— Local search abandons the idea of building a solution step by step from an initial state. Instead, every state in the search space is already a complete candidate solution that can be evaluated and improved.</span></li>
+<li><strong>Neighbors and Move Operators</strong> <span class="el-body">— A move operator defines which states are reachable in one step from the current state, generating its neighborhood. The choice of operator determines the shape and connectivity of the search space.</span></li>
+<li><strong>Objective and Heuristic Cost Functions</strong> <span class="el-body">— Local search needs a numeric evaluation of state quality to decide which neighbor to move to. This is expressed either as an objective function to maximize or a cost/heuristic function to minimize.</span></li>
+<li><strong>The State-Space Landscape Metaphor</strong> <span class="el-body">— Visualizing the search space as a landscape makes local search behavior intuitive. The horizontal dimensions represent states, and elevation represents the value of the objective function.</span></li>
+<li><strong>Landscape Features: Peaks, Valleys, Ridges, Shoulders, and Plateaus</strong> <span class="el-body">— Specific landscape shapes explain why local search succeeds or fails. Recognizing these features motivates the variants and escape strategies used in practice.</span></li>
+<li><strong>Framing a Problem for Local Search</strong> <span class="el-body">— Turning a real problem into a local search instance requires four design decisions. Each choice directly affects how smooth and navigable the resulting landscape is.</span></li>
+</ul>
+<h2>Hill Climbing and Its Variants</h2>
+<div class="summary">Describes the basic greedy hill-climbing algorithm and its loop of moving to the best neighboring state. Covers steepest-ascent, first-choice, stochastic, and random-restart hill climbing, comparing their trade-offs in efficiency and solution quality.</div>
+<ul>
+<li><strong>Local Search and Complete-State Formulation</strong> <span class="el-body">— Hill climbing belongs to the family of local search algorithms, which operate on a single complete candidate solution rather than building a path from an initial state. This makes them suited to optimization problems where the goal state itself matters, not how you reached it.</span></li>
+<li><strong>The Basic Hill-Climbing Loop</strong> <span class="el-body">— Hill climbing is a greedy loop that repeatedly moves to a neighbouring state with a better objective value. It terminates when no neighbour is an improvement over the current state.</span></li>
+<li><strong>Steepest-Ascent Hill Climbing</strong> <span class="el-body">— Steepest-ascent is the standard form of hill climbing, in which all neighbours are examined and the single best one is selected. It makes the locally optimal choice at every step.</span></li>
+<li><strong>First-Choice Hill Climbing</strong> <span class="el-body">— First-choice hill climbing generates successors at random and accepts the first one that is better than the current state. It avoids the cost of evaluating the entire neighbourhood.</span></li>
+<li><strong>Stochastic Hill Climbing</strong> <span class="el-body">— Stochastic hill climbing chooses at random among the uphill moves available, often weighting the choice by how steep each move is. It trades some greediness for broader exploration.</span></li>
+<li><strong>Random-Restart Hill Climbing</strong> <span class="el-body">— Random-restart hill climbing runs the basic algorithm repeatedly from randomly generated starting states and keeps the best result found. It directly attacks the problem of getting trapped in a poor local optimum.</span></li>
+<li><strong>Comparing the Variants</strong> <span class="el-body">— The variants differ mainly in how much of the neighbourhood they inspect and how much randomness they inject. Choosing among them is a trade-off between cost per step, solution quality, and robustness.</span></li>
+</ul>
+<h2>Local Maxima, Plateaus, and Ridges</h2>
+<div class="summary">Examines the characteristic failure modes of greedy local search, including getting trapped on local maxima, wandering on plateaus and shoulders, and zig-zagging along ridges. Reviews mitigation strategies such as sideways moves, restarts, and tabu or memory-based techniques.</div>
+<ul>
+<li><strong>The Local Search Landscape</strong> <span class="el-body">— Local search can be pictured as a journey across a state-space landscape where elevation represents objective value. The shape of this landscape determines whether greedy ascent succeeds or stalls.</span></li>
+<li><strong>Local Maxima</strong> <span class="el-body">— A local maximum is a peak that is higher than every neighbouring state but lower than the global maximum. Greedy hill climbing halts there because no neighbour offers an improvement.</span></li>
+<li><strong>Plateaus and Shoulders</strong> <span class="el-body">— A plateau is a flat region of the landscape where many neighbouring states share the same objective value. The search has no gradient to follow and can wander aimlessly.</span></li>
+<li><strong>Ridges and Zig-Zagging</strong> <span class="el-body">— A ridge is a narrow, sloping sequence of local maxima that ascends toward a peak but is difficult to traverse with axis-aligned moves. The result is slow, oscillating progress.</span></li>
+<li><strong>Sideways Moves and Bounded Persistence</strong> <span class="el-body">— Allowing moves to neighbours of equal value lets the search cross shoulders instead of stopping at the first flat spot. A limit on consecutive sideways moves prevents infinite looping.</span></li>
+<li><strong>Random Restarts and Stochastic Variants</strong> <span class="el-body">— Restarting the search from fresh random initial states is a simple and powerful remedy for local optima. Injecting randomness into move selection serves a similar purpose.</span></li>
+<li><strong>Tabu Search and Memory-Based Escape</strong> <span class="el-body">— Tabu search augments local search with a short-term memory of recently visited states or moves, which are temporarily forbidden. This forces the search out of basins of attraction it would otherwise revisit.</span></li>
+</ul>
+<h2>Simulated Annealing and Cooling Schedules</h2>
+<div class="summary">Presents simulated annealing as a stochastic local search that occasionally accepts worsening moves with a temperature-dependent probability. Details the Metropolis acceptance criterion, the role of the cooling schedule, and conditions under which the method converges to a global optimum.</div>
+<ul>
+<li><strong>Motivation: Escaping Local Optima</strong> <span class="el-body">— Simulated annealing was designed to overcome the central weakness of hill climbing, which halts at the first local maximum, plateau, or ridge it encounters.</span></li>
+<li><strong>The Simulated Annealing Algorithm</strong> <span class="el-body">— Simulated annealing repeatedly picks one random neighbour of the current state rather than evaluating the full neighbourhood, then decides probabilistically whether to move there.</span></li>
+<li><strong>The Metropolis Acceptance Criterion</strong> <span class="el-body">— The probability of accepting a worsening move is e^(-|ΔE|/T), the Metropolis criterion borrowed from statistical physics.</span></li>
+<li><strong>The Cooling Schedule</strong> <span class="el-body">— The cooling schedule is the function mapping iteration number to temperature, and it governs the trade-off between exploration and exploitation.</span></li>
+<li><strong>Convergence Guarantees</strong> <span class="el-body">— Simulated annealing has a theoretical guarantee of finding the global optimum, but only under conditions that are impractical to satisfy.</span></li>
+<li><strong>Practical Use and Comparison</strong> <span class="el-body">— Simulated annealing is widely applied to large combinatorial optimisation problems where the path to the solution is irrelevant and only the final state matters.</span></li>
+</ul>
+<h2>Applying Local Search to Large-Scale Problems</h2>
+<div class="summary">Applies hill climbing and simulated annealing to practical problems such as n-queens, scheduling, VLSI layout, and route optimization. Discusses algorithm selection, parameter tuning, and evaluation of solution quality against computational cost.</div>
+<ul>
+<li><strong>When Local Search Is the Right Tool</strong> <span class="el-body">— Local search suits problems where only the final configuration matters and the path taken to reach it is irrelevant. Large-scale combinatorial problems often make systematic search infeasible, leaving optimization over complete states as the practical option.</span></li>
+<li><strong>N-Queens as a Benchmark Problem</strong> <span class="el-body">— The n-queens problem is the standard demonstration of local search on a complete-state formulation. Each state places one queen per column, and the objective is to minimise the number of attacking pairs.</span></li>
+<li><strong>Scheduling, Layout, and Routing Applications</strong> <span class="el-body">— Local search is widely deployed on industrial optimization problems where state spaces are astronomically large. Scheduling, VLSI layout, and vehicle routing are canonical examples.</span></li>
+<li><strong>Choosing Between Hill Climbing and Simulated Annealing</strong> <span class="el-body">— Algorithm selection depends on the ruggedness of the objective landscape and the computational budget available. Hill climbing is fast but brittle; simulated annealing trades time for robustness.</span></li>
+<li><strong>Tuning the Cooling Schedule and Parameters</strong> <span class="el-body">— Simulated annealing&#39;s performance is dominated by its cooling schedule and move-generation design. Poor parameter choices can make it behave like random walk or like plain hill climbing.</span></li>
+<li><strong>Evaluating Solution Quality Against Computational Cost</strong> <span class="el-body">— Local search offers no guarantee of optimality, so evaluation must balance achieved objective value against the time and iterations consumed. Empirical benchmarking replaces theoretical completeness guarantees.</span></li>
+</ul>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

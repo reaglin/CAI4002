@@ -1,0 +1,244 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Turing Test and Measuring Machine Intelligence</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ History and Foundations of Artificial Intelligence</a></div>
+  <header>
+    <h1>The Turing Test and Measuring Machine Intelligence</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>The Turing Test and Measuring Machine Intelligence</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>In October 1950, the British mathematician Alan Turing published a paper in the philosophy journal <em>Mind</em> titled "Computing Machinery and Intelligence." Its opening sentence proposed to consider the question, "Can machines think?" — and its second paragraph promptly abandoned that question as unanswerable. What Turing offered instead became the single most influential proposal in the history of machine intelligence evaluation: a concrete, repeatable, operational test that sidesteps metaphysics entirely. More than seven decades later, the "Turing Test" remains the cultural shorthand for machine intelligence, even as researchers have largely moved past it as a working scientific instrument. Understanding why Turing proposed it, exactly how the procedure works, what capabilities it implicitly demands, how it has been adapted and attacked, and what has replaced it in practice is foundational to any serious study of artificial intelligence.</p>
+
+<p><strong>Turing's Question: Can Machines Think?</strong></p>
+
+<p>Turing's reason for replacing the question was linguistic and methodological rather than evasive. He observed that if one tries to answer "Can machines think?" by examining the ordinary meanings of the words "machine" and "think," one ends up conducting a survey of popular usage — a Gallup poll, as he put it — rather than a scientific investigation. The terms are <em>ill-defined</em>. "Thinking" might mean conscious deliberation, might mean symbol manipulation, might mean the having of inner experience, might mean the capacity to solve problems. Each definition invites endless dispute, and no experiment can settle a dispute whose terms have not been fixed. Turing judged the question "too meaningless to deserve discussion" in its raw form.</p>
+
+<p>His solution was to <em>operationalise</em>: to replace an abstract concept with a concrete procedure whose outcome anyone can observe and agree upon. This is a standard move in the sciences. Physicists do not debate the essence of "heat"; they define temperature by the reading on a calibrated instrument. Psychologists do not debate the essence of "intelligence" in the abstract; they define IQ by performance on a standardised battery. Turing's instrument was a conversation, and his reading was whether an interrogator could tell machine from human.</p>
+
+<p>This substitution carries a profound philosophical consequence: it moves the question from <em>internal mental states</em> to <em>external behaviour</em>. Turing was explicit that we cannot inspect another person's consciousness either. The only evidence any of us has that other people think is that they behave as though they do — a position philosophers call the "other minds" problem. If we grant thought to other humans on behavioural evidence alone, Turing argued, consistency demands we extend the same courtesy to a machine that produces equally convincing behaviour. To refuse would be mere chauvinism about the substrate. This behaviourist commitment is simultaneously the test's greatest strength (it is empirically tractable) and the target of its most persistent criticism (it may measure the wrong thing entirely).</p>
+
+<p>Chronology matters here. Turing's paper appeared in <strong>1950</strong>. The Dartmouth Summer Research Project on Artificial Intelligence — the workshop organised by John McCarthy, Marvin Minsky, Nathaniel Rochester and Claude Shannon that coined the very phrase "artificial intelligence" — did not convene until the <strong>summer of 1956</strong>. Turing therefore framed the field's central evaluative question six years before the field had a name, and four years before his own death in 1954. He was writing without the vocabulary of "AI," without digital computers of any appreciable power, and without a research community. The Manchester Mark 1, among the most advanced machines he had access to, had a working store of a few hundred words.</p>
+
+<p>Turing also made a famous quantitative prediction. He wrote that in about fifty years' time — that is, by roughly the year <strong>2000</strong> — it would be possible to programme computers with a storage capacity of around 10<sup>9</sup> bits so well that an average interrogator would have no more than a <strong>70 per cent chance of making the right identification after five minutes of questioning</strong>. Expressed the other way round, the machine would fool the interrogator roughly <strong>30 per cent of the time</strong> in short exchanges. It is important to read this carefully: Turing did <em>not</em> say machines would pass the test by 2000, and he did not nominate 30 per cent as a passing threshold. He was estimating the state of the art at a particular future date for a specifically <em>short</em>, five-minute interrogation. Much later confusion — including the 2014 "Eugene Goostman" episode discussed below — arises from treating this offhand forecast as an official pass mark.</p>
+
+<p>Turing devoted much of the paper to anticipating and rebutting objections: the theological objection (thinking requires a soul), the "heads in the sand" objection (the consequences would be too dreadful), the mathematical objection from Gödel's incompleteness results, the argument from consciousness, arguments from various disabilities ("a machine can never enjoy strawberries and cream"), Lady Lovelace's objection (machines can only do what we tell them), and the argument from informality of behaviour. His systematic treatment of these objections is arguably as important as the test itself, because it established the shape of the philosophical debate for the next seventy years.</p>
+
+<p><strong>How the Imitation Game Works</strong></p>
+
+<p>Turing introduced the procedure by analogy with a Victorian parlour amusement. In the original party game, an interrogator (C) communicates in writing with two people in another room, a man (A) and a woman (B), and must determine which is which. The man's objective is to cause the interrogator to make the wrong identification; the woman's is to help the interrogator get it right. Turing then asked: "What will happen when a machine takes the part of A in this game? Will the interrogator decide wrongly as often when the game is played like this as he does when the game is played between a man and a woman?"</p>
+
+<p>The standard modern reading simplifies this: an interrogator communicates with two hidden participants, one human and one machine, and attempts to identify which is which. The machine passes if the interrogator cannot do better than chance. Scholars still debate whether the gender-imitation framing was essential to Turing's argument or merely a pedagogical on-ramp, but the operational core is stable.</p>
+
+<p>Several design features of the procedure deserve close attention, because each exists for a reason:</p>
+
+<ul>
+<li><strong>Communication is mediated by text.</strong> Turing specified a teleprinter (teletype) link between rooms — today we would say a screen and keyboard, or a chat window. The point is to strip away every channel that could betray the machine's identity on irrelevant grounds. A synthetic voice, a metal chassis, or an unblinking face would give the game away instantly without telling us anything about whether the system can <em>reason</em>. Turing wanted "to draw a fairly sharp line between the physical and the intellectual capacities of a man," and the teletype draws that line. The machine is not required to look human or sound human; it is required to <em>converse</em> humanly.</li>
+
+<li><strong>The questioning is entirely unrestricted.</strong> This is the feature that gives the test its force. The interrogator may ask about anything at all: arithmetic, chess, the weather, poetry, childhood memories, moral dilemmas, jokes, the plot of a novel, or what the respondent had for breakfast. Turing supplied sample exchanges, including an interrogator asking for a sonnet on the subject of the Forth Bridge, then cross-examining the respondent on whether "a winter's day" would do as well as "a summer's day" in a line of Shakespeare. Because the domain is open, no finite lookup table of canned responses can suffice; the system must handle genuine novelty. Compare this with a domain-restricted test, such as answering questions about train timetables, which a narrow system can ace without any general competence.</li>
+
+<li><strong>The machine is permitted — indeed expected — to deceive.</strong> Turing explicitly noted that a machine asked to add 34,957 and 70,764 might pause for about thirty seconds before answering, and might even answer <em>wrongly</em>. A machine that replied instantaneously and correctly to every arithmetic question would be identified as a machine in seconds, precisely because it is <em>too</em> good. The machine must therefore simulate human slowness, human error, human hesitation, human ignorance of obscure facts, and human emotional colouring. This requirement is a double-edged sword: it is a realistic acknowledgement that the test measures <em>human-likeness</em>, and it is the basis for the common criticism that the test rewards theatrical pretence rather than capability.</li>
+
+<li><strong>Judgement is statistical, not anecdotal.</strong> A single conversation with a single interrogator proves nothing. An interrogator may be credulous, distracted, unimaginative, or simply unlucky in the questions they chose. Turing's own formulation is explicitly probabilistic — a "70 per cent chance of making the right identification" — which presupposes many trials with many interrogators. A scientifically meaningful administration of the test requires a sample of judges, a sample of human foils, controlled conversation lengths, and reported confidence intervals. Any claim that a system "passed the Turing Test" on the basis of a handful of five-minute chats is methodologically empty.</li>
+
+<li><strong>The test is about behaviour, not mechanism.</strong> Turing's criterion is <em>indistinguishability of output</em>. It says nothing whatever about how the output is produced — whether by neural networks, symbolic rules, enormous lookup tables, or a homunculus with a filing cabinet. This deliberate agnosticism is what makes the test a <em>black-box</em> evaluation. It is also precisely what Searle would later attack: if the mechanism is irrelevant, then a mechanism that plainly has no understanding could nonetheless pass.</li>
+</ul>
+
+<p>A worked illustration helps show how demanding unrestricted questioning is. Consider an interrogator who opens with: <em>"I'm going to describe a situation and then ask you something about it. A man walks into a restaurant, orders a steak, and leaves a large tip. Why might the waiter have been surprised?"</em> To answer well, a system must know the restaurant script, know that tips are customary and proportionate, infer that "large" is relative to expectation, and generate a plausible reason — perhaps the service was poor, perhaps the diner was unusually generous, perhaps the bill was small. It must then handle the follow-up: <em>"And if the man had instead left nothing, and the waiter smiled anyway, what would you conclude?"</em> This chain requires world knowledge, pragmatic inference, and the tracking of discourse context — none of which can be faked by keyword matching.</p>
+
+<p><strong>Capabilities Implied by Passing the Test</strong></p>
+
+<p>One of the most useful things about the Turing Test is not as an evaluation instrument but as a <em>research agenda</em>. If you ask what a system would actually need in order to sustain open-ended conversation with a determined interrogator, you recover almost the entire map of artificial intelligence as a discipline. Russell and Norvig famously make exactly this point: the test implies four core competencies, and its extended form implies two more.</p>
+
+<table>
+<thead>
+<tr><th>Capability</th><th>Why the test demands it</th><th>Illustrative failure if absent</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Natural language processing</strong></td><td>The entire exchange is conducted in natural language; the system must parse ambiguous, elliptical, idiomatic and ungrammatical input and produce fluent, contextually appropriate output.</td><td>Asked "You don't think much of my idea, do you?", a system without pragmatic competence answers the literal question rather than recognising a challenge requiring tact.</td></tr>
+<tr><td><strong>Knowledge representation</strong></td><td>The system must store what it already knows about the world and what it has just been told in the current conversation, in a form that supports retrieval and inference.</td><td>The interrogator says "my sister Anna is a vet" and four turns later asks "what does Anna do?" — a system with no structured memory of the dialogue cannot answer.</td></tr>
+<tr><td><strong>Automated reasoning</strong></td><td>Novel questions require conclusions to be <em>derived</em>, not looked up; the system must chain facts together, handle hypotheticals, and resolve inconsistencies.</td><td>"If all the shops shut at six and it's now half past six, can I buy milk?" requires combining two premises the system has never seen together.</td></tr>
+<tr><td><strong>Machine learning</strong></td><td>No designer can enumerate in advance every topic an interrogator might raise; the system must adapt to new situations, acquire new facts mid-conversation, and generalise patterns.</td><td>The interrogator invents a game with made-up rules and asks the system to play; a purely static system has no mechanism for acquiring the rules.</td></tr>
+<tr><td><strong>Computer vision</strong> <em>(total Turing test only)</em></td><td>If the interrogator can pass physical objects to the respondent, the system must perceive and identify them.</td><td>"What am I holding up?" is unanswerable without perception.</td></tr>
+<tr><td><strong>Robotics</strong> <em>(total Turing test only)</em></td><td>Physical manipulation and movement are required to act on objects in the shared environment.</td><td>"Please pass me the smaller of the two cups" requires both perception and dextrous action.</td></tr>
+</tbody>
+</table>
+
+<p>The <strong>total Turing test</strong> (sometimes called the embodied Turing test) was proposed by Stevan Harnad as a strengthening of the original. It removes the teletype screen, allowing the interrogator full audiovisual and physical interaction with the respondent. Harnad's motivation was the <em>symbol grounding problem</em>: a text-only system manipulates symbols whose meanings are defined only by other symbols, like looking up a Chinese word in a Chinese–Chinese dictionary. Grounding those symbols in sensorimotor experience — knowing what "red" looks like, what "heavy" feels like — arguably requires a body. Whether embodiment is genuinely necessary for understanding remains contested, but the total test makes the issue concrete.</p>
+
+<p>It is worth noting how prescient this capability decomposition proved. Natural language processing, knowledge representation, automated reasoning, machine learning, computer vision and robotics are, with the addition of planning and multi-agent systems, essentially the chapter structure of modern AI textbooks. Turing's thought experiment generated the discipline's syllabus.</p>
+
+<p><strong>Variations and Practical Implementations</strong></p>
+
+<p>Because the unrestricted test is expensive, slow and hard to standardise, a family of variants has emerged — some attempting faithful implementation, others deliberately changing what is measured.</p>
+
+<p>The <strong>Loebner Prize</strong> was the longest-running attempt at actual implementation. Funded by the inventor and activist Hugh Loebner and inaugurated in <strong>1991</strong>, it ran annual competitions in which judges conducted text conversations with hidden humans and programs. Loebner offered a tiered set of awards: a bronze medal and cash prize each year to the <em>most human-like</em> entrant (a relative, not absolute, criterion); a silver medal for a program that passed a text-only test; and a gold medal, never awarded, for a program passing an audiovisual test. The contest ran until 2019 and attracted sustained criticism from mainstream researchers — Marvin Minsky notoriously offered a prize to anyone who could stop the competition — on the grounds that it incentivised conversational trickery over scientific progress. Entrants such as <em>Mitsuku</em> (Steve Worswick) and <em>A.L.I.C.E.</em> (Richard Wallace) won repeatedly using large hand-authored pattern-matching rule bases rather than any general reasoning architecture. The competition nevertheless provided a valuable public record of just how far hand-crafted chatbots could get, and how reliably a well-chosen question could expose them.</p>
+
+<p>The <strong>reverse Turing test</strong> inverts the roles: a <em>machine</em> administers a test to determine whether its interlocutor is human. This is not merely a curiosity; it is deployed billions of times a day. <strong>CAPTCHA</strong> — "Completely Automated Public Turing test to tell Computers and Humans Apart," a term coined at Carnegie Mellon in 2000 — presents distorted text, image-selection grids, or behavioural challenges that humans pass easily and programs historically failed. The arms race between CAPTCHA designers and automated solvers is effectively a continuous, industrial-scale, adversarial Turing test, and the progressive defeat of each CAPTCHA generation by machine vision is a meaningful (if unflattering) measure of AI progress. reCAPTCHA's later versions abandoned puzzles almost entirely in favour of behavioural telemetry — mouse trajectories, timing, browsing history — precisely because machines had become better than humans at the visual tasks.</p>
+
+<p>The <strong>Winograd Schema Challenge</strong>, proposed by Hector Levesque and colleagues in 2011 and named for Terry Winograd, replaces open conversation with a tightly controlled probe of commonsense reasoning. Each item is a sentence pair containing an ambiguous pronoun whose resolution flips when a single word is changed:</p>
+
+<pre><code>The trophy would not fit in the suitcase because it was too big.
+  Q: What was too big?   A: the trophy
+
+The trophy would not fit in the suitcase because it was too small.
+  Q: What was too small?  A: the suitcase</code></pre>
+
+<p>The elegance is that statistical word-association gives no purchase — "trophy" and "suitcase" are equally available — so the system must reason about physical containment. The format is also <em>cheat-resistant</em> in ways the Turing Test is not: answers are objectively scorable, no deception is involved, no human foils are needed, and the judge's credulity is irrelevant. Levesque explicitly presented it as a Turing Test alternative free of the original's "seduction by trickery." Large language models eventually achieved high scores on WSC-style benchmarks, prompting the construction of harder successors such as WinoGrande, and fuelling the debate over whether such scores reflect reasoning or the absorption of vast textual regularities.</p>
+
+<p>The <strong>Lovelace Test</strong>, proposed by Bringsjord, Bello and Ferrucci in 2001 and revised as "Lovelace 2.0" by Mark Riedl in 2014, takes aim at creativity. It draws on Ada Lovelace's nineteenth-century objection that the Analytical Engine "has no pretensions to <em>originate</em> anything." Under the test, a machine passes if it produces an artefact — a story, a theorem, a design — such that its designers <strong>cannot explain how it was produced</strong> by appeal to the system's architecture, knowledge base and inputs. The inexplicability requirement is the crux: mere surprising output is not enough if the designer can reconstruct the generative path. Riedl's 2.0 variant reframes it as meeting creative constraints supplied by a human evaluator with escalating difficulty. The Lovelace framing is interesting partly because it points in the opposite direction from modern explainability research: here, inability to explain is evidence of intelligence rather than a defect.</p>
+
+<p>The <strong>"Eugene Goostman"</strong> episode of <strong>2014</strong> is the most instructive cautionary tale in this area. At an event at the University of Reading marking the sixtieth anniversary of Turing's death, organisers announced that a chatbot had "passed the Turing Test" by convincing 33 per cent of judges in five-minute conversations. The claim collapsed under scrutiny on several grounds:</p>
+
+<ul>
+<li>The program adopted the persona of a <strong>13-year-old Ukrainian boy</strong> with limited English. This supplies a blanket excuse for non-sequiturs, factual ignorance, grammatical oddity and evasiveness — the judge's expectations are lowered before the conversation begins. The deception is in the framing, not the dialogue.</li>
+<li>Conversations lasted only <strong>five minutes</strong>, far too short for sustained cross-examination of the kind Turing's sonnet example illustrates.</li>
+<li>The 33 per cent figure was presented as a threshold, but Turing never set one; he offered a prediction about a specific short-duration scenario, not a pass mark.</li>
+<li>The judging pool and protocol were not published in a form allowing independent replication or statistical evaluation.</li>
+<li>Transcripts showed heavy use of deflection, topic changes and canned humour — the classic chatbot repertoire traceable back to Joseph Weizenbaum's <em>ELIZA</em> of 1966, which achieved startling effects with simple reflective rephrasing.</li>
+</ul>
+
+<p>The episode illustrates the structural weakness of the test as an operational benchmark: because the criterion is fooling a human, every incentive points toward exploiting human psychology rather than building intelligence. It also demonstrates the <strong>ELIZA effect</strong> — the robust human tendency to attribute understanding and intention to systems that display even shallow conversational competence. Weizenbaum was genuinely disturbed that his secretary asked him to leave the room so she could talk to ELIZA privately.</p>
+
+<p><strong>The Chinese Room and Other Criticisms</strong></p>
+
+<p>The most celebrated philosophical attack on the Turing Test is John Searle's <strong>Chinese Room</strong> argument, published in "Minds, Brains, and Programs" in <em>Behavioral and Brain Sciences</em> in 1980. The thought experiment runs as follows. Searle, who understands no Chinese, is locked in a room with a vast collection of rule books written in English. Chinese characters are passed in through a slot. Searle looks up the incoming strings in his rule books, which tell him — purely on the basis of the shapes of the symbols — which strings of Chinese characters to write out and pass back. The rule books are so good that his outputs are indistinguishable from those of a native Chinese speaker. From outside, the room appears to understand Chinese perfectly. The room would pass a Turing Test conducted in Chinese.</p>
+
+<p>Searle's point: he does not understand a word of Chinese. He is manipulating symbols according to their <em>form</em> (syntax) with no access to their <em>meaning</em> (semantics). And yet he is doing exactly what a digital computer running a program does. Therefore, Searle concludes, <strong>running the right program is not sufficient for understanding</strong>. Formal symbol manipulation cannot by itself produce semantics, intentionality, or consciousness. His slogan: "syntax is not sufficient for semantics." The target is what he called <em>strong AI</em> — the claim that a suitably programmed computer <em>literally has</em> a mind — as opposed to <em>weak AI</em>, the uncontroversial claim that computers are useful tools for studying and simulating mind.</p>
+
+<p>Searle anticipated and named several replies, of which the most discussed is the <strong>systems reply</strong>. It concedes that the <em>person</em> in the room does not understand Chinese, but denies that this is the relevant unit of analysis. The person is merely the central processing unit; understanding should be attributed to the <em>whole system</em> — person plus rule books plus scratch paper plus input and output slots — just as understanding is attributed to a whole brain rather than to any single neuron, none of which understands anything. Searle's counter is to have the person <em>internalise</em> the entire system: memorise every rule book, do all the symbol manipulation in their head, and work outdoors with no room at all. There is now no system beyond the person, and the person still understands nothing. Critics respond that memorising a system of that size is not a coherent intuition pump — a rule base adequate for fluent Chinese conversation would be astronomically large, and our intuitions about what a person with such a system "in their head" would or would not understand are worthless.</p>
+
+<p>Other named replies include the <strong>robot reply</strong> (put the room inside a robot with cameras and limbs so its symbols are causally grounded in the world — essentially Harnad's symbol-grounding move and the rationale for the total Turing test), the <strong>brain simulator reply</strong> (make the program simulate the firing of every neuron in a Chinese speaker's brain — if that still does not understand, then neither does the original brain), and the <strong>other minds reply</strong> (we have no better evidence of understanding in other people than behaviour, so Searle's standard would make all minds unknowable). Searle rejects each, typically by re-running the internalisation move or by insisting that only brains, in virtue of their specific "causal powers," produce intentionality. Whether that last claim is an argument or a stipulation is itself much debated. The literature remains unresolved after four decades, which is part of the point: the Chinese Room demonstrates that the Turing Test cannot settle questions about <em>inner</em> states, because the test was designed from the outset to ignore them.</p>
+
+<p>Beyond Searle, several practical and methodological criticisms carry at least as much weight for working researchers:</p>
+
+<ul>
+<li><strong>The test rewards deception.</strong> Because the winning condition is "fool a human," the optimal strategy is often evasion, humour, topic-shifting, feigned typing errors and manufactured personality — not knowledge or reasoning. Entrants to the Loebner Prize, and Eugene Goostman above all, optimised for exactly this. A benchmark whose optimal strategy is misdirection is a poor guide to engineering effort.</li>
+<li><strong>It requires imitating human weaknesses.</strong> A system must deliberately be slow at arithmetic, forget things, misspell words, and plead ignorance of facts it knows perfectly well. Engineering effort spent simulating incompetence produces no useful capability. As Russell and Norvig observe, aeronautical engineering texts do not define their goal as making machines that fly "so exactly like pigeons that they can fool other pigeons."</li>
+<li><strong>It is anthropocentric.</strong> The test treats <em>human-like</em> behaviour as the only admissible evidence of intelligence. But a system could be vastly superhuman in planning, prediction and inference while being instantly identifiable as non-human — AlphaFold's protein structure prediction is not remotely human-like, yet represents extraordinary capability. Conversely, a thoroughly mediocre system with a convincing persona may pass. The test confuses a particular <em>style</em> of intelligence with intelligence as such.</li>
+<li><strong>It is not constructive.</strong> A pass or fail provides a single bit of information. It tells a researcher nothing about which component failed, how to improve it, or how one system compares with another on any specific dimension. Benchmarks that produce graded, decomposable scores are far more useful for directing research.</li>
+<li><strong>It is unreliable and unstandardised.</strong> Results depend heavily on judge expertise, motivation, conversation length and topic selection. A naive judge chatting about the weather may be fooled by a 1966 program; an expert probing with Winograd schemas, nested counterfactuals and novel word games may unmask a state-of-the-art system in three turns. Without controlled protocols and large samples, "passing" is not a reproducible claim.</li>
+<li><strong>Judgement is confounded by the ELIZA effect.</strong> Humans are powerfully disposed to read intention and understanding into fluent text. This systematic bias in the measuring instrument inflates results in a direction that has nothing to do with the system under test.</li>
+</ul>
+
+<p>A fair defence should also be registered. Turing's proposal was never intended as an engineering benchmark or a league table; it was a philosophical argument against substrate chauvinism and a demonstration that the question could be made tractable at all. As a <em>sufficient</em> condition — if a machine really could sustain unrestricted, hours-long, adversarial conversation with expert interrogators across arbitrary subject matter, we would have excellent reason to credit it with something worth calling intelligence — the test retains considerable force. Its failures are failures of the cheap, short, poorly controlled implementations that have borne its name.</p>
+
+<p><strong>Alternative Approaches to Evaluating Machine Intelligence</strong></p>
+
+<p>Modern AI evaluation has largely replaced the single pass/fail conversational test with a portfolio of quantitative, reproducible measures. Each approach trades generality for rigour in a different way.</p>
+
+<p><strong>Standardised benchmarks</strong> are the workhorse. A benchmark fixes a dataset, a task definition, a metric and a train/test split, so that any two systems can be compared directly and any result can be reproduced. ImageNet (object recognition, 1.2 million labelled images across 1,000 categories) transformed computer vision: the 2012 AlexNet result, which cut the top-5 error rate from roughly 26 per cent to about 16 per cent, is conventionally treated as the start of the deep learning era precisely because the benchmark made the improvement unarguable. In language, successive suites raised the bar — SQuAD for reading comprehension, GLUE and then SuperGLUE for a battery of understanding tasks, MMLU for multi-subject knowledge, HumanEval for code generation, GSM8K for grade-school mathematical reasoning. The great virtue is comparability; the characteristic vices are <em>overfitting to the benchmark</em> (optimising for a leaderboard rather than the underlying ability), <em>data contamination</em> (test items leaking into training corpora scraped from the web), and <em>construct drift</em> (a benchmark intended to measure reasoning turning out to be solvable by surface statistics). The usual response is benchmark succession: when GLUE was saturated, SuperGLUE replaced it; when WSC was saturated, WinoGrande and then adversarial variants replaced it.</p>
+
+<p><strong>Game-playing milestones</strong> offer vivid, publicly legible demonstrations in bounded domains with unambiguous win conditions. The canonical sequence is instructive:</p>
+
+<table>
+<thead>
+<tr><th>Year</th><th>System</th><th>Achievement</th><th>What the domain demanded</th></tr>
+</thead>
+<tbody>
+<tr><td>1997</td><td>Deep Blue (IBM)</td><td>Defeated world chess champion Garry Kasparov 3½–2½</td><td>Perfect information, deterministic; solved largely by massive search (circa 200 million positions per second) plus hand-tuned evaluation</td></tr>
+<tr><td>2011</td><td>Watson (IBM)</td><td>Won <em>Jeopardy!</em> against champions Ken Jennings and Brad Rutter</td><td>Open-domain natural language questions with puns and wordplay; evidence aggregation and confidence estimation under time pressure</td></tr>
+<tr><td>2016</td><td>AlphaGo (DeepMind)</td><td>Defeated Lee Sedol 4–1 at Go</td><td>Search space far too large for brute force; required learned position evaluation (deep networks) plus Monte Carlo tree search</td></tr>
+<tr><td>2017</td><td>AlphaZero</td><td>Mastered Go, chess and shogi from self-play with no human game data</td><td>Demonstrated that domain knowledge could be dispensed with entirely in favour of self-generated experience</td></tr>
+<tr><td>2017–2019</td><td>Libratus, Pluribus (CMU)</td><td>Beat professionals at heads-up and then six-player no-limit Texas hold'em</td><td>Imperfect information, bluffing, opponent modelling, multi-player dynamics — qualitatively harder than chess or Go in game-theoretic terms</td></tr>
+</tbody>
+</table>
+
+<p>Such milestones are compelling but narrow. Deep Blue could not play draughts, explain its moves, or recognise that a chessboard had been knocked over. Each result demonstrates capability within a closed world with fixed rules, perfect or near-perfect state information, and a clear objective function — conditions rarely met outside games. Their real value is as proof that a particular <em>class</em> of technique scales, as when AlphaGo established that learned evaluation functions could tame search spaces previously thought intractable.</p>
+
+<p><strong>General intelligence measures</strong> attempt to escape this narrowness by scoring <em>transfer</em>: performance on tasks the system has never encountered, using as little experience as possible. François Chollet's <em>Abstraction and Reasoning Corpus</em> (ARC) presents grid-based puzzles, each requiring a novel abstract rule to be inferred from two or three examples, with core priors (objectness, counting, symmetry, causality) deliberately kept close to those humans possess innately. Chollet's accompanying definition — intelligence as <em>skill-acquisition efficiency</em> relative to priors and experience — directly challenges benchmark culture: a system that scores well only after training on millions of similar items has demonstrated skill, not intelligence. Humans solve the large majority of ARC tasks; systems lagged far behind for years, which is exactly what makes the benchmark informative. Related efforts include few-shot and zero-shot evaluation protocols, compositional generalisation tests such as SCAN and COGS, open-ended environments like NetHack and Minecraft-based platforms, and formal proposals such as Legg and Hutter's universal intelligence measure, which averages an agent's expected reward across all computable environments weighted by their simplicity.</p>
+
+<p><strong>Human-baseline comparisons</strong> anchor abstract scores in something interpretable by reporting system accuracy alongside the accuracy of humans — ideally domain experts — on the identical task and data. Saying a diagnostic model achieves 0.94 AUROC means little in isolation; saying it matches the sensitivity of a panel of board-certified dermatologists on the same held-out images means a great deal. The approach is standard in medical imaging evaluation, in reading-comprehension benchmarks (SQuAD reported an explicit human score that systems later exceeded), and in speech recognition (parity claims on the Switchboard corpus were framed against measured human transcription error rates). Two cautions apply. First, "human performance" is not a single number: it varies with expertise, fatigue, incentive and whether the human is permitted the same context the model receives. Second, exceeding a human baseline on a curated test set does not imply exceeding it in deployment, where distribution shift, adversarial inputs and rare cases dominate — a lesson learned repeatedly when laboratory-validated clinical models degraded in live hospital use.</p>
+
+<p><strong>Multidimensional evaluation</strong> is the most significant recent shift: accuracy is now treated as one axis among several, because a system can be accurate and still unfit for use. Contemporary evaluation frameworks — holistic evaluation suites, model cards, datasheets for datasets, regulatory conformity assessments — routinely report:</p>
+
+<ul>
+<li><strong>Robustness:</strong> does performance hold under distribution shift, noise, adversarial perturbation, or paraphrase? A classifier that collapses when an image is rotated five degrees, or when a question is reworded, has learned something brittle.</li>
+<li><strong>Fairness:</strong> is performance equitable across demographic subgroups? Disaggregated reporting exposed, for example, large accuracy gaps by skin tone and gender in commercial face analysis systems that showed strong aggregate scores.</li>
+<li><strong>Explainability:</strong> can the system's output be accounted for in terms a human decision-maker can inspect and contest? This matters acutely where regulation grants a right to explanation, and it sits in direct tension with the Lovelace Test's prizing of inexplicability.</li>
+<li><strong>Safety and alignment:</strong> does the system refuse harmful requests, resist manipulation such as prompt injection and jailbreaks, avoid confident fabrication, and behave acceptably on edge cases? Red-teaming — adversarial probing by human or automated attackers — has become a standard evaluation stage.</li>
+<li><strong>Efficiency and cost:</strong> inference latency, energy consumption and carbon footprint are increasingly reported, since a result achievable only with enormous compute has limited practical reach.</li>
+<li><strong>Calibration and uncertainty:</strong> does the system's stated confidence track its actual reliability? A model that is wrong while 99 per cent confident is more dangerous than one that is wrong while signalling doubt.</li>
+</ul>
+
+<p>Seen against this landscape, the Turing Test looks less like a discarded idea than like a first draft that specialised into a whole discipline. Turing wanted a question that experiment could settle, and the modern apparatus of datasets, baselines, ablations, human comparisons and multidimensional reporting is the mature form of that ambition. What has been abandoned is not operationalisation but the assumption that a single binary verdict delivered by a possibly credulous human judge could ever carry the weight placed upon it. The modern successor to "Can machines think?" is not one question but many: how accurately, how robustly, for whom, at what cost, with what recourse when it fails.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+<li><strong>MO1:</strong> The topic supports this outcome indirectly. Turing's deliberate move from internal mental states to external behaviour maps onto the "acting" side of the thinking/acting axis, and his use of an average human interrogator as the yardstick exemplifies the human-performance (rather than rationality) standard — the "acting humanly" quadrant of the four classic definitions. The criticisms of anthropocentrism and of imitating human flaws introduce the contrast with rationality-based definitions.</li>
+<li><strong>MO2:</strong> This is the topic's central concern. The detailed treatment of the imitation game — its parlour-game origin, the teletype channel, unrestricted questioning, permitted deception, statistical judgement across many trials, and behaviour-not-mechanism criterion — directly equips students to explain the procedure as an operational test of machine intelligence.</li>
+<li><strong>MO3:</strong> The topic contributes to this outcome by contrasting the open-domain demands of the full Turing Test with the bounded competence demonstrated by game-playing milestones and narrow benchmarks, and by introducing Searle's weak/strong AI distinction and transfer-based measures such as ARC, all of which supply criteria for classifying systems as narrow or general.</li>
+<li><strong>MO4:</strong> This topic does not address the AI winters of 1974–1980 and 1987–1993 or their technical and economic causes; that material is covered elsewhere in the module. The only indirect connection is that over-optimistic predictions about conversational machines contributed to the expectation gap that later funding retrenchments reflected.</li>
+<li><strong>MO5:</strong> The topic supports this outcome through its final section on multidimensional evaluation, where fairness, explainability, robustness and safety are presented as evaluation axes alongside accuracy, and through the discussion of deception, the ELIZA effect and disaggregated human-baseline reporting — all of which inform the assessment of ethical risk in a deployed system.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Factual anchors used: Turing&#39;s paper appeared in &lt;em&gt;Mind&lt;/em&gt;, October 1950; Dartmouth workshop, summer 1956; Turing&#39;s prediction concerned a 70% correct-identification rate after five minutes of questioning with about 10^9 bits of storage. Loebner Prize ran 1991–2019. CAPTCHA coined at Carnegie Mellon, 2000. Winograd Schema Challenge proposed by Levesque et al., 2011. Lovelace Test, Bringsjord/Bello/Ferrucci 2001; Lovelace 2.0, Riedl 2014. Searle&#39;s &quot;Minds, Brains, and Programs,&quot; 1980. Eugene Goostman event, University of Reading, June 2014. ELIZA, Weizenbaum 1966. Harnad&#39;s total Turing test and the symbol grounding problem, 1990–91.
+
+One formatting caveat: an earlier paragraph in the body uses a superscript tag for &quot;10^9&quot; that falls outside the permitted tag list; if strict tag validation is applied, that instance should be rewritten as &quot;10 to the power 9&quot; or &quot;one billion bits&quot;.
+
+Possible extension points for a tutor: run a live comparison exercise in which students design three questions intended to unmask a modern chatbot (recommended question types — novel Winograd-style schemas, nested counterfactuals, invented-rule games), then discuss whether failure or success tells us anything about understanding. Also useful: a debate exercise pairing the systems reply against Searle&#39;s internalisation counter-move.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

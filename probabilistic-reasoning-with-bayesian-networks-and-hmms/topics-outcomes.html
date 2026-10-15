@@ -1,0 +1,222 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Probabilistic Reasoning with Bayesian Networks and HMMs — Topics &amp; Learning Outcomes</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:880px;margin:0 auto;padding:32px 24px;color:#222;line-height:1.55}
+h1{font-size:1.6rem;border-bottom:2px solid #dcdcdc;padding-bottom:8px}
+h2{font-size:1.25rem;margin-top:30px;color:#1a3c6e;border-bottom:1px solid #ececec;padding-bottom:4px}
+h3{font-size:1.05rem;margin-top:22px;color:#1a3c6e}
+.toc{border:1px solid #c9d4e3;background:#f5f8fc;border-radius:8px;padding:10px 16px;margin:14px 0 6px;display:flex;gap:18px;flex-wrap:wrap}
+.toc a{color:#1a3c6e;font-weight:600;text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.summary{color:#555;font-style:italic;margin:4px 0 10px}
+ul{margin:6px 0 6px 4px}
+li{margin:5px 0}
+.el-body{color:#555}
+.prefix{color:#555;font-style:italic;margin:6px 0 14px}
+.mo{border:1px solid #e2e2e2;border-radius:6px;padding:12px 16px;margin:12px 0}
+.mo .code{font-size:.8rem;color:#595959;text-transform:uppercase;letter-spacing:.04em}
+.mo .statement{font-weight:600;margin:4px 0 8px}
+.meta span{display:inline-block;background:#eef2f8;color:#1a3c6e;border-radius:3px;padding:1px 8px;margin:0 6px 0 0;font-size:.85rem}
+.meta .map{background:#eaf6ec;color:#137333}
+.co{margin:7px 0}
+.co .code{font-weight:600;color:#1a3c6e;margin-right:6px}
+.empty{color:#595959}
+.tm-jump{margin:2px 0 8px;font-size:.92rem}
+.tm-jump a{color:#1a3c6e;font-weight:600}
+ul.tm li{margin:7px 0}
+ul.tm a{color:#1a3c6e;font-weight:600}
+.tm-kind{display:inline-block;background:#eef2f8;color:#1a3c6e;border-radius:3px;padding:1px 8px;margin-left:6px;font-size:.82rem}
+.tm-also{color:#555;font-size:.88rem}
+.tm-back{margin:0 0 4px;font-size:.88rem}
+.tm-back a{color:#1a3c6e}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Probabilistic Reasoning with Bayesian Networks and HMMs</a></div>
+<h1>Probabilistic Reasoning with Bayesian Networks and HMMs — Topics &amp; Learning Outcomes</h1>
+<div class="toc"><a href="#topics">📋 Module Topics</a><a href="#outcomes">🎯 Student Learning Outcomes</a><a href="#materials">📚 Materials for Each Topic</a></div>
+
+<h2 id="topics">Module Topics</h2>
+<h3 id="topic-1">1. Probability Foundations for Reasoning Under Uncertainty</h3>
+<div class="summary">Reviews random variables, joint and marginal distributions, the axioms of probability, and how agents represent degrees of belief when knowledge is incomplete. Establishes the vocabulary and notation used throughout the module.</div>
+<p class="tm-jump"><a href="#materials-topic-1">Materials for topic 1 (3)</a></p>
+<ul>
+<li><strong>Why Agents Must Reason Under Uncertainty</strong> <span class="el-body">— Real-world agents rarely have complete, correct, or deterministic knowledge of their environment, so purely logical inference is often inadequate. Probability provides a principled calculus for acting sensibly despite partial information.</span></li>
+<li><strong>Random Variables and Domains</strong> <span class="el-body">— A random variable is a named quantity whose value is uncertain, and its domain is the set of values it can take. Random variables form the basic vocabulary for every probabilistic model in this module.</span></li>
+<li><strong>The Axioms of Probability</strong> <span class="el-body">— All probabilistic reasoning rests on a small set of axioms, usually attributed to Kolmogorov, from which every other rule can be derived. Adhering to them guarantees internal consistency of the agent&#39;s beliefs.</span></li>
+<li><strong>Joint Probability Distributions</strong> <span class="el-body">— A probability distribution gives the probabilities of all values of a variable, and a joint distribution does so for every combination of values of several variables. The full joint distribution over all variables is a complete specification of the model.</span></li>
+<li><strong>Marginalization and Conditioning</strong> <span class="el-body">— Marginalization and conditioning are the two core operations used to extract answers from a joint distribution. Together they underpin every inference algorithm presented later in the module.</span></li>
+<li><strong>Prior, Posterior, and Conditional Beliefs</strong> <span class="el-body">— Beliefs are described as prior before evidence is observed and posterior afterwards. Tracking this distinction carefully is essential for the correct use of Bayes&#39; rule.</span></li>
+</ul>
+<h3 id="topic-2">2. Conditional Independence and Bayes&#39; Rule</h3>
+<div class="summary">Explains conditional probability, the product and chain rules, and how Bayes&#39; rule inverts likelihoods into posterior beliefs. Shows how conditional independence assumptions dramatically reduce the size of joint distributions and enable tractable reasoning.</div>
+<p class="tm-jump"><a href="#materials-topic-2">Materials for topic 2 (3)</a></p>
+<ul>
+<li><strong>Conditional Probability and the Product Rule</strong> <span class="el-body">— Conditional probability expresses the degree of belief in an event given that some evidence is already known. It is the basic building block for all probabilistic reasoning under uncertainty.</span></li>
+<li><strong>The Chain Rule and the Full Joint Distribution</strong> <span class="el-body">— The full joint distribution assigns a probability to every combination of values of all variables, and any query can in principle be answered from it. The chain rule decomposes that joint into a product of conditional probabilities.</span></li>
+<li><strong>Bayes&#39; Rule: Inverting the Direction of Inference</strong> <span class="el-body">— Bayes&#39; rule follows directly from the two forms of the product rule and lets us convert a causal (diagnostic) likelihood into a posterior belief. It is the engine behind nearly all probabilistic inference systems.</span></li>
+<li><strong>Independence and Conditional Independence</strong> <span class="el-body">— Two variables are independent when knowing one tells you nothing about the other; they are conditionally independent when this holds once some third variable is known. Conditional independence is the weaker and far more useful assumption in practice.</span></li>
+<li><strong>Why Conditional Independence Makes Inference Tractable</strong> <span class="el-body">— Exploiting conditional independence lets a large joint distribution be factored into small local pieces, shrinking the number of parameters from exponential to roughly linear in the number of variables.</span></li>
+</ul>
+<h3 id="topic-3">3. Constructing Bayesian Networks</h3>
+<div class="summary">Covers the representation of joint distributions as directed acyclic graphs with conditional probability tables, and the semantics linking graph structure to independence. Includes practical guidance on choosing variables, ordering nodes, and reading independence via d-separation.</div>
+<p class="tm-jump"><a href="#materials-topic-3">Materials for topic 3 (3)</a></p>
+<ul>
+<li><strong>From Joint Distributions to Graphs</strong> <span class="el-body">— A full joint probability distribution answers every query but grows exponentially with the number of variables. Bayesian networks exploit conditional independence to represent the same joint distribution compactly.</span></li>
+<li><strong>Conditional Probability Tables</strong> <span class="el-body">— Each node&#39;s CPT quantifies the strength of the influence from its parents. The table size depends on the number and arity of the parents, not the size of the whole network.</span></li>
+<li><strong>Network Semantics and Local Independence</strong> <span class="el-body">— The graph structure encodes assumptions about independence that must hold for the factorization to be correct. Two equivalent semantic readings describe what a network means.</span></li>
+<li><strong>Constructing a Network in Practice</strong> <span class="el-body">— Building a network is an iterative modelling process of selecting variables and then adding links in a sensible order. The construction procedure follows directly from the chain rule.</span></li>
+<li><strong>Reading Independence with D-Separation</strong> <span class="el-body">— D-separation is a graphical criterion for deciding whether two sets of variables are conditionally independent given a third set of evidence. It lets you answer independence questions by inspecting the graph alone.</span></li>
+</ul>
+<h3 id="topic-4">4. Inference in Bayesian Networks</h3>
+<div class="summary">Presents exact inference methods such as enumeration and variable elimination, along with approximate techniques including rejection sampling, likelihood weighting, and Markov chain Monte Carlo. Discusses computational complexity and when to prefer each approach.</div>
+<p class="tm-jump"><a href="#materials-topic-4">Materials for topic 4 (3)</a></p>
+<ul>
+<li><strong>The Inference Problem in Bayesian Networks</strong> <span class="el-body">— Inference means computing the posterior distribution of query variables given observed evidence. A Bayesian network encodes the full joint distribution compactly, and every inference query is ultimately a question about that joint.</span></li>
+<li><strong>Exact Inference by Enumeration</strong> <span class="el-body">— Inference by enumeration computes P(X | e) directly by expanding the joint distribution as the product of conditional probability tables and summing over hidden variables. It is the most straightforward exact algorithm and a useful conceptual baseline.</span></li>
+<li><strong>Variable Elimination</strong> <span class="el-body">— Variable elimination improves on enumeration by computing intermediate results once, storing them as factors, and reusing them. It eliminates hidden variables one at a time, right to left, using pointwise product and summing out operations.</span></li>
+<li><strong>Approximate Inference by Direct Sampling and Rejection Sampling</strong> <span class="el-body">— When exact inference is intractable, Monte Carlo methods estimate posteriors from randomly generated samples. Direct sampling draws full assignments from the network&#39;s prior; rejection sampling extends this to conditional queries.</span></li>
+<li><strong>Likelihood Weighting</strong> <span class="el-body">— Likelihood weighting avoids rejection by fixing evidence variables to their observed values and weighting each sample by how likely that evidence was. Every sample is retained, making it far more efficient than rejection sampling.</span></li>
+<li><strong>Markov Chain Monte Carlo and Gibbs Sampling</strong> <span class="el-body">— MCMC methods generate samples by making random local changes to a complete assignment rather than building each sample from scratch. Gibbs sampling is the standard MCMC algorithm for Bayesian networks.</span></li>
+<li><strong>Choosing an Inference Method</strong> <span class="el-body">— The right algorithm depends on network topology, size, the amount and position of evidence, and the accuracy required. Exact methods are preferred whenever they are feasible; otherwise sampling trades precision for tractability.</span></li>
+</ul>
+<h3 id="topic-5">5. Temporal Models and Hidden Markov Models</h3>
+<div class="summary">Extends probabilistic models over time using the Markov assumption, transition models, and sensor models. Introduces HMM structure and its applications to sequential data such as speech, tracking, and localization.</div>
+<p class="tm-jump"><a href="#materials-topic-5">Materials for topic 5 (3)</a></p>
+<ul>
+<li><strong>Reasoning About Processes That Change Over Time</strong> <span class="el-body">— Static Bayesian networks model a single snapshot of the world, but many problems involve a system whose state evolves and is observed repeatedly. Temporal probabilistic models represent this evolution as a sequence of state and evidence variables indexed by time.</span></li>
+<li><strong>The Markov Assumption</strong> <span class="el-body">— Conditioning each state on its entire history would require impossibly large probability tables. The Markov assumption limits dependence to a bounded window of recent states, making the model compact and tractable.</span></li>
+<li><strong>Transition and Sensor Models</strong> <span class="el-body">— A temporal model is fully specified by two conditional distributions plus a prior over the initial state. The transition model describes state dynamics and the sensor model describes how observations are generated.</span></li>
+<li><strong>Structure of a Hidden Markov Model</strong> <span class="el-body">— A Hidden Markov Model is the special case of a temporal model in which the state is described by a single discrete random variable. This restriction allows the transition and sensor models to be written as matrices.</span></li>
+<li><strong>Core Inference Tasks on Temporal Models</strong> <span class="el-body">— Once a temporal model is defined, several distinct inference queries can be posed depending on which time point is of interest relative to the available evidence.</span></li>
+<li><strong>Applications to Sequential Data</strong> <span class="el-body">— HMMs are widely used wherever a hidden process generates a stream of noisy observations. Their efficiency and simple structure make them a standard tool for sequence modelling.</span></li>
+</ul>
+<h3 id="topic-6">6. HMM Inference Tasks and Algorithms</h3>
+<div class="summary">Details filtering, prediction, smoothing, and most-likely-sequence explanation using the forward, forward-backward, and Viterbi algorithms. Works through examples that demonstrate belief updating as new evidence arrives.</div>
+<p class="tm-jump"><a href="#materials-topic-6">Materials for topic 6 (3)</a></p>
+<ul>
+<li><strong>The HMM Framework and Inference Setup</strong> <span class="el-body">— A Hidden Markov Model describes a hidden state sequence that evolves over time and emits observable evidence at each step. Inference tasks all ask different questions about those hidden states given the evidence stream.</span></li>
+<li><strong>Filtering: Maintaining the Current Belief State</strong> <span class="el-body">— Filtering computes P(Xt | e1:t), the posterior distribution over the current state given all evidence observed so far. It is the task an agent performs continuously while acting in real time.</span></li>
+<li><strong>Prediction: Projecting Belief into the Future</strong> <span class="el-body">— Prediction computes P(Xt+k | e1:t) for some k greater than zero — the distribution over a future state given evidence only up to the present. It is filtering without any new evidence to incorporate.</span></li>
+<li><strong>Smoothing and the Forward–Backward Algorithm</strong> <span class="el-body">— Smoothing computes P(Xk | e1:t) for some past time k less than t, using later evidence to improve estimates of earlier states. It yields more accurate answers than filtering did at the time.</span></li>
+<li><strong>Most Likely Explanation and the Viterbi Algorithm</strong> <span class="el-body">— The most likely explanation task finds the single sequence of states x1:t that maximizes P(x1:t | e1:t). This is not the same as stringing together the individually most likely state at each step.</span></li>
+<li><strong>Comparing the Tasks and Choosing an Algorithm</strong> <span class="el-body">— The four inference tasks differ in which time index they ask about and which evidence they condition on. Recognizing the question determines which algorithm to run.</span></li>
+</ul>
+<h3 id="topic-7">7. Decision Theory and Utility</h3>
+<div class="summary">Introduces utility functions, expected utility, and the rationality axioms that justify maximizing expected utility. Explores attitudes toward risk and the elicitation of preferences for multi-attribute outcomes.</div>
+<p class="tm-jump"><a href="#materials-topic-7">Materials for topic 7 (3)</a></p>
+<ul>
+<li><strong>From Probability to Decisions</strong> <span class="el-body">— Probabilistic inference tells an agent what is likely to be true, but not what to do. Decision theory combines beliefs about states of the world with preferences over outcomes to prescribe rational action.</span></li>
+<li><strong>Utility Functions and Preferences</strong> <span class="el-body">— A utility function U(s) maps each outcome or state to a real number representing how desirable it is to the agent. Utilities encode preferences, not objective value, and are specific to the agent.</span></li>
+<li><strong>Maximum Expected Utility (MEU)</strong> <span class="el-body">— The expected utility of an action is the probability-weighted average of the utilities of its possible outcomes. The MEU principle says a rational agent selects the action maximising this quantity.</span></li>
+<li><strong>The Axioms of Rational Preference</strong> <span class="el-body">— Von Neumann and Morgenstern showed that if an agent&#39;s preferences obey a small set of intuitive axioms, those preferences can be represented by a utility function that the agent maximises in expectation.</span></li>
+<li><strong>Risk Attitudes and the Utility of Money</strong> <span class="el-body">— The shape of the utility curve over a quantity such as money determines whether an agent is risk-averse, risk-neutral, or risk-seeking. This explains behaviour that looks irrational if only expected monetary value is considered.</span></li>
+<li><strong>Eliciting Utilities and Multi-Attribute Outcomes</strong> <span class="el-body">— Real outcomes usually differ along several dimensions — cost, time, safety, comfort — so utilities must be assessed over multiple attributes. Elicitation procedures turn an expert&#39;s or user&#39;s preferences into numbers.</span></li>
+<li><strong>The Value of Information</strong> <span class="el-body">— Because decisions depend on beliefs, acquiring evidence before acting can change the chosen action and raise expected utility. Information value theory quantifies how much a new observation is worth.</span></li>
+</ul>
+<h3 id="topic-8">8. Rational Decision Making Under Uncertainty</h3>
+<div class="summary">Combines probabilistic models with utilities using decision networks (influence diagrams) and the value of information. Applies these tools to case studies where agents must choose actions despite uncertain states of the world.</div>
+<p class="tm-jump"><a href="#materials-topic-8">Materials for topic 8 (3)</a></p>
+<ul>
+<li><strong>Decision Theory: Combining Probability and Utility</strong> <span class="el-body">— Rational decision making requires more than knowing what is likely — it requires knowing what outcomes are worth. Decision theory couples probabilistic beliefs about the world with a utility function over outcomes.</span></li>
+<li><strong>Decision Networks (Influence Diagrams)</strong> <span class="el-body">— A decision network extends a Bayesian network with nodes representing choices and payoffs, giving a compact graphical language for decision problems.</span></li>
+<li><strong>Evaluating a Decision Network</strong> <span class="el-body">— Solving a decision network is a systematic loop of setting the decision variable, running probabilistic inference, and scoring the result.</span></li>
+<li><strong>Value of Information</strong> <span class="el-body">— Information has value only when it can change what the agent does. The value of information quantifies how much an agent should be willing to pay for an observation before making a decision.</span></li>
+<li><strong>Case Study: Medical Diagnosis and Testing</strong> <span class="el-body">— Medical decision making is a canonical application: a clinician must choose a treatment while uncertain about the underlying disease, and may first order a test.</span></li>
+<li><strong>Case Study: Robot and Agent Decisions Under Sensor Noise</strong> <span class="el-body">— An autonomous agent combines an HMM-based belief state with a utility model to act sensibly despite noisy perception.</span></li>
+</ul>
+<h2 id="outcomes">Student Learning Outcomes</h2>
+<p class="prefix">By the end of this module, students will be able to:</p>
+<div class="mo">
+<div class="code">MO1</div>
+<div class="statement">Compute posterior probabilities from a joint distribution using marginalization, conditioning, and Bayes&#39; rule</div>
+<div class="meta"><span>Level: Apply</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO2</div>
+<div class="statement">Construct a Bayesian network, including its directed acyclic graph structure and conditional probability tables, for a described problem domain</div>
+<div class="meta"><span>Level: Create</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO3</div>
+<div class="statement">Determine conditional independence relationships between sets of variables in a Bayesian network using the d-separation criterion</div>
+<div class="meta"><span>Level: Analyze</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO4</div>
+<div class="statement">Compare exact inference methods (enumeration, variable elimination) with approximate sampling methods (rejection sampling, likelihood weighting, Gibbs sampling) in terms of accuracy and computational cost</div>
+<div class="meta"><span>Level: Evaluate</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO5</div>
+<div class="statement">Execute the forward, forward–backward, and Viterbi algorithms to solve filtering, smoothing, and most-likely-explanation queries on a Hidden Markov Model</div>
+<div class="meta"><span>Level: Apply</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<h3>Course Outcomes (reference)</h3>
+<p class="empty">No course outcomes have been defined.</p>
+<h2 id="materials">Materials for Each Topic</h2>
+<p class="prefix">What has been made for each topic. Materials that cover the whole module are listed on the module page.</p>
+<h3 id="materials-topic-1">1. Probability Foundations for Reasoning Under Uncertainty</h3>
+<p class="tm-back"><a href="#topic-1">↑ Back to topic 1</a></p>
+<ul class="tm">
+<li><a href="content/Probabilistic_Reasoning_with_interactive_t1_detail-video.html">Probability Foundations for Reasoning Under Uncertainty — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_interactive_topics_t1.html">Probability Foundations for Reasoning Under Uncertainty</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_t1_videos.html">Probability Foundations for Reasoning Under Uncertainty — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-2">2. Conditional Independence and Bayes&#39; Rule</h3>
+<p class="tm-back"><a href="#topic-2">↑ Back to topic 2</a></p>
+<ul class="tm">
+<li><a href="content/Probabilistic_Reasoning_with_interactive_t2_detail-video.html">Conditional Independence and Bayes&#39; Rule — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_interactive_topics_t2.html">Conditional Independence and Bayes&#39; Rule</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_t2_videos.html">Conditional Independence and Bayes&#39; Rule — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-3">3. Constructing Bayesian Networks</h3>
+<p class="tm-back"><a href="#topic-3">↑ Back to topic 3</a></p>
+<ul class="tm">
+<li><a href="content/Probabilistic_Reasoning_with_interactive_t3_detail-video.html">Constructing Bayesian Networks — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_interactive_topics_t3.html">Constructing Bayesian Networks</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_t3_videos.html">Constructing Bayesian Networks — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-4">4. Inference in Bayesian Networks</h3>
+<p class="tm-back"><a href="#topic-4">↑ Back to topic 4</a></p>
+<ul class="tm">
+<li><a href="content/Probabilistic_Reasoning_with_interactive_t4_detail-video.html">Inference in Bayesian Networks — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_interactive_topics_t4.html">Inference in Bayesian Networks</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_t4_videos.html">Inference in Bayesian Networks — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-5">5. Temporal Models and Hidden Markov Models</h3>
+<p class="tm-back"><a href="#topic-5">↑ Back to topic 5</a></p>
+<ul class="tm">
+<li><a href="content/Probabilistic_Reasoning_with_interactive_t5_detail-video.html">Temporal Models and Hidden Markov Models — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_interactive_topics_t5.html">Temporal Models and Hidden Markov Models</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_t5_videos.html">Temporal Models and Hidden Markov Models — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-6">6. HMM Inference Tasks and Algorithms</h3>
+<p class="tm-back"><a href="#topic-6">↑ Back to topic 6</a></p>
+<ul class="tm">
+<li><a href="content/Probabilistic_Reasoning_with_interactive_t6_detail-video.html">HMM Inference Tasks and Algorithms — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_interactive_topics_t6.html">HMM Inference Tasks and Algorithms</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_t6_videos.html">HMM Inference Tasks and Algorithms — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-7">7. Decision Theory and Utility</h3>
+<p class="tm-back"><a href="#topic-7">↑ Back to topic 7</a></p>
+<ul class="tm">
+<li><a href="content/Probabilistic_Reasoning_with_interactive_t7_detail-video.html">Decision Theory and Utility — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_interactive_topics_t7.html">Decision Theory and Utility</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_t7_videos.html">Decision Theory and Utility — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-8">8. Rational Decision Making Under Uncertainty</h3>
+<p class="tm-back"><a href="#topic-8">↑ Back to topic 8</a></p>
+<ul class="tm">
+<li><a href="content/Probabilistic_Reasoning_with_interactive_t8_detail-video.html">Rational Decision Making Under Uncertainty — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_interactive_topics_t8.html">Rational Decision Making Under Uncertainty</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Probabilistic_Reasoning_with_t8_videos.html">Rational Decision Making Under Uncertainty — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

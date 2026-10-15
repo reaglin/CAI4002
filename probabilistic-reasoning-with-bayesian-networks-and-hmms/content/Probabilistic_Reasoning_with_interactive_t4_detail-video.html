@@ -1,0 +1,322 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inference in Bayesian Networks</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Probabilistic Reasoning with Bayesian Networks and HMMs</a></div>
+  <header>
+    <h1>Inference in Bayesian Networks</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Inference in Bayesian Networks</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>A Bayesian network is a compact, factored representation of a joint probability distribution over a set of random variables. Building the network is only half the story: the reason we build it is to <em>ask questions of it</em>. Inference is the process of computing the probability of some things we care about given some things we have observed. This topic examines what that computation actually involves, two exact algorithms (enumeration and variable elimination) that compute the answer precisely, three sampling algorithms (rejection sampling, likelihood weighting, and Gibbs sampling) that approximate it, and the computational considerations that determine which method is appropriate for a given network.</p>
+
+<p>Throughout, we will use the classic <strong>burglary–alarm network</strong> as a running example. Its structure is <code>Burglary → Alarm</code>, <code>Earthquake → Alarm</code>, <code>Alarm → JohnCalls</code>, <code>Alarm → MaryCalls</code>. All five variables are Boolean; we write <code>b</code> for <code>Burglary = true</code> and <code>¬b</code> for <code>Burglary = false</code>, and similarly for the others. The conditional probability tables (CPTs) are:</p>
+
+<table>
+  <thead>
+    <tr><th>Node</th><th>Parent configuration</th><th>P(node = true | parents)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Burglary</td><td>— (root)</td><td>0.001</td></tr>
+    <tr><td>Earthquake</td><td>— (root)</td><td>0.002</td></tr>
+    <tr><td>Alarm</td><td>b, e</td><td>0.95</td></tr>
+    <tr><td>Alarm</td><td>b, ¬e</td><td>0.94</td></tr>
+    <tr><td>Alarm</td><td>¬b, e</td><td>0.29</td></tr>
+    <tr><td>Alarm</td><td>¬b, ¬e</td><td>0.001</td></tr>
+    <tr><td>JohnCalls</td><td>a</td><td>0.90</td></tr>
+    <tr><td>JohnCalls</td><td>¬a</td><td>0.05</td></tr>
+    <tr><td>MaryCalls</td><td>a</td><td>0.70</td></tr>
+    <tr><td>MaryCalls</td><td>¬a</td><td>0.01</td></tr>
+  </tbody>
+</table>
+
+<p><strong>The inference problem.</strong> Every inference query partitions the network's variables into three disjoint roles. The <strong>query variables</strong> <code>X</code> are the ones whose distribution we want. The <strong>evidence variables</strong> <code>E</code> are those whose values <code>e</code> we have observed and therefore fix. Everything else is a <strong>hidden</strong> or <strong>nuisance</strong> variable <code>Y</code> — not asked about and not observed, but still part of the model and therefore still influencing the answer. In the query <code>P(Burglary | JohnCalls = true, MaryCalls = true)</code>, the query variable is <code>Burglary</code>, the evidence variables are <code>JohnCalls</code> and <code>MaryCalls</code>, and the hidden variables are <code>Earthquake</code> and <code>Alarm</code>. Note that a variable's role is a property of the <em>query</em>, not of the network: in a different query <code>Earthquake</code> might be the query variable and <code>Burglary</code> hidden.</p>
+
+<p>The semantics of a Bayesian network give the full joint distribution as a product of CPT entries, one per node:</p>
+
+<pre><code>P(x₁, …, xₙ) = Π P(xᵢ | parents(Xᵢ))</code></pre>
+
+<p>From the joint, every query is answered by the same two mechanical operations: <strong>marginalise</strong> (sum out) the hidden variables, then <strong>normalise</strong> so the remaining distribution over the query variable sums to one:</p>
+
+<pre><code>P(X | e) = α P(X, e) = α Σ_y P(X, e, y)</code></pre>
+
+<p>where <code>α</code> is the normalising constant <code>1 / Σ_x Σ_y P(x, e, y)</code>. The normalisation step is what lets us ignore the denominator <code>P(e)</code> of Bayes' rule during the computation and recover it at the end. This equation is conceptually complete — everything else in this topic is about computing it without enumerating a table of size exponential in <code>n</code>.</p>
+
+<p><strong>Query types.</strong> Three families of question are standard:</p>
+<ul>
+  <li><strong>Posterior marginals</strong>: <code>P(X | e)</code> for one variable or a small set, e.g. "given that both neighbours called, how likely is a burglary?" This is the most common query and the one the algorithms below target by default.</li>
+  <li><strong>Most probable explanation (MPE)</strong>, sometimes called the most likely assignment: find the single joint assignment to <em>all</em> non-evidence variables that maximises <code>P(y | e)</code>. Here we replace the summation operator by a maximisation and keep back-pointers to recover the argmax. Crucially, the MPE is <em>not</em> obtained by taking the most likely value of each variable separately — the variable-by-variable maximum may be a jointly improbable or even impossible configuration.</li>
+  <li><strong>Maximum a posteriori (MAP)</strong> assignment: maximise over a chosen subset of variables while <em>summing out</em> the rest, i.e. <code>argmax_x Σ_y P(x, y | e)</code>. Because this mixes max and sum operators, which do not commute, MAP is strictly harder than MPE — it sits in the complexity class NP<sup>PP</sup> rather than merely being NP-hard.</li>
+</ul>
+
+<p><strong>Complexity.</strong> Exact inference in general Bayesian networks is NP-hard. The standard proof reduces 3-SAT to the problem: build a network whose root variables are the propositional variables (each true with probability 0.5), with deterministic nodes implementing each clause and a final conjunction node; then <code>P(output = true) &gt; 0</code> exactly when the formula is satisfiable, and the actual value of <code>P(output = true)</code> equals the fraction of satisfying assignments, making the counting version #P-hard. Two consequences matter for practice. First, no algorithm will be efficient on <em>every</em> network, so we must look for structural properties (sparsity, low treewidth) that make particular networks tractable. Second — a result many students find surprising — even *approximating* <code>P(X | e)</code> to within an arbitrary multiplicative tolerance is NP-hard in the general case, so sampling methods escape worst-case hardness only in the sense that they often behave well in practice, not in the sense that they provide a guaranteed polynomial-time solution.</p>
+
+<p><strong>Exact inference by enumeration.</strong> The enumeration algorithm takes the marginalisation equation literally, but substitutes the network factorisation for the joint before summing. For <code>P(B | j, m)</code>:</p>
+
+<pre><code>P(B | j, m) = α Σ_e Σ_a P(B) P(e) P(a | B, e) P(j | a) P(m | a)</code></pre>
+
+<p>A naive implementation would, for each of the four <code>(e, a)</code> combinations, multiply five numbers and add the result — around 4 × 5 operations per value of <code>B</code>. But <code>P(B)</code> does not depend on <code>e</code> or <code>a</code>, and <code>P(e)</code> does not depend on <code>a</code>, so these factors can be moved outside the summations they are constant with respect to:</p>
+
+<pre><code>P(B | j, m) = α P(B) Σ_e P(e) Σ_a P(a | B, e) P(j | a) P(m | a)</code></pre>
+
+<p>This nested form corresponds exactly to a depth-first recursive evaluation tree: the outer loop branches on <code>e</code>, each branch contains an inner loop branching on <code>a</code>, and the leaves are products of CPT entries. Evaluating the <code>B = true</code> branch:</p>
+
+<table>
+  <thead>
+    <tr><th>Branch</th><th>Inner sum over Alarm</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>e = true</td><td>0.95 × 0.90 × 0.70 + 0.05 × 0.05 × 0.01</td><td>0.598525</td></tr>
+    <tr><td>e = false</td><td>0.94 × 0.90 × 0.70 + 0.06 × 0.05 × 0.01</td><td>0.592230</td></tr>
+  </tbody>
+</table>
+
+<p>Weighting these by <code>P(e) = 0.002</code> and <code>P(¬e) = 0.998</code> gives 0.59224259, and multiplying by <code>P(b) = 0.001</code> gives <code>P(b, j, m) = 0.00059224</code>. The parallel computation for <code>¬b</code> yields <code>P(¬b, j, m) = 0.00149186</code>. Normalising:</p>
+
+<pre><code>P(B | j, m) = α ⟨0.00059224, 0.00149186⟩ = ⟨0.284, 0.716⟩</code></pre>
+
+<p>So the posterior probability of burglary rises from a prior of 0.001 to about 28.4% — a factor of nearly 300 — but is still well below 50%, a nice illustration of base-rate effects that pure "the alarm went off, both neighbours called" reasoning misses.</p>
+
+<p>Pseudocode for the recursive version:</p>
+
+<pre><code>function ENUMERATION-ASK(X, e, bn) returns a distribution over X
+    Q ← an empty distribution over X
+    for each value xᵢ of X do
+        Q(xᵢ) ← ENUMERATE-ALL(VARS(bn), e extended with X = xᵢ)
+    return NORMALIZE(Q)
+
+function ENUMERATE-ALL(vars, e) returns a real number
+    if EMPTY(vars) then return 1.0
+    V ← FIRST(vars)                      // vars in topological order
+    if V has value v in e then
+        return P(v | parents(V)) × ENUMERATE-ALL(REST(vars), e)
+    else
+        return Σ_v P(v | parents(V)) × ENUMERATE-ALL(REST(vars), e with V = v)</code></pre>
+
+<p><strong>Cost of enumeration.</strong> For a network of <code>n</code> Boolean variables the evaluation tree has <code>O(2ⁿ)</code> leaves, so time is exponential; but because the recursion explores one root-to-leaf path at a time and keeps only the current assignment on the stack, space is only <code>O(n)</code>. The fatal inefficiency is <em>repeated subcomputation</em>. In the example, the inner products <code>P(j | a) P(m | a)</code> — namely 0.63 for <code>a</code> and 0.0005 for <code>¬a</code> — are recomputed in every one of the four outer branches. In a larger network a subtree may be re-evaluated an exponential number of times. Enumeration therefore behaves like a naive recursive Fibonacci implementation, and the fix is analogous: compute each intermediate result once and store it. That is precisely what variable elimination does.</p>
+
+<p><strong>Variable elimination: factors.</strong> A <strong>factor</strong> is a table mapping each assignment of a set of variables (its <em>scope</em>) to a non-negative number. Each CPT is a factor; so are the intermediate results produced during elimination, which are generally <em>not</em> probability distributions and need not sum to one. The algorithm proceeds right-to-left through the expression, storing intermediate factors instead of recomputing them.</p>
+
+<p>Step 1 is to build the initial factor list, one factor per node, with evidence variables instantiated. Instantiation means slicing the CPT down to the observed row, which removes the evidence variable from the factor's scope. For <code>P(B | j, m)</code> we obtain:</p>
+
+<table>
+  <thead>
+    <tr><th>Factor</th><th>Scope</th><th>Source</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>f₁(B)</td><td>B</td><td>P(B)</td></tr>
+    <tr><td>f₂(E)</td><td>E</td><td>P(E)</td></tr>
+    <tr><td>f₃(A, B, E)</td><td>A, B, E</td><td>P(A | B, E)</td></tr>
+    <tr><td>f₄(A)</td><td>A</td><td>P(j | A), i.e. ⟨0.90, 0.05⟩</td></tr>
+    <tr><td>f₅(A)</td><td>A</td><td>P(m | A), i.e. ⟨0.70, 0.01⟩</td></tr>
+  </tbody>
+</table>
+
+<p>Step 2 repeatedly eliminates hidden variables. To eliminate a variable <code>V</code>: gather every factor whose scope contains <code>V</code>, multiply them together pointwise (the product's scope is the union of their scopes), then sum the product over the values of <code>V</code>, and put the resulting factor back in the pool. Pointwise product means <code>(f × g)(assignment) = f(restriction) × g(restriction)</code>; for example multiplying <code>f₄</code> and <code>f₅</code> gives <code>f₄₅(a) = 0.63</code> and <code>f₄₅(¬a) = 0.0005</code> — computed <em>once</em>, which is exactly the saving over enumeration.</p>
+
+<p>Eliminating <code>A</code> first requires <code>f₃ × f₄ × f₅</code> summed over <code>A</code>, giving a new factor over <code>(B, E)</code>:</p>
+
+<table>
+  <thead>
+    <tr><th>B</th><th>E</th><th>f₆(B, E) = Σ_a f₃(a, B, E) · f₄₅(a)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>true</td><td>true</td><td>0.95 × 0.63 + 0.05 × 0.0005 = 0.598525</td></tr>
+    <tr><td>true</td><td>false</td><td>0.94 × 0.63 + 0.06 × 0.0005 = 0.592230</td></tr>
+    <tr><td>false</td><td>true</td><td>0.29 × 0.63 + 0.71 × 0.0005 = 0.183055</td></tr>
+    <tr><td>false</td><td>false</td><td>0.001 × 0.63 + 0.999 × 0.0005 = 0.0011295</td></tr>
+  </tbody>
+</table>
+
+<p>Eliminating <code>E</code> next multiplies <code>f₂ × f₆</code> and sums over <code>E</code>, giving <code>f₇(b) = 0.59224259</code> and <code>f₇(¬b) = 0.00149335</code>. Finally multiply by <code>f₁(B)</code>: <code>⟨0.001 × 0.59224259, 0.999 × 0.00149335⟩ = ⟨0.00059224, 0.00149186⟩</code>, and normalise to <code>⟨0.284, 0.716⟩</code> — the same answer as enumeration, obtained with fewer arithmetic operations and with every shared subresult computed only once.</p>
+
+<pre><code>function ELIMINATION-ASK(X, e, bn) returns a distribution over X
+    factors ← [ ]
+    for each variable V in ORDER(bn.VARS) do          // reverse topological or heuristic order
+        factors ← [MAKE-FACTOR(V, e)] + factors
+        if V is a hidden variable then
+            factors ← SUM-OUT(V, factors)
+    return NORMALIZE(POINTWISE-PRODUCT(factors))</code></pre>
+
+<p><strong>Pruning irrelevant variables.</strong> Before any arithmetic, we can delete nodes that cannot affect the answer. A variable that is not an ancestor of a query variable or of an evidence variable is irrelevant: summing its CPT over its own values yields 1, so it contributes nothing. In the query <code>P(JohnCalls | b)</code>, the variable <code>MaryCalls</code> is a leaf and not an ancestor of anything we care about, so it can be dropped entirely. More generally, any variable d-separated from the query by the evidence is irrelevant, and the "every variable that is not an ancestor of query or evidence" rule is a cheap, easily computed sufficient condition. In large networks modelling an entire domain but queried about one small corner, pruning can remove the overwhelming majority of nodes before inference begins.</p>
+
+<p><strong>Elimination order and treewidth.</strong> The cost of variable elimination is dominated by the size of the largest intermediate factor created, which is exponential in the number of variables in that factor's scope. Different orderings produce dramatically different intermediate factors. Eliminating <code>A</code> before <code>E</code> above produced a factor over two variables; a different ordering in a larger network might produce a factor over ten, costing 2¹⁰ entries. Formally, an ordering defines an <strong>induced graph</strong>: starting from the moralised undirected graph (parents of each node joined by an edge, directions dropped), eliminate variables in order, and whenever a variable is eliminated, connect all of its remaining neighbours into a clique. The <strong>induced width</strong> of the ordering is the size of the largest resulting clique minus one, and the <strong>treewidth</strong> of the network is the minimum induced width over all orderings. Variable elimination runs in time and space <code>O(n · d^(w+1))</code> where <code>d</code> is the largest domain size and <code>w</code> the induced width — polynomial in the number of nodes but exponential in treewidth. Finding the ordering that minimises induced width is itself NP-hard, so practical systems use greedy heuristics evaluated on the fly:</p>
+
+<ul>
+  <li><strong>Min-degree (min-neighbours)</strong>: next eliminate the variable with the fewest neighbours in the current induced graph. Cheap and often surprisingly good.</li>
+  <li><strong>Min-fill</strong>: next eliminate the variable whose elimination adds the fewest new edges ("fill-in" edges) to the graph. Slightly more expensive to compute but usually produces better orderings.</li>
+  <li><strong>Min-weight</strong>: like min-degree but weighting each neighbour by its domain size, which matters when variables have very different cardinalities.</li>
+</ul>
+
+<p>A useful intuition: eliminating a variable "marries" all of its neighbours, so you want to remove loosely connected variables first and postpone hubs. In the burglary network, eliminating <code>A</code> early is acceptable because it has only three neighbours; in a network where one node is connected to twenty others, eliminating it first would create a factor over twenty variables and the computation would be hopeless.</p>
+
+<p><strong>Polytrees.</strong> A <strong>polytree</strong> (singly connected network) is one in which there is at most one undirected path between any two nodes. Polytrees have treewidth bounded by the maximum number of parents of any node, independent of network size, so variable elimination — eliminating leaves inward toward the query — runs in time and space <em>linear</em> in the number of nodes (for fixed maximum in-degree). Chains and trees are special cases. Networks with loops in the underlying undirected graph, such as the classic <code>Cloudy → {Sprinkler, Rain} → WetGrass</code> network, are multiply connected; their treewidth exceeds the maximum in-degree, and for grid-like structures treewidth grows with the square root of the number of nodes, which is where exact methods eventually break down. <strong>Clustering</strong> or <strong>junction-tree</strong> algorithms generalise this picture by merging nodes into clusters until the result is a polytree, then propagating messages between clusters; they share variable elimination's complexity profile but amortise the cost across many queries, computing all posterior marginals in roughly twice the work of computing one.</p>
+
+<p><strong>Approximate inference: prior sampling.</strong> When exact methods are infeasible, we trade exactness for tractability by generating random samples from the network and estimating probabilities as frequencies. The basic generator is <strong>prior sampling</strong>: visit the variables in topological order (parents always before children) and sample each from its CPT row selected by the values already assigned to its parents. For the burglary network:</p>
+
+<pre><code>sample Burglary from ⟨0.001, 0.999⟩           → ¬b
+sample Earthquake from ⟨0.002, 0.998⟩         → ¬e
+sample Alarm from P(A | ¬b, ¬e) = ⟨0.001, …⟩  → ¬a
+sample JohnCalls from P(J | ¬a) = ⟨0.05, …⟩   → ¬j
+sample MaryCalls from P(M | ¬a) = ⟨0.01, …⟩   → ¬m
+event: (¬b, ¬e, ¬a, ¬j, ¬m)</code></pre>
+
+<p>Because each variable is drawn from its conditional distribution given its already-sampled parents, the probability that this procedure generates a particular complete event is exactly the product of CPT entries for that event — that is, exactly its joint probability. Consequently the fraction of <code>N</code> samples matching any pattern converges to the true probability of that pattern as <code>N → ∞</code>: the estimator is <strong>consistent</strong>, and with standard error shrinking as <code>1/√N</code>. Note that convergence rate depends on <code>N</code>, not on the size of the network, which is what makes sampling attractive for very large models.</p>
+
+<p><strong>Rejection sampling.</strong> Prior sampling answers unconditional queries. To handle evidence, <strong>rejection sampling</strong> generates full prior samples and simply throws away every sample that disagrees with the evidence; the posterior is estimated from the surviving samples:</p>
+
+<pre><code>P̂(X = x | e) = count(X = x and e among samples) / count(e among samples)</code></pre>
+
+<p>The method is trivially easy to implement and gives consistent, asymptotically unbiased estimates. Its weakness is severe waste. Suppose we want <code>P(Burglary | j, m)</code>. The evidence <code>j ∧ m</code> has prior probability roughly 0.0021, so about 998 of every 1000 samples are discarded; to accumulate even 100 usable samples we must generate around 48,000. The problem compounds multiplicatively: with <code>k</code> binary evidence variables each of prior probability around 0.1, the acceptance rate is about <code>10⁻ᵏ</code>, falling exponentially in the number of evidence variables. Real applications — a medical network conditioned on twenty observed symptoms and test results, where the particular combination may have prior probability 10⁻¹⁵ — make rejection sampling completely impractical. The deeper diagnosis is that rejection sampling ignores the evidence while generating, and only consults it afterwards.</p>
+
+<p><strong>Likelihood weighting.</strong> Likelihood weighting repairs this by <em>never generating an inconsistent sample</em>. It is a form of importance sampling. Evidence variables are not sampled at all: they are clamped to their observed values. Non-evidence variables are sampled in topological order from their CPTs given their parents, exactly as in prior sampling. Because we forced the evidence rather than drawing it, each sample is generated from the wrong distribution, and we compensate by attaching a <strong>weight</strong>: start at <code>w = 1</code> and, every time we pass an evidence variable <code>Eᵢ</code>, multiply <code>w</code> by <code>P(eᵢ | parents(Eᵢ))</code> using the parent values in the current sample.</p>
+
+<pre><code>function WEIGHTED-SAMPLE(bn, e) returns an event and a weight
+    w ← 1; x ← e
+    for each variable Vᵢ in topological order do
+        if Vᵢ is an evidence variable with value vᵢ in e then
+            w ← w × P(vᵢ | parents(Vᵢ))
+        else
+            x[Vᵢ] ← a random sample from P(Vᵢ | parents(Vᵢ))
+    return x, w</code></pre>
+
+<p>Running this on <code>P(Rain | Sprinkler = true, WetGrass = true)</code> in the sprinkler network: start <code>w = 1</code>; sample <code>Cloudy</code> from <code>⟨0.5, 0.5⟩</code>, say <code>cloudy</code>; <code>Sprinkler</code> is evidence, so <code>w ← 1 × P(sprinkler | cloudy) = 0.1</code>; sample <code>Rain</code> from <code>P(R | cloudy) = ⟨0.8, 0.2⟩</code>, say <code>rain</code>; <code>WetGrass</code> is evidence, so <code>w ← 0.1 × P(wetGrass | sprinkler, rain) = 0.1 × 0.99 = 0.099</code>. The sample <code>(cloudy, sprinkler, rain, wetGrass)</code> is recorded with weight 0.099. The estimate is the <em>weighted</em> fraction:</p>
+
+<pre><code>P̂(X = x | e) = Σ{weights of samples with X = x} / Σ{weights of all samples}</code></pre>
+
+<p>Every sample now counts for something, so no work is discarded, and for the burglary query above likelihood weighting is roughly 500 times more sample-efficient than rejection sampling. However, it is not a complete cure. The sampled non-evidence variables are drawn purely from their priors, with no knowledge of evidence further down the network — information flows only forward, never backward. If the evidence sits near the <em>bottom</em> of the topological order, most samples will be generated in regions of the state space that the evidence makes implausible, and they will receive tiny weights. The effective sample size — roughly <code>(Σw)² / Σw²</code> — then collapses: a handful of samples with comparatively large weights dominate the estimate, and the variance becomes large even though the point estimate remains consistent. Likelihood weighting is therefore at its best when evidence is sparse and appears near the roots of the network, and degrades as evidence becomes more extensive or more "downstream".</p>
+
+<p><strong>MCMC and Gibbs sampling.</strong> Markov chain Monte Carlo takes a fundamentally different approach: instead of generating each sample independently from scratch, it generates a <em>sequence</em> of states in which each state is a small random perturbation of the previous one. The sequence is a Markov chain engineered so that its stationary distribution is exactly the posterior <code>P(X | e)</code>; once the chain has settled, the visited states are (dependent) samples from the posterior and can be counted as frequencies.</p>
+
+<p><strong>Gibbs sampling</strong> is the most common MCMC variant for Bayesian networks. Initialise by fixing all evidence variables to their observed values and assigning the non-evidence variables arbitrarily (randomly, or by one likelihood-weighted sample). Then repeat: pick one non-evidence variable — cycling through them in order, or at random — and resample it from its distribution conditioned on the <em>current</em> values of all other variables, leaving everything else unchanged. Each such move is one step of the chain, and each resulting state is recorded as a sample.</p>
+
+<p>The key practical fact is that conditioning on all other variables reduces to conditioning on the variable's <strong>Markov blanket</strong>: its parents, its children, and its children's other parents. A node is conditionally independent of the rest of the network given its blanket, so the resampling distribution is computed locally:</p>
+
+<pre><code>P(xᵢ | mb(Xᵢ)) = α P(xᵢ | parents(Xᵢ)) × Π_{Yⱼ ∈ children(Xᵢ)} P(yⱼ | parents(Yⱼ))</code></pre>
+
+<p>For <code>Cloudy</code> in the sprinkler network with <code>Sprinkler</code> and <code>WetGrass</code> observed and <code>Rain = rain</code> currently assigned, the blanket is <code>{Sprinkler, Rain}</code> and we resample from <code>α ⟨P(c)P(s|c)P(r|c), P(¬c)P(s|¬c)P(r|¬c)⟩ = α ⟨0.5×0.1×0.8, 0.5×0.5×0.2⟩ = ⟨0.444, 0.556⟩</code>. The computation touches only a handful of CPT entries regardless of how large the network is, which is why Gibbs sampling scales to models with thousands of nodes.</p>
+
+<p>Because the chain starts in an arbitrary state, its first states reflect that arbitrary choice rather than the posterior. The initial stretch — the <strong>burn-in</strong> period — is therefore discarded, and only subsequent states are counted. Choosing the burn-in length (hundreds? millions of steps?) is a matter of judgement supported by diagnostics such as running several chains from dispersed starting points and checking that between-chain and within-chain variance agree (the Gelman–Rubin statistic), or inspecting trace plots and autocorrelation. Successive samples are correlated, so <code>N</code> Gibbs samples carry less information than <code>N</code> independent ones; some practitioners "thin" the chain by keeping every <code>k</code>-th state, though simply running longer is usually more efficient.</p>
+
+<p>Gibbs sampling's great advantage is that it accommodates evidence <em>anywhere</em> in the network: clamping a leaf node is no harder than clamping a root, because conditioning is built into every local update rather than applied once at generation time. Its great weakness is slow and hard-to-diagnose convergence. If the posterior has two well-separated high-probability regions, a single-variable-at-a-time sampler may need an astronomically long time to move between them, because the intermediate states are improbable. The extreme case is <strong>near-deterministic CPTs</strong>: if a CPT entry is exactly 0, certain transitions have probability zero and the chain may be unable to reach parts of the state space at all — the chain is no longer irreducible and Gibbs sampling can converge to the wrong answer. Entries very close to 0 or 1 produce the same pathology in practice, with the chain becoming stuck in one basin for a very long time. Remedies include block sampling (resampling several correlated variables jointly), Metropolis–Hastings proposals that make larger moves, or reformulating the model to remove hard constraints.</p>
+
+<p><strong>Comparing the methods.</strong> The following table summarises the trade-offs:</p>
+
+<table>
+  <thead>
+    <tr><th>Method</th><th>Exact?</th><th>Time</th><th>Space</th><th>Main weakness</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Enumeration</td><td>Yes</td><td>O(2ⁿ) Boolean vars</td><td>O(n)</td><td>Massive repeated subcomputation</td></tr>
+    <tr><td>Variable elimination</td><td>Yes</td><td>O(n·d^(w+1))</td><td>O(d^(w+1))</td><td>Exponential in treewidth; ordering is NP-hard to optimise</td></tr>
+    <tr><td>Junction tree / clustering</td><td>Yes</td><td>O(n·d^(w+1))</td><td>O(n·d^(w+1))</td><td>Same treewidth barrier; higher memory, but all marginals at once</td></tr>
+    <tr><td>Rejection sampling</td><td>No (consistent)</td><td>O(N·n), but N huge</td><td>O(n)</td><td>Acceptance rate falls exponentially in evidence</td></tr>
+    <tr><td>Likelihood weighting</td><td>No (consistent)</td><td>O(N·n)</td><td>O(n)</td><td>Weight degeneracy when evidence is downstream</td></tr>
+    <tr><td>Gibbs sampling / MCMC</td><td>No (consistent)</td><td>O(N × blanket cost)</td><td>O(n)</td><td>Slow mixing; burn-in hard to assess; fails on deterministic CPTs</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Choosing an inference method.</strong> Translating the table into practice:</p>
+<ul>
+  <li><strong>Enumeration</strong> is appropriate for very small networks — a handful of variables — and as a teaching device or a correctness oracle against which to test faster implementations. It should not be the production choice for anything of realistic size.</li>
+  <li><strong>Variable elimination</strong> is the default exact method whenever the treewidth is small: polytrees, chains, trees, sparse networks, and networks that prune down to a small relevant subnetwork for the query at hand. If many different queries will be asked of the same evidence, a <strong>junction-tree</strong> algorithm amortises the work better. A sensible engineering practice is to compute a heuristic elimination order first, estimate the largest factor size, and only fall back on approximation if that estimate exceeds the memory budget.</li>
+  <li><strong>Likelihood weighting</strong> is the method of choice when the network is too large for exact inference but the evidence is limited and sits near the top of the topological ordering — for instance, when a few root-level context variables are observed and we want a distribution over downstream outcomes. It is simple, embarrassingly parallel (samples are independent), and needs no convergence diagnostics.</li>
+  <li><strong>Gibbs sampling or other MCMC</strong> is the right tool for large, densely connected networks with extensive evidence, unlikely evidence, or evidence embedded deep in the network — precisely the regimes where rejection sampling accepts nothing and likelihood weighting's weights degenerate. The price is the need to monitor convergence and the risk of poor mixing with near-deterministic structure.</li>
+  <li><strong>Rejection sampling</strong> is rarely a practical choice in its own right; its value is conceptual, as the simplest correct way to see how conditioning can be implemented by sampling, and as the baseline against which likelihood weighting's improvement is understood.</li>
+</ul>
+
+<p>Finally, keep the theoretical ceiling in view. Exact inference is NP-hard, and approximating a posterior to within an arbitrary tolerance is also NP-hard in general. There is therefore no universally efficient method, and the practical art lies in matching the algorithm to the structure of the particular network and the particular query: exploiting low treewidth where it exists, exploiting conditional independence to prune irrelevant variables, and choosing a sampler whose generating process is as close as possible to the posterior one actually wants to explore.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1</strong>: Directly supported. The topic derives <code>P(X | e) = α Σ_y P(X, e, y)</code> from the factored joint and works a full numerical example — marginalising over <code>Earthquake</code> and <code>Alarm</code>, then normalising — which is exactly the marginalisation–conditioning–Bayes'-rule computation.</li>
+  <li><strong>MO2</strong>: Supported only indirectly. The topic uses given networks (burglary–alarm, sprinkler) with their DAGs and CPTs as inputs to inference; it assumes construction rather than teaching it.</li>
+  <li><strong>MO3</strong>: Partially supported. D-separation is invoked when pruning variables irrelevant to a query and when justifying the Markov blanket used in Gibbs sampling, but the criterion itself is not developed here.</li>
+  <li><strong>MO4</strong>: Directly and fully supported. The topic presents enumeration and variable elimination as exact methods and rejection sampling, likelihood weighting, and Gibbs sampling as approximate ones, then compares them explicitly on accuracy, variance, time and space complexity, and suitability for different evidence patterns.</li>
+  <li><strong>MO5</strong>: Not addressed. Hidden Markov Models and the forward, forward–backward, and Viterbi algorithms fall outside this topic, although variable elimination on a chain-structured network is the general algorithm of which the forward algorithm is a special case.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Worked numbers use the standard Russell &amp; Norvig burglary–alarm and sprinkler CPTs so students can cross-check against the textbook; P(B | j, m) ≈ ⟨0.284, 0.716⟩. Suggested in-class exercises: (1) re-run the elimination with the order E then A and compare factor sizes; (2) hand-simulate ten likelihood-weighted samples for P(Rain | sprinkler, wetGrass) and compute the effective sample size; (3) construct a network with a zero CPT entry and show that Gibbs sampling fails to mix.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>A Bayesian network compactly encodes a joint probability distribution over many variables, but building the network is only half the job. The other half is inference: given evidence about some variables, compute the posterior distribution over the variables you actually care about. This topic covers how that computation is done, from exact methods that sum over the joint distribution to approximate methods that estimate probabilities by drawing samples.</p>
+<p>The exact methods start with inference by enumeration, which is conceptually simple but can require summing over an exponential number of assignments. Variable elimination improves on this by pushing summations inward and caching intermediate results as factors, so repeated work is avoided; its cost depends on the structure of the network rather than just the number of variables. Because exact inference is intractable in general for large, densely connected networks, we also study sampling-based approaches: direct and rejection sampling, likelihood weighting (which fixes evidence and weights samples instead of discarding them), and Markov chain Monte Carlo methods such as Gibbs sampling, which wander through the space of assignments and converge to the correct posterior over time.</p>
+<p>As you watch, keep two questions in mind. First, mechanically: can you follow each algorithm step by step on a small network and get the same numbers? Second, comparatively: for a given query and network, which method would you choose, and what is the tradeoff between exact answers, computational cost, and the variance or convergence behavior of a sampling estimate?</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Bayesian Networks 4 - Probabilistic Inference | Stanford CS221: AI (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/-dGOWB9Zh8s?cc_load_policy=1&amp;rel=0" title="Video: Bayesian Networks 4 - Probabilistic Inference | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 15:16 · 9,768 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=-dGOWB9Zh8s" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This Stanford CS221 lecture segment focuses on probabilistic inference in Bayesian networks: stating the inference problem as computing a conditional distribution over query variables given evidence, and working through how that computation is carried out. Based on its place in the CS221 Bayesian networks sequence, expect a treatment of the general query form, the role of marginalization and normalization, and the computational concerns that motivate smarter algorithms than brute-force summation.</p>
+<h3>Why this video</h3>
+<p>It comes from Stanford's flagship introductory AI course, so the notation and framing match a standard university treatment, and it targets the core subtopic of this page — defining and solving the inference problem — in a compact fifteen minutes.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Bayesian Networks 1 - Overview | Stanford CS221: AI (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/fA7zP6EcVdw?cc_load_policy=1&amp;rel=0" title="Video: Bayesian Networks 1 - Overview | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 10:43 · 12,908 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=fA7zP6EcVdw" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>The overview lecture in the same Stanford CS221 series introduces Bayesian networks as a whole: what the directed graph and conditional probability tables represent, how they factor a joint distribution, and what kinds of questions one asks of such a model. It sets up the vocabulary — variables, parents, factors, evidence, query — that the inference lectures then build on.</p>
+<h3>Why this video</h3>
+<p>Watching this first makes the inference material far easier to follow, since every inference algorithm is defined in terms of the factorization and conditional independence structure this video establishes.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: Week 9 Lecture 63 Belief Propagation</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/VfBUglMnRUw?cc_load_policy=1&amp;rel=0" title="Video: Week 9 Lecture 63 Belief Propagation (Machine Learning- Balaraman Ravindran)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Machine Learning- Balaraman Ravindran</strong> · 16:37 · 5,067 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=VfBUglMnRUw" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>From Balaraman Ravindran's machine learning course, this lecture covers belief propagation along with the complexity of variable elimination, MAP queries, and general inferencing issues. It should give you a clearer picture of why elimination ordering matters, how the cost of exact inference relates to network structure, and how message-passing offers an alternative exact approach on suitable graphs.</p>
+<h3>Why this video</h3>
+<p>It directly addresses the complexity side of variable elimination and the limits of exact inference, which is exactly the reasoning you need for the "choosing an inference method" subtopic and for comparing exact against approximate approaches.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos build the foundation for MO4, the comparison of exact and approximate inference: the Stanford overview establishes the network structure and factorization that all inference methods exploit, the CS221 probabilistic inference lecture frames the query problem and the exact computation, and the belief propagation lecture supplies the complexity analysis that explains why variable elimination is preferred over naive enumeration and why sampling methods become necessary at scale. The overview video also reinforces MO2 and the conditional independence ideas behind MO3 by showing how the graph encodes the joint distribution, while the posterior-computation steps demonstrated in the inference lecture exercise the marginalization and conditioning skills of MO1. For the sampling algorithms in detail — rejection sampling, likelihood weighting, and Gibbs sampling — and for the HMM algorithms in MO5, plan to supplement these videos with the assigned textbook sections and worked problems.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

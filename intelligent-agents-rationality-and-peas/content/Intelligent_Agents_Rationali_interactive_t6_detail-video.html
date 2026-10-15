@@ -1,0 +1,286 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>From Specification to Agent Design</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Intelligent Agents, Rationality, and PEAS</a></div>
+  <header>
+    <h1>From Specification to Agent Design</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>From Specification to Agent Design</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Designing an agent is not an act of inspiration; it is a disciplined translation. You begin with a <em>task specification</em> — a statement of what counts as success, what world the agent inhabits, what it can do, and what it can perceive — and you end with an <em>architecture</em>: a concrete arrangement of components that computes actions from percepts. The central claim of this topic is that the specification largely determines the architecture. If you write the specification carefully, the right agent design is mostly read off from it; if you write it carelessly, you will build a competent machine that is competent at the wrong thing.</p>
+
+<p>The vocabulary for this translation is PEAS — <strong>P</strong>erformance measure, <strong>E</strong>nvironment, <strong>A</strong>ctuators, <strong>S</strong>ensors — together with the standard dimensions along which task environments are classified. The agent architectures available are, in increasing order of sophistication, the simple reflex agent, the model-based reflex agent, the goal-based agent, the utility-based agent, and the learning agent (which is an outer wrapper that can enclose any of the others). What follows works through how each element of PEAS constrains the design, what each architecture assumes about the world, and a repeatable workflow that moves from a blank page to an evaluated implementation.</p>
+
+<p><strong>From PEAS specification to design decisions</strong></p>
+
+<p>Each of the four PEAS components carries distinct design information. Treating PEAS as a box-filling exercise wastes that information; treating it as a set of constraints on the agent program is where its value lies.</p>
+
+<p><em>The performance measure defines the objective function.</em> The performance measure is specified <em>externally</em>, by the designer or by the world, and it describes desirable states of the <em>environment</em> rather than desirable states of the agent. This matters architecturally. If the performance measure can be written as a predicate — "the patient is correctly diagnosed", "all squares are clean", "the blocks are stacked in the required order" — then a goal-based design is natural, because the agent only needs to distinguish satisfying states from non-satisfying ones. If instead the performance measure is a weighted combination of several quantities that trade off against one another — "arrive quickly, use little fuel, obey traffic law, maximise passenger comfort, minimise risk of collision" — then a binary goal is simply the wrong representational tool, and the specification is already telling you that you need a utility function. A useful diagnostic question is: <em>can two different successful outcomes be ranked?</em> If yes, you need utilities; if all successes are interchangeable, goals suffice.</p>
+
+<p>The performance measure also encodes the time horizon and the attitude to risk. "Minimise expected travel time" and "minimise worst-case travel time" lead to different decision rules in a stochastic environment even though both mention only travel time. And because performance is measured on the environment, not on the agent's beliefs, a self-satisfied agent that believes it has cleaned the floor scores zero if the floor is dirty — which is exactly why sensing and internal state matter.</p>
+
+<p><em>The environment description reveals the hard parts.</em> When you write out the environment for an automated taxi — urban roads, pedestrians, other drivers, weather, roadworks, traffic signals, passengers with changing requests — you are implicitly declaring partial observability (you cannot see around the corner or inside another driver's head), stochasticity (a pedestrian may step off the kerb), dynamism (the world changes while you deliberate), continuity (position, velocity and steering angle are real-valued), and multi-agent interaction, including adversarial elements such as a driver racing you for a parking space. Each of these flags a required capability: state estimation, probabilistic reasoning, anytime or real-time decision-making, discretisation or continuous control, and opponent modelling.</p>
+
+<p><em>The actuator list bounds the action space.</em> The agent can only ever do what its actuators permit, so the actuator list fixes the branching factor of any search, the granularity of control, and the vocabulary in which plans are expressed. A taxi with <code>steer</code>, <code>accelerate</code>, <code>brake</code>, <code>signal</code>, <code>horn</code>, and <code>display/speak</code> has a continuous low-level action space; a route planner working over the same vehicle may use an abstracted action space of <code>take next left</code>, <code>continue</code>, <code>stop at kerb</code>. Choosing the abstraction level of the actions is itself a design decision, and it has to be compatible with both the real actuators and the time available for deliberation. A medical diagnosis agent whose only actuators are "display questions, order tests, display diagnosis and treatment" cannot cure anyone directly; its performance measure must therefore be about information and recommendations, not about surgical outcomes.</p>
+
+<p><em>The sensor list determines the percept sequence.</em> Sensors fix what is in each percept, and therefore what the agent can know <em>directly</em>. A taxi with cameras, lidar, GPS, speedometer, accelerometer, engine sensors and a keyboard for the passenger receives, at each instant, a rich but strictly local snapshot. Nothing in that snapshot says how much fuel was burned over the last hour, whether the vehicle behind has been tailgating for ten minutes, or that the bridge ahead was closed five minutes ago. Those facts can only be obtained by <em>accumulating</em> percepts into internal state.</p>
+
+<p><em>Bridging the gap.</em> The most important single question in agent design is: <strong>is there a gap between what the sensors reveal and what the performance measure requires?</strong> If the current percept fully determines the current state, and the current state fully determines the best action, the agent program can be a lookup from percept to action. Any mismatch must be bridged by internal reasoning — state estimation to recover unobserved variables, prediction to anticipate future states, search to evaluate consequences, probability to handle uncertainty, and learning to supply knowledge the designer did not have.</p>
+
+<table>
+  <thead>
+    <tr><th>PEAS element</th><th>Question it answers</th><th>Design consequence</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Performance measure</td><td>What counts as doing well, and can successes be ranked?</td><td>Binary predicate → goals; multi-attribute or risky → utility; unknown in advance → learning with an external standard</td></tr>
+    <tr><td>Environment</td><td>What is out there, and how does it behave?</td><td>Drives environment classification: observability, determinism, dynamism, agency; dictates need for models and uncertainty</td></tr>
+    <tr><td>Actuators</td><td>What can the agent change?</td><td>Fixes the action set, branching factor, control granularity, and plan vocabulary</td></tr>
+    <tr><td>Sensors</td><td>What can the agent know directly?</td><td>Fixes the percept sequence; shortfall versus the state needed → internal state and a sensor model</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Simple reflex agents: when percepts are enough</strong></p>
+
+<p>A simple reflex agent selects actions using only the current percept, typically via condition–action rules:</p>
+
+<pre><code>function SIMPLE-REFLEX-AGENT(percept) returns an action
+    persistent: rules, a set of condition-action rules
+
+    state  &lt;- INTERPRET-INPUT(percept)
+    rule   &lt;- RULE-MATCH(state, rules)
+    action &lt;- rule.ACTION
+    return action</code></pre>
+
+<p>This is the cheapest architecture available: constant-time lookup, no memory, no model, trivially easy to verify. It is the correct choice under two conditions that must both hold.</p>
+
+<ul>
+  <li><strong>Full observability.</strong> The current percept must contain everything relevant to the decision. In the two-square vacuum world, the percept <code>[location, status]</code> is enough for the rule set <em>"if dirty then Suck; if in A and clean then Right; if in B and clean then Left"</em> to be optimal, because the only facts that matter are where you are and whether that square is dirty.</li>
+  <li><strong>Episodic structure (or at least no need for history).</strong> If each decision is an independent episode — a part-picking robot classifying the object currently on the conveyor belt as "defective" or "acceptable" — then nothing learned in previous episodes alters the current correct action. Reflex rules match the task's logical shape exactly.</li>
+</ul>
+
+<p>Simple reflex agents fail, often spectacularly, under partial observability. Remove the location sensor from the vacuum agent so that the percept is only <code>[status]</code>. Now the rule "if clean then Right" sends the agent off the right edge of the world forever, and "if clean then Left" strands it in the left square; no deterministic percept-to-action mapping can clean both squares, because the agent cannot tell the two "clean" situations apart. The characteristic failure modes are <em>infinite loops</em> and <em>repeated mistakes</em>: the agent keeps re-entering the same percept and keeps emitting the same wrong action. A braking rule keyed on "if the car in front shows brake lights then brake" fails at night, in fog, or when the lead vehicle's lights are broken — the percept simply does not carry the needed fact.</p>
+
+<p><em>Randomisation</em> is a genuine but partial remedy. A vacuum agent that flips a coin between Left and Right when it perceives "clean" will, with probability 1, eventually visit and clean both squares, and it outperforms any deterministic memoryless agent in that environment. Randomisation is also essential in adversarial multi-agent settings, where predictability is exploitable. But it is not a substitute for memory: a randomising agent still cannot answer "have I already checked that room?" and its expected performance is usually far below that of an agent with even a little internal state.</p>
+
+<p>The design rule is blunt: <strong>if PEAS analysis shows the sensors cannot reveal the state features that the performance measure depends on, reject the simple reflex design.</strong> No amount of rule tuning repairs a missing percept.</p>
+
+<p><strong>Model-based agents: handling partial observability</strong></p>
+
+<p>A model-based reflex agent keeps an internal state that summarises the <em>percept history</em>, and updates it as new percepts arrive:</p>
+
+<pre><code>function MODEL-BASED-REFLEX-AGENT(percept) returns an action
+    persistent: state, the agent's current conception of the world
+                transition_model, how the world evolves and how actions affect it
+                sensor_model, how world states give rise to percepts
+                rules, a set of condition-action rules
+                action, the most recent action, initially none
+
+    state  &lt;- UPDATE-STATE(state, action, percept, transition_model, sensor_model)
+    rule   &lt;- RULE-MATCH(state, rules)
+    action &lt;- rule.ACTION
+    return action</code></pre>
+
+<p>Two kinds of knowledge make this work.</p>
+
+<ul>
+  <li><strong>The transition model</strong> answers "how does the world change?" It has two parts: how the world evolves <em>independently</em> of the agent (traffic ahead keeps moving, rain continues, the patient's infection progresses) and how the world changes <em>as a result of the agent's own actions</em> (turning the wheel right while moving changes heading; sucking makes the current square clean). The second part also supports <em>dead reckoning</em>: after issuing <code>Right</code>, the vacuum agent can infer it is now in square B even without a location sensor.</li>
+  <li><strong>The sensor model</strong> answers "what percepts would a given world state produce?" It is the inverse direction of inference: a lidar return pattern implies the presence of an obstacle at a distance; a blurred camera frame implies either motion or a dirty lens; a fever plus an elevated white-cell count implies a set of candidate infections. In the probabilistic setting this is precisely <code>P(percept | state)</code>, and combining it with the transition model <code>P(state' | state, action)</code> gives recursive state estimation (filtering).</li>
+</ul>
+
+<p>Crucially, the internal state is a <em>best guess</em>, not the truth. In a partially observable world the agent should ideally maintain a <em>belief</em> — a probability distribution or at least a set of states consistent with the history — rather than committing to one hypothesis. Dynamic and stochastic environments sharpen this requirement: if the world changes while the agent deliberates, stale state must be extrapolated forward; if actions have uncertain outcomes, the agent must represent the spread of possibilities rather than assuming its last action succeeded. A warehouse robot whose wheels slip must treat its dead-reckoned position as an estimate with growing error, and re-anchor it whenever it sees a landmark.</p>
+
+<p>In <em>multi-agent</em> environments the model has to be extended to include other agents: their positions and velocities, but also their likely intentions and policies. An automated taxi that models the car in the next lane merely as a moving box will be surprised by a merge; one that models the driver as an agent with a goal ("he is indicating, he wants this lane, he will accelerate into the gap") can act pre-emptively. In competitive settings this becomes adversarial modelling; in cooperative ones it becomes coordination and communication.</p>
+
+<p>Note what a model-based agent still does <em>not</em> do: it does not consider the future consequences of its options. It has a better-informed <code>state</code>, but the decision is still a rule lookup. That is the next step.</p>
+
+<p><strong>Goal-based agents: reasoning about the future</strong></p>
+
+<p>Knowing the current state is not sufficient when the right action depends on where you are trying to end up. At a T-junction, a model-based taxi knows exactly where it is, which lane it occupies, and what the traffic is doing — and still has no basis for choosing left over right until it is told the destination. The goal supplies that basis.</p>
+
+<ul>
+  <li><strong>Goals are typically binary.</strong> A goal is a predicate over states, partitioning them into "satisfies the goal" and "does not". <code>at(Passenger, Destination)</code> is either true or false. This simplicity is a strength (it makes the problem a search problem) and a weakness (it cannot express "arriving in 20 minutes is better than arriving in 40").</li>
+  <li><strong>Sequential environments make goal reasoning necessary.</strong> In a sequential environment the current action affects all future options: entering a one-way street, committing to a motorway slip road, prescribing a drug that rules out another. Reflex rules cannot represent this coupling; the agent must look ahead.</li>
+  <li><strong>Search and planning are the mechanisms.</strong> Using its transition model, the agent simulates hypothetical action sequences and examines the resulting states <em>before</em> acting. If a sequence reaches a goal state, its first action is executed. This is exactly what search algorithms and planners provide, and it is why a transition model is a prerequisite for goal-based behaviour — goal-based agents are model-based agents with lookahead.</li>
+  <li><strong>Flexibility.</strong> The knowledge is explicit and declarative, so behaviour can be retargeted by changing data rather than code. Give the taxi a new destination and the whole route changes automatically; tell a reflex taxi about the new destination and you must rewrite every rule. Similarly, if the model is updated ("it is raining, braking distances double"), all relevant behaviour adapts at once, whereas a reflex agent would need many individual condition–action rules revised by hand.</li>
+  <li><strong>Cost.</strong> Lookahead is computation, and computation is time. A reflex agent responds in microseconds; a planner may need seconds. In dynamic environments this is a real risk — the world may have moved on by the time the plan is ready. Practical designs therefore combine layers: reflexes for emergency braking, planning for route selection, with the planner's output treated as advice that the reflex layer can override.</li>
+</ul>
+
+<p><strong>Utility-based agents: trading off competing objectives</strong></p>
+
+<p>Goals say whether you succeeded; utilities say <em>how well</em>. Use a utility-based design whenever the specification exhibits any of the following.</p>
+
+<ul>
+  <li><strong>Competing objectives in the performance measure.</strong> The taxi's measure mentions safety, speed, legality, comfort, fuel economy and profit. These conflict: the fastest route is rarely the most comfortable or the safest. A utility function <code>U(state)</code> — or more generally over histories — assigns a single real number that expresses the designer's preferred trade-off, so the agent can compare an option that is slightly slower but much safer against one that is quick and jerky.</li>
+  <li><strong>Conflicting goals that cannot all be achieved.</strong> Utility allows a principled compromise rather than an arbitrary tie-break.</li>
+  <li><strong>Stochastic environments.</strong> When outcomes are uncertain, no action <em>guarantees</em> the goal. The rational criterion becomes <em>maximum expected utility</em>: choose the action <code>a</code> maximising <code>Σ P(outcome | a, state) × U(outcome)</code>. This also lets the agent express attitude to risk through the curvature of the utility function — a concave utility over money, for example, makes the agent prefer a certain £50 to a coin-flip for £100.</li>
+  <li><strong>Many goal-satisfying paths.</strong> Dozens of routes deliver the passenger; utility is what lets the agent prefer the better ones instead of returning the first solution search happens to find.</li>
+</ul>
+
+<pre><code>function UTILITY-BASED-ACTION(state, actions, model, U) returns an action
+    best &lt;- none; best_value &lt;- -infinity
+    for each a in actions do
+        value &lt;- 0
+        for each (s', p) in model.PREDICT(state, a) do
+            value &lt;- value + p * U(s')
+        if value &gt; best_value then best_value &lt;- value; best &lt;- a
+    return best</code></pre>
+
+<p>The decisive design principle is that <strong>the utility function should be an internalisation of the external performance measure.</strong> The performance measure lives outside the agent and judges environment histories; the utility function lives inside the agent and guides choice. When they agree, a utility-maximising agent is rational by the external standard. When they diverge, you get an agent that scores brilliantly on its own books and badly in reality — the classic mis-specification failure. Examples are easy to generate and instructive:</p>
+
+<ul>
+  <li>A vacuum agent rewarded for "amount of dirt collected" learns to dump the dirt back on the floor and collect it again.</li>
+  <li>A taxi rewarded only for "minutes of travel time" drives recklessly, because the external penalties for danger and discomfort were never written into its utility.</li>
+  <li>A diagnosis agent rewarded for "proportion of tests that come back positive" stops ordering the cheap ruling-out tests that are clinically valuable.</li>
+</ul>
+
+<p>These failures are not bugs in the optimiser; the optimiser worked perfectly. They are bugs in the specification, which is why the workflow below insists on writing the performance measure first and revisiting it after evaluation.</p>
+
+<p><strong>Learning agents: operating in unknown environments</strong></p>
+
+<p>All of the above presumes the designer knows enough to hand-build rules, models, goals or utilities. Often they do not: the environment may be <em>unknown</em> (the agent does not know the outcomes of its actions), too complex to model by hand, or liable to change after deployment. A learning agent addresses this by splitting into four conceptual components.</p>
+
+<table>
+  <thead>
+    <tr><th>Component</th><th>Role</th><th>Taxi example</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Performance element</td><td>Selects external actions from percepts — this <em>is</em> the whole agent as described previously (reflex, model-based, goal-based or utility-based)</td><td>Decides to brake, steer, choose a route</td></tr>
+    <tr><td>Learning element</td><td>Makes improvements to the performance element using feedback supplied by the critic</td><td>Adjusts the braking-distance model after a near miss; refines the route-time estimates</td></tr>
+    <tr><td>Critic</td><td>Observes percepts and judges the agent's behaviour against a <em>fixed external performance standard</em>, producing the feedback signal</td><td>Notes that passengers tipped nothing and that the manoeuvre was rated uncomfortable</td></tr>
+    <tr><td>Problem generator</td><td>Suggests exploratory actions that are suboptimal in the short term but yield informative experience</td><td>Tries braking on a wet surface in a quiet car park to calibrate the model</td></tr>
+  </tbody>
+</table>
+
+<p>Two subtleties deserve emphasis. First, the critic is necessary because <em>percepts alone do not say whether behaviour was good</em>. The percept "a crash occurred" carries no evaluation; it is the external standard, held fixed and outside the agent's control, that labels this as very bad. The standard must be fixed precisely so the agent cannot "improve" by lowering its own bar — an agent able to rewrite its own standard would simply declare whatever it does to be excellent.</p>
+
+<p>Second, the problem generator institutionalises the <em>exploration–exploitation trade-off</em>. An agent that always takes the action currently believed best will never discover that a different action is better; deliberate, bounded exploration is what makes long-run improvement possible. The art is in bounding it: exploration should happen where mistakes are cheap and reversible, never during a motorway merge.</p>
+
+<p>Any component of any architecture can be learned: condition–action rules from supervised examples, the transition and sensor models from observed trajectories, state-estimation parameters from data, utility values from reinforcement signals or from observing expert behaviour. The design trigger is in the PEAS and environment analysis — <strong>unknown, highly complex, continuous, or non-stationary dynamic environments all point towards a learning design</strong>, while small, fully specified, static environments usually do not justify the extra machinery and the extra risk.</p>
+
+<p><strong>A workflow for designing rational agents</strong></p>
+
+<p>The following five steps turn the preceding ideas into a repeatable procedure.</p>
+
+<ul>
+  <li><strong>Step 1 — Write the PEAS description, performance first.</strong> Force yourself to state the performance measure before thinking about mechanisms, and state it in terms of environment outcomes, not agent behaviour. "Clean floor" rather than "spend time sucking". Enumerate the environment's contents, the full actuator list, and the full sensor list. Resist the temptation to list the sensors you wish you had.</li>
+  <li><strong>Step 2 — Classify the environment.</strong> Place the task on every standard dimension: fully or partially observable (and whether it is effectively unobservable); single-agent or multi-agent, and if multi-agent, cooperative or competitive; deterministic, stochastic or merely nondeterministic; episodic or sequential; static, dynamic or semidynamic; discrete or continuous in state, time, percepts and actions; known or unknown. Each answer is a requirement in disguise.</li>
+  <li><strong>Step 3 — Choose the least complex agent type that meets the demands.</strong> Complexity is a cost: more components mean more code, more assumptions, more failure modes, more computation per decision, and more that can be mis-specified. Start at the bottom of the ladder and climb only when the classification forces you to. Partial observability forces internal state; sequentiality forces lookahead; conflicting or graded objectives and stochastic outcomes force utilities; unknown or shifting environments force learning.</li>
+  <li><strong>Step 4 — Add components only where the task requires them.</strong> This is Step 3 applied at the level of individual capabilities rather than whole architectures. A hybrid design is normal: a hierarchical taxi controller may run a hard-coded reflex layer for collision avoidance, a model-based state estimator for tracking other vehicles, a planner for routes, a utility function for route selection and ride comfort, and a learning element that refines only the braking model. Do not add a planner where a table lookup suffices, and do not add learning where a known model is available.</li>
+  <li><strong>Step 5 — Evaluate against the original performance measure and revise.</strong> Run the implemented agent in the real environment, or in a simulator sampled from the realistic distribution of environments, and score it with the <em>external</em> measure written in Step 1 — never with the agent's own internal utility, which would be circular. Measure average performance over many environment instances, not one lucky episode. Then diagnose: poor scores caused by missing information point back to sensors or state estimation; poor scores caused by good-looking but harmful behaviour point to a mis-specified utility; poor scores caused by late decisions point to excessive deliberation; and systematically poor scores across the board often point to a flawed performance measure itself.</li>
+</ul>
+
+<p>The following table summarises how the classification in Step 2 drives the choice in Step 3.</p>
+
+<table>
+  <thead>
+    <tr><th>Environment property</th><th>Capability it demands</th><th>Minimum adequate architecture</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Fully observable, episodic, deterministic, discrete, known</td><td>Map current percept to action</td><td>Simple reflex agent</td></tr>
+    <tr><td>Partially observable or dynamic</td><td>State estimation from percept history; transition and sensor models</td><td>Model-based reflex agent</td></tr>
+    <tr><td>Sequential, with a definite target condition</td><td>Lookahead over hypothetical futures; search or planning</td><td>Goal-based agent</td></tr>
+    <tr><td>Conflicting or graded objectives; stochastic outcomes</td><td>Preference ranking and expected-value computation</td><td>Utility-based agent</td></tr>
+    <tr><td>Unknown, non-stationary, or too complex to model by hand</td><td>Feedback-driven improvement and exploration</td><td>Learning agent wrapping one of the above</td></tr>
+    <tr><td>Multi-agent (competitive or cooperative)</td><td>Models of other agents; possibly randomisation or communication</td><td>Model-based or utility-based agent with opponent/partner models</td></tr>
+  </tbody>
+</table>
+
+<p>A worked illustration ties the workflow together. Consider a <em>medical diagnosis system</em>. Step 1 gives the PEAS: performance — healthy patient, accurate and timely diagnosis, minimised cost and minimised harm from unnecessary tests; environment — patient, clinicians, hospital information systems, laboratory; actuators — display of questions, test orders, diagnoses and treatment recommendations; sensors — entry of symptoms, patient answers, laboratory results. Step 2: partially observable (the underlying disease is never directly perceived), stochastic (symptoms do not determine disease), sequential (ordering one test changes what is worth doing next), dynamic in the slow sense (the patient's condition evolves), largely discrete at the level of findings, multi-agent only weakly, and partially unknown (prevalence and test accuracy vary by population). Step 3 and 4: a reflex "symptom → diagnosis" table is immediately ruled out by partial observability and stochasticity; the agent needs internal state in the form of a belief distribution over diseases, a sensor model giving the likelihood of each finding under each disease, utilities that trade off diagnostic certainty against test cost and patient risk, and a learning element to update prevalence and likelihood estimates from outcomes. Step 5: evaluate on held-out patients using the externally defined measure — not on the internal confidence score, which a mis-specified system can inflate while missing cases.
+
+</p><p>Finally, the most common root cause of a bad agent is not a bad algorithm but a <strong>vague or incomplete PEAS specification</strong>. If the performance measure omits safety, the optimiser will trade safety away. If the sensor list is aspirational, the design will assume information it never receives. If the environment description quietly ignores other agents, the agent will be blindsided by them. Specification errors do not stay put: they propagate through environment classification into architecture selection and finally into an agent that is, often very efficiently, optimising the wrong thing. Writing the specification well is therefore not paperwork preceding the design — it <em>is</em> the first and most consequential part of the design.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> Supported throughout. The discussion of how the sensor list fixes the percept sequence, how the actuator list bounds the action space, and how each architecture computes an action from percepts (directly, or via state accumulated from the percept history) is a direct application of the agent–environment model and the agent function.</li>
+  <li><strong>MO2:</strong> Supported indirectly but substantially. The insistence that the performance measure is external and judges environment states, that the internal utility function is only an internalisation of it, and that stochastic environments require maximising <em>expected</em> utility rather than guaranteeing success, reinforces the distinction between rationality and omniscience, perfection and actual success.</li>
+  <li><strong>MO3:</strong> Supported directly. The topic treats PEAS as the starting point of all design work, shows what each of the four elements contributes, and illustrates complete specifications for the automated taxi driver and the medical diagnosis system.</li>
+  <li><strong>MO4:</strong> Supported directly. Step 2 of the workflow requires classification along observability, determinism, episodicity, dynamism, discreteness, agent count and known/unknown, and the worked examples perform that classification explicitly.</li>
+  <li><strong>MO5:</strong> This is the topic's central concern. Each architecture is introduced together with the environmental conditions that justify or rule it out, and the summary table plus the five-step workflow provide an explicit basis for justifying the selection of a simple reflex, model-based, goal-based, utility-based or learning design for a given task environment.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Pseudocode blocks use escaped arrows (&amp;lt;-) inside &lt;pre&gt;&lt;code&gt; and are intended to be read as assignment. The vacuum-world, automated-taxi and medical-diagnosis examples are the standard running examples from the Russell &amp; Norvig treatment of intelligent agents, used here so the material dovetails with the earlier topics on PEAS and environment types. Suggested in-class activity: give students a half-specified PEAS description (e.g. a warehouse picking robot with the performance measure stated only as "move boxes") and ask them to show how the vagueness propagates into an architecture that optimises the wrong thing.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>A PEAS specification tells you what an agent is for: its Performance measure, Environment, Actuators, and Sensors. Classifying that environment — observable or partially observable, deterministic or stochastic, episodic or sequential, static or dynamic, discrete or continuous, single- or multi-agent — tells you what the agent is up against. This topic connects those two descriptions to a design decision: which internal architecture should the agent actually have?</p>
+<p>The five classic architectures form a ladder of increasing capability and cost. Simple reflex agents map the current percept straight to an action through condition-action rules, which works only when the right action is fully determined by what is sensed right now. Model-based agents keep internal state to cope with partial observability. Goal-based agents reason about which future states are desirable, utility-based agents compare outcomes when goals conflict or are uncertain, and learning agents improve their own behavior when the environment is unknown in advance. More capability is not automatically better: the rational choice is the simplest architecture that the task environment allows.</p>
+<p>The videos below come from industry practice with modern LLM-based agents rather than from a textbook treatment, so expect different vocabulary for overlapping ideas. As you watch, keep translating: when a speaker describes an agent that reacts to input, ask whether that is a reflex agent; when they discuss memory, ask what partial observability problem that memory is solving; when they describe several agents cooperating, ask which environment dimension that corresponds to. Try to write a PEAS specification for every example that appears.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/fXizBc03D7E?cc_load_policy=1&amp;rel=0" title="Video: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 10:22 · 430,730 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=fXizBc03D7E" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>IBM's overview of five agent types, framed around a practical example such as a package-delivery drone. Based on the title and description, it walks through the progression from simple reactive agents to more capable architectures, including learning agents, and illustrates each with real-world application scenarios. Expect the familiar simple reflex, model-based, goal-based, utility-based, and learning taxonomy presented in industry language.</p>
+<h3>Why this video</h3>
+<p>This is the closest direct match to the core of the topic: it covers the same five architectures the module asks you to distinguish and justify, and IBM Technology's explainer format keeps the comparisons short and example-driven.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: The Four Types of Memory Every AI Agent Needs</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/BacJ6sEhqMo?cc_load_policy=1&amp;rel=0" title="Video: The Four Types of Memory Every AI Agent Needs (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 10:41 · 149,524 views · 4mo ago · captions — <a href="https://www.youtube.com/watch?v=BacJ6sEhqMo" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>Martin Keen explains the different kinds of memory an AI agent maintains and why one form of memory is not enough. In classical terms, this is a discussion of internal state: what an agent stores because its sensors cannot reveal everything at once, and how stored information shapes later decisions. Expect concrete distinctions among memory types used in current agent systems.</p>
+<h3>Why this video</h3>
+<p>It gives a modern, concrete grounding for the model-based agent subtopic, where internal state exists precisely to handle partial observability of the environment.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: Multi Agent Systems Explained: How AI Agents &amp; LLMs Work Together</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/sWH0T4Zez6I?cc_load_policy=1&amp;rel=0" title="Video: Multi Agent Systems Explained: How AI Agents &amp; LLMs Work Together (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 7:57 · 100,790 views · 9mo ago · captions — <a href="https://www.youtube.com/watch?v=sWH0T4Zez6I" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short explainer on multi-agent systems and how multiple agents, often backed by large language models, coordinate on tasks. It is likely to cover how work is divided among specialized agents and how they communicate or hand off subtasks. This directly concerns the multi-agent dimension of environment classification.</p>
+<h3>Why this video</h3>
+<p>Agent count is one of the environment dimensions that drives design decisions, and this video shows why a single monolithic agent is not always the rational answer.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos reinforce the architecture-selection outcome (MO5) most directly: the five-types overview maps onto the same reflex, model-based, goal-based, utility-based, and learning distinctions you must be able to justify for a given task. The memory video supports MO1 and MO4 by making concrete why an agent needs internal state when percepts alone underdetermine the world, which is the observability dimension in action, while the multi-agent video addresses the agent-count dimension of MO4. None of the videos builds a formal PEAS table, so you should practice MO2 and MO3 by writing out performance measures, environments, actuators, and sensors for the examples the videos present, and by asking in each case whether the agent shown is rational given its limited information rather than omniscient.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

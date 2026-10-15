@@ -1,0 +1,232 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Optimality and Completeness Proofs for A*</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Heuristic Functions, Best-First Search, and A*</a></div>
+  <header>
+    <h1>Optimality and Completeness Proofs for A*</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Optimality and Completeness Proofs for A*</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Two guarantees separate A* from the merely plausible best-first searches: it is <strong>complete</strong> (it will find a solution whenever one exists) and it is <strong>optimal</strong> (the solution it returns is a cheapest one). Neither guarantee is automatic — each depends on precise conditions on the heuristic function and on the bookkeeping of the search algorithm. The key quantities are <code>g(n)</code>, the cost of the path by which the search reached node <code>n</code>; <code>h(n)</code>, the heuristic estimate of the remaining cost from <code>n</code> to the nearest goal; <code>f(n) = g(n) + h(n)</code>, the estimated cost of a complete solution through <code>n</code>; <code>h*(n)</code>, the true optimal cost from <code>n</code> to a goal; and <code>C*</code>, the cost of an optimal solution from the start state. A heuristic is <em>admissible</em> when <code>0 ≤ h(n) ≤ h*(n)</code> for every node, so <code>f(n)</code> never overestimates the cost of the best solution through <code>n</code>. The proofs below show exactly how this one inequality propagates into global guarantees about what A* returns, and why a stronger property — consistency — is needed as soon as we add a closed list.</p>
+
+<p><strong>Tree-search A* is optimal with an admissible heuristic.</strong> Tree-search A* keeps no record of visited states; it simply expands the frontier node of lowest <code>f</code>, and it applies the goal test <em>when a node is selected for expansion</em>, not when it is generated. The claim is that under admissibility, the first goal node selected for expansion is an optimal one. The proof is by contradiction. Suppose A* is about to expand a goal node <code>G2</code> whose path cost is <code>g(G2) = C2 &gt; C*</code>, that is, a suboptimal goal. Because <code>G2</code> is a goal, <code>h(G2) = 0</code>, so</p>
+
+<pre><code>f(G2) = g(G2) + h(G2) = g(G2) = C2 &gt; C*</code></pre>
+
+<p>Now consider an optimal path from the start state to an optimal goal <code>G</code>, with total cost <code>C*</code>. At any moment before the search terminates, at least one node on that path has been generated but not yet expanded — call it <code>n</code>; it sits on the frontier. (This is true because the start node itself lies on the optimal path: before anything is expanded, the start node is an unexpanded node of the path, and whenever a path node is expanded its successor on the path is generated and joins the frontier.) Since tree search keeps the whole path, <code>g(n)</code> equals the true cost of reaching <code>n</code> along the optimal path, so <code>g(n) + h*(n) = C*</code>. Admissibility gives <code>h(n) ≤ h*(n)</code>, hence</p>
+
+<pre><code>f(n) = g(n) + h(n) ≤ g(n) + h*(n) = C* &lt; C2 = f(G2)</code></pre>
+
+<p>So <code>f(n) &lt; f(G2)</code>, and a best-first queue ordered on <code>f</code> must select <code>n</code> before <code>G2</code>. This contradicts the assumption that <code>G2</code> was about to be expanded. Since the argument applies at every step, no suboptimal goal is ever expanded, and the first goal expanded has cost <code>C*</code>. (With ties at <code>f = C*</code>, A* may expand an optimal goal while other <code>f = C*</code> nodes remain; that is harmless, since all of them represent solutions of cost <code>C*</code> or worse.)</p>
+
+<p>The clause about <em>when</em> the goal test is applied is not a technicality — it is where the proof lives. If a goal node were returned the moment it was generated, A* could return <code>G2</code> while the cheaper node <code>n</code> was still waiting on the frontier with a smaller <code>f</code>. Consider this small graph, where <code>S</code> is the start and both <code>G</code> and <code>G2</code> are goals:</p>
+
+<pre><code>S --2--&gt; A --3--&gt; G        h(S)=4, h(A)=3, h(G)=0
+S --7--&gt; G2                h(G2)=0        C* = 5</code></pre>
+
+<table>
+  <thead>
+    <tr><th>Step</th><th>Node expanded</th><th>Frontier after expansion (node: g + h = f)</th><th>Comment</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>S (f = 4)</td><td>A: 2+3 = 5; G2: 7+0 = 7</td><td>G2 generated but <em>not</em> tested as a goal</td></tr>
+    <tr><td>2</td><td>A (f = 5)</td><td>G: 5+0 = 5; G2: 7+0 = 7</td><td>Optimal goal now on the frontier</td></tr>
+    <tr><td>3</td><td>G (f = 5)</td><td>G2: 7</td><td>Goal test at expansion succeeds — returns cost 5 = C*</td></tr>
+  </tbody>
+</table>
+
+<p>Had the algorithm tested goals at generation time, it would have returned <code>G2</code> with cost 7 at step 1. The same remark explains why the node <code>n</code> in the proof is guaranteed to be <em>unexpanded</em>: only unexpanded nodes can be reordered by the priority queue.</p>
+
+<p><strong>Consistency and the monotonicity of f.</strong> A heuristic is <em>consistent</em> (or <em>monotone</em>) if, for every node <code>n</code>, every action <code>a</code>, and the successor <code>n'</code> it produces,</p>
+
+<pre><code>h(n) ≤ c(n, a, n') + h(n')</code></pre>
+
+<p>This is a triangle inequality: the estimate at <code>n</code> may not exceed the cost of one real step plus the estimate from where that step lands. Consistency immediately yields monotonic <code>f</code>-values along any path. If <code>n'</code> is a successor of <code>n</code>, then <code>g(n') = g(n) + c(n, a, n')</code>, so</p>
+
+<pre><code>f(n') = g(n') + h(n')
+      = g(n) + c(n, a, n') + h(n')
+      ≥ g(n) + h(n)                   (by consistency)
+      = f(n)</code></pre>
+
+<p>Hence <code>f</code> is non-decreasing along every path in the search tree, which is why consistent heuristics are also called monotone. Intuitively, the estimate of total solution cost can only become more pessimistic (or stay the same) as real cost is paid and uncertainty is removed.</p>
+
+<p>Every consistent heuristic is admissible. Prove it by induction on the number of steps <code>k</code> in an optimal path from <code>n</code> to a goal. For <code>k = 0</code>, <code>n</code> is a goal, and consistency with <code>h(goal) = 0</code> plus non-negativity gives <code>h(n) = 0 = h*(n)</code>. For the inductive step, let <code>n'</code> be the first node on an optimal <code>k</code>-step path from <code>n</code>; then <code>h*(n) = c(n, a, n') + h*(n')</code>, and by consistency and the induction hypothesis <code>h(n) ≤ c(n, a, n') + h(n') ≤ c(n, a, n') + h*(n') = h*(n)</code>. So consistency is strictly stronger than admissibility.</p>
+
+<p>The converse fails. Take the graph used later for the graph-search counterexample, with <code>h(X) = 6</code> and <code>h(M) = 0</code> on an edge <code>X → M</code> of cost 1. Both values are admissible (they equal or underestimate the true distances), yet <code>h(X) = 6 &gt; 1 + 0 = c(X, a, M) + h(M)</code>, so <code>h</code> is inconsistent. In practice, inconsistent admissible heuristics are rare: they usually arise only when heuristics are combined carelessly, learned from data, or deliberately constructed. Most heuristics in common use are consistent:</p>
+
+<ul>
+  <li><strong>Straight-line distance</strong> on a map: for any road from <code>n</code> to <code>n'</code> of length <code>c</code>, the Euclidean triangle inequality gives <code>SLD(n, goal) ≤ c + SLD(n', goal)</code> whenever road length is at least Euclidean length.</li>
+  <li><strong>Manhattan distance</strong> on the 8-puzzle: a single move changes the Manhattan sum by exactly <code>+1</code> or <code>−1</code>, and the step cost is 1, so <code>h(n) ≤ 1 + h(n')</code> always holds.</li>
+  <li><strong>Misplaced tiles</strong>: one move changes the count by at most 1, again satisfying the inequality.</li>
+  <li><strong>Maximum of consistent heuristics</strong>: if <code>h1</code> and <code>h2</code> are consistent, so is <code>max(h1, h2)</code>.</li>
+</ul>
+
+<p>The practical payoff of consistency is a structural fact: <em>whenever A* selects a node for expansion, it has already found an optimal path to that node's state</em>. Suppose not — suppose <code>n</code> is expanded with <code>g(n)</code> greater than the optimal cost <code>g*(n)</code>. Then some node <code>m</code> on a cheapest path to that state is still on the frontier with <code>g(m) = g*(m)</code>, and by consistency <code>f(m) ≤ g*(n) + h(n) &lt; g(n) + h(n) = f(n)</code>, so <code>m</code> would have been chosen first. Therefore closing a node is safe: nothing better will come along later.</p>
+
+<p><strong>Graph-search A* is optimal with a consistent heuristic.</strong> Graph search adds a closed list (explored set) and discards any newly generated node whose state is already closed, which is essential for finite-memory search of graphs with many repeated states (grids, sliding-tile puzzles, route networks). The proof of optimality now rests on monotonicity. Because <code>f</code> never decreases along a path, and because A* always pops the smallest <code>f</code> on the frontier, the sequence of <code>f</code>-values of expanded nodes is non-decreasing: A* expands nodes in non-decreasing order of <code>f</code>. Two consequences follow:</p>
+
+<ul>
+  <li>Every node with <code>f(n) &lt; C*</code> is expanded before any node with <code>f = C*</code>, and a goal node <code>G</code> has <code>f(G) = g(G)</code>. A suboptimal goal has <code>f &gt; C*</code> and therefore cannot be the first goal expanded, since a node on the optimal path with <code>f ≤ C*</code> is always available. The first goal expanded has <code>f = C*</code>.</li>
+  <li>By the "optimal path on first expansion" property above, a state is closed only once an optimal path to it has been found. Discarding later duplicates therefore loses no optimal solution, and the closed list is pure savings.</li>
+</ul>
+
+<p>Without consistency, the second bullet collapses, and graph-search A* can return a suboptimal answer. Consider start <code>S</code>, intermediate states <code>X</code> and <code>M</code>, and goal <code>G</code>, with edges <code>S→X = 1</code>, <code>X→M = 1</code>, <code>S→M = 3</code>, <code>M→G = 5</code>. True costs are <code>h*(S) = 7</code>, <code>h*(X) = 6</code>, <code>h*(M) = 5</code>, and <code>C* = 7</code> via <code>S→X→M→G</code>. Take the admissible but inconsistent heuristic <code>h(S) = 0</code>, <code>h(X) = 6</code>, <code>h(M) = 0</code>, <code>h(G) = 0</code>. 
+
+</p><table>
+  <thead>
+    <tr><th>Step</th><th>Node selected</th><th><code>g</code></th><th><code>h</code></th><th><code>f</code></th><th>Frontier afterwards</th><th>Closed</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>S</td><td>0</td><td>0</td><td>0</td><td>M: 3+0 = 3; X: 1+6 = 7</td><td>S</td></tr>
+    <tr><td>2</td><td>M</td><td>3</td><td>0</td><td>3</td><td>X: 7; G: 8+0 = 8</td><td>S, M</td></tr>
+    <tr><td>3</td><td>X</td><td>1</td><td>6</td><td>7</td><td>G: 8 — the better path to M (<code>g = 2</code>) is <em>discarded</em> because M is closed</td><td>S, M, X</td></tr>
+    <tr><td>4</td><td>G</td><td>8</td><td>0</td><td>8</td><td>empty</td><td>S, M, X, G</td></tr>
+  </tbody>
+</table>
+
+<p>Graph-search A* returns a solution of cost 8 although <code>C* = 7</code>. The failure is exactly the one predicted: M was closed with <code>g(M) = 3</code> when the optimal value is <code>g*(M) = 2</code>, and the inconsistency <code>h(X) = 6 &gt; c(X, a, M) + h(M) = 1</code> pushed X behind M in the queue. Notice also that the expanded <code>f</code>-values 0, 3, 7, 8 are <em>not</em> monotone along the path <code>S → X → M</code> (7 then 3), which is the signature of inconsistency. There are two standard repairs when a heuristic cannot be made consistent: (i) manage the closed list specially by <em>reopening</em> a closed node whenever a strictly cheaper path to it is discovered (A* with node re-expansion), which restores optimality at the price of possible extra expansions; or (ii) locally repair the heuristic with the <em>pathmax</em> rule <code>h(n') ← max(h(n'), h(n) − c(n, a, n'))</code>, which enforces monotonicity of <code>f</code> along the generated paths. The first remedy is the one normally implemented; the general lesson is that <em>admissibility buys optimality for tree search, consistency buys optimality for graph search</em>.</p>
+
+<p><strong>Completeness of A*.</strong> Optimality says that <em>if</em> A* returns something, it is a cheapest solution; completeness says it will return something whenever a solution exists. The argument is a counting argument built on the <code>f</code>-ordering. Since A* never expands a goal before exhausting cheaper options, it expands all nodes with <code>f(n) &lt; C*</code> before expanding any goal node. So the question becomes: can that set be infinite, or can A* get stuck inside it forever? Two conditions rule this out:</p>
+
+<ul>
+  <li><strong>Positive step costs bounded away from zero:</strong> every action costs at least some <code>ε &gt; 0</code>. Then a node at depth <code>d</code> has <code>g ≥ dε</code>, and since <code>h ≥ 0</code>, <code>f ≥ dε</code>. Any node with <code>f &lt; C*</code> therefore lies at depth less than <code>C*/ε</code> — a finite bound.</li>
+  <li><strong>Finite branching factor <code>b</code>:</strong> there are at most <code>b^d</code> nodes at depth <code>d</code>, so at most <code>O(b^{C*/ε})</code> nodes can have <code>f &lt; C*</code>. Finitely many, however astronomically many.</li>
+</ul>
+
+<p>A* expands a new node at each iteration and never revisits an expanded node in graph search (and, in tree search, cannot cycle indefinitely below <code>f = C*</code> because of the depth bound). Having exhausted the finite set <code>{n : f(n) &lt; C*}</code>, it must next select a node with <code>f = C*</code>, and an optimal goal is always among the candidates, so a goal is reached in finite time. Both conditions are necessary. If step costs can shrink geometrically — say costs <code>1/2, 1/4, 1/8, …</code> along an infinite branch — infinitely many nodes can have <code>f &lt; C*</code> and A* will never escape that branch; this is the same pathology that makes uniform-cost search incomplete without a positive cost bound. If the branching factor is infinite (a continuous action space, say), a single expansion never terminates. When no solution exists, behaviour depends on the space: in a finite graph with a closed list, A* exhausts the frontier and reports failure in finite time; in an infinite space it may run forever, exactly like breadth-first or uniform-cost search, since no finite amount of expansion can prove the absence of a goal.</p>
+
+<p><strong>Contours of equal f-cost.</strong> Monotonic <code>f</code> gives a vivid geometric picture of A*'s behaviour. Draw, in the state space, the set of states with <code>f(n) ≤ C<sub>i</sub></code> for increasing values <code>C<sub>1</sub> &lt; C<sub>2</sub> &lt; …</code>. These nested regions are called <em>contours</em>, by analogy with contour lines on a map. Because expansion proceeds in non-decreasing order of <code>f</code>, A* fans out contour by contour: <em>every</em> node inside the contour <code>f = C<sub>i</sub></code> is expanded before <em>any</em> node outside it. The shape of these contours is controlled entirely by the heuristic:</p>
+
+<ul>
+  <li>With <code>h = 0</code>, A* degenerates into uniform-cost search. The contours are the sets <code>g(n) ≤ C<sub>i</sub></code>: circular bands expanding equally in all directions from the start, utterly indifferent to where the goal lies.</li>
+  <li>With a weak but non-trivial <code>h</code>, the contours are still broad but are pulled slightly toward the goal; the search is an ellipse-like blob with the start and goal roughly at the foci.</li>
+  <li>With an accurate <code>h</code>, the contours elongate dramatically along the start–goal axis and become narrow; few nodes lie between successive contours, so few nodes are expanded.</li>
+  <li>With a perfect heuristic, <code>h = h*</code>, every node on an optimal path satisfies <code>f(n) = g(n) + h*(n) = C*</code>, while every node off an optimal path has <code>f &gt; C*</code>. The contour <code>f = C*</code> hugs the optimal path itself and A* walks essentially straight to the goal, expanding only optimal-path nodes (plus whatever ties the tie-breaking rule admits).</li>
+</ul>
+
+<p>On an obstacle-free grid with unit moves, this is easy to visualise. Dijkstra's algorithm (<code>h = 0</code>) expands a diamond centred on the start whose radius grows until it swallows the goal; A* with Manhattan distance expands, in the ideal case, only the rectangle spanned by start and goal, because all shortest monotone paths have <code>f = C*</code> while any step away from the goal immediately raises <code>f</code> by 2. The contour picture also explains two practical facts: adding a tie-breaking rule that prefers larger <code>g</code> (equivalently smaller <code>h</code>) among equal <code>f</code> drives the search to the far edge of the <code>f = C*</code> contour and finds the goal sooner; and all the nodes strictly inside <code>f &lt; C*</code> are unavoidable, so the only room for improvement lies in how much of the <code>f = C*</code> band gets expanded.</p>
+
+<p><strong>Optimal efficiency of A*.</strong> A* is not merely optimal in the cost of the solution it returns; with a consistent heuristic it is <em>optimally efficient</em> among all optimal algorithms that use the same heuristic information and expand nodes from the same start state. The argument runs as follows. Suppose some algorithm <code>A</code> fails to expand a node <code>n</code> with <code>f(n) = g(n) + h(n) &lt; C*</code>, yet claims an optimal solution. The information available to <code>A</code> about the region below <code>n</code> consists only of <code>h(n)</code>. There exists another problem instance, identical in everything <code>A</code> has actually examined and still consistent with the heuristic values it has seen, in which the subtree under <code>n</code> contains a goal at true remaining cost exactly <code>h(n)</code> — giving a solution of cost <code>f(n) &lt; C*</code>. On that instance, <code>A</code> would miss the optimal solution. Hence any algorithm guaranteed to be optimal must expand every node with <code>f(n) &lt; C*</code>. A* expands precisely that set, plus some subset of the <code>f = C*</code> band (which subset depends on tie-breaking and on where the goal happens to be found). Therefore no competing algorithm with the same heuristic can be guaranteed to expand strictly fewer nodes.</p>
+
+<p>Three caveats keep this result honest. First, it is a statement about <em>node expansions</em>, not about running time per expansion: priority-queue operations, duplicate detection and heuristic evaluation all cost something, and an algorithm expanding slightly more nodes far more cheaply may well be faster in wall-clock terms. Second, it says nothing about <em>memory</em>. A* must keep the frontier and (in graph search) the closed list, so its space requirement is proportional to the number of nodes it stores, which is typically exponential. In practice A* exhausts RAM long before it exhausts patience: on a machine generating a million nodes per second, gigabytes vanish in minutes. Memory, not time, is A*'s binding constraint. Third, the guarantee is "no algorithm is guaranteed to do better", not "no algorithm ever does better": a lucky heuristic-blind algorithm may stumble onto the goal early on a particular instance.</p>
+
+<p><strong>Heuristic error and the number of nodes expanded.</strong> How much work A* does is governed by how close <code>h</code> is to <code>h*</code>. Two ways of measuring the gap give very different answers:</p>
+
+<ul>
+  <li><strong>Relative error</strong>, <code>ε = (h* − h)/h*</code>. If the relative error is a positive constant — the heuristic is, say, always within 90% of the truth — the number of nodes expanded still grows <em>exponentially</em> in the solution depth <code>d</code>, roughly as <code>O(b^{εd})</code> in a tree-shaped space with unit costs. A constant fraction of error accumulated over <code>d</code> levels is an absolute error proportional to <code>d</code>, and each unit of absolute error multiplies the contour's width.</li>
+  <li><strong>Absolute error</strong>, <code>|h*(n) − h(n)|</code>. Sub-exponential node growth requires the absolute error to grow no faster than the logarithm of the true path cost: <code>|h*(n) − h(n)| = O(log h*(n))</code>. Virtually no heuristic for a real combinatorial problem satisfies this. The honest conclusion is that A* with a realistic heuristic still faces exponential growth; a good heuristic shrinks the base of the exponent, which is enormously valuable but is not a change of complexity class.</li>
+</ul>
+
+<p>Comparing two heuristics is therefore a matter of how far each pushes the exponent down, and here <em>dominance</em> gives a clean theorem. If <code>h1</code> and <code>h2</code> are both admissible and <code>h2(n) ≥ h1(n)</code> for every node <code>n</code>, we say <code>h2</code> dominates <code>h1</code>, and A* using <code>h2</code> never expands more nodes than A* using <code>h1</code> (up to tie-breaking at <code>f = C*</code>). The proof is one line of contour reasoning: every node A* expands has <code>f &lt; C*</code> or <code>f = C*</code>; if <code>g(n) + h2(n) &lt; C*</code> then <code>g(n) + h1(n) ≤ g(n) + h2(n) &lt; C*</code>, so every node necessarily expanded under <code>h2</code> is also necessarily expanded under <code>h1</code>, but not conversely. The moral is to use the largest admissible estimate available — for instance <code>max(h1, h2)</code> of two admissible heuristics, which dominates both and remains admissible (and consistent if both are consistent). On the 8-puzzle, Manhattan distance <code>h2</code> dominates misplaced tiles <code>h1</code>, since each misplaced tile needs at least one move and usually more.</p>
+
+<p>The standard practical yardstick is the <strong>effective branching factor</strong> <code>b*</code>: if A* expands <code>N</code> nodes and the solution found is at depth <code>d</code>, then <code>b*</code> is the branching factor a uniform tree of depth <code>d</code> would need in order to contain <code>N + 1</code> nodes:</p>
+
+<pre><code>N + 1 = 1 + b* + (b*)² + … + (b*)^d</code></pre>
+
+<p><code>b*</code> is remarkably stable across problem instances for a given heuristic, which makes it a reliable basis for comparison; a well-designed heuristic drives <code>b*</code> close to 1, meaning the search barely branches at all. The classic 8-puzzle measurements make the point concrete (averages over random instances; <code>h1</code> = misplaced tiles, <code>h2</code> = Manhattan distance):</p>
+
+<table>
+  <thead>
+    <tr><th>Solution depth <code>d</code></th><th>Nodes: IDS</th><th>Nodes: A*(<code>h1</code>)</th><th>Nodes: A*(<code>h2</code>)</th><th><code>b*</code>: IDS</th><th><code>b*</code>: A*(<code>h1</code>)</th><th><code>b*</code>: A*(<code>h2</code>)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>12</td><td>3,644,035</td><td>227</td><td>73</td><td>2.78</td><td>1.42</td><td>1.24</td></tr>
+    <tr><td>14</td><td>—</td><td>539</td><td>113</td><td>—</td><td>1.44</td><td>1.23</td></tr>
+    <tr><td>16</td><td>—</td><td>1,301</td><td>211</td><td>—</td><td>1.45</td><td>1.25</td></tr>
+    <tr><td>18</td><td>—</td><td>3,056</td><td>363</td><td>—</td><td>1.46</td><td>1.26</td></tr>
+    <tr><td>20</td><td>—</td><td>7,276</td><td>676</td><td>—</td><td>1.47</td><td>1.27</td></tr>
+    <tr><td>24</td><td>—</td><td>39,135</td><td>1,641</td><td>—</td><td>1.48</td><td>1.26</td></tr>
+  </tbody>
+</table>
+
+<p>Two readings of this table matter. First, dominance shows up exactly as predicted: <code>h2</code>'s column is uniformly below <code>h1</code>'s, by more than an order of magnitude at depth 24. Second, the counts still climb steeply with depth — the exponent has been reduced from about 2.78 to about 1.26, not eliminated. Extrapolate to the 15-puzzle or 24-puzzle and the stored node counts pass any plausible memory budget, which is why even excellent heuristics leave A* <em>memory-bound</em>. That bottleneck, and not the node-expansion count protected by the optimal-efficiency theorem, is what motivates the memory-conscious variants: <strong>IDA*</strong> (iterative-deepening A*, which performs depth-first searches bounded by successive <code>f</code>-contours and uses space linear in depth, at the cost of re-expanding earlier contours), <strong>RBFS</strong> (recursive best-first search, also linear-space, remembering the best alternative <code>f</code>-value at each recursion level), and <strong>SMA*</strong> (simplified memory-bounded A*, which fills the available memory and then drops the worst leaf, backing its <code>f</code>-value up to its parent so the information is not lost). All of them retain the optimality guarantees proved above when the heuristic is admissible — and, for the graph-search versions, consistent — trading repeated work for the memory A* cannot spare.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1</strong> — Supported indirectly: the topic uses straight-line distance, misplaced tiles and Manhattan distance as running examples of heuristics (in the consistency checks, the dominance argument and the 8-puzzle table), reinforcing the idea that <code>h(n)</code> is a domain-knowledge estimate of remaining cost, though it does not introduce those heuristics from scratch.</li>
+  <li><strong>MO2</strong> — Directly supported: the proofs turn on the definitions <code>0 ≤ h(n) ≤ h*(n)</code> and <code>h(n) ≤ c(n, a, n′) + h(n′)</code>, show that consistency implies admissibility but not conversely, and supply an explicit admissible-but-inconsistent heuristic to test against both definitions.</li>
+  <li><strong>MO3</strong> — Supported: the worked expansion tables (goal test at expansion versus generation, and the inconsistent-heuristic graph with its closed list) trace the A* loop step by step with <code>f(n) = g(n) + h(n)</code>, including open-list ordering, closing of nodes and the discarding or reopening of repeated states.</li>
+  <li><strong>MO4</strong> — Partially supported: the topic establishes A*'s completeness, optimality, optimal efficiency and memory-bound space behaviour, giving the A* side of the comparison; greedy best-first search itself is not analysed here, so the contrast must be completed elsewhere.</li>
+  <li><strong>MO5</strong> — Supported indirectly: the dominance theorem and the effective-branching-factor evidence give the criteria by which a designed heuristic should be judged (keep it admissible or consistent, and make it as large as possible), but the construction techniques — relaxed problems, pattern databases, subproblem decomposition — are not developed in this topic.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The inconsistent-heuristic counterexample (S, X, M, G) is referenced forward in the consistency subsection and then worked in full in the graph-search subsection, so the two passages must be read together. Node counts and effective branching factors in the 8-puzzle table are the standard averages reported for random 8-puzzle instances (Russell &amp; Norvig); IDS figures beyond depth 12 are omitted as impractical. The optimal-efficiency argument is stated for consistent heuristics and for algorithms that extend paths from the start state; it does not cover bidirectional or non-path-based methods.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>This topic asks a sharper question than "how does A* work?" It asks "why can we trust it?" The answer comes in two proofs. First, with an admissible heuristic (one that never overestimates the true remaining cost), tree-search A* returns an optimal solution: a suboptimal goal sitting on the frontier has f equal to its full, inflated path cost, while some node on an optimal path always has f no greater than the optimal cost, so the suboptimal goal can never be selected first. Second, with a consistent heuristic (h(n) &lt;= c(n,a,n') + h(n')), f never decreases along a path — the monotonicity property — which guarantees that the first time A* expands a node it has already found the cheapest path to it. That is exactly the condition graph-search A* needs, because graph search discards later rediscoveries of a state.</p>
+<p>The proofs also give you a geometric picture. Because f is nondecreasing, A* expands nodes in bands, or contours, of increasing f-cost, much like ripples spreading from the start state; a perfect heuristic collapses the contours onto the optimal path, while h = 0 makes them circular and A* degenerates into uniform-cost search. Completeness follows from the same machinery given a finite branching factor and positive step costs bounded away from zero, since only finitely many nodes can have f below the optimal cost. Optimal efficiency says no other algorithm using the same heuristic information can expand fewer nodes (up to tie-breaking), and heuristic error analysis explains why the node count still grows quickly when h is merely good rather than perfect.</p>
+<p>While watching, keep two threads separate in your mind: admissibility versus consistency, and tree search versus graph search. Notice how reweighting edges or "potentials" is really another way of talking about f = g + h, and notice that building a heuristic from a relaxed problem is what makes admissibility automatic rather than lucky. If you can state precisely where each proof would break without its assumption, you understand the topic.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: The hidden beauty of the A* algorithm</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/A60q6dcoCjw?cc_load_policy=1&amp;rel=0" title="Video: The hidden beauty of the A* algorithm (Polylog)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Polylog</strong> · 19:22 · 1,033,650 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=A60q6dcoCjw" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A visual explanation of A* that reframes the heuristic as a potential function which reweights the edges of the graph, so that A* becomes Dijkstra's algorithm on the modified weights. From its chapter list it moves through changing edge lengths, what makes a potential 'good', and then an implementation section, which is where the admissibility and consistency conditions naturally appear as requirements that the reweighted edges stay nonnegative.</p>
+<h3>Why this video</h3>
+<p>The potential-function view is the cleanest route to understanding why consistency makes f monotone and why graph-search A* is safe, and Polylog's careful animations make the contour and reweighting intuition concrete rather than abstract.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: L03 Design an Admissible Heuristic</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/XsFow0UPqZQ?cc_load_policy=1&amp;rel=0" title="Video: L03 Design an Admissible Heuristic (Alice Gao)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Alice Gao</strong> · 15:08 · 3,009 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=XsFow0UPqZQ" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A lecture segment from a university AI course on constructing admissible heuristics by relaxing the original problem: the optimal cost of a relaxed problem is guaranteed to be a lower bound on the optimal cost of the original, hence admissible. It works through how relaxations are formed and why the admissibility argument follows directly from the definition 0 &lt;= h(n) &lt;= h*(n).</p>
+<h3>Why this video</h3>
+<p>It supplies the precise definition of admissibility that the tree-search optimality proof rests on, and Alice Gao's course-lecture style keeps the reasoning formal and citable rather than informal.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos reinforce the definitional work the proofs depend on. The Alice Gao lecture directly supports MO1 and MO2 by grounding h(n) as an estimate of remaining cost and establishing admissibility from relaxed problems, and it is the clearest bridge to MO5's heuristic-design task. The Polylog video supports MO2's consistency condition and MO3 by showing the expansion loop as reweighted Dijkstra, which also clarifies the completeness and complexity contrasts in MO4 by making visible how the f-contours expand and how a stronger heuristic narrows them.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

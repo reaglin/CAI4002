@@ -1,0 +1,246 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forward Checking</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Propagation: Forward Checking and Arc Consistency</a></div>
+  <header>
+    <h1>Forward Checking</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Forward Checking</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Forward checking is the simplest and most widely used form of <em>look-ahead</em> in constraint satisfaction search. Plain chronological backtracking is a "look-behind" algorithm: it assigns a value to a variable, then checks the new assignment against the assignments already made, and only discovers that a branch is hopeless when it finally reaches the variable whose domain has been exhausted. Forward checking reverses the direction of reasoning. Immediately after a variable is assigned, it looks <em>forward</em> into the domains of the still-unassigned variables and deletes every value that the new assignment has made impossible. The payoff is that a contradiction shows up as an empty domain at the moment it is created, rather than many levels deeper in the search tree, and that the surviving domains give the variable- and value-ordering heuristics much better information to work with.</p>
+
+<p>Formally, a constraint satisfaction problem (CSP) is a triple of variables <code>X = {X₁ … Xₙ}</code>, domains <code>D(X₁) … D(Xₙ)</code>, and constraints <code>C</code>. In a <em>binary</em> CSP every constraint relates exactly two variables, and the problem can be drawn as a constraint graph whose nodes are variables and whose edges are constraints. Forward checking is defined most naturally on binary CSPs, and the discussion below assumes that setting unless stated otherwise.</p>
+
+<p><strong>What forward checking does</strong></p>
+
+<p>Forward checking is a <em>local</em> operation with a deliberately narrow scope. When the search assigns <code>X = v</code>, forward checking visits only the neighbours of <code>X</code> in the constraint graph — the unassigned variables <code>Y</code> such that a constraint <code>C(X, Y)</code> exists. For each such <code>Y</code> it scans <code>D(Y)</code> and deletes every value <code>w</code> for which the pair <code>(v, w)</code> violates <code>C(X, Y)</code>. Variables that do not share a constraint with <code>X</code> are untouched, and variables that are already assigned are irrelevant because the assignment <code>X = v</code> was itself checked against them before being accepted. The work done is therefore proportional to the <em>degree</em> of <code>X</code>, not to the size of the whole problem — a crucial property when the constraint graph is sparse, as it is in scheduling, timetabling and map-colouring instances.</p>
+
+<p>Because the deletions are provisional — they are consequences of a tentative assignment that may later be undone — they must be <em>recorded</em>. Every implementation keeps a trail: a per-assignment record of exactly which values were removed from which domains. The usual data structure is a stack of <code>(variable, value)</code> pairs with a mark pushed at each decision level, or an array <code>pruned[X][v]</code> listing the deletions attributable to assigning <code>X = v</code>. When the search abandons <code>X = v</code>, the trail is unwound and every recorded value is put back. Without this bookkeeping the search would be unsound: domains would shrink monotonically and legitimate solutions in other branches would be lost.</p>
+
+<p>The invariant that forward checking maintains is worth stating precisely, because it is the whole justification for the technique:</p>
+
+<ul>
+<li><strong>Forward-checking invariant:</strong> at every node of the search tree, for every unassigned variable <code>Y</code> and every value <code>w</code> remaining in <code>D(Y)</code>, the extended assignment that adds <code>Y = w</code> to the current partial assignment violates no constraint.</li>
+</ul>
+
+<p>In the vocabulary of consistency, this is exactly <em>arc consistency between each unassigned variable and each assigned variable</em>. It is a strictly weaker property than full arc consistency, which also demands consistency between pairs of unassigned variables. Two immediate consequences follow from the invariant. First, when the search picks the next variable and value, it never needs to re-check that value against any earlier assignment — the check has already been done, which is why forward checking can replace rather than merely supplement the consistency test of plain backtracking. Second, an empty domain is a certificate of failure: if <code>D(Y)</code> is empty then no value of <code>Y</code> is compatible with the current partial assignment, so that partial assignment cannot be part of any solution.</p>
+
+<p>Forward checking performs inference exactly <em>one level deep</em>. If removing values from <code>D(Y)</code> implies, through a constraint <code>C(Y, Z)</code>, that some value of a third unassigned variable <code>Z</code> has lost all of its supports, forward checking does not notice. It never re-examines <code>Y</code>'s other neighbours after pruning <code>Y</code>. This is the defining limitation, and it is the deliberate price paid for cheapness; propagating those consequences transitively is what arc consistency algorithms such as AC-3 do.</p>
+
+<p>Finally, forward checking requires no structural change to the backtracking search. The recursive skeleton — choose a variable, iterate over its values, recurse, undo — is unchanged. Forward checking inserts one pruning step after the assignment and one restoration step after the recursive call returns. This modularity is the reason it is the usual default in textbook and production CSP solvers alike: it can be switched on or off with a flag, which also makes it an ideal baseline for benchmarking stronger inference.</p>
+
+<p><strong>The forward checking algorithm step by step</strong></p>
+
+<p>The five steps below describe one node of the search. They are written as a recursive procedure, but the same logic applies to an iterative solver with an explicit stack.</p>
+
+<ul>
+<li><strong>Step 1 — Select and assign.</strong> Choose an unassigned variable <code>X</code> (typically by the MRV heuristic, below) and iterate over the values <code>v</code> currently remaining in <code>D(X)</code>. Note that <code>D(X)</code> here is the <em>current</em>, already-pruned domain, not the original one. Tentatively set <code>X = v</code>.</li>
+<li><strong>Step 2 — Prune the neighbours.</strong> For every unassigned variable <code>Y</code> with a constraint <code>C(X, Y)</code>, examine each <code>w ∈ D(Y)</code> and delete <code>w</code> if <code>(v, w)</code> violates <code>C(X, Y)</code>. Record every deletion on the trail under the decision <code>X = v</code>.</li>
+<li><strong>Step 3 — Test for domain wipe-out.</strong> If any <code>D(Y)</code> becomes empty, the assignment <code>X = v</code> is refuted. Undo the deletions made in Step 2 at once, and continue the loop of Step 1 with the next value of <code>X</code>. Do <em>not</em> recurse. If no value of <code>X</code> survives, return failure so that the parent node backtracks.</li>
+<li><strong>Step 4 — Recurse.</strong> If all neighbour domains are still non-empty, call the search recursively to assign the next variable. If the recursive call returns a solution, propagate it upward.</li>
+<li><strong>Step 5 — Restore on backtrack.</strong> When the recursive call fails and the search leaves <code>X = v</code>, unwind the trail for that decision: every value pruned in Step 2 is returned to the domain it came from, and <code>X</code> is marked unassigned again. The domains are then bit-for-bit identical to their state before Step 1, so the next value of <code>X</code> is tried in a clean context.</li>
+</ul>
+
+<pre><code>function BACKTRACK-FC(assignment, domains):
+    if assignment is complete: return assignment
+    X &lt;- SELECT-UNASSIGNED-VARIABLE(domains)        # e.g. MRV, ties broken by degree
+    for each v in ORDER-DOMAIN-VALUES(X, domains):   # e.g. least-constraining value
+        assignment[X] &lt;- v
+        trail &lt;- empty list
+        wipeout &lt;- false
+        for each unassigned Y in NEIGHBOURS(X):
+            for each w in domains[Y]:
+                if not CONSISTENT(X, v, Y, w):
+                    remove w from domains[Y]
+                    append (Y, w) to trail
+            if domains[Y] is empty:
+                wipeout &lt;- true
+                break                                # fail fast: stop pruning
+        if not wipeout:
+            result &lt;- BACKTRACK-FC(assignment, domains)
+            if result != failure: return result
+        for each (Y, w) in trail:                    # Step 5: restore
+            add w back to domains[Y]
+        remove X from assignment
+    return failure</code></pre>
+
+<p>Two implementation details matter in practice. First, the <code>break</code> on wipe-out is an optimisation only: once one domain is empty the assignment is already refuted, so pruning the remaining neighbours is wasted work — but the trail must still be unwound correctly, which the code above does because it restores whatever was recorded. Second, domains are usually represented as bitsets or as "domain arrays with a current size" so that deletion and restoration are O(1) per value and the current domain size is available in constant time for the MRV heuristic.</p>
+
+<p><strong>Worked example: map colouring</strong></p>
+
+<p>The classic illustration is colouring the states and territories of Australia with three colours so that no two adjacent regions share a colour. The variables are WA, NT, SA, Q, NSW, V and T; each domain is initially <code>{red, green, blue}</code>. The adjacency constraints are: WA–NT, WA–SA, NT–SA, NT–Q, SA–Q, SA–NSW, SA–V, Q–NSW, NSW–V. Tasmania (T) borders nothing, so it is an isolated node in the constraint graph.</p>
+
+<p>Suppose the search uses the fixed order WA, Q, V, … and always tries colours in the order red, green, blue. The following table traces the domains after each assignment; assigned variables are shown with their chosen value in braces for clarity.</p>
+
+<table>
+<thead>
+<tr><th>After</th><th>WA</th><th>NT</th><th>Q</th><th>SA</th><th>NSW</th><th>V</th><th>T</th></tr>
+</thead>
+<tbody>
+<tr><td>Initial domains</td><td>R G B</td><td>R G B</td><td>R G B</td><td>R G B</td><td>R G B</td><td>R G B</td><td>R G B</td></tr>
+<tr><td>WA = red</td><td>{R}</td><td>G B</td><td>R G B</td><td>G B</td><td>R G B</td><td>R G B</td><td>R G B</td></tr>
+<tr><td>Q = green</td><td>{R}</td><td>B</td><td>{G}</td><td>B</td><td>R B</td><td>R G B</td><td>R G B</td></tr>
+<tr><td>V = blue</td><td>{R}</td><td>B</td><td>{G}</td><td><strong>(empty)</strong></td><td>R</td><td>{B}</td><td>R G B</td></tr>
+</tbody>
+</table>
+
+<p>Reading the trace line by line:</p>
+
+<ul>
+<li><strong>WA = red.</strong> WA's unassigned neighbours are NT and SA. Red is deleted from both, leaving <code>D(NT) = D(SA) = {green, blue}</code>. Q, NSW, V and T are not adjacent to WA, so they are untouched — a direct illustration of the "neighbours only" scope. The trail for this decision records <code>(NT, red)</code> and <code>(SA, red)</code>.</li>
+<li><strong>Q = green.</strong> Q's unassigned neighbours are NT, SA and NSW. Green is deleted from each, giving <code>D(NT) = {blue}</code>, <code>D(SA) = {blue}</code> and <code>D(NSW) = {red, blue}</code>. No domain is empty, so the search continues. Notice that NT and SA are now both singletons holding the <em>same</em> colour, and NT–SA is a constraint — the partial assignment is already doomed, but forward checking cannot see this, for reasons taken up under "Limitations" below.</li>
+<li><strong>V = blue.</strong> V's unassigned neighbours are SA and NSW. Blue is deleted from <code>D(SA) = {blue}</code>, which wipes it out, and from <code>D(NSW) = {red, blue}</code>, leaving <code>{red}</code>. The empty domain for SA is detected the instant it occurs, so the solver immediately rejects <code>V = blue</code>, restores <code>blue</code> to SA and NSW, and tries the next value for V. It never descends into the subtree below <code>V = blue</code>.</li>
+</ul>
+
+<p>Contrast this with plain chronological backtracking under the same variable order. Having set WA = red, Q = green and V = blue, plain backtracking has checked each new value only against the earlier assignments, all of which succeeded (WA and Q are not adjacent; V is adjacent to neither WA nor Q, so V = blue is accepted outright). It would then go on to assign NT, then NSW, and only when it finally reached SA would it discover that no colour is available — having in the meantime enumerated combinations of NT and NSW values, each of which requires its own consistency checks and its own node in the search tree. Forward checking collapses all of that wasted exploration into a single test.</p>
+
+<p>When the search backtracks out of <code>V = blue</code>, the trail for that decision contains <code>(SA, blue)</code> and <code>(NSW, blue)</code>. Restoring them gives <code>D(SA) = {blue}</code> and <code>D(NSW) = {red, blue}</code> — exactly the state shown in the "Q = green" row of the table. The restoration is exact and local: deletions attributable to WA = red and Q = green are untouched, because they belong to decisions that are still in force. This is why the trail must be organised by decision level rather than as a single undifferentiated set.</p>
+
+<p><strong>Early failure detection and interaction with heuristics</strong></p>
+
+<p>The logical content of an empty domain deserves emphasis. If <code>D(Y) = ∅</code> after forward checking, then by the forward-checking invariant every original value of <code>Y</code> conflicts with at least one current assignment. Since <code>Y</code> must receive some value in any complete solution, the current partial assignment extends to no solution at all. The empty domain is therefore a <em>proof</em> of failure, not a heuristic guess, and the solver is entitled to prune the entire subtree below it. This soundness is what makes the technique safe: forward checking never prunes a branch that contains a solution.</p>
+
+<p>Beyond failure detection, the pruned domains are a rich source of information for the ordering heuristics that do most of the practical work in CSP solving.</p>
+
+<ul>
+<li><strong>Minimum Remaining Values (MRV), also called "fail-first".</strong> Choose next the unassigned variable with the smallest current domain. This heuristic is almost useless under plain backtracking, where domains never shrink and every variable looks identical; it becomes powerful precisely because forward checking maintains live domain sizes. The rationale is that a variable with one remaining value is forced, so assigning it propagates information immediately, while a variable with zero remaining values signals failure at once. In the trace above, after <code>Q = green</code> MRV would select NT or SA (domain size 1) rather than V (domain size 3). Choosing SA, the only value is blue; forward checking then deletes blue from NT, wiping it out, and the doomed branch is refuted one assignment earlier still.</li>
+<li><strong>Degree heuristic.</strong> MRV often produces ties, especially at the root where all domains are the same size. The degree heuristic breaks ties by preferring the variable involved in the largest number of constraints with <em>unassigned</em> variables, because assigning it prunes the most domains and so maximises the amount of inference performed. In Australia, SA has degree 5 and would be chosen first at the root, which is an excellent decision: colouring SA immediately removes one colour from five other domains.</li>
+<li><strong>Least-constraining value (LCV).</strong> Having chosen a variable, order its values so that the one which rules out the fewest values in neighbouring domains is tried first. The counts needed are exactly the deletion counts that forward checking computes anyway — a trial forward-check per candidate value yields the number of prunings. Where MRV is "fail-first" on variables, LCV is "succeed-first" on values: it keeps the remaining search space as large as possible so that a solution is more likely to be found without backtracking.</li>
+</ul>
+
+<p>The combination is more than the sum of its parts. On the n-queens problem, plain backtracking becomes impractical somewhere around n = 25–30; forward checking with MRV and degree tie-breaking routinely solves instances with hundreds of queens, because each queen placement immediately strips the attacked squares from the remaining columns' domains and MRV then pounces on whichever column has become most constrained. On random binary CSPs near the phase transition, the reduction in nodes expanded is typically one to three orders of magnitude relative to plain backtracking with the same static ordering.</p>
+
+<p><strong>Cost versus pruning power</strong></p>
+
+<p>Forward checking buys node reductions with per-node work, and it is worth quantifying both sides of the trade. Let <code>n</code> be the number of variables, <code>d</code> the maximum domain size and <code>deg(X)</code> the number of unassigned neighbours of the variable being assigned.</p>
+
+<ul>
+<li><strong>Time per assignment.</strong> Checking one neighbour costs O(d) constraint checks — one per remaining value of that neighbour. The whole forward-checking step therefore costs O(deg(X) · d) constraint checks, which in the worst case of a complete constraint graph is O(n · d). On sparse graphs the degree is a small constant and the cost is O(d).</li>
+<li><strong>Space.</strong> The trail stores one entry per pruned value. Across a root-to-leaf path of depth <code>n</code>, at most <code>n · d</code> values can ever be deleted in total (each value of each variable can be deleted at most once while it stays deleted), so the trail is O(n · d) in the worst case — modest, and easily implemented as a preallocated array. Restoration costs O(1) per recorded deletion.</li>
+<li><strong>Nodes.</strong> Plain backtracking creates and tests nodes that forward checking prevents from ever being generated: any assignment that would later be found inconsistent with an existing assignment is removed from the domain in advance. Each pruned node would otherwise have cost at least one consistency check plus the stack frame, and may have had an entire subtree below it.</li>
+</ul>
+
+<p>A useful theoretical guarantee: with the same variable and value ordering, forward checking <em>never visits a node that chronological backtracking does not also visit</em>. Every node it prunes is one that backtracking would eventually have refuted. So the node count can only improve, and the only possible loss is the constant-factor overhead per node. That is why forward checking is generally adopted as the default rather than as an option to be justified case by case.</p>
+
+<p>The overhead is nevertheless real, and its significance depends on constraint tightness. On a loosely constrained problem — few constraints, or constraints that forbid only a small fraction of value pairs — most forward-checking scans delete nothing, so the solver pays O(deg · d) per node for no return and may be measurably slower than plain backtracking in wall-clock terms even though it expands the same number of nodes. On tightly constrained problems, and especially near the satisfiable/unsatisfiable phase transition where most branches are doomed, the deletions come thick and fast, wipe-outs are frequent, and the saving in nodes dwarfs the per-node cost.</p>
+
+<table>
+<thead>
+<tr><th>Algorithm</th><th>Inference performed after each assignment</th><th>Cost per node</th><th>Typical nodes expanded</th><th>Where it wins</th></tr>
+</thead>
+<tbody>
+<tr><td>Chronological backtracking</td><td>Check new value against earlier assignments only</td><td>O(n) checks</td><td>Highest</td><td>Very loose constraints, tiny problems</td></tr>
+<tr><td>Forward checking</td><td>Prune neighbours of the assigned variable (one level)</td><td>O(deg · d) checks</td><td>Orders of magnitude fewer</td><td>General-purpose default</td></tr>
+<tr><td>Maintaining arc consistency (MAC)</td><td>Run AC-3 to a fixpoint over all affected arcs</td><td>O(e · d³) worst case, e = number of constraints</td><td>Fewest of the three</td><td>Tight constraints, hard instances, large domains</td></tr>
+</tbody>
+</table>
+
+<p><strong>Limitations of forward checking</strong></p>
+
+<p>The single structural weakness is that forward checking <em>does not propagate</em>. When it shrinks <code>D(Y)</code>, it stops. It does not ask whether the values that remain in <code>D(Y)</code> still support the values in the domains of <code>Y</code>'s other neighbours, so a deletion never cascades. All of the following limitations are corollaries of that one fact.</p>
+
+<ul>
+<li><strong>Inconsistencies between two future variables are invisible.</strong> Return to the trace after <code>WA = red, Q = green</code>: <code>D(NT) = {blue}</code> and <code>D(SA) = {blue}</code>, and NT–SA is a constraint. The partial assignment is unsatisfiable, but no domain is empty, so forward checking sees nothing wrong and the search happily descends. Arc consistency would catch it instantly: revising the arc NT → SA finds that NT's only value, blue, has no support in <code>D(SA) = {blue}</code>, so blue is deleted from NT and NT is wiped out. This single example is the standard demonstration that forward checking is strictly weaker than arc consistency.</li>
+<li><strong>Doomed branches are still explored.</strong> Because such hidden conflicts go undetected, the solver continues to assign variables below a node that can never succeed, discovering the failure only when the conflict finally involves an assigned variable. Each wasted level multiplies the number of nodes by roughly the branching factor.</li>
+<li><strong>The guarantee is one-sided.</strong> An empty domain proves failure, but a non-empty domain proves nothing. Forward checking can certify that a branch is dead; it can never certify that a branch is alive. Stronger inference narrows the gap but never closes it entirely — only a complete search can confirm satisfiability.</li>
+<li><strong>Stronger look-ahead exists at higher cost.</strong> Running a full arc-consistency pass after every assignment — restricting the initial arc queue to the arcs <code>(Y, X)</code> that point at the newly assigned variable <code>X</code>, then propagating — gives the algorithm usually called <strong>Maintaining Arc Consistency (MAC)</strong>, or sometimes "really full look-ahead". MAC subsumes forward checking: its first round of revisions performs exactly the prunings forward checking would perform, and then it keeps going. It expands fewer nodes, but each node costs more, and on easy or loosely constrained instances that extra work is not repaid.</li>
+<li><strong>Forward checking sits at the bottom of a hierarchy.</strong> The family of look-ahead schemes runs roughly: backtracking (no look-ahead) → forward checking (one level, neighbours of the assigned variable) → partial look-ahead / directional arc consistency (propagation restricted to future variables in one direction) → MAC with AC-3 or AC-4 (full arc consistency at every node) → path consistency and higher-order k-consistency (prohibitively expensive in general). Each step up the hierarchy prunes more per node and costs more per node, and the best choice is empirical, which is precisely why configurable solvers expose the inference level as a parameter and why benchmark comparisons report both nodes expanded and runtime.</li>
+</ul>
+
+<p>A final practical note: forward checking generalises beyond binary constraints, but less elegantly. For an <code>n</code>-ary constraint, the usual rule is to prune only when all but one of its variables are assigned, at which point the single unassigned variable's domain can be filtered exactly — this is sometimes called the "forward checking on the last unassigned variable" rule. Earlier, weaker filtering of <code>n</code>-ary constraints is the province of specialised propagators (for example, bounds or domain propagators for <code>alldifferent</code>), which again belong to the stronger-inference end of the spectrum rather than to forward checking proper.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+<li><strong>MO1:</strong> The topic develops the idea of local consistency directly — the forward-checking invariant is stated as arc consistency between each unassigned variable and each assigned variable, and the domain deletions, the trail, and the wipe-out test show how such enforcement reduces domains inside a backtracking search.</li>
+<li><strong>MO2:</strong> The five-step algorithm and the Australia map-colouring trace, with its table of domains after WA = red, Q = green and V = blue, provide exactly the step-by-step tracing and resulting domain reductions this outcome requires, including the restoration of pruned values on backtrack.</li>
+<li><strong>MO3:</strong> The topic does not implement AC-3; it only situates arc consistency as the stronger neighbour of forward checking and shows, via the NT/SA example, the inference that a REVISE-based algorithm would make. Implementation detail for AC-3 is covered elsewhere in the module.</li>
+<li><strong>MO4:</strong> The cost-versus-pruning discussion quantifies forward checking's O(deg · d) per-assignment cost and O(n · d) trail space, and the comparison table contrasts its pruning power and per-node cost with MAC; min-conflicts local search is not treated here.</li>
+<li><strong>MO5:</strong> The topic supports this outcome indirectly by establishing forward checking as the switchable baseline configuration of a solver and by arguing that nodes expanded and runtime can diverge on loosely constrained instances, which motivates the use of complementary metrics in benchmarking.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The worked example uses the standard Australia map-colouring CSP (WA, NT, SA, Q, NSW, V, T) and follows the assignment order WA = red, Q = green, V = blue so that the wipe-out occurs on SA, matching the subtopic bullets exactly. The NT = SA = {blue} situation after the second assignment is reused later as the canonical demonstration that forward checking does not propagate — this cross-reference is intentional and is the natural bridge to the AC-3/MAC material in the rest of the module.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Forward checking is the simplest and most widely used form of constraint propagation inside backtracking search. Each time you assign a value to a variable, forward checking looks at every unassigned variable that shares a constraint with it and deletes from those domains any value that is now inconsistent with the new assignment. If any domain becomes empty, the current partial assignment cannot be extended to a solution, so the search backtracks immediately instead of wasting effort exploring doomed subtrees.</p>
+<p>This matters in the course because it is the bridge between plain chronological backtracking and stronger propagation methods such as AC-3 and MAC. Forward checking also supplies exactly the information that dynamic variable ordering heuristics need: once domains shrink during search, minimum remaining values (MRV) can pick the most constrained variable, and degree and least-constraining-value heuristics can break ties. The trade-off to keep in mind throughout is cost versus pruning power — propagation work at every node must pay for itself in nodes that never get expanded.</p>
+<p>As you watch the videos, track three things: (1) which domains change after each assignment and why, (2) the exact moment an empty domain reveals failure, and (3) how far ahead the method can and cannot see. Forward checking only checks constraints between the just-assigned variable and its unassigned neighbours; it will not notice an inconsistency that lies purely between two unassigned variables. That limitation is the motivation for arc consistency in the next part of the module.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Constraint Satisfaction Problems (CSPs) 4 - Dynamic Ordering | Stanford CS221: AI (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Lyu8VzbIe_A?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problems (CSPs) 4 - Dynamic Ordering | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 19:17 · 13,710 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=Lyu8VzbIe_A" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A lecture segment from Stanford's CS221 artificial intelligence course covering constraint satisfaction problems, with a focus on dynamic ordering of variables and values during search. Based on its title and the standard CS221 treatment, it is likely to present lookahead/forward checking as the mechanism that keeps domains up to date, and then show how heuristics such as most-constrained-variable and least-constrained-value exploit those reduced domains. Expect formal notation, worked search traces, and discussion of why ordering choices change the size of the search tree.</p>
+<h3>Why this video</h3>
+<p>It is the most rigorous and authoritative of the three, from a university AI course, and it directly addresses the subtopic on how forward checking interacts with heuristics and on the cost-versus-pruning trade-off.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: The 4 Queens Problem, AI &amp; CSPs</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/X6m0DXt95bs?cc_load_policy=1&amp;rel=0" title="Video: The 4 Queens Problem, AI &amp; CSPs (a bit of intelligence)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>a bit of intelligence</strong> · 5:51 · 15,056 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=X6m0DXt95bs" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short explainer that introduces CSPs using the 4-queens puzzle, a scaled-down version of the classic eight queens problem. It is likely to formulate queens placement as variables, domains and constraints, then walk through placing queens column by column and eliminating the squares that conflict with each placement. The small board makes the whole search and the resulting domain wipeouts easy to follow.</p>
+<h3>Why this video</h3>
+<p>The 4-queens trace is the standard textbook illustration of forward checking and early failure detection, so it gives you a compact second worked example alongside map colouring, in under six minutes.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: Map Coloring: Constraint Satisfaction Problem + Python (prototype project 01 | public version)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/jzh5VYmrsbo?cc_load_policy=1&amp;rel=0" title="Video: Map Coloring: Constraint Satisfaction Problem + Python (prototype project 01 | public version) (Prototype Project)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Prototype Project</strong> · 3:29 · 1,968 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=jzh5VYmrsbo" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A brief project-style video that treats map colouring as a constraint satisfaction problem and demonstrates it with a Python implementation. It should show how regions become variables, colours become domains, and adjacency becomes the not-equal constraints, with the solver assigning colours while respecting those constraints. The focus is practical: seeing a CSP solver run on the canonical map-colouring instance.</p>
+<h3>Why this video</h3>
+<p>Map colouring is the worked example named in this topic, and the coding angle helps you connect the hand-traced domain reductions to what an actual solver does at each node.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos support the module outcomes from theory through practice. The Stanford lecture addresses MO1 and MO4 by explaining how lookahead enforces local consistency inside backtracking and how ordering heuristics and propagation effort affect the search tree size, which is the same cost-versus-pruning reasoning you will apply later to MAC. The 4-queens explainer and the map-colouring project video serve MO2 by giving you two concrete binary CSPs on which to trace assignments and the domain reductions and empty-domain failures that follow. The Python map-colouring demonstration also previews the implementation mindset needed for MO3 and the benchmarking work in MO5, where you will instrument a solver and compare nodes expanded against runtime.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

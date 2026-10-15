@@ -1,0 +1,252 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foundations of Knowledge Representation</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Knowledge Representation Structures and Expert Systems</a></div>
+  <header>
+    <h1>Foundations of Knowledge Representation</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Foundations of Knowledge Representation</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Knowledge representation (KR) is the sub-field of artificial intelligence concerned with how the things a system "knows" about a domain can be written down in a formal, machine-manipulable way so that a program can reason about them. It is the bridge between a messy, continuous, ambiguous world and a discrete computational process. Before an expert system can diagnose an infection, configure a computer, or approve a loan, somebody must decide what counts as an object in that world, what properties and relationships matter, which symbol structures will stand for them, and what operations on those structures count as legitimate reasoning. Those decisions are not neutral bookkeeping: they determine what the finished system can say, what it can conclude, how quickly it can conclude it, and whether a human being can understand or repair it later.</p>
+
+<p>It is useful to keep in mind from the outset that KR is an engineering discipline with a logical conscience. The logical side insists that symbol structures have a precise meaning and that inference preserves truth; the engineering side insists that the resulting system runs in acceptable time on real hardware with knowledge that real experts can be persuaded to supply. Almost every theme in this topic — adequacy criteria, the expressiveness–tractability trade-off, the symbolic versus sub-symbolic debate — is a different view of the tension between those two pressures.</p>
+
+<p><strong>What knowledge representation means.</strong> A classic analysis (Davis, Shrobe and Szolovits) characterises a representation by five roles it plays simultaneously. The first and most fundamental is that <em>every representation is a surrogate</em>. The symbol structure <code>patient_17</code> inside a computer is not a patient; it is a stand-in that the program manipulates in place of the real thing, because the real thing cannot be put inside a machine. Two consequences follow immediately. First, the surrogate is necessarily <em>imperfect</em>: it captures some aspects of the referent and omits infinitely many others. A medical knowledge base might record a patient's age, temperature, white-cell count and allergy list, but not their height, mood, dialect, or the fact that they cycled to the clinic. Second, because the surrogate is incomplete, reasoning over it can be <em>wrong</em> even when the inference is logically flawless — the omitted detail may have been the decisive one. The practical lesson is that choosing a representation is choosing what to ignore, and that choice should be made deliberately rather than by accident.</p>
+
+<p>The second point is that a KR scheme always has two inseparable parts: a <em>syntax</em> and a <em>semantics</em>. The syntax defines which symbol structures are legal — which strings, graphs, or records the formalism admits. The semantics defines what those legal structures mean, by mapping them onto the entities and relationships of the domain. Consider the string <code>∀x (Dog(x) → Mammal(x))</code>. Syntax tells us that this is a well-formed first-order sentence (a quantifier, a variable, two unary predicates and an implication connective in the permitted arrangement), whereas <code>∀ → Dog x) (</code> is not. Semantics tells us that the sentence is true in an interpretation exactly when every object in the domain that falls in the extension of <code>Dog</code> also falls in the extension of <code>Mammal</code>. Without syntax, there is nothing to compute with; without semantics, computation is mere symbol-shuffling with no claim to be <em>about</em> anything. A frequent source of bugs in home-grown semantic networks is precisely an unstated semantics: a link labelled <code>has</code> between <code>Bird</code> and <code>Wing</code> might mean "every bird has exactly two wings", "birds typically have wings", or "wings are a part-type of birds", and different modules of the system may silently assume different readings.</p>
+
+<p>The third point is that representation is always paired with <em>inference</em>. A structure that merely sits in memory is inert; it becomes knowledge when conclusions can be drawn from it. A representation therefore carries with it a sanctioned set of inferences (what may legitimately be concluded) and a recommended set (what it is sensible to try to conclude, given finite time). First-order logic sanctions everything that follows semantically from the premises, but recommends nothing in particular — hence the need for proof strategies. A frame system sanctions far less, but strongly recommends inheritance: if you want a property of an instance and it is not stored locally, look up the <code>is-a</code> chain. This recommendation is built into the data structure through pointers, which is why frame lookup is fast.</p>
+
+<p>Fourth, the choice of representation <em>constrains the questions a system can answer and the efficiency with which it answers them</em>. Suppose an airline models flights as a table of rows <code>(flight, origin, destination, departure, arrival)</code>. Asking "which flights leave Dublin after 18:00?" is trivial. Asking "is there a route from Dublin to Perth with at most two changes and a minimum 45-minute connection?" is possible but requires a search procedure built on top, because the representation stores edges, not reachability. Had the designers instead pre-computed and stored a reachability relation, the second question would be a lookup and the first would be unchanged — but the knowledge base would be far larger and harder to update. Representation design is largely the art of deciding which inferences to <em>pre-compute and store</em> and which to <em>derive on demand</em>.</p>
+
+<p>Fifth, a representation makes an <em>ontological commitment</em>. Choosing a formalism and a vocabulary is deciding which entities, properties and relations exist in the modelled world and how finely they are carved. A hospital system that commits to <code>Patient</code>, <code>Admission</code>, <code>Diagnosis</code> and <code>Treatment</code> as first-class objects can ask "how many admissions did this patient have?"; a system that treats diagnosis as a mere attribute of a patient cannot represent a patient with two simultaneous diagnoses at all without re-engineering. Similarly, a system that represents time as a set of instants cannot naturally express "the fever lasted three days" without introducing intervals. Ontological commitments are the hardest decisions to reverse, because every rule, every query and every piece of acquired knowledge is written in the committed vocabulary.</p>
+
+<p><strong>The data–information–knowledge hierarchy.</strong> It is common, and useful, to distinguish three levels of content that a system may hold. <em>Data</em> are uninterpreted symbols or measurements: the number <code>38.9</code>, the string <code>"B+"</code>, a pixel array. They carry no indication of what they are about. <em>Information</em> is data placed in a context that fixes its referent, its attribute and its units: <code>patient_17.temperature = 38.9 °C, measured 09:40 orally</code>. Information answers who, what, where and when. <em>Knowledge</em> adds the generalisations and relationships that license inference: "an oral temperature above 38 °C indicates fever"; "fever plus neutropenia is a medical emergency requiring antibiotics within one hour". Knowledge answers how and why, and — crucially — it can be applied to cases never seen before.</p>
+
+<table>
+  <thead>
+    <tr><th>Level</th><th>Nature</th><th>Example</th><th>Scope</th><th>Typical store</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Data</td><td>Uninterpreted symbols or measurements</td><td><code>38.9</code></td><td>Meaningless in isolation</td><td>Sensor log, raw file</td></tr>
+    <tr><td>Information</td><td>Data + context, units, referent</td><td><code>temperature(patient_17) = 38.9 °C</code></td><td>One case, one moment</td><td>Working memory / fact base</td></tr>
+    <tr><td>Knowledge</td><td>Generalisations and relations licensing inference</td><td><code>IF temperature &gt; 38 THEN fever</code></td><td>All cases of a class</td><td>Knowledge base</td></tr>
+    <tr><td>(Often added) Wisdom / meta-knowledge</td><td>Knowledge about using knowledge</td><td>"Check for immunosuppression before treating fever as routine"</td><td>Strategic, context-sensitive</td><td>Meta-rules, control knowledge</td></tr>
+  </tbody>
+</table>
+
+<p>The decisive property is <em>reusability</em>. Information is normally tied to a single instance and is discarded or archived when the case closes; knowledge persists and is reapplied. This is exactly why expert system architectures keep the two in separate stores. The <strong>knowledge base</strong> holds domain-general rules, frames or ontologies supplied by experts and knowledge engineers, and changes only when the domain or the expertise changes. The <strong>working memory</strong> (also called the fact base, blackboard, or context) holds the assertions about the case currently being handled, and is created fresh for every consultation. The inference engine matches the general knowledge against the case-specific facts and writes derived conclusions back into working memory. A short trace makes the division visible:</p>
+
+<pre><code>KNOWLEDGE BASE (persistent, case-independent)
+  R1: IF temperature &gt; 38 THEN fever
+  R2: IF fever AND neutrophil_count &lt; 0.5 THEN febrile_neutropenia
+  R3: IF febrile_neutropenia THEN urgency = immediate,
+                                  action = broad_spectrum_antibiotics
+
+WORKING MEMORY at start (case-specific)
+  patient = p17
+  temperature = 38.9
+  neutrophil_count = 0.3
+
+WORKING MEMORY after inference
+  fever                      [from R1]
+  febrile_neutropenia        [from R2]
+  urgency = immediate        [from R3]
+  action = broad_spectrum_antibiotics
+</code></pre>
+
+<p>Notice that nothing about <code>p17</code> appears in the knowledge base, and nothing general appears in working memory. That separation is what makes the same knowledge base usable for the next patient, and what makes it possible to validate the knowledge independently of any particular case.</p>
+
+<p><strong>Declarative versus procedural knowledge.</strong> <em>Declarative</em> knowledge states what is true, independently of how it will be used. Logical sentences, semantic network links, frame slot values and database tuples are declarative: <code>parent(mary, john)</code> says that Mary is John's parent and says nothing about whether the system will use that fact to find John's ancestors, to check an inheritance claim, or to print a family tree. <em>Procedural</em> knowledge embeds know-how in executable steps: a sorting algorithm, a LISP function that computes body-mass index, a demon attached to a frame slot that recalculates <code>age</code> from <code>date_of_birth</code> whenever it is asked for.</p>
+
+<p>The contrast is best seen by expressing the same content both ways. Declaratively, the ancestor relation is two clauses:</p>
+
+<pre><code>ancestor(X, Y) :- parent(X, Y).
+ancestor(X, Y) :- parent(X, Z), ancestor(Z, Y).</code></pre>
+
+<p>This says what an ancestor <em>is</em>. The same knowledge written procedurally would be an explicit traversal: initialise a frontier with Y's parents, loop, push their parents, stop when X is found or the frontier empties. The procedural version fixes the search order, the termination test and the data structures; the declarative version leaves all of that to the inference engine, which is free to run the clauses backwards (is Mary an ancestor of John?), forwards (list all ancestors), or to use them inside a larger proof about inheritance law.</p>
+
+<table>
+  <thead>
+    <tr><th>Dimension</th><th>Declarative</th><th>Procedural</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>States</td><td>What is true</td><td>How to do it</td></tr>
+    <tr><td>Use</td><td>Multiple reasoning processes can use the same statement</td><td>Usually one fixed purpose and direction</td></tr>
+    <tr><td>Modularity</td><td>High — each sentence stands alone, easy to add or delete</td><td>Lower — steps interact through control flow and side effects</td></tr>
+    <tr><td>Inspection and verification</td><td>Readable by domain experts; amenable to consistency checks</td><td>Harder to audit; correctness requires tracing execution</td></tr>
+    <tr><td>Efficiency</td><td>Can be slow: engine must search for a strategy</td><td>Typically fast: strategy is pre-compiled by the programmer</td></tr>
+    <tr><td>Control heuristics</td><td>Awkward to state ("try the cheap test first")</td><td>Natural — just order the steps</td></tr>
+    <tr><td>Explanation</td><td>Proof trace reads as justification</td><td>Execution trace rarely explains <em>why</em></td></tr>
+  </tbody>
+</table>
+
+<p>Neither style dominates. Declarative encodings are preferred where knowledge changes often, where several different queries must be served, and where justification matters — all characteristic of expert systems. Procedural encodings win where a well-understood computation must simply be performed (numerical formulae, unit conversions, database access, calls to external equipment) and where the expert's competence genuinely is a skill rather than a set of facts: an engineer's sequence for safely depressurising a vessel is naturally a procedure, and forcing it into independent declarative sentences obscures the ordering constraints that make it safe.</p>
+
+<p>Most practical formalisms are hybrids. Frames and scripts store declarative slots alongside <em>procedural attachments</em>, often called demons:</p>
+
+<pre><code>FRAME: Employee
+  is-a: Person
+  SLOT salary       value: 48000      type: money
+  SLOT age          if-needed: (compute-age date_of_birth today)
+  SLOT salary       if-added:  (check-salary-band self)
+  SLOT holidays     default: 25       if-removed: (log-audit self)</code></pre>
+
+<p>Here <code>salary</code> is a plain declarative value; <code>age</code> is not stored at all but computed by an <em>if-needed</em> demon the moment anything asks for it (derive-on-demand); <code>if-added</code> fires a validation procedure whenever a salary is asserted (forward-propagated consistency); <code>default: 25</code> is declarative but defeasible. Production rules are similarly mixed: the condition side is declarative pattern-matching against working memory, while the action side is procedural (assert, retract, call an external routine, prompt the user). Recognising which part of a formalism is declarative and which procedural is a practical skill, because the declarative parts are the ones that can be reused, inherited, explained and automatically checked.</p>
+
+<p><strong>Criteria for evaluating representation schemes.</strong> Because no single formalism is best for every task, knowledge engineers judge candidates against a standard set of adequacy criteria, usually credited to Rich and Knight.</p>
+
+<ul>
+  <li><strong>Representational (expressive) adequacy</strong> — can the scheme express everything the domain requires? Typical stress tests are negation ("the patient is <em>not</em> pregnant"), disjunction ("the fault is in the pump or the valve"), quantification ("every component has a serial number"), uncertainty ("probably bacterial"), time and change ("the pressure rose after the valve opened"), and meta-statements ("this rule is unreliable for infants"). A pure semantic network with only binary links struggles badly with disjunction and negation; propositional rules cannot quantify; a scheme with no numeric annotation cannot express degrees of belief.</li>
+  <li><strong>Inferential adequacy</strong> — can new structures be derived from existing ones by legitimate manipulation? A representation that can state everything but conclude nothing is a filing cabinet, not a knowledge base. Resolution gives first-order logic inferential adequacy; inheritance plus slot filling gives it to frames; the rule-firing cycle gives it to production systems.</li>
+  <li><strong>Inferential efficiency</strong> — can reasoning be guided so that search stays tractable? This is where heuristics, indexing, conflict-resolution strategies and restricted syntax enter. The Rete algorithm, which incrementally caches partial rule matches so that a production system need not re-test every rule against every fact on every cycle, is a classic efficiency device that changes nothing about what can be expressed or concluded.</li>
+  <li><strong>Acquisitional efficiency</strong> — how easily can new knowledge be added, by hand or by machine learning? Rule sets score well because a new rule is often a local addition; tightly coupled procedural code scores poorly because a new case may require restructuring. Acquisition is usually the dominant cost in building an expert system (the "knowledge acquisition bottleneck"), so this criterion often outweighs elegance.</li>
+</ul>
+
+<p>Several practical criteria sit alongside the four classical ones. <em>Clarity to human experts</em>: a cardiologist can read and correct an <code>IF ... THEN ...</code> rule but will not debug a clause-form matrix. <em>Modularity</em>: the ability to change one chunk without unintended consequences elsewhere — though note that rule bases lose modularity as rules begin to depend on each other's side effects. <em>Support for explanation</em>: the representation should leave a trace from which a human-readable justification can be built, which is why expert systems favour named rules whose premises are themselves meaningful statements. <em>Naturalness of the mapping</em>: if the domain is taxonomic, a hierarchy is natural; if it is associational (symptom → disease), rules are natural; if it is stereotyped situations, frames and scripts are natural. Finally, <em>maintainability and verifiability</em>: can the scheme be checked for redundancy, conflict, circularity and gaps?</p>
+
+<table>
+  <thead>
+    <tr><th>Scheme</th><th>Expressive adequacy</th><th>Inferential adequacy</th><th>Inferential efficiency</th><th>Acquisitional efficiency</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Propositional logic</td><td>Low (no quantifiers, no objects)</td><td>High for what it states; decidable</td><td>Moderate (SAT is NP-complete but solvers are strong)</td><td>Poor — combinatorial explosion of propositions</td></tr>
+    <tr><td>First-order logic</td><td>Very high</td><td>Complete proof procedures exist</td><td>Low — semi-decidable, unbounded search</td><td>Moderate; requires logical training</td></tr>
+    <tr><td>Horn clauses / Prolog</td><td>Restricted (no disjunctive conclusions, negation-as-failure only)</td><td>Good within the restriction</td><td>Good — linear resolution, fixed strategy</td><td>Good</td></tr>
+    <tr><td>Production rules</td><td>Moderate; uncertainty bolted on via factors</td><td>Forward/backward chaining</td><td>Good with Rete and conflict resolution</td><td>Very good — rules added incrementally</td></tr>
+    <tr><td>Semantic networks</td><td>Weak for negation/disjunction/quantification</td><td>Inheritance, spreading activation</td><td>Very good — pointer following</td><td>Good; graphical and intuitive</td></tr>
+    <tr><td>Frames / ontologies (DL)</td><td>Good for taxonomies, defaults, structure</td><td>Subsumption, classification, inheritance</td><td>Good — deliberately decidable fragments</td><td>Good, with editors and reasoners</td></tr>
+  </tbody>
+</table>
+
+<p><strong>The expressiveness–tractability trade-off.</strong> The table above hints at a law that runs through the whole field: the more a formalism can say, the harder it is to reason with it. Formally, as expressive power rises, the computational complexity of the basic reasoning problems rises with it, typically from polynomial, through NP-complete and EXPTIME, to undecidable.</p>
+
+<ul>
+  <li><strong>Propositional logic</strong> is decidable: entailment can always be settled in finite time, and modern SAT solvers handle industrial problems with millions of clauses. But it has no variables or quantifiers, so "every patient with meningitis needs a lumbar puncture" must be re-stated separately for every patient — the knowledge base grows with the data rather than with the number of general principles.</li>
+  <li><strong>Full first-order logic</strong> adds objects, relations and quantifiers and can express almost any scientific statement. The price is that validity is only <em>semi-decidable</em>: if a conclusion follows, a complete proof procedure will eventually find it, but if it does not follow, the procedure may run forever. An expert system that may fail to terminate is unacceptable in a clinic or a control room.</li>
+  <li><strong>Restricted formalisms</strong> buy back predictability by forbidding troublesome constructs. <em>Horn clauses</em> allow at most one positive literal per clause, which excludes disjunctive conclusions ("either the pump or the valve has failed") but permits the simple, efficient SLD resolution strategy behind Prolog; for a function-free (Datalog) knowledge base, inference is guaranteed to terminate in polynomial time. <em>Description logics</em> restrict the shapes of concept definitions so that classification and subsumption remain decidable, with well-mapped complexity: the lightweight profile EL++ (used in the SNOMED CT medical terminology with hundreds of thousands of concepts) supports polynomial-time classification, whereas richer dialects such as SROIQ, underlying OWL 2 DL, are decidable but N2EXPTIME-complete in the worst case.</li>
+  <li><strong>Network and frame representations</strong> gain their speed differently: instead of general proof search, they rely on <em>inheritance along indexed links</em>. Asking whether Clyde the elephant is grey is a short walk up the <code>is-a</code> chain to the <code>Elephant</code> frame and a slot read — a handful of pointer dereferences rather than a resolution proof. The cost is reduced expressiveness and, when default inheritance with exceptions is allowed, loss of logical monotonicity: adding the fact that Clyde is a royal albino elephant retracts the conclusion that he is grey.</li>
+  <li><strong>Human costs matter too.</strong> A highly expressive scheme complicates knowledge acquisition and consistency checking: experts must be taught the formalism, subtle errors (a misplaced quantifier, a wrongly scoped negation) are easy to make and hard to see, and the resulting knowledge base is correspondingly hard to validate. Many successful fielded systems deliberately use less expressive machinery than they could, because knowledge that is merely adequate but correct and maintainable beats knowledge that is elegant but wrong.</li>
+</ul>
+
+<p>A concrete illustration helps. Suppose a maintenance domain requires the statement "every pump has at least one pressure sensor, and no sensor monitors two pumps". In propositional logic this cannot be said at all; it must be expanded into one proposition per pump-sensor pair, and the "no sensor monitors two pumps" constraint becomes a quadratic number of clauses. In first-order logic it is two short sentences, but adding a rule such as "a pump is faulty if some sensor reading is anomalous and no maintenance occurred in the preceding interval" invites unbounded search over intervals. In a description logic it becomes a concept definition — <code>Pump ⊑ ∃hasSensor.PressureSensor</code> together with a functional restriction on the inverse of <code>hasSensor</code> — which a classifier will handle decidably and can even check for incoherence (a concept that can have no instances) before the system is deployed. In a frame system it is a slot on the <code>Pump</code> frame with a cardinality facet <code>minimum: 1</code> and a type facet <code>PressureSensor</code>, enforced by a checking demon rather than proved. Each encoding answers a different set of questions at a different price, and the engineer's job is to find the weakest formalism that still says what the application genuinely needs.</p>
+
+<p><strong>Symbolic versus sub-symbolic approaches.</strong> The representations discussed so far are <em>symbolic</em>: knowledge is held in discrete, individually meaningful structures — a rule, a frame slot, a logical sentence — each of which a human can point to, read, and judge correct or incorrect. Meaning is <em>localised</em>: deleting the rule <code>IF stiff_neck AND photophobia THEN suspect_meningitis</code> removes exactly that piece of competence and nothing else. <em>Sub-symbolic</em> representations — neural networks above all, but also probabilistic embeddings and kernel methods — hold knowledge as large collections of numeric parameters learned by adjusting weights against data. Meaning is <em>distributed</em>: no single weight stands for "stiff neck", and the knowledge of meningitis is smeared across thousands or millions of parameters that jointly produce a classification.</p>
+
+<table>
+  <thead>
+    <tr><th>Property</th><th>Symbolic</th><th>Sub-symbolic</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Unit of knowledge</td><td>Discrete, individually meaningful structure</td><td>Numeric weight in a distributed pattern</td></tr>
+    <tr><td>Origin of knowledge</td><td>Elicited from experts, hand-crafted</td><td>Learned from large volumes of data</td></tr>
+    <tr><td>Inspectability</td><td>High — can be read and edited directly</td><td>Low — resists inspection; needs post-hoc explanation methods</td></tr>
+    <tr><td>Explanation</td><td>Native: the inference trace is the justification</td><td>Indirect: saliency maps, surrogate models, feature attributions</td></tr>
+    <tr><td>Behaviour under noise and novelty</td><td>Brittle — a missing or malformed fact can block inference</td><td>Graceful degradation; interpolates over noisy input</td></tr>
+    <tr><td>Perceptual tasks (vision, speech)</td><td>Poor — hard to hand-code the mapping from signal to symbol</td><td>Strong — this is the paradigm's home ground</td></tr>
+    <tr><td>Data requirement</td><td>Can work with no case data if an expert exists</td><td>Requires large, representative labelled datasets</td></tr>
+    <tr><td>Main bottleneck</td><td>Knowledge acquisition from experts</td><td>Data acquisition, labelling and bias</td></tr>
+    <tr><td>Updating</td><td>Edit a rule or slot locally</td><td>Retrain; risk of catastrophic forgetting</td></tr>
+  </tbody>
+</table>
+
+<p>Expert systems have historically been built symbolically not by accident but because their application contexts demand <em>justification and auditability</em>. A clinician asked to prescribe a toxic drug, a loan officer obliged to give the applicant a reason, an engineer signing off a safety case, and a regulator auditing a decision all need to know <em>why</em>, in domain terms. MYCIN's ability to answer "WHY are you asking about the patient's burns?" and "HOW did you conclude the organism is <em>Pseudomonas</em>?" came directly from the fact that each conclusion was produced by named rules whose premises were themselves meaningful clinical statements; the explanation facility simply walked the proof tree and read the rules back in English. No equivalent walk exists in a weight matrix. The same property makes symbolic knowledge bases correctable: when an expert disagrees with a conclusion, the offending rule can be located and amended in minutes, and the change affects only the cases that rule covers.</p>
+
+<p>The weaknesses are equally real. Symbolic systems are poor at perceptual tasks — recognising a tumour in an image or a word in an audio stream — because nobody can write down the rules that map raw signal to symbol. They are brittle at the edges of their knowledge: a rule base with no rule covering a rare presentation fails silently or produces nonsense rather than degrading gracefully, and small deviations in how a fact is phrased can prevent a match. And they are expensive: the knowledge acquisition bottleneck — the slow, interview-driven process of extracting tacit expertise from busy experts who often cannot articulate what they do — has sunk more expert system projects than any technical limitation.</p>
+
+<p>The two paradigms are best seen as complementary rather than rival, and contemporary architectures routinely combine them. A typical neuro-symbolic pipeline lets a learned model do the perceptual front end — segmenting an image, transcribing speech, extracting entities from clinical notes — and hands the resulting <em>symbols</em> to a rule base or ontology that applies guidelines, enforces constraints, checks consistency and generates an auditable explanation. Information flows the other way too: ontologies and rules supply background knowledge and hard constraints that keep learned models from producing impossible outputs, and machine learning can be used to <em>induce</em> symbolic rules or ontology axioms from data, partially automating acquisition. Modern language models can draft candidate rules or frames for a knowledge engineer to verify, and symbolic knowledge bases are increasingly used to ground and check such generated content. The practical design question is therefore rarely "symbolic or sub-symbolic?" but "which part of this task is pattern recognition over data, and which part is principled reasoning that must be defensible?"</p>
+
+<p><strong>Alignment with Learning Outcomes.</strong></p>
+<ul>
+  <li><strong>MO1</strong> — Directly and substantially supported. The topic defines what symbolic representation is (surrogate, syntax, semantics, inference, ontological commitment), distinguishes declarative from procedural knowledge with worked contrasts, and develops the adequacy criteria of expressive adequacy, inferential adequacy, inferential and acquisitional efficiency, together with the expressiveness–tractability trade-off that governs computational efficiency.</li>
+  <li><strong>MO2</strong> — Partially supported as groundwork. The discussion of frames with slots, facets, defaults and procedural attachments, of inheritance along <code>is-a</code> links, and of description-logic concept definitions supplies the conceptual vocabulary and design rationale needed before building a knowledge model, but the topic does not itself require the construction of a domain model.</li>
+  <li><strong>MO3</strong> — Lightly supported. Forward and backward chaining are introduced only in passing, through the knowledge-base/working-memory trace and the comparison of rule-based schemes; the mechanics of chaining over a rule base are developed in a later topic rather than here.</li>
+  <li><strong>MO4</strong> — Partially supported. The separation of persistent knowledge base from case-specific working memory, the role of the inference engine in matching one against the other, and the dependence of the explanation facility on readable symbolic structures establish why those components exist and how they interact, though no full consultation is analysed.</li>
+  <li><strong>MO5</strong> — Minimally supported. Uncertainty appears only as a test of expressive adequacy (the need to represent negation, disjunction and degrees of belief) and as a noted weakness of purely symbolic schemes; the comparative evaluation of certainty factors, Bayesian networks, Dempster–Shafer theory and fuzzy logic is not undertaken in this topic.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Suggested teaching aids: (1) a "what did we leave out?" exercise in which students list ten properties of a real object their chosen representation omits, to make the surrogate/imperfection point concrete; (2) an ambiguity drill on an unlabelled semantic-network link (&lt;code&gt;has&lt;/code&gt;, &lt;code&gt;part-of&lt;/code&gt;) to motivate explicit semantics; (3) a paired-encoding exercise asking students to write the same piece of expertise as a declarative rule set and as a procedure, then compare maintainability. Key attributions used: the five roles of a representation (Davis, Shrobe &amp; Szolovits, 1993); adequacy criteria (Rich &amp; Knight); Rete (Forgy, 1982); MYCIN WHY/HOW explanation (Shortliffe, 1976). Complexity claims: FOL validity semi-decidable (Church–Turing/Gödel); Datalog polynomial data complexity; EL++ polynomial classification; SROIQ/OWL 2 DL N2EXPTIME-complete. These can be stated qualitatively if the cohort lacks a complexity-theory background.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Before an AI system can reason, it needs some way of holding what it knows. Knowledge representation is the study of how facts, relationships, rules, and procedures about a domain are encoded in structures a machine can store, search, and draw inferences from. This topic lays the groundwork for the rest of the module: it separates raw data from information and from knowledge, distinguishes declarative knowledge (knowing that something is true) from procedural knowledge (knowing how to do something), and introduces the criteria we use to judge whether a representation scheme is any good — representational adequacy, inferential adequacy, inferential efficiency, and ease of acquisition.</p>
+<p>Two tensions run through everything that follows. The first is the expressiveness–tractability trade-off: the more a scheme can say, the more expensive it generally becomes to reason with it, so designers deliberately give up expressive power to keep inference computationally feasible. The second is the contrast between symbolic approaches, where knowledge sits in explicit, human-readable structures, and sub-symbolic approaches such as neural networks, where knowledge is distributed across learned numerical weights and is not directly inspectable.</p>
+<p>The videos below approach these foundations from three angles. As you watch, try to map what you see onto the vocabulary of this topic: ask which kind of knowledge is being represented, what inferences the structure makes easy, what it makes hard or impossible, and where each approach sits on the symbolic/sub-symbolic spectrum. Keep a short note of any evaluation criterion that a video mentions, even in passing — you will reuse that list when comparing semantic networks, frames, and rule bases later in the module.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Knowledge Representation</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/m2s4umCYa3A?cc_load_policy=1&amp;rel=0" title="Video: Knowledge Representation (Zareen Zulkarnain)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Zareen Zulkarnain</strong> · 4:57 · 1,496 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=m2s4umCYa3A" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A brief introductory lecture that defines knowledge representation in general terms and then surveys several standard techniques used to encode knowledge symbolically. Based on its description, it covers roughly five representation schemes, which is a useful preview of the structures treated in detail later in this module.</p>
+<h3>Why this video</h3>
+<p>It is the most directly on-topic video for the core subtopic of what knowledge representation means, and its compact survey of techniques gives you a vocabulary and a set of comparison points for applying evaluation criteria.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: What Is NeuroSymbolic AI? Bridging Reasoning &amp; Neural Networks</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/ZfWDVO3rzeA?cc_load_policy=1&amp;rel=0" title="Video: What Is NeuroSymbolic AI? Bridging Reasoning &amp; Neural Networks (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 5:47 · 33,100 views · 7mo ago · captions — <a href="https://www.youtube.com/watch?v=ZfWDVO3rzeA" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This video introduces neurosymbolic AI, the attempt to combine neural network learning with explicit symbolic reasoning. It explains why each paradigm has characteristic strengths and weaknesses — pattern learning from data versus explicit, explainable rules — and how hybrid systems aim to get the benefits of both.</p>
+<h3>Why this video</h3>
+<p>It speaks directly to the symbolic versus sub-symbolic subtopic and shows why that distinction still matters in current practice, which helps you see knowledge representation as a live design choice rather than historical background.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: What is a Knowledge Graph?</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/y7sXDpffzQQ?cc_load_policy=1&amp;rel=0" title="Video: What is a Knowledge Graph? (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 5:36 · 256,561 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=y7sXDpffzQQ" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>An IBM Technology explainer on knowledge graphs: what they are, how entities and the relationships between them are modelled as a network of nodes and links, and why organisations use them to connect dispersed information. Expect concrete examples of turning scattered facts into a connected, queryable structure that supports inference.</p>
+<h3>Why this video</h3>
+<p>Knowledge graphs are a working, modern example of declarative symbolic representation, so the video makes abstract ideas about structure, relationships, and inferential adequacy tangible; IBM's technical explainer series is clear and reliably accurate.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos build the conceptual base that MO1 depends on: the first establishes what knowledge representation is and surveys the schemes we will evaluate against expressiveness, inferential adequacy, and computational efficiency; the knowledge graph video shows declarative knowledge encoded in an explicit relational structure, previewing the semantic networks, is-a hierarchies, and ontologies you will construct in MO2; and the neurosymbolic video frames the symbolic/sub-symbolic contrast and the trade-offs that justify choosing explicit, inspectable representations for the rule-based inference, expert system architectures, and uncertainty methods addressed in MO3 through MO5. None of the videos substitutes for the module readings on chaining or uncertainty, but all three give you the shared vocabulary needed to reason about those later topics.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

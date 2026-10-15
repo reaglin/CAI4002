@@ -1,0 +1,274 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Agent–Environment Model</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Intelligent Agents, Rationality, and PEAS</a></div>
+  <header>
+    <h1>The Agent–Environment Model</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>The Agent–Environment Model</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Artificial intelligence, in its most practical form, is the study of how to build things that <em>do</em> something sensible in a world that they cannot fully control. The agent–environment model is the conceptual frame that makes this study tractable. It draws a boundary — a conceptual skin — around a system, labels everything inside that boundary the <strong>agent</strong>, labels everything outside it the <strong>environment</strong>, and then insists that all traffic across the boundary flows through just two channels: information coming in, and actions going out. Once that frame is in place, an enormous variety of systems — a thermostat, a chess program, a warehouse robot, a spam filter, a self-driving car, even a human being — can be described in the same vocabulary and compared on the same terms.</p>
+
+<p>The power of the model lies in its austerity. It does not ask what the agent is made of, whether it has beliefs, or whether it is "really" intelligent. It asks only three questions: what can it perceive, what can it do, and how does what it perceives determine what it does? Everything else in the study of intelligent systems — rationality, performance measures, environment types, architectures — is built on top of these three questions.</p>
+
+<p><strong>What is an agent?</strong></p>
+
+<p>An agent is anything that can be viewed as perceiving its environment through <strong>sensors</strong> and acting upon that environment through <strong>actuators</strong>. The definition is deliberately permissive. Note the phrase "can be viewed as": the definition describes a <em>stance</em> we adopt towards a system, not an intrinsic property that some devices possess and others lack.</p>
+
+<p><strong>Sensors supply information about the state of the world.</strong> A sensor is any mechanism that converts some aspect of the environment into a form the agent's internal machinery can process. The range is vast:</p>
+
+<ul>
+  <li>A robot vacuum uses infrared cliff detectors, bump switches, optical flow sensors, and a dirt-detection sensor in the suction path.</li>
+  <li>An autonomous vehicle uses cameras, LIDAR, radar, wheel-odometry encoders, an inertial measurement unit, and a GPS receiver.</li>
+  <li>A software agent that files emails "senses" by reading the byte stream of incoming messages; its sensors are system calls and network sockets rather than physical transducers.</li>
+  <li>A human agent has eyes, ears, nose, tongue, and skin; a human's sensors deliver roughly ten million bits per second to the nervous system, of which only a tiny fraction reaches conscious attention.</li>
+</ul>
+
+<p>Crucially, sensors are <em>partial and imperfect</em>. A camera sees only what is in its field of view, at a limited resolution, with noise, and with no information about what lies behind an occluding wall. This partiality is not an engineering defect to be eliminated; it is the permanent condition of agency, and much of AI is the study of how to act well despite it.</p>
+
+<p><strong>Actuators are the means by which the agent changes the state of the world.</strong> An actuator converts a decision into a physical or informational effect. Motors, wheels, grippers, steering columns, speakers and display screens are actuators; so are network writes, database updates, API calls, and the act of printing a character to a terminal. The set of actions available to an agent is as defining a constraint as the set of percepts: a chess program that can only output legal moves inhabits a very different world from a robot arm that can output arbitrary joint torques. Note also that in many systems the actuators and sensors are coupled — a robot that moves its camera changes what it can perceive next. This coupling, called <em>active perception</em>, is one reason the agent–environment relationship is a loop rather than a pipeline.</p>
+
+<p><strong>The agent concept is a tool for analysis, not a precise classification of devices.</strong> It is tempting to ask "Is a thermostat really an agent?" This is the wrong question. The right question is "Is it <em>useful</em> to describe this thermostat using the agent vocabulary?" Sometimes the answer is yes — if we want to reason about how it responds to a sequence of temperature readings, whether its behaviour is rational given a comfort-and-energy performance measure, and how it would need to change in a building with occupancy sensors. Sometimes the answer is no — if we want to analyse the bimetallic strip's thermal expansion coefficient, the agent stance adds nothing and the physics stance is correct. The agent concept, like the concept of "system" or "module" in engineering, earns its keep by the explanatory leverage it provides.</p>
+
+<p><strong>Almost any system can be viewed as an agent if we specify its sensors, actuators, and environment.</strong> Consider a hand calculator. Its sensors are the keypad; its actuators are the display segments; its environment is the user and the sequence of key presses. Under this description the calculator is a (very simple, very reliable) agent whose agent function maps key-press sequences to display states. The description is accurate but uninteresting, because the agent function is trivial and the environment imposes no uncertainty. Contrast a stock-trading program: same formal structure, but the environment is adversarial, partially observable, and stochastic, and so the agent description does real work. A useful rule of thumb is that the agent stance pays off in proportion to the amount of <em>uncertainty</em> and <em>choice</em> in the system's situation. Where the drawing of the boundary itself is ambiguous — is the vehicle's braking controller an agent, or a component of the vehicle agent? — the answer is settled by convenience of analysis, not by fact. We draw the boundary where it produces the cleanest account of the decisions we care about.</p>
+
+<p><strong>Percepts and percept sequences</strong></p>
+
+<p>A <strong>percept</strong> is the content of the agent's sensory input at a single instant — a complete snapshot of everything the sensors report at that moment. A <strong>percept sequence</strong> is the complete history of everything the agent has perceived from the beginning of its operation to the present. If we write the set of possible percepts as <code>P</code>, then the set of possible percept sequences is <code>P*</code>, the set of all finite strings over <code>P</code>.</p>
+
+<p><strong>An agent's choice of action at any instant can depend on the entire percept sequence observed to date.</strong> This is the strongest possible statement of what an agent is permitted to use. It licenses behaviour such as: "if I have passed this landmark three times already, take the other turning", or "if the user has rejected my last four recommendations, change strategy". Nothing in the model forbids arbitrarily long-range dependence on history.</p>
+
+<p><strong>It cannot depend on anything the agent has not perceived.</strong> This is the corresponding, and equally important, prohibition. Whatever is true of the world but invisible to the sensors simply cannot enter into the decision — not because of a deficiency in the agent's reasoning, but because the information is not there. An agent that happens to act in a way that suits a hidden fact has been lucky, not clever. This constraint is the root of the later distinction between rationality and omniscience: we judge an agent by what it does with the percept sequence it has, not by what it would have done had it known everything.</p>
+
+<p><strong>Memory determines how much of the sequence is actually available.</strong> The percept sequence is defined externally, as a matter of record; whether the agent can <em>use</em> it depends on its internal construction:</p>
+
+<ul>
+  <li>An agent with no internal state retains nothing. Its action is a function of the current percept alone, so its behaviour is of the restricted form <code>f(p<sub>1</sub>…p<sub>t</sub>) = g(p<sub>t</sub>)</code>. Such agents are cheap, fast, and incapable of any history-dependent behaviour whatsoever.</li>
+  <li>An agent with internal state carries a summary of the past forward in time. It need not store the raw sequence; typically it stores a compressed state <code>s<sub>t</sub></code> updated by a rule <code>s<sub>t</sub> = update(s<sub>t-1</sub>, p<sub>t</sub>, a<sub>t-1</sub>)</code>. If the summary is sufficient — if it captures everything about the past that is relevant to the future — the agent loses nothing by discarding the raw history. Designing such sufficient summaries is one of the central engineering problems in AI.</li>
+</ul>
+
+<p>A concrete illustration: a robot in a long featureless corridor sees the same percept at every point along it. Without memory it cannot tell whether it is near the start or the end, and its behaviour at both points must be identical. With a counter of steps taken since entering the corridor, the two situations become distinguishable and different actions become possible. The percepts are identical; the <em>percept sequences</em> are not.</p>
+
+<p><strong>Tabulating behaviour over all percept sequences fully characterises an agent.</strong> If, for every possible percept sequence, we record the action the agent would take, we have captured its behaviour exhaustively — there is nothing left to say about what it does. This conceptual table is the agent's complete behavioural specification. The catch is size. Suppose an agent runs for <code>T</code> steps and has <code>|P|</code> possible percepts per step. The number of distinct percept sequences of length at most <code>T</code> is <code>(|P|<sup>T+1</sup> − 1)/(|P| − 1)</code>, which grows exponentially in <code>T</code>. For a taxi with a single camera at modest resolution the number of possible single percepts already exceeds the number of atoms in the observable universe, and for an agent that runs indefinitely the table is literally infinite. The table is therefore a definition, not a design.</p>
+
+<p><strong>The agent function and the agent program</strong></p>
+
+<p><strong>The agent function</strong> <code>f</code> is the mathematical object that maps every possible percept sequence to an action:</p>
+
+<pre><code>f : P* → A
+
+where  P  = the set of possible percepts
+       P* = the set of all finite percept sequences
+       A  = the set of possible actions</code></pre>
+
+<p><strong>The agent function is an external, abstract description of behaviour.</strong> It belongs to the observer's account of the agent, not to the agent's insides. You could determine an agent function (in principle) purely by experiment, by feeding every possible history to the agent and recording its output, without ever opening the box. It is a total function: it specifies an answer for every history, including absurd ones that will never occur. And it is infinite in extent for any agent operating over unbounded time.</p>
+
+<p><strong>The agent program is the internal, finite implementation that produces that behaviour.</strong> The program is a concrete artefact — code, circuits, trained network weights — that runs on some physical <em>architecture</em> (a computing device with its sensors and actuators attached). The relationship is captured by the slogan <code>agent = architecture + program</code>. Where the agent function takes a whole percept sequence as its argument, the program takes only the <em>current percept</em>, because that is all the architecture hands it on each cycle; any dependence on history must be manufactured by the program itself through internal state.</p>
+
+<table>
+  <thead>
+    <tr><th>Property</th><th>Agent function</th><th>Agent program</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Nature</td><td>Abstract mathematical mapping</td><td>Concrete executable implementation</td></tr>
+    <tr><td>Viewpoint</td><td>External — what the agent does</td><td>Internal — how the agent does it</td></tr>
+    <tr><td>Input</td><td>Entire percept sequence <code>P*</code></td><td>Current percept only</td></tr>
+    <tr><td>History</td><td>Available by definition</td><td>Available only if explicitly stored in state</td></tr>
+    <tr><td>Size</td><td>Typically infinite</td><td>Necessarily finite</td></tr>
+    <tr><td>Uniqueness</td><td>One function per behaviour</td><td>Many programs can realise the same function</td></tr>
+    <tr><td>Evaluated by</td><td>Quality of behaviour (rationality)</td><td>Resource use: time, memory, energy</td></tr>
+  </tbody>
+</table>
+
+<p><strong>A table-driven program is one possible implementation, but impractical for all but trivial tasks.</strong> The most literal way to implement an agent function is to store it:</p>
+
+<pre><code>function TABLE-DRIVEN-AGENT(percept) returns an action
+    persistent: percepts, a sequence, initially empty
+                table, a table of actions indexed by percept sequences
+    append percept to the end of percepts
+    action &lt;- LOOKUP(percepts, table)
+    return action</code></pre>
+
+<p>This works, and for tiny worlds it is perfectly sensible. But it fails on four counts for anything realistic. First, <em>space</em>: the table is astronomically or infinitely large. Second, <em>construction time</em>: no designer could ever fill in all the entries. Third, <em>learning</em>: even an agent that learned from experience could not visit more than a vanishing fraction of the entries. Fourth, <em>generalisation</em>: the table contains no structure, so experience with one entry teaches it nothing about any other. Compare a table that stores the square root of every number to a four-line Newton's-method routine: the routine is smaller, constructible, and correct on inputs never anticipated. The central project of AI is exactly this — to find compact programs that generate rational behaviour over vast percept spaces, rather than to enumerate that behaviour.</p>
+
+<p><strong>Different programs can realise the same agent function with very different efficiency.</strong> Because the agent function describes only input–output behaviour, it is blind to how that behaviour is produced. Two agents that always choose the same action given the same history are, as agent functions, identical — even if one deliberates for an hour using exhaustive search and the other answers instantly from a compiled rule. Consider three implementations of the same tic-tac-toe agent function:</p>
+
+<ul>
+  <li>A full minimax search of the game tree on every move: a few dozen lines of code, thousands of node expansions per move.</li>
+  <li>A memoised lookup of precomputed optimal moves: fast, but requiring stored entries for every reachable position.</li>
+  <li>A short set of hand-crafted rules ("take the win, else block the win, else take the centre, else take a corner…"): tiny and instantaneous.</li>
+</ul>
+
+<p>All three may compute precisely the same function. They differ in memory footprint, latency, energy consumption, and ease of modification — and in the real world those differences often decide which agent is usable. This is also why the distinction matters practically: <em>rationality is a property of the agent function; efficiency is a property of the agent program.</em> In real-time environments the two interact, because a program too slow to answer before the world changes effectively implements a different (and worse) agent function.</p>
+
+<p><strong>The perception–action loop</strong></p>
+
+<p><strong>Each cycle consists of perceive, decide, and act.</strong> The agent's operation is not a single question-and-answer but an unbounded repetition:</p>
+
+<pre><code>loop forever:
+    p  &lt;- SENSE()                  # read the sensors: obtain percept p_t
+    s  &lt;- UPDATE-STATE(s, a, p)    # optional: revise internal state
+    a  &lt;- DECIDE(s, p)             # select an action using the program
+    EXECUTE(a)                     # drive the actuators
+    # the environment now evolves, partly because of a</code></pre>
+
+<p>The three phases are conceptually distinct even when they are physically interleaved. In a reactive hardware controller the "decide" step may be a single comparator; in a planning robot it may be a search over thousands of candidate futures. In real implementations these phases often run concurrently at different rates — a vehicle may sense at 100 Hz, re-plan a route at 1 Hz, and actuate continuously — but the logical cycle is the same.</p>
+
+<p><strong>Actions taken now influence the percepts received later.</strong> This is what makes the structure a loop rather than a function evaluated once. The environment state evolves according to both its own dynamics and the agent's interventions, and the next percept is drawn from that new state. Three consequences follow:</p>
+
+<ul>
+  <li><em>Decisions have consequences over time.</em> An action that looks locally attractive may lead the agent into a region of the environment from which no good outcomes are reachable. A delivery robot that takes a short-cut into a dead-end corridor has not made a small mistake; it has made a mistake whose cost is paid over all subsequent cycles.</li>
+  <li><em>Information is itself an outcome.</em> Because actions shape future percepts, some actions are worth taking purely for what they reveal — turning the head, opening a door, asking a diagnostic question, running a test. This gives rise to the exploration-versus-exploitation tension that pervades learning agents.</li>
+  <li><em>Errors can compound or be corrected.</em> The loop gives the agent repeated opportunities to observe the effects of its actions and adjust, which is why closed-loop control is vastly more robust than open-loop execution of a fixed plan.</li>
+</ul>
+
+<p><strong>The loop continues indefinitely or until a terminal condition is reached.</strong> Some agents have a natural termination — a chess program stops at checkmate or stalemate, a medical triage system stops when a diagnosis is issued, a package-sorting arm stops when the belt empties. Others are designed to run without end: a thermostat, a network intrusion monitor, a planetary rover. The distinction matters for design, because a terminating task can be evaluated by its final outcome, whereas a non-terminating one must be evaluated by its ongoing conduct. It also determines whether total accumulated reward is even well-defined, which is why ongoing tasks are usually scored with averages or discounted sums rather than totals.</p>
+
+<p><strong>Because the loop is continuous, behaviour must be evaluated over sequences of states, not single moments.</strong> A snapshot judgement is almost always misleading. A vacuum agent that dumps dirt on the floor and sweeps it up again scores well on "squares cleaned per hour" at any instant while accomplishing nothing over an hour. A trading agent can show a profit on every individual day of a month and still be ruined by the one position it holds overnight. A taxi agent that minimises instantaneous travel time will accelerate hard, brake late and corner sharply — each decision locally optimal, the sequence collectively unsafe. Evaluation must therefore be applied to the <em>environment history</em> — the sequence of states the world passes through as a result of the agent's conduct — and the choice of how to aggregate over that history (sum, average, discounted sum, worst case) is a genuine design decision with real consequences for the behaviour that emerges.</p>
+
+<p><strong>Example: the vacuum-cleaner world</strong></p>
+
+<p>The classic illustration strips the model down to the smallest world in which anything interesting can happen. There are two locations, square <code>A</code> on the left and square <code>B</code> on the right. Each square is either clean or dirty. The agent occupies one square at a time, and it can move left, move right, suck up dirt, or do nothing.</p>
+
+<p><strong>The agent perceives its current location and whether that location is dirty.</strong> A percept is therefore a pair such as <code>[A, Dirty]</code> or <code>[B, Clean]</code>. Note what is <em>not</em> perceived: the agent has no information about the condition of the square it is not standing on. The world has eight possible states (two agent positions × two dirt conditions per square) but only four possible percepts, so the environment is partially observable — a point that will matter enormously later.</p>
+
+<p><strong>A simple agent function.</strong> One natural rule is: <em>if the current square is dirty, Suck; otherwise, move to the other square.</em> Tabulating this over percept sequences gives the following (truncated — the real table continues forever):</p>
+
+<table>
+  <thead>
+    <tr><th>Percept sequence</th><th>Action</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>[A, Clean]</td><td>Right</td></tr>
+    <tr><td>[A, Dirty]</td><td>Suck</td></tr>
+    <tr><td>[B, Clean]</td><td>Left</td></tr>
+    <tr><td>[B, Dirty]</td><td>Suck</td></tr>
+    <tr><td>[A, Clean], [A, Clean]</td><td>Right</td></tr>
+    <tr><td>[A, Clean], [A, Dirty]</td><td>Suck</td></tr>
+    <tr><td>[A, Dirty], [A, Clean]</td><td>Right</td></tr>
+    <tr><td>[A, Clean], [A, Clean], [A, Clean]</td><td>Right</td></tr>
+    <tr><td>[A, Clean], [A, Clean], [A, Dirty]</td><td>Suck</td></tr>
+    <tr><td>…</td><td>…</td></tr>
+  </tbody>
+</table>
+
+<p>Observe that in this particular function the action depends only on the <em>last</em> percept in the sequence; every row with the same final percept has the same action. That is a property of this agent, not of agents in general, and it is exactly what makes a memoryless implementation possible here.</p>
+
+<p><strong>The same agent function, two implementations.</strong> Written as a table-driven program, we would store the rows above (infinitely many of them). Written as code, the whole thing collapses to:</p>
+
+<pre><code>function REFLEX-VACUUM-AGENT([location, status]) returns an action
+    if status = Dirty then return Suck
+    else if location = A then return Right
+    else if location = B then return Left</code></pre>
+
+<p>Three lines replace an infinite table, and they behave identically on every input. This is the table-versus-program contrast in miniature, and it is the reason AI is written as programs.</p>
+
+<p><strong>Varying the environment or the percept detail changes which agent function performs best.</strong> The simple reflex rule above is a good agent under one set of assumptions and a poor one under others. Compare:</p>
+
+<table>
+  <thead>
+    <tr><th>Environment variation</th><th>Effect on the simple reflex rule</th><th>What a better agent needs</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Dirt never reappears; movement is free</td><td>Performs well — cleans both squares, then oscillates harmlessly forever</td><td>Nothing; the rule is already rational</td></tr>
+    <tr><td>Dirt never reappears; each movement costs one point</td><td>Performs badly — oscillates between two clean squares, accumulating cost forever</td><td>Memory of whether both squares have been seen clean, plus a <code>NoOp</code> action</td></tr>
+    <tr><td>Dirt reappears at random</td><td>Performs reasonably — patrolling is exactly the right policy</td><td>Possibly a model of dirt-arrival rates to 
+ linger where dirt is frequent</td></tr>
+    <tr><td>Location sensor removed; agent perceives only <code>Dirty</code>/<code>Clean</code></td><td>Cannot distinguish the squares, so the "move to the other square" branch is unimplementable as written</td><td>Internal state tracking which square it believes it is on, or a randomised movement policy</td></tr>
+    <tr><td>Geography unknown: <em>n</em> squares in an unknown layout</td><td>Fails — "the other square" is undefined</td><td>A model of the environment built from experience, plus systematic coverage or search</td></tr>
+    <tr><td>Suck occasionally fails, or deposits dirt</td><td>Degrades — the agent assumes success and moves on</td><td>Verification of the outcome through re-sensing, and retry logic</td></tr>
+  </tbody>
+</table>
+
+<p>The lesson is the one that organises everything that follows: <em>there is no such thing as the best agent function in the abstract</em>. The reflex rule that is ideal in the free-movement world is demonstrably irrational in the movement-cost world, where the rational agent must eventually stop. Change the cost structure, the sensor suite, or the dynamics of dirt, and the ranking of agent functions changes with it. An agent function can only be judged relative to a specified environment and a specified measure of success — which is precisely why the next step in studying agents is to make both of those specifications explicit rather than leaving them implicit.</p>
+
+<p><strong>Putting the pieces together</strong></p>
+
+<p>The model gives us a small, disciplined vocabulary with a clear division of labour:</p>
+
+<ul>
+  <li><strong>Sensors and actuators</strong> define the boundary — what can cross it and in which direction.</li>
+  <li><strong>Percepts and percept sequences</strong> define what the agent is entitled to base its decisions on.</li>
+  <li><strong>The agent function</strong> says <em>what</em> the agent does, as an external fact about its behaviour.</li>
+  <li><strong>The agent program</strong> says <em>how</em>, as an internal, finite, resource-bounded artefact.</li>
+  <li><strong>The perception–action loop</strong> ties the two sides together over time, making behaviour a sequence rather than an event.</li>
+</ul>
+
+<p>Everything else in the study of intelligent agents is a question asked within this frame: which agent function <em>ought</em> we to want (rationality); how do we specify the task precisely enough to answer that (performance measure, environment, actuators, sensors); what kind of world is the agent in (environment properties); and what internal organisation of the program will deliver the desired function at acceptable cost (agent architectures).</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> Directly and fully supported. The topic defines sensors and actuators, distinguishes percepts from percept sequences, formalises the agent function <code>f : P* → A</code> as the mapping from percepts to actions, separates it from the agent program, and illustrates all of these in the vacuum-cleaner world.</li>
+  <li><strong>MO2:</strong> Partially supported. The constraint that an action cannot depend on anything the agent has not perceived, and the insistence that behaviour be judged over environment histories rather than single moments, lay the groundwork for separating rationality from omniscience and from success — but the four ingredients of the rational agent definition are not themselves treated here.</li>
+  <li><strong>MO3:</strong> Indirectly supported. The topic supplies two of the four PEAS components — actuators and sensors — and shows through the vacuum example why performance measure and environment must be stated explicitly; the full PEAS specification format is not constructed in this topic.</li>
+  <li><strong>MO4:</strong> Indirectly supported. The vacuum-cleaner variations foreshadow observability (location sensor removed), determinism (unreliable Suck), dynamism (dirt reappearing) and discreteness (two squares, four actions), but the dimensions are not defined or applied systematically here.</li>
+  <li><strong>MO5:</strong> Indirectly supported. The distinction between memoryless and state-retaining agents, and the demonstration that a reflex rule is rational in one environment and irrational in another, motivate the later choice among reflex, model-based, goal-based, utility-based and learning architectures without yet naming or comparing them.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The vacuum-cleaner performance measure assumed in the &quot;dirt never reappears&quot; rows is one point per clean square per time step over a 1000-step lifetime, the standard formulation; instructors may wish to state this explicitly when setting exercises. The claim that the simple reflex rule is rational in the free-movement world holds only under that measure and the assumption of a known, two-square geography with reliable actions. The sequence length formula &lt;code&gt;(|P|^(T+1) − 1)/(|P| − 1)&lt;/code&gt; counts sequences of length 0 through T inclusive; drop the leading term if the empty sequence is excluded. The slogan &lt;code&gt;agent = architecture + program&lt;/code&gt; and the TABLE-DRIVEN-AGENT pseudocode follow Russell and Norvig&#39;s standard presentation and can be cross-referenced to that text.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

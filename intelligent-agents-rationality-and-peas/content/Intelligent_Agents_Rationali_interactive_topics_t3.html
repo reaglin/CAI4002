@@ -1,0 +1,269 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Specifying Tasks with PEAS</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Intelligent Agents, Rationality, and PEAS</a></div>
+  <header>
+    <h1>Specifying Tasks with PEAS</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Specifying Tasks with PEAS</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Before a single line of an agent program is written, a designer must be able to answer a deceptively simple question: <em>what, exactly, is this agent supposed to do, and in what world is it supposed to do it?</em> The PEAS framework — <strong>P</strong>erformance measure, <strong>E</strong>nvironment, <strong>A</strong>ctuators, <strong>S</strong>ensors — is the standard way of answering that question in a disciplined, written form. It is not a design; it is a <em>specification of the task</em> that any design must satisfy. In the same way that a civil engineer does not begin pouring concrete before the load requirements, soil conditions and span of a bridge are documented, an agent designer does not begin choosing data structures, search algorithms or learning methods before the PEAS description of the task is on paper. Everything that follows — the choice of architecture, the internal representation, the learning signal — is downstream of these four elements.</p>
+
+<p><strong>Why specify the task before designing the agent</strong></p>
+
+<p>The deepest reason is that <em>the agent program depends entirely on the task environment</em>. There is no such thing as a universally good agent program; there are only programs that are good for particular tasks. A control loop that works beautifully for a floor-cleaning robot in a two-room apartment is useless on a motorway, and a chess program is helpless in a hospital. The structure of the task determines what information the agent needs, how much internal state it must carry, whether it can act greedily or must plan ahead, and whether it must adapt over time. Fixing the task first means the designer is solving a well-posed problem rather than guessing at one.</p>
+
+<p>A second reason is that <em>a written specification exposes hidden assumptions</em>. Designers routinely assume, without noticing, that the agent "knows where it is", that "the floor is flat", that "the patient tells the truth", or that "the other drivers obey the law". None of these assumptions are free: each one is either a sensor that must physically exist, a property of the environment that must actually hold, or a risk that must be managed. Writing down the sensors forces the question "how, concretely, would the agent come to know that?" Writing down the environment forces the question "and what happens when that assumption fails?" A vacuum agent that assumes it knows its location is a fundamentally different engineering problem from one that must infer its location, and the difference only becomes visible when the sensor list is written out.</p>
+
+<p>A third reason is <em>comparability</em>. If two teams propose competing designs for a warehouse robot and each is evaluated against its own informal idea of the job, the comparison is meaningless — one team's design may simply be solving an easier problem. A shared PEAS specification makes the comparison fair: both designs face the same environment, control the same actuators, receive the same percepts, and are scored by the same performance measure. This is exactly the logic behind benchmark competitions such as the DARPA Grand Challenge or RoboCup, where the task specification is published in advance precisely so that different architectures can be judged on equal terms.</p>
+
+<p>A fourth reason is that specification <em>forces the designer to state success criteria up front rather than discovering them after deployment</em>. The most expensive failures in deployed autonomous systems are rarely failures of implementation; they are failures of definition. A delivery robot that was never told that blocking a fire exit is unacceptable will cheerfully block a fire exit. A recommendation agent optimised for "time on site" will learn to be addictive rather than useful. Writing the performance measure first converts these from post-hoc discoveries into design-time decisions.</p>
+
+<p><strong>The four elements of PEAS</strong></p>
+
+<p>The four elements divide the specification into the part that defines <em>what counts as doing well</em>, the part that defines <em>the world the agent is embedded in</em>, and the two parts that define <em>the interface</em> between agent and world.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Element</th>
+      <th>Question it answers</th>
+      <th>What it constrains in the design</th>
+      <th>Common errors</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Performance measure</strong></td>
+      <td>By what criterion do we judge the sequence of states the agent brings about?</td>
+      <td>The objective function, the evaluation of plans, the reward signal for learning, the trade-offs between competing goals.</td>
+      <td>Scoring the agent's intentions or internal effort rather than its effects on the world; omitting safety, cost or side-effect terms.</td>
+    </tr>
+    <tr>
+      <td><strong>Environment</strong></td>
+      <td>What surroundings, objects, processes and other agents does the agent operate among?</td>
+      <td>The state space, the transition model, the uncertainty the agent must tolerate, the classification of the task environment.</td>
+      <td>Describing an idealised laboratory world and ignoring weather, noise, failures, adversaries or human unpredictability.</td>
+    </tr>
+    <tr>
+      <td><strong>Actuators</strong></td>
+      <td>Through what physical or software effectors can the agent change the world?</td>
+      <td>The action set available to the agent, the granularity of control, the physical limits on what plans are executable.</td>
+      <td>Listing abstract "actions" such as "drive to destination" that no actuator can execute directly; forgetting communication actuators.</td>
+    </tr>
+    <tr>
+      <td><strong>Sensors</strong></td>
+      <td>Through what channels does the agent receive information about the world?</td>
+      <td>The percept vocabulary, the degree of observability, the need for internal state, the noise model.</td>
+      <td>Assuming perfect, noiseless, complete percepts; forgetting proprioceptive sensors that report the agent's own state.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The crucial discipline is that <strong>all four must be stated together, and changing any one changes the design problem</strong>. They are not four independent lists; they interlock. Remove the location sensor from a vacuum agent and the same performance measure now demands a far more sophisticated program that maintains a belief over possible positions. Add an opponent to the environment and a straightforward planner must become a game-playing agent that reasons about an adversary's choices. Add "passenger comfort" to the performance measure of a taxi and the actuator commands must become smooth rather than merely correct, and a new sensor (perhaps an accelerometer or a passenger feedback channel) may be needed to measure it. A PEAS description is therefore a single coherent object; partial specifications are not merely incomplete but misleading, because they suggest the remaining choices are free when in fact they are tightly coupled.</p>
+
+<p><strong>Writing a good performance measure</strong></p>
+
+<p>Of the four elements, the performance measure is the one most often written badly, and it is the one where bad writing is most damaging. Four principles help.</p>
+
+<ul>
+  <li><strong>Measure outcomes in the environment, not the agent's internal satisfaction.</strong> It is tempting to score the agent on how well it thinks it is doing — how confident its classifier is, how many squares it <em>believes</em> it cleaned, how low its internal cost estimate is. This is a mistake, because the agent can always improve such a score by deceiving itself. A vacuum agent rewarded for "believing the floor is clean" can simply stop sensing dirt. A diagnostic agent rewarded for "confidence in its diagnosis" will become confidently wrong. The performance measure must be defined over states of the world: squares actually clean, patients actually recovering, packages actually delivered to the right address.</li>
+  <li><strong>Specify what you actually want, not how you imagine it should be achieved.</strong> The designer's job is to state the <em>end</em>; the agent's job is to find the <em>means</em>. If you believe the best cleaning strategy is a boustrophedon sweep, do not write "performance = fraction of time spent sweeping in straight lines". That rewards the strategy, not the result, and it forecloses any better strategy the agent might discover. Write "performance = amount of dirt removed per unit of energy, with cleanliness maintained over the whole day", and let the design or the learning process find the sweep pattern — or something better.</li>
+  <li><strong>Beware degenerate strategies and reward hacking.</strong> An agent optimises exactly what you wrote, not what you meant. The classic illustration is a vacuum agent scored on "total amount of dirt collected over its lifetime": the optimal policy is to collect dirt, dump it back onto the floor, and collect it again forever. Scoring "a clean floor, measured by sampling cleanliness at every time step" removes this exploit, because dumping dirt is now penalised. Similar pathologies are everywhere: a warehouse robot rewarded for "items moved" may shuffle the same box back and forth; a content agent rewarded for "engagement" may learn to provoke outrage; a cleaning robot penalised only for visible mess may learn to hide mess under the sofa. A useful test when drafting a measure is to ask, adversarially, <em>"what is the laziest or most perverse behaviour that maximises this number?"</em> If the answer is not acceptable behaviour, the measure needs rewriting — typically by adding terms for side effects, by measuring the maintained state rather than cumulative throughput, or by adding hard constraints the agent may not violate.</li>
+  <li><strong>Handle multiple objectives explicitly.</strong> Real tasks almost always involve conflicting goals. A taxi must balance speed against safety, fuel economy against acceleration, and profit against passenger comfort. Simply listing these is not enough; the agent must be told how to trade them off when they conflict, because at run time it will face exactly those conflicts. Common approaches are a weighted sum (for example, <code>score = 100·safety_violations⁻ + 1·minutes_late⁻ + 0.5·litres_fuel⁻ + 2·comfort_penalty⁻</code>, where the weights encode the relative importance), a lexicographic ordering (never violate safety; subject to that, minimise time; subject to that, minimise fuel), or hard constraints plus a scalar objective (safety and legality as inviolable constraints, with time and fuel traded off inside the feasible set). The choice of weights is a genuine design and ethical decision, not a technical afterthought: setting the weight on "minutes late" too high produces an agent that runs amber lights.</li>
+</ul>
+
+<p>Two further subtleties are worth noting. First, performance should normally be measured over a <em>sequence</em> of states rather than a single final state, because when and how an outcome is achieved matters: a floor that is clean for ten hours is better than one cleaned perfectly at midnight and filthy the rest of the day. Second, the measure should be chosen by the <em>designer or stakeholder</em>, not by the agent, and it may include things the agent cannot directly observe (such as long-term patient survival). That is perfectly legitimate — the performance measure defines success objectively; the agent must do the best it can with the percepts it has, which is precisely why rationality and omniscience are different things.</p>
+
+<p><strong>Worked example: vacuum cleaner agent</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>PEAS element</th>
+      <th>Specification for a domestic vacuum cleaner agent</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Performance measure</strong></td>
+      <td>Amount of floor area cleaned; cleanliness maintained over time (sampled at every time step rather than totalled as dirt collected); electrical energy consumed; time taken to complete a cleaning cycle; noise generated; avoidance of damage to furniture, cables and pets.</td>
+    </tr>
+    <tr>
+      <td><strong>Environment</strong></td>
+      <td>Rooms or discrete squares in a house; dirt of varying types and quantities; static obstacles such as walls and furniture legs; movable obstacles such as chairs, shoes and toys; different floor surfaces (tile, hardwood, deep carpet); thresholds and stairs; possibly people and animals moving about; the charging dock.</td>
+    </tr>
+    <tr>
+      <td><strong>Actuators</strong></td>
+      <td>Drive wheels or motors for forward, reverse and turning motion; suction motor (on/off or variable power); rotating side brushes and a main brush roll; possibly a dirt-bin release, a docking mechanism and a status beep or indicator light.</td>
+    </tr>
+    <tr>
+      <td><strong>Sensors</strong></td>
+      <td>Dirt detector (optical or acoustic, reporting dirt in the current square); bump or contact sensor for obstacles; cliff sensors to avoid stairs; location sensor (odometry, gyroscope, lidar or camera-based SLAM); wall-following infrared sensor; battery-level sensor; bin-full sensor; wheel-drop sensor.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>This example repays close reading because small changes ripple through everything. In the textbook two-square world, the agent has only a location sensor and a dirt sensor, two squares <code>A</code> and <code>B</code>, and three actions <code>Left</code>, <code>Right</code>, <code>Suck</code>. The entire agent function can be written as a tiny table over percepts of the form <code>[A, Dirty]</code>, and a simple reflex rule suffices:</p>
+
+<pre><code>function VACUUM-AGENT(percept) returns an action
+    location, status &lt;- percept
+    if status = Dirty then return Suck
+    else if location = A then return Right
+    else if location = B then return Left</code></pre>
+
+<p>Now delete the location sensor from the S column. The percept becomes just <code>Dirty</code> or <code>Clean</code>, and no reflex rule over that single bit can reliably clean both squares without either wasting actions or looping; the agent now needs internal state, or a randomised policy, or a wall sensor. Alternatively, add "energy consumed" to the performance measure with a meaningful weight: the previously optimal policy of moving back and forth forever now scores badly, and the best agent learns to stop (or return to its dock) once both squares are clean. Neither change touched the agent program directly, yet both changed the design problem completely — which is exactly the point of insisting that all four elements be stated together.</p>
+
+<p><strong>Worked example: automated taxi driver</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>PEAS element</th>
+      <th>Specification for an automated taxi driver</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Performance measure</strong></td>
+      <td>Safe arrival at the destination (no collisions, injuries or near-misses); legality (obeying speed limits, signals, lane rules); passenger comfort (smooth acceleration, braking and cornering); minimised trip time; minimised fuel or battery cost; maximised profit per shift; courtesy to other road users; correct fare handling.</td>
+    </tr>
+    <tr>
+      <td><strong>Environment</strong></td>
+      <td>Urban streets, motorways, junctions and roundabouts; lane markings, kerbs, road works and potholes; other vehicles with human or automated drivers; cyclists and pedestrians; traffic signals, signs and police instructions; weather conditions including rain, fog, ice and glare; day and night lighting; passengers in the cabin with preferences and destinations.</td>
+    </tr>
+    <tr>
+      <td><strong>Actuators</strong></td>
+      <td>Steering wheel or steering motor; accelerator; brake; gear selector; turn indicators; headlights and wipers; horn; a display screen and synthesised voice for communicating with the passenger; door locks.</td>
+    </tr>
+    <tr>
+      <td><strong>Sensors</strong></td>
+      <td>Video cameras (forward, rear and surround); radar and lidar for range and relative velocity; ultrasonic sensors for close-range parking; GPS plus inertial measurement for localisation; odometer and speedometer; accelerometer; engine, battery and tyre-pressure sensors; a keyboard, touchscreen or microphone for passenger input; network connection for traffic and map updates.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Several design lessons fall out of this table. The performance measure is multi-objective and the objectives genuinely conflict, so the weighting must be made explicit: safety and legality are normally treated as near-inviolable constraints, with time, fuel and comfort traded off inside them. The environment is manifestly partially observable (a cyclist behind a van is not visible), stochastic (a pedestrian may step out unpredictably), sequential (an early lane choice determines later options), dynamic (the world changes while the agent deliberates), continuous in both state and action, and multi-agent with both competitive elements (merging into a gap another driver wants) and cooperative ones (letting a bus pull out). The actuator list is also revealing: notice that "drive to the airport" is <em>not</em> an actuator. Actuators are the low-level effectors; high-level intentions must be compiled down into sequences of steering, throttle and brake commands, which is exactly why a taxi agent needs a hierarchy of planning and control rather than a flat reaction rule. Finally, note the communication actuators and sensors — the screen, voice, microphone and keyboard. A taxi that cannot ask "where to?" cannot do its job, yet these channels are routinely forgotten by beginners who think only in terms of physical motion.</p>
+
+<p><strong>Worked example: medical diagnosis system</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>PEAS element</th>
+      <th>Specification for a medical diagnosis system</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Performance measure</strong></td>
+      <td>Accuracy of diagnosis (with asymmetric costs for false negatives versus false positives); improvement in patient health outcomes and survival; minimised cost of tests and treatment; avoidance of harmful or unnecessary treatments; timeliness of diagnosis; clarity and traceability of the reasoning offered to clinicians; equity of performance across patient groups.</td>
+    </tr>
+    <tr>
+      <td><strong>Environment</strong></td>
+      <td>Patients (who may be anxious, forgetful, inarticulate or untruthful); doctors, nurses and other hospital staff; electronic medical records and prior histories; laboratory and imaging facilities with queues and turnaround times; pharmacy and treatment resources; clinical guidelines, regulations and insurance constraints.</td>
+    </tr>
+    <tr>
+      <td><strong>Actuators</strong></td>
+      <td>Display of follow-up questions to the patient or clinician; orders or recommendations for laboratory tests and imaging; display of a ranked differential diagnosis with confidence levels; proposed treatment plans; referrals to specialists; alerts and flags written into the patient record.</td>
+    </tr>
+    <tr>
+      <td><strong>Sensors</strong></td>
+      <td>Keyboard or form entry of presenting symptoms and history; patient answers to the system's questions; structured data from the electronic health record; laboratory results and imaging reports; vital-sign monitors where available.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>This example is valuable because it is a <em>softbot</em>: the environment is largely informational, and the actuators are displays and orders rather than motors. That does not make it any less of an agent — it senses, it acts, and its actions change the world (a test ordered is a test performed; a treatment recommended may be a treatment given). It also illustrates why the performance measure must be written carefully. "Diagnostic accuracy" alone is an inadequate measure for at least three reasons. First, the costs are asymmetric: missing a myocardial infarction is catastrophic, while a false alarm costs an unnecessary test, so a single accuracy percentage conceals the trade-off that matters. Second, an agent optimising accuracy alone would order every available test on every patient, which is ruinously expensive and sometimes physically harmful; the "minimised cost" and "avoidance of harmful treatments" terms are what make selective, sequential test-ordering rational. Third, the ultimate goal is patient health, not label-matching — a system that is accurate but so slow or so opaque that clinicians ignore it has achieved nothing. Note too the environment entry "patients who may be untruthful or forgetful": this is the specification admitting that the sensors are noisy, which immediately implies the agent must reason under uncertainty rather than treat percepts as ground truth.</p>
+
+<p><strong>Applying PEAS in practice</strong></p>
+
+<p>A workable procedure for producing a PEAS specification runs roughly as follows.</p>
+
+<ul>
+  <li><strong>Start with the performance measure.</strong> Ask what outcomes the stakeholders actually care about, in the world, and write them down with their relative weights or constraint status. Stress-test the draft by looking for degenerate strategies that would score well while being obviously unacceptable, and patch the measure until those strategies are penalised.</li>
+  <li><strong>Describe the environment honestly, including the awkward parts.</strong> List the objects, processes and other agents present, and explicitly note the sources of noise, uncertainty, change and adversarial behaviour. It is far cheaper to discover at specification time that the environment contains unpredictable pedestrians than to discover it on the road.</li>
+  <li><strong>Derive the actuators and sensors from the measure and the environment.</strong> Ask: to influence each term of the performance measure, what must the agent be able to <em>do</em>? And to decide what to do, what must it be able to <em>know</em>? This derivation order matters — it prevents the common error of listing whatever hardware happens to be on the shelf and then hoping it suffices.</li>
+  <li><strong>Check that every listed actuator and sensor is justified by the performance measure.</strong> Each entry should have a defensible answer to "which part of the score does this help with?" A sensor that no term in the measure requires is cost, weight, power draw, latency and a maintenance liability for no benefit; an actuator the agent never needs is an extra failure mode and, sometimes, an extra way to cause harm. Conversely, if a term in the measure cannot be influenced by any actuator, or cannot be assessed from any sensor, the specification is internally inconsistent and must be repaired — either by adding hardware or by changing the measure.</li>
+  <li><strong>Treat the specification as a living document.</strong> Environments change. A warehouse robot specified for a single-shift, human-free facility faces a different task when night-shift staff are introduced: it now needs people-detection sensors, a safety term in its performance measure, and perhaps an audible warning actuator. A vacuum agent moved from a bungalow to a house with stairs needs cliff sensors it never previously required. Whenever the environment description changes, the sensor and actuator lists and the measure must be revisited; otherwise the agent is optimising for a world that no longer exists.</li>
+  <li><strong>Hand the completed specification to the next two design steps.</strong> The E column feeds directly into classifying the task environment along the observability, determinism, episodicity, dynamism, discreteness and agent-count dimensions, and that classification in turn constrains which agent architecture is viable. The S column tells you whether the environment is fully or partially observable and therefore whether internal state is needed; the E column tells you whether the world is deterministic or stochastic, static or dynamic; the P column tells you whether a goal predicate suffices or whether graded trade-offs demand a utility function; and the A column bounds the action set that any planner or policy may use.</li>
+</ul>
+
+<p>The payoff from this discipline is concrete. A PEAS description with a single binary dirt sensor and no location sensor tells you immediately that a simple reflex agent will be inadequate and that a model-based agent maintaining a belief about which squares have been visited is required. A PEAS description whose performance measure is a single all-or-nothing goal ("deliver the package to room 302") points toward a goal-based agent, whereas one with weighted, conflicting objectives ("arrive quickly <em>and</em> safely <em>and</em> cheaply <em>and</em> comfortably") points toward a utility-based agent that can compare partially satisfactory outcomes. A PEAS description whose environment entry admits "road conditions and passenger preferences vary in ways the designer cannot enumerate in advance" points toward a learning agent. In every case the architecture decision is read off the specification rather than chosen by habit — which is precisely why the specification comes first.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> The Actuators and Sensors elements of PEAS are exactly the interface between agent and environment, and the worked examples show percepts (dirt status, lidar returns, laboratory results) being mapped to actions (Suck, brake, order a test), reinforcing the agent–environment model and the notion of an agent function over percept sequences.</li>
+  <li><strong>MO2:</strong> The topic supports this indirectly: it stresses that the performance measure is set externally by the designer and may refer to outcomes the agent cannot perceive, which is the basis for distinguishing rationality (doing the best one can with available percepts and knowledge) from omniscience, perfection and lucky success.</li>
+  <li><strong>MO3:</strong> This is the topic's central purpose. It defines all four PEAS elements, gives rules for writing each one well, and provides complete specifications for the vacuum cleaner, automated taxi driver and medical diagnosis system that students can use as models for constructing their own.</li>
+  <li><strong>MO4:</strong> The topic prepares for classification rather than performing it in full: the taxi and vacuum examples explicitly note observability, determinism, dynamism, continuity and multi-agent features, and the final section shows how the E and S columns of a PEAS table feed the six classification dimensions.</li>
+  <li><strong>MO5:</strong> The topic does not teach the agent architectures themselves, but it supplies the justification material for selecting among them, showing how sensor limitations, goal structure and the presence of unmodelled variation in the specification argue for reflex, model-based, goal-based, utility-based or learning designs.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Suggested activities: (1) give students a deliberately bad performance measure (e.g. &quot;total dirt collected&quot;) and ask them to identify the degenerate policy and repair the measure; (2) have students write PEAS tables for a contrasting pair such as a chess program and a part-picking robot, then compare which elements differ most; (3) run a &quot;delete one sensor&quot; exercise on the vacuum PEAS to show how the design problem changes. The inline code example is written in the Russell &amp; Norvig pseudocode style; the `&amp;lt;-` is an assignment arrow. The weighted-score expression in the performance-measure section is illustrative notation only, with the minus superscripts indicating penalty terms — replace with explicit prose weights if students find it confusing.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

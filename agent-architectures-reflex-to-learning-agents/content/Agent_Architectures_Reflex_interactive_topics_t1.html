@@ -1,0 +1,391 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foundations: Agents, Environments, and Agent Programs</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Agent Architectures: Reflex to Learning Agents</a></div>
+  <header>
+    <h1>Foundations: Agents, Environments, and Agent Programs</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Foundations: Agents, Environments, and Agent Programs</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Artificial intelligence, viewed from an engineering standpoint, is the study of how to build <strong>agents</strong> — entities that perceive an environment through sensors and act upon that environment through actuators. This framing is deliberately broad. A thermostat is an agent; so is a warehouse robot, a spam filter, a chess engine, an autonomous vehicle, and arguably a human being. What makes the framing useful is not that it draws a sharp line between "agents" and "non-agents," but that it gives us a shared vocabulary for specifying <em>what</em> a system should do, separately from <em>how</em> we will make it do that. This topic builds that vocabulary from the ground up: percepts and percept sequences, the agent function and the agent program, the architecture that hosts the program, the PEAS method for describing a task environment, the properties of environments that constrain design, and finally the reasoning chain that leads from an environment analysis to a defensible architectural choice.</p>
+
+<p>The central discipline this vocabulary enforces is <em>design before implementation</em>. A great many AI projects fail not because the algorithm was weak but because nobody stated precisely what counted as success, what the system could actually observe, or what it was physically permitted to do. The concepts below are the antidote to that failure mode.</p>
+
+<p><strong>What Is a Rational Agent?</strong></p>
+
+<p>An agent is anything that can be viewed as perceiving its environment through <strong>sensors</strong> and acting upon that environment through <strong>actuators</strong>. The sensors deliver <em>percepts</em> — the raw informational inputs available at a moment in time. The actuators execute <em>actions</em>, and those actions change the state of the environment, which in turn changes what future percepts will contain. This creates the fundamental closed loop of agency:</p>
+
+<pre><code>  environment state
+        |
+     [sensors]  --&gt; percept --&gt; [agent program] --&gt; action --&gt; [actuators]
+        ^                                                            |
+        |____________________ changes state __________________________|</code></pre>
+
+<p>A vacuum-cleaning robot might have a dirt sensor, a bump sensor, and a wheel-odometry sensor; its actuators are two drive motors, a suction motor, and perhaps a brush. A trading agent's "sensors" are market data feeds and news APIs; its "actuators" are order-submission calls to an exchange. A medical triage assistant's sensors are structured patient records and lab results; its actuators are the recommendations it writes into a chart. The physical form varies enormously; the loop does not.</p>
+
+<p>The key normative concept is <strong>rationality</strong>. A rational agent is one that, <em>for each possible percept sequence</em>, selects the action that is <em>expected to maximize its performance measure</em>, given the evidence provided by the percept sequence and whatever built-in knowledge the agent has. Unpacking that definition carefully pays dividends, because each clause rules out a common misconception.</p>
+
+<ul>
+  <li><strong>"For each possible percept sequence"</strong> — rationality is evaluated over the agent's entire behavioral repertoire, not over one lucky episode. An agent that behaves well on the inputs it happened to receive but would behave absurdly on a slightly different input is not rational; it is fortunate.</li>
+  <li><strong>"Expected to maximize"</strong> — the standard is <em>expectation</em>, computed with the information available at decision time. It is not "the action that, in hindsight, turned out best."</li>
+  <li><strong>"Performance measure"</strong> — an externally specified criterion of success. The agent does not get to grade its own homework.</li>
+  <li><strong>"Given the evidence and built-in knowledge"</strong> — an agent cannot be faulted for failing to use information it had no way of obtaining.</li>
+</ul>
+
+<p>A critical design rule follows from the third clause: <strong>the performance measure should be defined over environment states, not over the agent's internal beliefs about how well it is doing.</strong> If you reward a cleaning robot for its own internal "dirt collected" counter, you have created an incentive for the robot to dump dirt on the floor and re-collect it — a behavior that maximizes the stated measure while defeating the purpose. If you reward it instead for the proportion of floor tiles that are clean, averaged over the working day, the perverse strategy earns nothing. The same trap appears everywhere: a recommender optimized for "clicks the system logged" rather than "user satisfaction" learns to produce clickbait; a dialogue agent optimized for "user said thank you" learns sycophancy. Specifying the measure over the world rather than over the agent's self-report is the first and cheapest defense against misaligned behavior.</p>
+
+<p>Designing the measure is itself subtle, because the measure encodes trade-offs you may not have noticed you were making. Consider the vacuum world again. "Amount of dirt collected in an eight-hour shift" rewards thoroughness but also rewards noise, energy waste, and the dirt-dumping exploit. "Average cleanliness over time, minus one point per unit of electricity, minus a large penalty for colliding with a pet" is a richer measure that expresses the real goal. Notice that the designer, not the agent, is responsible for these clauses. Rationality is always rationality <em>relative to a measure</em>; an agent cannot be more aligned than its measure.</p>
+
+<p><strong>Rationality is not omniscience, and it is not perfection.</strong> An omniscient agent would know the actual outcome of each action in advance; no real agent can. Suppose you are crossing a wide, empty street in clear daylight, having looked both ways. Mid-crossing, a cargo door falls from a passing aircraft and flattens you. Your decision to cross was rational — it maximized expected utility given the available evidence — even though the outcome was catastrophic. We can reasonably criticize an agent for failing to gather cheap, relevant information, or for ignoring evidence it had; we cannot reasonably criticize it for not predicting the unpredictable. <em>Rationality maximizes expected performance; perfection maximizes actual performance.</em> Only the first is a buildable engineering target.</p>
+
+<p>Two further behaviors fall out of the definition as <em>consequences</em> rather than add-ons. First, <strong>information gathering, or exploration</strong>, is rational whenever knowledge is incomplete and the information is useful enough to justify its cost. Looking both ways before crossing produces no immediate progress toward the goal of reaching the other side; it is rational because it modifies the expected value of the subsequent action. A robot that nudges a door to learn whether it is locked, a medical agent that orders a diagnostic test, a reinforcement-learning agent that occasionally takes a non-greedy action — all are performing the same computation: paying a small known cost to reduce uncertainty that is costing more. Second, <strong>learning</strong> is rational whenever the environment is unknown or changing. An agent whose built-in knowledge is a complete and permanently accurate account of its world need not learn; no such world exists outside of toy problems. Where the designer's prior knowledge is partial, an agent that fails to update from experience is systematically leaving performance on the table. We therefore say an agent is <strong>autonomous</strong> to the extent that its behavior is determined by its own experience rather than purely by the designer's built-in assumptions. A reasonable engineering compromise is to ship an agent with enough built-in knowledge to survive its first hours and enough learning capacity to improve thereafter.</p>
+
+<p><strong>Percepts, Percept Sequences, and the Agent Function</strong></p>
+
+<p>A <strong>percept</strong> is the agent's perceptual input at a single instant — a single snapshot of whatever the sensors report. A <strong>percept sequence</strong> is the complete history of everything the agent has ever perceived, in order. We write a percept sequence as an element of <code>P*</code>, the set of all finite sequences over the percept set <code>P</code>.</p>
+
+<p>The distinction matters enormously, because <em>an agent's choice of action at any moment can depend on the entire percept sequence, but never on anything it has not perceived</em>. This is the formal statement of the limits of knowledge. If a fact about the world has never shown up in any percept and is not built into the agent, the agent's action cannot be a function of it.</p>
+
+<p>The <strong>agent function</strong> is the mathematical object that captures behavior completely:</p>
+
+<pre><code>f : P* --&gt; A</code></pre>
+
+<p>It maps every possible percept sequence to the action the agent will take in response. The agent function is an abstract, external description: it says nothing about memory layout, data structures, or algorithms. It is behavior as seen from outside.</p>
+
+<p>Consider the classic two-square vacuum world. Squares <code>A</code> and <code>B</code> may each be <code>Clean</code> or <code>Dirty</code>; the agent perceives its current location and whether that square is dirty; the available actions are <code>Left</code>, <code>Right</code>, <code>Suck</code>, and <code>NoOp</code>. A partial tabulation of one reasonable agent function looks like this:</p>
+
+<table>
+  <thead>
+    <tr><th>Percept sequence</th><th>Action</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>[A, Clean]</td><td>Right</td></tr>
+    <tr><td>[A, Dirty]</td><td>Suck</td></tr>
+    <tr><td>[B, Clean]</td><td>Left</td></tr>
+    <tr><td>[B, Dirty]</td><td>Suck</td></tr>
+    <tr><td>[A, Clean], [A, Clean]</td><td>Right</td></tr>
+    <tr><td>[A, Clean], [A, Dirty]</td><td>Suck</td></tr>
+    <tr><td>[A, Dirty], [A, Clean]</td><td>Right</td></tr>
+    <tr><td>[A, Dirty], [A, Clean], [B, Clean]</td><td>NoOp</td></tr>
+    <tr><td>&hellip; (indefinitely many longer sequences)</td><td>&hellip;</td></tr>
+  </tbody>
+</table>
+
+<p>Two features of this table deserve attention. First, it is <em>already</em> unwieldy for a world with two squares and two cleanliness states. Second, and more importantly, it is <strong>infinite</strong>: percept sequences can be arbitrarily long, so <code>P*</code> is countably infinite even when <code>P</code> is tiny. The agent function therefore <em>defines</em> behavior exhaustively but is, in general, <strong>unimplementable as a literal lookup table</strong>. It is a specification device, not an implementation.</p>
+
+<p>From the external definition follows a sharp criterion of equivalence: <strong>two agents with identical agent functions are behaviorally equivalent, regardless of their internal design.</strong> Suppose Agent X implements the vacuum behavior above with a four-line <code>if</code> cascade, while Agent Y implements it with a deep neural network, and Agent Z with a 10,000-entry hash table. If, for every percept sequence, all three emit the same action, then no external observer interacting with them through the environment can distinguish them. They may differ dramatically in memory footprint, response latency, energy use, explainability, and maintainability — and those differences are the proper subject of architecture selection — but they do not differ in behavior, and therefore not in performance as measured over environment states. This is a liberating fact: it means we can argue about <em>what the agent should do</em> without yet committing to <em>how</em>.</p>
+
+<p>That separation is the practical payoff of the concept. <strong>Specifying the agent function first divorces the behavioral contract from the computational method.</strong> In a design review, you can write down, in English or pseudocode or a partial table, what the system ought to do in each situation of interest — including the awkward edge cases — and get stakeholders to agree. Only then do you ask the engineering question: which program, running on which architecture, approximates this function closely enough, fast enough, and cheaply enough? Projects that skip the first step tend to discover, late and expensively, that the team disagreed about the intended behavior all along.</p>
+
+<p>A useful exercise is to notice when the agent function genuinely requires history. For the fully observable two-square vacuum, the "right" action depends only on the <em>last</em> percept, so a history-free program suffices. But suppose the agent has no location sensor and perceives only <code>Dirty</code> or <code>Clean</code>. Now <code>[Clean]</code> is ambiguous — the agent might be in <code>A</code> or <code>B</code> — and the correct action may depend on how many moves it has made and in which direction. The agent function now genuinely depends on the sequence, not just the last element, and that fact will dictate the architecture.</p>
+
+<p><strong>Agent Program vs. Agent Architecture</strong></p>
+
+<p>The agent function is abstract. To build something real we need two concrete things, and it is worth being pedantic about which is which:</p>
+
+<ul>
+  <li>The <strong>agent architecture</strong> is the computing device with its physical sensors and actuators — the body and the hardware. It supplies the sensor suite, the actuator suite, the processor, memory, power budget, operating system, and real-time guarantees.</li>
+  <li>The <strong>agent program</strong> is the software that runs on that architecture: it accepts percepts and returns actions.</li>
+</ul>
+
+<p>The standard slogan is <code>agent = architecture + program</code>. A path-planning program that is excellent on a laptop is useless if deployed on an architecture whose only sensor is a bump switch, because the percepts it needs do not exist. Conversely, a lavishly instrumented robot with a trivial program will behave trivially. Neither half determines behavior on its own.</p>
+
+<p>There is an important interface detail that trips up beginners. <strong>The agent program receives only the current percept as an argument</strong>, not the percept sequence. This is a deliberate modeling convention that mirrors reality: sensors report now, not then. Consequently, <em>if the agent's behavior must depend on history, the program must store that history itself</em>, in internal state that persists between calls. A generic skeleton makes the point:</p>
+
+<pre><code>function TABLE-DRIVEN-AGENT(percept) returns an action
+    persistent: percepts, a sequence, initially empty
+                table, a table of actions indexed by percept sequences
+
+    append percept to the end of percepts
+    action &lt;- LOOKUP(percepts, table)
+    return action</code></pre>
+
+<p>Note the <code>persistent</code> declaration: the variable <code>percepts</code> survives across invocations. That single mechanism — persistent internal state — is what allows a program whose <em>interface</em> is memoryless to implement an agent function whose <em>definition</em> is history-dependent.</p>
+
+<p>The table-driven agent is also the canonical example of why naive implementations fail. <strong>A literal table-lookup implementation is intractable.</strong> If <code>P</code> is the set of possible percepts and the agent runs for <code>T</code> steps, the table needs an entry for every sequence of length 1 through <code>T</code>, which is</p>
+
+<pre><code>|P|^1 + |P|^2 + ... + |P|^T  =  O(|P|^T)  entries</code></pre>
+
+<p>The numbers become absurd immediately. Consider a modest automated taxi with a single camera producing 640&times;480 pixels at 24-bit colour, 30 frames per second. One frame alone can take roughly 2<sup>24&times;640&times;480</sup> values; the number of distinct percept sequences for even one hour of driving exceeds the number of atoms in the observable universe by an unimaginable margin. Even in chess — a tiny, discrete, fully observable world — the number of reachable positions is on the order of 10<sup>40</sup>+, far beyond any conceivable storage. Scale illustrates the point:</p>
+
+<table>
+  <thead>
+    <tr><th>Domain</th><th>Approximate percept/state space</th><th>Literal table feasible?</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Two-square vacuum, with location sensor</td><td>4 percepts; 4<sup>T</sup> sequences of length T</td><td>Only for very small T</td></tr>
+    <tr><td>Tic-tac-toe</td><td>~5,500 reachable positions</td><td>Yes</td></tr>
+    <tr><td>Chess</td><td>&gt;10<sup>40</sup> positions</td><td>No</td></tr>
+    <tr><td>Go (19&times;19)</td><td>~2&times;10<sup>170</sup> positions</td><td>No</td></tr>
+    <tr><td>Camera-equipped taxi, 1 hour</td><td>astronomically larger still</td><td>Emphatically no</td></tr>
+  </tbody>
+</table>
+
+<p>Beyond storage, a literal table has three further fatal defects: no designer could ever write all the entries; no agent could learn them all from a feasible amount of experience; and the table offers <em>no generalization</em> — two nearly identical percept sequences are unrelated entries, so experience in one tells the agent nothing about the other.</p>
+
+<p>The entire enterprise of AI programming can therefore be described as <strong>compressing the agent function</strong> — producing a short program that behaves like a huge table. The module's architectures are exactly five families of compression strategy:</p>
+
+<ul>
+  <li><strong>Condition–action rules</strong> compress by ignoring history and grouping percepts into a handful of situations (<code>if car-in-front-is-braking then initiate-braking</code>).</li>
+  <li><strong>Internal models</strong> compress by summarizing an unbounded percept history into a compact state estimate plus a transition model.</li>
+  <li><strong>Goals</strong> compress by replacing enumerated responses with a target condition plus a search procedure that derives the response on demand.</li>
+  <li><strong>Utility functions</strong> compress by replacing enumerated preferences with a scalar scoring function over states, from which preferences are computed.</li>
+  <li><strong>Learned parameters</strong> compress by fitting a parametric function (weights of a network, coefficients of a linear policy) that generalizes across unseen percepts.</li>
+</ul>
+
+<p>Each buys compression at a different price in computation, data, assumptions, and explainability — which is precisely why architecture selection is a genuine engineering decision rather than a matter of taste.</p>
+
+<p>Finally, note how <strong>architecture choice determines what the program can retain and reason over</strong>. An 8-bit microcontroller with 2 KB of RAM cannot maintain a probabilistic belief distribution over a large state space, so a model-based design is off the table regardless of its theoretical merit; you will be writing reflex rules. A platform without a clock cannot reason about elapsed time. A robot whose only sensor is a bump switch cannot maintain a map except by dead-reckoning, with drift. If the architecture provides a wheel encoder and an IMU, the same program becomes viable. Architecture is thus not a downstream implementation detail: it is an upstream constraint that prunes the space of realizable agent functions.</p>
+
+<p><strong>The PEAS Framework for Task Environments</strong></p>
+
+<p>Before choosing an architecture, you must describe the problem. The standard tool is <strong>PEAS</strong>: <em>Performance measure, Environment, Actuators, Sensors</em>. Writing a PEAS specification is the first concrete deliverable of agent design, and it is cheap, fast, and remarkably effective at exposing muddled thinking.</p>
+
+<ul>
+  <li><strong>Performance measure</strong> — the criteria that define success, stated in terms of <em>environment states</em> over the relevant time horizon. Good measures are explicit about trade-offs and about horizon ("averaged over a shift," "per trading day," "per delivery"). Bad measures are vague ("be helpful") or self-referential ("maximize the agent's confidence score").</li>
+  <li><strong>Environment</strong> — the world the agent operates in, including terrain, objects, physical laws, regulations, and crucially <em>other agents</em> (cooperative, competitive, or indifferent). Omitting other agents is a frequent and expensive mistake, because their presence changes the environment class from single-agent to multi-agent and often from static to dynamic.</li>
+  <li><strong>Actuators</strong> — an enumeration of the actions the agent can physically perform. This is a hard constraint. If "notify a human supervisor" is not in the actuator list, no amount of clever reasoning will make it available.</li>
+  <li><strong>Sensors</strong> — an enumeration of the percepts the agent can actually obtain, with their resolution, latency, noise characteristics, and failure modes. Again a hard constraint: an agent cannot condition on what it cannot sense.</li>
+</ul>
+
+<p>Here are four worked specifications spanning physical and software domains.</p>
+
+<table>
+  <thead>
+    <tr><th>Agent type</th><th>Performance measure</th><th>Environment</th><th>Actuators</th><th>Sensors</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Vacuum-cleaning robot</td>
+      <td>Fraction of floor area clean averaged over the day; battery energy consumed; number of collisions with pets/furniture; noise during quiet hours; time to return to dock</td>
+      <td>Multi-room home: carpets and hard floors, thresholds, stairs, furniture, cables, moving pets and humans, charging dock</td>
+      <td>Left/right drive wheels, suction motor, side brush, dock-seek routine, audible alert</td>
+      <td>Dirt/optical debris sensor, bump switches, cliff (drop) sensors, wheel encoders, IMU, LIDAR or camera, battery-level sensor, dock IR beacon</td>
+    </tr>
+    <tr>
+      <td>Autonomous delivery robot (sidewalk)</td>
+      <td>Parcels delivered on time; distance travelled per delivery; pedestrian safety incidents (heavily weighted); battery used; customer rating; compliance with traffic rules</td>
+      <td>Urban sidewalks and crossings, kerbs, weather, pedestrians, cyclists, cars, other delivery robots, building entrances, GPS-degraded urban canyons</td>
+      <td>Drive motors, steering, cargo-bay lock, horn/voice prompts, indicator lights, cellular message to operator, emergency stop</td>
+      <td>GPS, LIDAR, stereo cameras, ultrasonic proximity, IMU, wheel odometry, cargo-bay door switch, battery monitor, network link for map and order data</td>
+    </tr>
+    <tr>
+      <td>Automated trading agent</td>
+      <td>Risk-adjusted return (e.g. Sharpe ratio) over the quarter; maximum drawdown; transaction and slippage costs; regulatory compliance; position limits respected</td>
+      <td>Electronic exchange with order book, other traders (many of them algorithmic and adversarial), latency, circuit breakers, news flow, macroeconomic releases</td>
+      <td>Submit/modify/cancel limit and market orders; adjust position size; hedge; halt trading; emit risk alert</td>
+      <td>Level 2 order-book feed, trade prints, historical price series, news and sentiment feeds, own position and P&amp;L state, exchange status messages, account margin data</td>
+    </tr>
+    <tr>
+      <td>Game-playing agent (chess)</td>
+      <td>Points scored per game (win=1, draw=0.5, loss=0); Elo rating achieved; compliance with the time control; (optionally) entertainment value against human opponents</td>
+      <td>8&times;8 board, legal move rules, a single adversarial opponent, a shared clock, tournament rules on draws and repetition</td>
+      <td>Submit a legal move; offer or accept a draw; resign; adjust clock usage</td>
+      <td>Board-state reader (current position, side to move, castling and en-passant rights), move history, own and opponent clock readings</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Notice how much design information is already visible in these tables, before a single line of code is written. The delivery robot's performance measure weights pedestrian safety heavily, which tells us immediately that a purely greedy "shortest path" policy is wrong and that a utility formulation with a large negative term — or a hard safety constraint layered beneath the planner — is required. The trading agent's environment entry mentions adversarial algorithmic counterparties, which signals a multi-agent, partially observable, stochastic setting where game-theoretic reasoning and conservative risk limits matter more than point forecasts. The chess agent's actuator list contains "resign" and "offer a draw," which are genuine strategic actions that a designer who thought only in terms of "make a move" would have omitted entirely.</p>
+
+<p>The deepest value of PEAS, though, is that <strong>writing it early exposes gaps — especially goals that cannot be measured by the available sensors.</strong> Read the Performance row and the Sensors row side by side and ask, for each clause of the measure, "can the agent (or the evaluator) actually observe this?" Mismatches of three kinds fall out:</p>
+
+<ul>
+  <li><strong>Unobservable goal clauses.</strong> The vacuum's measure includes "fraction of floor clean." But the dirt sensor only reports dirt <em>under the robot, right now</em>. The robot cannot directly perceive global cleanliness; it must infer it from a map plus a history of where it has been and when — which is a direct argument for a model-based architecture. If you cannot afford that, you must either accept a proxy measure (coverage of the floor plan) or add a sensor.</li>
+  <li><strong>Goals requiring unavailable actions.</strong> Suppose the delivery robot's measure penalizes undelivered parcels, but the actuator list has no way to contact a human when a lobby door is locked. The agent is structurally incapable of achieving the goal in a common case; the fix is an actuator ("send message to operator"), not an algorithm.</li>
+  <li><strong>Measures the agent can game.</strong> If the trading measure were "realized profit this week" with no drawdown term, the rational agent would take on enormous hidden tail risk. Writing the measure in a table next to the environment description makes such omissions conspicuous.</li>
+</ul>
+
+<p>A practical habit: after drafting PEAS, write one sentence per performance clause explaining <em>which sensor stream</em> supplies the evidence for it and <em>which actuator</em> can influence it. Any clause that fails this test is a specification defect, and it is far cheaper to find it now than after deployment.</p>
+
+<p><strong>Environment Properties That Constrain Design</strong></p>
+
+<p>Task environments vary along a small number of dimensions, and those dimensions have direct, predictable consequences for what kind of agent program can possibly work. The dimensions are properties of the <em>environment as the agent experiences it</em>, which means they depend on the sensor suite as much as on the world itself — a point that is easy to miss.</p>
+
+<p><strong>Fully versus partially observable.</strong> An environment is fully observable if the agent's sensors give it access, at each point in time, to all aspects of the environment state that are relevant to the choice of action. It is partially observable if noise, limited coverage, or missing instrumentation hide relevant aspects; it is <em>unobservable</em> in the extreme case where the agent perceives nothing at all. Chess with a board reader is fully observable; poker, with hidden cards, is not; a robot with a forward-facing camera cannot see what is behind it and so operates partially observably. The design consequence is sharp and non-negotiable: <strong>partial observability forces the agent to maintain internal state</strong>, a running estimate of the parts of the world it cannot currently see. That requirement rules out simple reflex agents, which by construction map the current percept to an action. The classic demonstration is the vacuum robot with a dirt sensor but no location sensor: the percept <code>Clean</code> is consistent with being in square A or square B, and no fixed rule from <code>Clean</code> to an action can be rational in both cases. A deterministic reflex agent either stalls or oscillates forever; the only reflex fix is randomization, which is a poor substitute for knowing where you are.</p>
+
+<p><strong>Deterministic versus stochastic.</strong> An environment is deterministic if the next state is completely determined by the current state and the agent's action; otherwise it is stochastic. (A third label, <em>nondeterministic</em>, is used when outcomes are uncertain but no probabilities are attached — the agent must then plan for the worst case rather than the average case.) A sliding-tile puzzle is deterministic; a robot's wheels slipping on a wet floor, a parcel recipient who may or may not be home, and a limit order that may or may not be filled are stochastic. The design consequence is that <strong>stochastic outcomes motivate reasoning over expected value rather than guaranteed outcomes</strong>. A goal-based agent asks "does this plan reach the goal?" — a question with no clean answer when every action has a distribution of outcomes. A utility-based agent asks "which action maximizes expected utility?", a question that remains well posed. This is exactly why uncertainty pushes designs up the ladder from goals to utilities. Note also that an environment can appear stochastic merely because it is partially observable: a deterministic world whose hidden variables you cannot see is, from your vantage point, unpredictable. The two properties interact rather than decomposing neatly.</p>
+
+<p><strong>Episodic versus sequential.</strong> In an episodic environment, the agent's experience divides into atomic episodes; in each, it receives a percept and performs one action, and crucially <em>the action taken in one episode does not affect later episodes</em>. A defect-classification agent on a production line is episodic: misjudging part 400 does not change part 401. In a sequential environment, current decisions influence all future ones — chess, driving, inventory management, and conversation are all sequential. The design consequence is that <strong>sequential environments require lookahead</strong>: the agent must reason about consequences that unfold over time, which is the province of search, planning, and multi-step value estimation. Episodic tasks need none of that machinery, which is why they can often be handled by a classifier wrapped in a thin reflex layer. A useful warning: tasks that look episodic sometimes are not. A recommender that treats each impression independently is ignoring the fact that today's recommendations shape tomorrow's user interests — a sequential effect masquerading as an episodic one.</p>
+
+<p><strong>Static versus dynamic.</strong> A static environment does not change while the agent is deliberating; a dynamic one does. A crossword puzzle is static; driving is emphatically dynamic. The intermediate case, <strong>semi-dynamic</strong>, describes environments where the world does not change but the agent's <em>score</em> does — chess with a clock is the standard example, since the position is stable while you think but your time is draining. The design consequence is a hard bound on deliberation: <strong>in dynamic environments, thinking is an action with a cost</strong>, and a perfect answer delivered too late is worse than a good answer delivered on time. This favors architectures with fast reactive components — a reflex-level safety layer that can brake instantly — possibly combined with a slower deliberative layer that refines plans in the background. Many real robots use exactly this layered design, and the split exists because of the static/dynamic axis.</p>
+
+<p><strong>Discrete versus continuous.</strong> This distinction applies separately to the state of the environment, to time, and to the agent's percepts and actions. Chess is discrete in all three; taxi driving has continuous state (positions, velocities), continuous time, and continuous actions (steering angle, throttle). The design consequence lies in representation and algorithm choice: discrete domains admit enumeration, tabular methods, and classical graph search; continuous domains demand function approximation, numerical optimization, differential models, or deliberate discretization — and discretization introduces its own error. Many practical systems compromise: a self-driving stack may plan over a discrete lattice of candidate trajectories, then hand the chosen trajectory to a continuous controller.</p>
+
+<p><strong>Single-agent versus multi-agent.</strong> If other entities in the environment are best modelled as agents maximizing their own performance measures — particularly measures that depend on your behavior — the environment is multi-agent. Sub-classify it as <em>competitive</em> (chess, adversarial trading, where one agent's gain is another's loss), <em>cooperative</em> (a fleet of warehouse robots avoiding deadlock), or mixed (driving, where everyone cooperates on collision avoidance and competes for road space). The design consequences are substantial: competitive settings make randomized strategies rational (predictability is exploitable), demand adversarial search or game-theoretic equilibrium reasoning, and typically make the environment both dynamic and partially observable, since other agents' intentions are hidden. Communication and convention also become possible actions.</p>
+
+<p><strong>Known versus unknown.</strong> This axis is often confused with observability, but it is categorically different: <strong>known/unknown refers to the <em>designer's or agent's</em> knowledge of the rules — the outcomes (or outcome probabilities) of actions — while observable/partially observable refers to the agent's access to the <em>current state</em>.</strong> The combinations are all realizable: a new video game with full on-screen information is fully observable but unknown (you must learn what the buttons do); solitaire with face-down cards is known but partially observable (you know the rules perfectly, you just cannot see the cards). The design consequence is the motivation for the entire learning paradigm: <strong>an unknown environment requires the agent to learn a model, a value function, or a policy from experience</strong>, and to explore in order to obtain that experience. If the designer cannot write down the transition model — because the world is too complex, too variable, or simply not understood — then the agent must acquire it.</p>
+
+<p>The table below summarizes the axes and their primary design implication, followed by a classification of the running examples.</p>
+
+<table>
+  <thead>
+    <tr><th>Property</th><th>Question it answers</th><th>Primary design consequence</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Fully vs. partially observable</td><td>Can I sense everything relevant right now?</td><td>Partial observability forces internal state; excludes simple reflex agents</td></tr>
+    <tr><td>Deterministic vs. stochastic</td><td>Does my action fix the next state?</td><td>Stochasticity motivates expected-utility reasoning and contingency plans</td></tr>
+    <tr><td>Episodic vs. sequential</td><td>Do today's actions matter tomorrow?</td><td>Sequential tasks require lookahead, search, or planning</td></tr>
+    <tr><td>Static vs. dynamic</td><td>Does the world change while I think?</td><td>Dynamic worlds cap deliberation time; favor fast reactive layers</td></tr>
+    <tr><td>Discrete vs. continuous</td><td>Are states, time, and actions enumerable?</td><td>Continuity demands approximation, control theory, or discretization</td></tr>
+    <tr><td>Single- vs. multi-agent</td><td>Do other optimizers react to me?</td><td>Adversarial search, equilibrium reasoning, randomization, communication</td></tr>
+    <tr><td>Known vs. unknown</td><td>Do I know the rules of the world?</td><td>Unknown rules require learning and deliberate exploration</td></tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr><th>Task environment</th><th>Observable</th><th>Agents</th><th>Deterministic</th><th>Episodic</th><th>Static</th><th>Discrete</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Crossword puzzle</td><td>Fully</td><td>Single</td><td>Deterministic</td><td>Sequential</td><td>Static</td><td>Discrete</td></tr>
+    <tr><td>Chess with a clock</td><td>Fully</td><td>Multi (competitive)</td><td>Deterministic</td><td>Sequential</td><td>Semi-dynamic</td><td>Discrete</td></tr>
+    <tr><td>Poker</td><td>Partially</td><td>Multi (competitive)</td><td>Stochastic</td><td>Sequential</td><td>Static</td><td>Discrete</td></tr>
+    <tr><td>Two-square vacuum (idealized)</td><td>Fully</td><td>Single</td><td>Deterministic</td><td>Sequential</td><td>Static</td><td>Discrete</td></tr>
+    <tr><td>Real household vacuum robot</td><td>Partially</td><td>Single (pets aside)</td><td>Stochastic</td><td>Sequential</td><td>Dynamic</td><td>Continuous</td></tr>
+    <tr><td>Sidewalk delivery robot</td><td>Partially</td><td>Multi (mixed)</td><td>Stochastic</td><td>Sequential</td><td>Dynamic</td><td>Continuous</td></tr>
+    <tr><td>Trading agent</td><td>Partially</td><td>Multi (competitive)</td><td>Stochastic</td><td>Sequential</td><td>Dynamic</td><td>Mostly discrete prices, continuous time</td></tr>
+    <tr><td>Production-line defect classifier</td><td>Fully (of the part)</td><td>Single</td><td>Deterministic (labels)</td><td>Episodic</td><td>Semi-dynamic</td><td>Continuous image input</td></tr>
+  </tbody>
+</table>
+
+<p>Two caveats are worth internalizing. First, these classifications depend on how you draw the boundary and on the sensor suite: add a location sensor to the vacuum and it becomes fully observable; remove the clock from chess and it becomes static. Second, the hardest environment class — partially observable, stochastic, sequential, dynamic, continuous, multi-agent, and unknown — is also the most common in practice. Real design is usually the art of finding a <em>defensible approximation</em> of such a world that a tractable architecture can handle.</p>
+
+<p><strong>From Environment Analysis to Architecture Selection</strong></p>
+
+<p>The payoff of all the preceding machinery is a repeatable decision procedure. Write the PEAS specification; classify the environment on each axis; then let the hardest constraint drive the architecture. The guiding principle is <strong>choose the simplest architecture whose capabilities cover the environment's demands</strong> — unnecessary sophistication costs compute, data, latency, and debuggability, while insufficient sophistication produces an agent that is structurally incapable of rational behavior no matter how well it is tuned.</p>
+
+<p><strong>Simple reflex agents</strong> apply condition–action rules to the current percept: <code>if dirty then suck</code>; <code>if car-ahead-is-braking then brake</code>. They are appropriate when the environment is <em>fully observable</em> (so the current percept carries all relevant information), when the task is <em>episodic</em> or close to it (so no lookahead is needed), and when the correct behavior can be expressed as a small set of rules. Their virtues are extreme speed, tiny memory footprint, and transparency — you can read every rule and audit it, which is why safety interlocks are almost always implemented this way. Their failure mode is equally sharp: given partial observability, they cannot distinguish states that look alike, and they fall into infinite loops. The locationless vacuum is the textbook demonstration. A thermostat, an industrial emergency-stop circuit, and a packet filter that accepts or drops based on header fields are all legitimate simple reflex agents, and in each case the simplicity is a feature.</p>
+
+<p><strong>Model-based reflex agents</strong> add internal state updated by two pieces of knowledge: a <em>transition model</em> ("how the world evolves, and how my actions change it") and a <em>sensor model</em> ("how the world's state is reflected in my percepts"). The state is a running best guess — a map, a tracked object list, an occupancy grid, a probability distribution — that summarizes the percept history. This is the architecture mandated whenever there is <strong>hidden state</strong>: unobservable regions, sensor noise, objects temporarily occluded, or facts (like "which squares have I already cleaned") that are simply not sensed. A real vacuum robot building a SLAM map so it can cover the floor systematically, a driving stack tracking a cyclist who has disappeared behind a van, a network monitor maintaining per-connection state — all are model-based. The cost is real: you must author or learn the models, state estimation consumes memory and compute, and errors in the model accumulate as drift. But without internal state, the agent literally cannot represent the distinction it needs to act on.</p>
+
+<p><strong>Goal-based agents</strong> add an explicit representation of desirable situations and use search or planning to find action sequences that achieve them. They are called for in <strong>sequential</strong> tasks with explicit targets, where the right action now depends on consequences several steps ahead. The decisive advantage is flexibility: because the goal is represented declaratively and separately from the behavior, changing the destination requires changing one data item rather than rewriting rules. A delivery robot asked to go to 14 Oak Street instead of 7 Elm Street needs no code change; a reflex agent encoding routes as rules would need a rewrite. A route planner, a block-stacking planner, and a chess engine searching for checkmate are all goal-based. The costs are computational — search can be expensive — and representational, since you must model actions and their effects well enough to simulate them.</p>
+
+<p><strong>Utility-based agents</strong> replace the binary "goal achieved / not achieved" test with a <strong>utility function</strong> that assigns a real-valued score to states (or histories), and they choose actions that maximize <em>expected</em> utility. Two circumstances make this necessary. First, <strong>conflicting or graded objectives</strong>: a delivery robot's route can be fast, cheap, or safe, and no binary goal predicate expresses the trade-off among them; a utility function with weighted terms does. Second, <strong>uncertainty</strong>: when actions have stochastic outcomes, "will this plan reach the goal?" has no yes/no answer, but "what is the expected utility of this plan?" does, and maximizing it is the decision-theoretically correct response. Utility functions also naturally encode risk attitude — a concave utility over money produces risk-averse trading behavior automatically, without a special rule. The trade-off is that eliciting and calibrating the utility function is genuinely hard, and a badly specified utility is the most direct route to confidently wrong behavior; the mapping from stated measure to implemented utility must be checked carefully against the PEAS performance row.</p>
+
+<p><strong>Learning agents</strong> add four interacting components — a <em>performance element</em> (the agent program chosen from the above families, which selects actions), a <em>critic</em> (which judges the agent's behavior against a fixed external performance standard and produces feedback), a <em>learning element</em> (which uses that feedback to modify the performance element), and a <em>problem generator</em> (which proposes exploratory, deliberately suboptimal actions to gather informative experience). This architecture is indicated whenever the environment is <strong>unknown, too complex to model by hand, or changing over time</strong>, and whenever the designer cannot anticipate every situation. A trading agent whose market regime shifts, a recommender whose user population drifts, a robot whose motors wear and whose calibration degrades — all argue for learning. The costs are data requirements, non-stationarity of the agent's own behavior (which complicates testing), reduced predictability, and the need for safe exploration: a problem generator that experiments freely on a sidewalk robot is a hazard, so exploration must be sandboxed, simulated, or tightly bounded.</p>
+
+<p>The decision table below condenses the mapping.</p>
+
+<table>
+  <thead>
+    <tr><th>Environment signature</th><th>Indicated architecture</th><th>Why weaker options fail</th><th>Representative example</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Fully observable, episodic, few rules, hard latency limits</td>
+      <td>Simple reflex</td>
+      <td>Nothing weaker exists; anything stronger wastes compute and adds failure modes</td>
+      <td>Thermostat; emergency-stop interlock; stateless packet filter</td>
+    </tr>
+    <tr>
+      <td>Partially observable or noisy sensors; hidden/latent variables</td>
+      <td>Model-based reflex</td>
+      <td>Reflex rules alias distinct states into one percept and loop or stall</td>
+      <td>Vacuum robot building a coverage map; object tracking through occlusion</td>
+    </tr>
+    <tr>
+      <td>Sequential, deterministic enough, explicit target state, changing goals</td>
+      <td>Goal-based (search/planning)</td>
+      <td>Reflex and model-based agents have no mechanism for lookahead; goals would have to be hard-coded as rules</td>
+      <td>Route planning; warehouse order fulfilment; puzzle solving</td>
+    </tr>
+    <tr>
+      <td>Stochastic outcomes and/or multiple graded, conflicting objectives</td>
+      <td>Utility-based</td>
+      <td>A binary goal test cannot rank partial successes or trade speed against safety under uncertainty</td>
+      <td>Delivery routing balancing time, energy, and pedestrian risk; portfolio allocation</td>
+    </tr>
+    <tr>
+      <td>Unknown dynamics, drift over time, or too complex to specify by hand</td>
+      <td>Learning agent wrapping one of the above</td>
+      <td>Any fixed policy, model, or utility becomes stale or was never accurate to begin with</td>
+      <td>Adaptive trading strategy; recommender under changing tastes; robot self-calibration</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>In practice these are layers rather than rivals. A production self-driving stack contains all five: a reflex-level collision-avoidance interlock that can brake within milliseconds; a model-based perception and tracking module maintaining state about occluded road users; a goal-based route planner; a utility-based trajectory selector trading comfort, progress, and risk; and offline learning components that improve perception and prediction from fleet data. The environmentanalysis does not pick one box; it tells you which capabilities must be present somewhere in the stack, and the engineering judgement lies in deciding which layer supplies each capability and how they arbitrate when they disagree.</p>
+
+<p>A worked example makes the procedure concrete. Return to the sidewalk delivery robot. Its PEAS performance row weights on-time delivery, energy, customer rating, and — heavily — pedestrian safety. The environment classification is partially observable (occlusions, limited sensor range, GPS dropout in urban canyons), stochastic (pedestrians are unpredictable, wheels slip in rain), sequential (a wrong turn costs minutes later), dynamic (the world moves while the planner thinks), continuous (positions, velocities, steering), multi-agent and mixed (pedestrians, cyclists, other robots), and partly unknown (pedestrian behavior cannot be fully specified in advance). Read off the consequences in order: partial observability rules out a pure reflex design and mandates internal state; sequentiality mandates lookahead, so a planner is required; graded conflicting objectives plus stochasticity mandate a utility formulation rather than a binary goal test; dynamism mandates a fast reactive safety layer beneath the planner, because a 300 ms planning cycle is too slow for an emergency stop; unknown pedestrian dynamics mandate a learned prediction model with a carefully sandboxed problem generator — exploration happens in simulation and in logged data, never by experimenting on a live pavement. The resulting architecture is not a matter of preference; nearly every element of it was forced by a specific line of the environment analysis.</p>
+
+<p>Contrast this with a production-line defect classifier whose PEAS analysis yields fully observable (the part is fully imaged), episodic (parts are independent), effectively static during the inspection window, single-agent, and known enough that labelled data exists. Here the forced capabilities are far fewer: no internal state across episodes, no lookahead, no utility trade-off beyond a decision threshold balancing false accepts against false rejects. A learned classifier wrapped in a thin reflex layer — <code>if defect-probability &gt; threshold then divert part</code> — is the right answer, and deploying a planner here would add cost, latency, and failure modes while improving nothing. Restraint is as much a part of good architecture selection as sophistication.</p>
+
+<p>Finally, a note on how to defend a choice. A justification is only complete when it names the alternatives considered and the specific environment property that disqualified each. "We used a model-based agent" is an assertion; "we used a model-based agent because the dirt sensor cannot report previously cleaned squares, so a simple reflex agent cannot distinguish a freshly cleaned room from an unvisited one and would re-cover ground indefinitely; we rejected a full planner because the floor plan is small and greedy coverage over the map meets the performance target at a fraction of the compute budget" is an argument. The vocabulary of this topic — percepts, percept sequences, agent functions, programs, architectures, PEAS, and the environment axes — exists precisely so that such arguments can be stated crisply and checked by someone else.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Directly supported. The topic defines percepts, percept sequences, the agent function <code>f: P* → A</code>, the agent program and its current-percept interface, and the agent architecture that supplies sensors, actuators, and compute, together with the slogan <code>agent = architecture + program</code>.</li>
+  <li><strong>MO2</strong> — Partially supported. The learning-agent discussion in the final section names the performance element, critic, learning element, and problem generator and sketches how they interact to improve behavior; the detailed mechanics of that loop are developed in a later topic rather than here.</li>
+  <li><strong>MO3</strong> — Directly supported. The PEAS section defines each component and provides full worked specifications for a vacuum robot, a delivery robot, a trading agent, and a chess-playing agent, plus a checking habit for matching performance clauses to available sensors and actuators.</li>
+  <li><strong>MO4</strong> — Directly supported. The final section characterizes simple reflex, model-based reflex, goal-based, utility-based, and learning architectures explicitly in terms of the environment properties (observability, determinism, episodicity, dynamics, known/unknown) that each one addresses, and tabulates the mapping.</li>
+  <li><strong>MO5</strong> — Directly supported. The environment-to-architecture decision table, the "simplest sufficient architecture" principle, the layered self-driving and defect-classifier examples, and the closing guidance on naming rejected alternatives all model the trade-off reasoning required to justify an architectural selection.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The two worked contrasts at the end (delivery robot vs. defect classifier) are designed to be reusable as in-class exercises: students can be given only the PEAS table and asked to derive the architecture before seeing the justification. The scale figures for chess (&gt;10^40 reachable positions) and Go (~2&#215;10^170 legal positions) are standard published estimates and are used only to convey orders of magnitude. The term &quot;nondeterministic&quot; is introduced alongside &quot;stochastic&quot; because some textbooks reserve the former for uncertainty without probabilities; instructors following a single textbook may wish to simplify. The known/unknown axis is deliberately contrasted with observability because that confusion is the most common error in student environment classifications.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

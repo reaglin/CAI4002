@@ -1,0 +1,295 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expert System Architecture and Components</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Knowledge Representation Structures and Expert Systems</a></div>
+  <header>
+    <h1>Expert System Architecture and Components</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Expert System Architecture and Components</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>An expert system is a computer program that reaches conclusions in a narrow problem domain at a level comparable to that of a human specialist, and — crucially — can show the reasoning that led to those conclusions. What distinguishes expert systems from conventional software is not the algorithms they use but the way they are organised. In a conventional program, domain knowledge is scattered through procedures, conditional statements and data structures; changing what the program "knows" means rewriting code. In an expert system, domain knowledge is deliberately isolated in a declarative <strong>knowledge base</strong>, while the procedure that uses that knowledge lives in a separate, general-purpose <strong>inference engine</strong>. This architectural separation is the single most important idea in the field, and almost every property discussed below follows from it.</p>
+
+<p>The conventional decomposition of an expert system comprises five principal components, plus supporting subsystems used during development rather than at run time:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Component</th>
+      <th>Contents</th>
+      <th>Volatility</th>
+      <th>Primary user</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Knowledge base</td>
+      <td>Rules, facts, objects, relationships, heuristics for the domain</td>
+      <td>Static during a consultation; changes only through maintenance</td>
+      <td>Knowledge engineer / domain expert</td>
+    </tr>
+    <tr>
+      <td>Inference engine</td>
+      <td>Match–select–execute cycle, conflict resolution, chaining control</td>
+      <td>Fixed; domain-independent code</td>
+      <td>System builder (invisible to end user)</td>
+    </tr>
+    <tr>
+      <td>Working memory (fact base)</td>
+      <td>Facts about the single case currently being solved</td>
+      <td>Highly volatile; changes on every rule firing</td>
+      <td>Created from end-user input and inference</td>
+    </tr>
+    <tr>
+      <td>User interface</td>
+      <td>Question/answer dialogue, menus, forms, result presentation</td>
+      <td>Fixed</td>
+      <td>End user</td>
+    </tr>
+    <tr>
+      <td>Explanation facility</td>
+      <td>Why/How responses generated from the inference trace</td>
+      <td>Fixed code, dynamic content</td>
+      <td>End user and knowledge engineer</td>
+    </tr>
+    <tr>
+      <td>Knowledge acquisition subsystem</td>
+      <td>Editors, rule syntax checkers, consistency checkers, case libraries</td>
+      <td>Used during development and maintenance</td>
+      <td>Knowledge engineer</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>When the knowledge base is removed, what remains — inference engine, working memory manager, interface and explanation machinery, plus knowledge-editing tools — is called a <strong>shell</strong>. A shell is an empty expert system: it knows <em>how</em> to reason but has nothing to reason about. The historical example is EMYCIN ("Essential MYCIN"), produced by stripping the infectious-disease rules out of the MYCIN system at Stanford; the remaining machinery was then used to build expert systems for pulmonary function testing (PUFF) and structural analysis (SACON). Modern equivalents include CLIPS, Jess, Drools and various business rule management systems. The economic argument for shells is straightforward: the inference engine is the hardest and most error-prone part to write, and it is the part that does not change between applications, so it should be written once and reused.</p>
+
+<p>Two consequences of this design deserve emphasis. First, expert systems are <strong>deliberately narrow</strong>. A system that diagnoses bacterial blood infections has no concept of a broken leg; if a user describes symptoms outside the encoded domain, the system does not degrade gracefully but produces confident nonsense or no answer at all. This is sometimes called the "brittleness" or "cliff edge" problem — human experts know roughly where their competence ends and will say "that is not my field", whereas a rule base has no representation of its own boundaries unless such knowledge is explicitly added. Second, the architecture supports <strong>incremental growth</strong>. Because each rule is an independent statement of knowledge rather than a step in a procedure, a new rule can be added, or an existing one corrected, without touching the reasoning code and usually without touching other rules. A medical expert system can absorb a newly published diagnostic criterion by adding one rule; the engine automatically takes it into account wherever it is relevant.</p>
+
+<p><strong>The knowledge base.</strong> The knowledge base is the repository of the domain knowledge that gives the system its competence. It typically contains two kinds of content. <em>Factual knowledge</em> describes the objects, attributes, values and relationships of the domain — that a transformer has a primary and secondary winding, that <code>streptococcus</code> is a kind of gram-positive coccus, that a mortgage application has an applicant, a property and a loan-to-value ratio. This is often represented with frames, object–attribute–value triples, or an ontology with an is-a hierarchy, so that general properties can be inherited by specific instances. <em>Heuristic knowledge</em> captures the judgmental shortcuts — the "rules of thumb" — that experts acquire through practice and that are rarely written down in textbooks. A textbook may state the full pathophysiology of an engine fault; the experienced mechanic's heuristic is "if the engine turns over slowly on a cold morning and the headlights dim when cranking, suspect the battery before anything else." It is precisely this compiled, experiential knowledge that makes an expert fast and that an expert system attempts to capture.</p>
+
+<p>The dominant representation is the <strong>production rule</strong>, which has two parts: a condition, also called the antecedent, premise or left-hand side (LHS), and an action or conclusion, called the consequent or right-hand side (RHS).</p>
+
+<pre><code>RULE 27: Suspected starting-circuit fault
+IF   the engine does not start
+AND  the starter motor turns slowly or not at all
+AND  the headlights dim noticeably when cranking
+THEN assert fault-location = starting-circuit  (CF 0.8)
+
+RULE 28: Battery versus starter discrimination
+IF   fault-location = starting-circuit
+AND  battery terminal voltage under load &lt; 9.6 volts
+AND  battery age &gt; 4 years
+THEN assert diagnosis = battery-failure  (CF 0.9)
+AND  recommend "Replace battery and retest charging system"</code></pre>
+
+<p>Notice that the rules are <em>modular</em>: Rule 28 does not call Rule 27, it merely mentions a fact that Rule 27 happens to produce. Neither rule knows anything about when it will be used or what will be used after it. That independence is what makes rule bases easier to verify, debug and extend than equivalent procedural code: a domain expert can read a single rule and judge whether it is true, without tracing control flow through a program. In procedural code the same knowledge might be buried in a nested <code>if</code> inside a loop inside a function, where its correctness depends on everything that executed before it.</p>
+
+<p>Modularity is not a guarantee of quality, however, and a growing rule base acquires characteristic defects that a knowledge engineer must actively check for:</p>
+
+<ul>
+  <li><strong>Redundant rules</strong> — two rules with logically equivalent conditions and the same conclusion. Harmless to correctness but they waste matching effort and, if certainty factors are used, can illegitimately inflate confidence by counting the same evidence twice.</li>
+  <li><strong>Conflicting rules</strong> — identical or overlapping conditions leading to incompatible conclusions, e.g. one rule concludes <code>approve-loan</code> and another <code>decline-loan</code> from the same facts. The system's answer then depends on arbitrary conflict-resolution order rather than on the domain.</li>
+  <li><strong>Subsumed rules</strong> — Rule A's conditions are a subset of Rule B's and both reach the same conclusion, so B can never contribute anything A has not already contributed.</li>
+  <li><strong>Circular chains</strong> — A implies B, B implies C, C implies A. In backward chaining this causes infinite recursion unless the engine detects repeated goals; in forward chaining it can cause endless re-firing unless refraction (not firing a rule twice on the same data) is enforced.</li>
+  <li><strong>Unreachable conclusions (dead ends)</strong> — a rule whose conditions mention a fact that no rule asserts and that the interface never asks for. The rule can never fire.</li>
+  <li><strong>Missing rules (gaps)</strong> — combinations of input values for which no rule concludes anything. These are found by systematically enumerating the possible value combinations of key attributes, or by running a library of test cases.</li>
+</ul>
+
+<p><strong>The inference engine.</strong> The inference engine is the interpreter that applies the knowledge base to the facts in working memory. Its operation is a repeated three-phase cycle, often called the <em>recognise–act</em> or <em>match–select–execute</em> cycle:</p>
+
+<ul>
+  <li><strong>Match.</strong> The engine performs pattern matching between the conditions of every rule and the facts currently in working memory. Every rule whose conditions are fully satisfied is placed, together with the specific facts that satisfied it, on the <strong>agenda</strong> (also called the conflict set). A single rule may appear several times on the agenda if it matches several different combinations of facts. Naïve matching is expensive — comparing every rule against every fact on every cycle — so practical engines use the Rete algorithm, which builds a discrimination network of the rule conditions and remembers partial matches between cycles, so that only the consequences of changed facts need to be recomputed.</li>
+  <li><strong>Select (conflict resolution).</strong> Usually more than one rule is eligible, and only one may fire at a time, so the engine applies a conflict-resolution strategy. Common criteria are <em>specificity</em> (prefer the rule with more conditions, on the grounds that it is the more specialised and better-informed rule), <em>recency</em> (prefer the rule matched by the most recently asserted facts, which keeps reasoning focused on the current line of thought rather than wandering), <em>explicit priority or salience</em> (the rule author attaches a numeric weight), <em>refraction</em> (never fire the same rule on the same facts twice, which prevents loops), and simple <em>textual order</em> in the rule file as a final tie-breaker. The choice of strategy materially affects behaviour: with recency a diagnostic system pursues one hypothesis to its conclusion, whereas with pure specificity it may jump between hypotheses.</li>
+  <li><strong>Execute (fire).</strong> The selected rule's right-hand side is carried out: new facts are asserted into working memory, existing facts are modified or retracted, a question is asked of the user, an external procedure is called, or a recommendation is recorded. Because working memory has changed, the agenda changes too, and the cycle repeats. Execution halts when the agenda is empty (no rule applies), when a goal has been established, or when an explicit stop action fires.</li>
+</ul>
+
+<p>The same engine can run in either of two directions. In <strong>forward chaining</strong> (data-driven) the engine starts from the facts present in working memory and fires rules to derive further facts, working towards whatever conclusions the data supports — suitable for monitoring, configuration, scheduling and alarm interpretation, where there is much input data and many possible outcomes. In <strong>backward chaining</strong> (goal-driven) the engine starts from a hypothesised conclusion, finds rules that would establish it, and treats each of their unsatisfied conditions as a new sub-goal, recursively, asking the user only when a sub-goal cannot be derived from any rule — suitable for diagnosis and classification, where the candidate conclusions are few and data is expensive to obtain. The crucial architectural point is that this is a property of the engine's control regime, not of the rules: the same rule <code>IF A AND B THEN C</code> is read forwards as "given A and B, conclude C" and backwards as "to show C, show A and B". Because none of this machinery mentions batteries, bacteria or loans, the engine is entirely domain-independent, and it is this domain-independence that makes it the reusable core of a shell.</p>
+
+<p><strong>Working memory and the fact base.</strong> Working memory — also called the fact base, the dynamic database or the blackboard — holds the system's model of the <em>particular case</em> it is currently solving. At the start of a consultation it is empty or seeded with initial data: answers typed by the user, a record retrieved from a database, a stream of sensor readings from a process plant, or the contents of a form. As reasoning proceeds, each fired rule may add facts ("fault-location is starting-circuit"), modify them ("revise confidence in battery-failure to 0.92"), or retract them ("the assumption that fuel delivery is normal is withdrawn"). Retraction is significant because it makes the system <em>non-monotonic</em>: a conclusion that was previously supported may be withdrawn and, with it, everything derived from it, a process called truth maintenance.</p>
+
+<p>Three properties distinguish working memory from the knowledge base:</p>
+
+<ul>
+  <li><strong>Scope.</strong> The knowledge base holds general knowledge true of all cases ("all batteries older than four years with low terminal voltage are suspect"); working memory holds particular knowledge true only of this case ("this battery is six years old and reads 8.9 V").</li>
+  <li><strong>Volatility and size.</strong> The knowledge base is large (hundreds to thousands of rules) and comparatively static, changing only when a knowledge engineer edits it. Working memory is typically small (tens of facts) but changes on virtually every cycle.</li>
+  <li><strong>Persistence.</strong> At the end of a consultation working memory is normally cleared or reset, so the next case starts clean and the knowledge base is left exactly as it was. The system does not "learn" from a consultation unless a separate learning or case-capture mechanism is added. This is why two users entering identical data get identical answers — a reproducibility property that is attractive in regulated domains such as lending or clinical decision support.</li>
+</ul>
+
+<p>Working memory has one further role that is easy to overlook: if the engine records, for each asserted fact, which rule asserted it and which facts satisfied that rule's conditions, the resulting dependency structure is a complete <strong>reasoning trace</strong>. That trace is the raw material from which explanations are generated.</p>
+
+<p><strong>User interface and explanation facility.</strong> The user interface is responsible for acquiring case data and presenting results. Data acquisition is usually driven by the inference process rather than by a fixed form: in a backward-chaining system, the engine asks a question only at the moment it needs the answer and only if the answer cannot be derived from rules already available. This produces an adaptive dialogue in which the questions asked of one user differ from those asked of another, because the earlier answers have pruned whole branches of the search. Interfaces constrain input where possible — menus of legal values, numeric ranges, yes/no/unknown options — both to avoid parsing problems and to guarantee that answers match the terms used in the rules. On output, the system presents conclusions together with any associated confidence measure (for example "diagnosis: battery failure, certainty 0.9; secondary possibility: starter-motor brushes, certainty 0.4") and the recommended action.</p>
+
+<p>The explanation facility is what gives the system its transparency, and it is a defining feature rather than a cosmetic extra. Two classic explanation types are supported:</p>
+
+<ul>
+  <li><strong>"Why?"</strong> is asked by a user who has been posed a question and wants to know its relevance. The system answers by displaying the rule it is currently trying to establish — the goal on top of its stack — and showing how the requested item would contribute. Asking "Why?" repeatedly walks up the goal stack towards the top-level objective, so the user can see the entire chain of motivation.</li>
+  <li><strong>"How?"</strong> is asked after a conclusion has been reached and means "how did you establish that?". The system answers by replaying the rule that concluded it and the facts that satisfied that rule, each of which may itself have been concluded by another rule; following "How?" down this chain eventually reaches the user's own original answers.</li>
+</ul>
+
+<pre><code>SYSTEM: Is the battery terminal voltage under load less than 9.6 volts?
+USER:   WHY?
+SYSTEM: I am trying to establish RULE 28 (diagnosis = battery-failure).
+        I have already established:
+          [1] fault-location = starting-circuit
+          [3] battery age &gt; 4 years
+        If, in addition, terminal voltage under load &lt; 9.6 V,
+        then diagnosis = battery-failure with certainty 0.9.
+USER:   WHY?   (second request, one level up)
+SYSTEM: I am trying to establish a top-level goal: the cause of the
+        no-start condition, in order to produce a repair recommendation.
+
+... later ...
+
+USER:   HOW did you conclude fault-location = starting-circuit?
+SYSTEM: By RULE 27, because:
+          engine does not start            (you told me)
+          starter turns slowly             (you told me)
+          headlights dim when cranking     (you told me)</code></pre>
+
+<p>The important technical point is that neither response was hand-written by the system's authors. Both were <strong>generated automatically from the inference trace</strong> by paraphrasing the rules on the goal stack and the dependency links in working memory. This is only possible because knowledge is declarative and separate from control: the rules are data that the explanation module can read and re-present. A conventional program cannot explain itself in this way because its knowledge exists only as executed control flow. The consequence is that explanations stay in step with the rule base automatically — editing a rule changes the explanation it produces, with no documentation to update.</p>
+
+<p>Explanation serves three constituencies. End users need it to decide whether to trust and act on a recommendation, particularly in high-stakes domains such as medicine, law and finance; a physician will not administer a drug on the unsupported say-so of a program. Knowledge engineers need it for debugging: when a system reaches an answer the expert considers wrong, the trace localises the error to a specific rule that fired when it should not have, or reveals that an expected rule never fired because a condition was never established — which usually points to a missing rule or an inconsistent vocabulary. Finally, explanation makes the system usable for <em>training</em>, since a student can interrogate it about cases and see the expert's reasoning pattern made explicit.</p>
+
+<p><strong>Knowledge acquisition and knowledge engineering.</strong> Everything above depends on the knowledge base being correct and complete, and filling it is the hardest part of building an expert system — the celebrated "knowledge acquisition bottleneck". The task belongs to the <strong>knowledge engineer</strong>, a specialist who mediates between the domain expert, who knows the subject but not how to formalise it, and the implementation, which demands precise, explicit, consistent statements. The knowledge engineer interviews experts, observes them solving real problems, reviews documentation and case records, and then structures what is learned into rules, frames, decision tables or an ontology, verifying each formalisation with the expert.</p>
+
+<p>Several elicitation techniques are used, usually in combination because each surfaces a different kind of knowledge:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Technique</th>
+      <th>How it works</th>
+      <th>Best for eliciting</th>
+      <th>Limitations</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Unstructured interview</td>
+      <td>Open discussion of the domain and the expert's role</td>
+      <td>Scope, vocabulary, orientation in early stages</td>
+      <td>Unfocused; produces unusable volumes of narrative</td>
+    </tr>
+    <tr>
+      <td>Structured interview</td>
+      <td>Pre-planned questions targeting specific concepts or decisions</td>
+      <td>Systematic coverage; filling identified gaps</td>
+      <td>Only finds what the engineer thought to ask about</td>
+    </tr>
+    <tr>
+      <td>Think-aloud protocol analysis</td>
+      <td>Expert verbalises their thoughts while solving a live case; the transcript is coded into rules</td>
+      <td>Actual problem-solving strategy, heuristics, order of attack</td>
+      <td>Verbalising alters performance; highly automated steps go unmentioned</td>
+    </tr>
+    <tr>
+      <td>Case walkthrough / retrospective review</td>
+      <td>Expert explains decisions in past or hypothetical cases, including rare ones</td>
+      <td>Edge cases, exceptions, justification of choices</td>
+      <td>Post-hoc rationalisation may not reflect real reasoning</td>
+    </tr>
+    <tr>
+      <td>Card sorting</td>
+      <td>Expert repeatedly sorts cards naming domain concepts into groups and names the grouping criterion</td>
+      <td>Taxonomies, is-a hierarchies, the attributes experts find salient</td>
+      <td>Yields structure, not inference rules</td>
+    </tr>
+    <tr>
+      <td>Repertory grid</td>
+      <td>Elements are rated against bipolar constructs elicited by triadic comparison ("how are two of these alike and different from the third?")</td>
+      <td>Discriminating attributes and implicit distinctions the expert never names spontaneously</td>
+      <td>Time-consuming; results need interpretation into rules</td>
+    </tr>
+    <tr>
+      <td>Observation / apprenticeship</td>
+      <td>Engineer watches routine work without interrupting</td>
+      <td>Real workflow, information sources actually used, workarounds</td>
+      <td>Slow; intentions remain hidden</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Acquisition is difficult for reasons that are cognitive rather than technical. Much expertise is <strong>tacit</strong>: the expert can perform reliably but cannot state the procedure, as with a radiologist who "sees" an abnormality before being able to say which features prompted it. Expertise is also <strong>compiled</strong>: through years of practice, long chains of deliberate reasoning collapse into rapid pattern recognition, so the intermediate steps that a rule base must contain have been optimised away from conscious access. Experts additionally tend to omit what seems obvious to them but is essential to a program, to rationalise decisions after the fact with textbook justifications that differ from their actual heuristics, and to express confidence in vague linguistic terms ("usually", "almost always", "a strong indicator") that must be negotiated into numbers or qualitative categories. Where several experts are consulted, they will disagree, and the engineer must decide whether the disagreement reveals a genuine open question, a difference of context, or an error.</p>
+
+<p>For these reasons, development is <strong>iterative</strong> rather than specified-then-built. The standard cycle is: identify a well-bounded sub-problem; elicit an initial body of knowledge; build a small <em>prototype</em> of perhaps 30–100 rules; run it on real cases; show the expert where its conclusions differ from theirs; and use the discrepancies as the next round of elicitation questions. Prototyping is not a shortcut but the principal elicitation instrument: experts who cannot answer the abstract question "what rules do you use?" are usually very willing and very able to say "no, that conclusion is wrong, because you have ignored the patient's age". Each cycle produces a running system that is slightly less wrong, and the rule count grows until performance on test cases plateaus.</p>
+
+<p>Two distinct quality checks are applied before deployment, and the distinction between them matters. <strong>Verification</strong> asks "did we build the system right?" — it checks the rule base for the structural defects listed earlier (redundancy, conflict, circularity, unreachable conclusions, syntax and vocabulary errors) and is largely automatable. <strong>Validation</strong> asks "did we build the right system?" — it checks that the system's conclusions are correct, by running a library of <em>benchmark cases</em> with known outcomes and comparing the system's answers against the judgments of experts who were not involved in building it. A rigorous form is a blinded comparison: experts are given the system's recommendations and those of several human specialists, with the authorship concealed, and are asked to rate each. MYCIN was evaluated in exactly this way for meningitis therapy and scored at or above the level of the faculty infectious-disease specialists — a result that carried weight precisely because the evaluators could not tell which recommendations were machine-generated. Acceptable performance thresholds should be agreed with the expert and the user community in advance, along with the policy for cases the system should refuse rather than guess.</p>
+
+<p>Finally, a deployed expert system requires <strong>ongoing maintenance</strong>, and this is where many projects fail commercially rather than technically. Domain knowledge decays: new drugs and treatment guidelines appear, tax codes and lending regulations are amended, a manufacturer redesigns a component so that the old diagnostic signature no longer applies, and best practice shifts. Each change means editing the knowledge base, which in a large rule base is risky because a seemingly local edit can have non-local consequences — rules interact only through working memory, so the author of a new rule may not realise it will pre-empt an existing one under the conflict-resolution strategy in force. Disciplined maintenance therefore requires version control of the knowledge base, a retained regression suite of benchmark cases that is re-run after every change, documentation of each rule's source and rationale (which expert, which guideline, which date), and a designated owner — ideally the domain organisation itself rather than the original developers, since the knowledge and not the code is what must be kept alive.</p>
+
+<p><strong>Putting the components together.</strong> A short consultation shows the components interacting. The user interface opens a session and clears working memory. The user reports that the engine will not start; this fact is asserted into working memory. The inference engine matches the rule base against working memory, finds that Rule 27 is partially satisfied, and — running backwards from the goal "determine fault-location" — asks through the interface about the starter motor and the headlights. The answers enter working memory; Rule 27 now matches fully, is selected from the agenda by the conflict-resolution strategy, and fires, asserting <code>fault-location = starting-circuit</code> with a note recording Rule 27 and its supporting facts. That assertion makes Rule 28 eligible once the voltage and battery-age conditions are met, so the interface asks for them; the user asks "Why?" and the explanation facility reads the current goal stack to answer. Rule 28 fires, the diagnosis is asserted with certainty 0.9, no further rules match, and the engine halts. The interface displays the diagnosis, the certainty and the recommendation; the user asks "How?", and the explanation facility walks the dependency links back through Rule 28 and Rule 27 to the user's own original answers. The session ends, working memory is discarded, and the knowledge base is untouched and ready for the next case — a different case, possibly in a different garage, reasoned about by exactly the same engine.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1</strong> — Supported indirectly: the topic shows why knowledge is held declaratively and separately from control, and the discussion of modular rules versus procedural code, of factual versus heuristic content, and of Rete matching illustrates the adequacy criteria of expressiveness, inferential adequacy and computational efficiency in an architectural setting.</li>
+  <li><strong>MO2</strong> — Only lightly addressed: the knowledge base section notes that factual knowledge about objects, attributes and relationships may be held in frames or an ontology with is-a hierarchies and inheritance, and card sorting is identified as a technique for eliciting such taxonomies, but the construction of a knowledge model is treated elsewhere in the module.</li>
+  <li><strong>MO3</strong> — Supported: the inference engine section explains the match–select–execute cycle, conflict resolution and the distinction between data-driven forward chaining and goal-driven backward chaining over the same rule base, providing the control framework within which the two chaining methods are applied.</li>
+  <li><strong>MO4</strong> — Directly addressed: the topic defines the knowledge base, inference engine, working memory, user interface and explanation facility, and the worked no-start consultation traces how each component acts upon and is changed by the others during a single case.</li>
+  <li><strong>MO5</strong> — Not substantially addressed: certainty factors appear only incidentally in the sample rules and output, as a reminder that conclusions carry confidence values; the comparison and evaluation of certainty factors, Bayesian networks, Dempster–Shafer theory and fuzzy logic belongs to the uncertainty topic.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Worked examples use a vehicle no-start diagnosis thread throughout so the same rules (27 and 28) illustrate rule structure, conflict resolution, explanation and the end-to-end consultation. Historical anchors (MYCIN, EMYCIN, PUFF, SACON) and modern shells (CLIPS, Jess, Drools) are included for context. The verification/validation distinction and the maintenance discussion go slightly beyond the listed subtopics but directly support the &quot;validation against expert judgment&quot; and &quot;ongoing maintenance&quot; bullets. Certainty factors are mentioned only in passing to avoid encroaching on the separate uncertainty module.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

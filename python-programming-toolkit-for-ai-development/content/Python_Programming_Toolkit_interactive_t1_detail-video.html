@@ -1,0 +1,383 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setting Up the Python Development Environment</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Python Programming Toolkit for AI Development</a></div>
+  <header>
+    <h1>Setting Up the Python Development Environment</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Setting Up the Python Development Environment</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Every piece of code you write for this module — search algorithms, constraint solvers, classifiers, notebooks full of plots — depends on a chain of invisible assumptions: that a Python interpreter of the right version exists on your machine, that it can be reached from the command line, that the libraries your code imports are installed <em>for that specific interpreter</em>, and that a marker can reproduce the same conditions on a completely different computer. When any link in that chain breaks, the symptom is rarely a clear error message. It is more often a confusing one: <code>ModuleNotFoundError: No module named 'sklearn'</code> on a machine where you distinctly remember installing scikit-learn, or code that runs perfectly in your editor and fails in the terminal. Setting up the development environment carefully at the start is not administrative overhead; it is the single highest-leverage hour you will spend in the module, because it removes an entire category of problems that would otherwise masquerade as bugs in your algorithms.</p>
+
+<p>The sections below move through the full lifecycle: installing an interpreter, proving it works, isolating each project in its own environment, installing packages into that environment, freezing the result so it can be rebuilt, and diagnosing the handful of failures that account for the overwhelming majority of setup problems.</p>
+
+<p><strong>Installing Python 3</strong></p>
+
+<p>There are three mainstream routes to a working Python 3 interpreter, and the right choice depends mostly on your operating system and whether you expect to lean heavily on compiled scientific packages.</p>
+
+<ul>
+  <li><strong>The official installer from python.org.</strong> This is the reference distribution, maintained by the Python Software Foundation. You download a <code>.exe</code> for Windows or a <code>.pkg</code> for macOS, run it, and you have a clean, predictable interpreter plus <code>pip</code> and the standard library. It is the best default for Windows users and for anyone who wants the newest stable release.</li>
+  <li><strong>A system package manager.</strong> On macOS, <a-less>Homebrew</a-less> gives you <code>brew install python@3.11</code>. On Debian or Ubuntu, <code>sudo apt install python3 python3-venv python3-pip</code> does the equivalent. Note the explicit <code>python3-venv</code> package on Debian-family systems: the virtual environment module is split out into a separate package there, and omitting it produces a baffling error later when you try to create an environment.</li>
+  <li><strong>Anaconda or Miniconda.</strong> These distributions bundle Python with the <code>conda</code> tool and, in Anaconda's case, several hundred pre-built scientific packages. The decisive advantage is that conda ships <em>pre-compiled binaries</em> including the non-Python dependencies (BLAS/LAPACK linear algebra libraries, compilers, CUDA toolkits), which sidesteps the build failures that sometimes afflict NumPy, SciPy, or specialised libraries on machines without a C/C++ toolchain. Miniconda is the slim version: the same tool, without the preinstalled package set, letting you install only what you need.</li>
+</ul>
+
+<p>On Windows, the installer presents a checkbox labelled <strong>"Add Python to PATH"</strong> on its first screen, and it is unticked by default. Tick it. PATH is the environment variable holding the list of directories the shell searches when you type a bare command name. If Python's directory is not on that list, then typing <code>python</code> in PowerShell or Command Prompt produces <code>'python' is not recognized as an internal or external command</code> — the single most common first-day failure. If you have already installed without ticking it, you do not need to uninstall: re-run the installer, choose <em>Modify</em>, and enable the option, or add the paths manually through System Properties → Environment Variables (you need both the install directory and its <code>Scripts</code> subdirectory).</p>
+
+<p>One rule deserves emphasis: <strong>do not build your coursework on the system Python</strong>. macOS ships a Python that exists to support Apple's own tooling; many Linux distributions use Python for core administrative utilities such as the package manager itself. If you install, upgrade, or remove packages in that interpreter, you can silently break operating system components — there are well-documented cases of users rendering <code>apt</code> unusable by upgrading a dependency it relied on. Treat the system interpreter as read-only infrastructure. Install your own, and do your work there.</p>
+
+<table>
+  <thead>
+    <tr><th>Route</th><th>Best for</th><th>Strengths</th><th>Trade-offs</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>python.org installer</td><td>Windows, macOS, newcomers</td><td>Reference build; newest releases; simple</td><td>Must manage PATH yourself on Windows</td></tr>
+    <tr><td>Homebrew / apt</td><td>macOS and Linux users already using a package manager</td><td>Integrates with existing tooling; easy upgrades</td><td>Version lags behind latest; Debian splits out <code>venv</code>/<code>pip</code></td></tr>
+    <tr><td>Miniconda</td><td>Anyone who hits compilation errors, or needs multiple Python versions</td><td>Pre-built binaries incl. non-Python deps; conda manages Python itself</td><td>Extra tool to learn; mixing with pip needs care</td></tr>
+    <tr><td>System Python</td><td>Nothing in this module</td><td>—</td><td>Modifying it can break OS utilities</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Verifying the Installation</strong></p>
+
+<p>Never assume an install worked. Four quick checks confirm that the interpreter exists, that the package installer is attached to it, that the interpreter actually executes code, and that the right interpreter wins when several are present.</p>
+
+<pre><code>$ python3 --version
+Python 3.11.9
+
+$ python3 -m pip --version
+pip 24.0 from /usr/local/lib/python3.11/site-packages/pip (python 3.11)
+</code></pre>
+
+<p>Read the <code>pip --version</code> output carefully — it is more informative than it looks. It tells you not only the pip version but <em>which interpreter's</em> <code>site-packages</code> directory it will install into, and it repeats the Python version in parentheses. If that trailing version does not match what <code>python3 --version</code> reported, you have two installations fighting, and anything you install with bare <code>pip</code> will land in the wrong place.</p>
+
+<p>Next, prove that the interpreter runs code by launching the REPL (read–eval–print loop):</p>
+
+<pre><code>$ python3
+Python 3.11.9 (main, Apr  2 2024, 08:25:04) [Clang 15.0.0] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+&gt;&gt;&gt; print(2 + 2)
+4
+&gt;&gt;&gt; import sys; sys.executable
+'/usr/local/bin/python3.11'
+&gt;&gt;&gt; exit()
+</code></pre>
+
+<p><code>sys.executable</code> is worth remembering: it prints the absolute path of the interpreter currently running, which is the definitive answer to "which Python am I actually using?" It is far more reliable than inference, because it is reported by the running process itself.</p>
+
+<p>When several Pythons are installed — a system one, a Homebrew one, a conda one — you need to know which the shell resolves first:</p>
+
+<pre><code># Windows (PowerShell / cmd)
+where python
+
+# macOS / Linux
+which -a python3
+# /Users/you/miniconda3/bin/python3
+# /usr/local/bin/python3
+# /usr/bin/python3
+</code></pre>
+
+<p>The <code>-a</code> flag lists <em>all</em> matches in PATH order; the first line wins. On Windows, Python also installs a launcher, <code>py</code>, which lets you select a version explicitly: <code>py -3.11 --version</code>. On many macOS and Linux systems the bare name <code>python</code> may not exist at all, or may point at a legacy Python 2; <code>python3</code> is the safe spelling outside an activated virtual environment.</p>
+
+<p><strong>Creating Isolated Virtual Environments</strong></p>
+
+<p>A virtual environment is a self-contained directory holding its own interpreter link, its own <code>site-packages</code> folder, and its own scripts directory. Anything you install while it is active goes into that directory and is visible only to code run with that environment. This solves two problems at once. First, it keeps your base interpreter clean so you never risk the operating system. Second, it allows different projects to hold mutually incompatible dependency versions — the AI coursework pinned to one NumPy release, a different project pinned to another — without either breaking.</p>
+
+<p>Create one inside your project folder:</p>
+
+<pre><code>$ cd ~/projects/ai-coursework
+$ python3 -m venv ai-course-env
+</code></pre>
+
+<p>Note the <code>-m venv</code> form: you are asking <em>a specific interpreter</em> to build an environment based on itself, which removes all ambiguity about which Python version the environment will contain. Activation then alters your shell's PATH so that the environment's directory comes first:</p>
+
+<pre><code># macOS / Linux (bash, zsh)
+$ source ai-course-env/bin/activate
+
+# Windows PowerShell
+PS&gt; ai-course-env\Scripts\Activate.ps1
+
+# Windows Command Prompt
+C:\&gt; ai-course-env\Scripts\activate.bat
+</code></pre>
+
+<p>Success is visible: your prompt gains a prefix such as <code>(ai-course-env)</code>. Confirm with the same diagnostics as before, and you should now see paths inside the environment:</p>
+
+<pre><code>(ai-course-env) $ which python
+/Users/you/projects/ai-coursework/ai-course-env/bin/python
+(ai-course-env) $ python -c "import sys; print(sys.prefix)"
+/Users/you/projects/ai-coursework/ai-course-env
+</code></pre>
+
+<p>Inside an active environment, plain <code>python</code> and plain <code>pip</code> are now unambiguous and safe. When you are finished, type <code>deactivate</code> to restore your original PATH. Activation is per-terminal-session: opening a new terminal tab means activating again, and this is the root cause of a great many "but I installed it!" moments.</p>
+
+<p>If PowerShell refuses to run the activation script with an execution-policy error, the fix is to permit locally created scripts for your user account:</p>
+
+<pre><code>PS&gt; Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser</code></pre>
+
+<p>The environment directory is a build artefact, not source code. It can contain hundreds of megabytes of binaries compiled for <em>your</em> operating system and CPU, which would be useless — and possibly broken — on anyone else's machine. It must never be committed. Add a <code>.gitignore</code> at the repository root:</p>
+
+<pre><code># .gitignore
+ai-course-env/
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+</code></pre>
+
+<p>The conda workflow is parallel but differs in one important respect: conda environments are stored centrally (under your conda installation) rather than inside the project, are referenced by name, and can install a different version of Python itself:</p>
+
+<pre><code>$ conda create -n ai-course python=3.11
+$ conda activate ai-course
+(ai-course) $ conda deactivate
+$ conda env list        # show all environments; * marks the active one</code></pre>
+
+<p>That last capability is the clearest advantage of conda over <code>venv</code>: <code>venv</code> can only clone the interpreter that created it, whereas conda can fetch and install any supported Python release on demand.</p>
+
+<table>
+  <thead>
+    <tr><th>Task</th><th>venv + pip</th><th>conda</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Create</td><td><code>python -m venv ai-course-env</code></td><td><code>conda create -n ai-course python=3.11</code></td></tr>
+    <tr><td>Activate</td><td><code>source ai-course-env/bin/activate</code></td><td><code>conda activate ai-course</code></td></tr>
+    <tr><td>Deactivate</td><td><code>deactivate</code></td><td><code>conda deactivate</code></td></tr>
+    <tr><td>Install a package</td><td><code>python -m pip install numpy</code></td><td><code>conda install -c conda-forge numpy</code></td></tr>
+    <tr><td>List packages</td><td><code>pip list</code></td><td><code>conda list</code></td></tr>
+    <tr><td>Export</td><td><code>pip freeze &gt; requirements.txt</code></td><td><code>conda env export &gt; environment.yml</code></td></tr>
+    <tr><td>Recreate</td><td><code>pip install -r requirements.txt</code></td><td><code>conda env create -f environment.yml</code></td></tr>
+    <tr><td>Location</td><td>Inside the project folder</td><td>Central store, referenced by name</td></tr>
+    <tr><td>Can change Python version?</td><td>No — inherits creator</td><td>Yes</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Managing Packages with pip and conda</strong></p>
+
+<p>With the environment active, install the scientific stack this module relies on:</p>
+
+<pre><code>(ai-course-env) $ python -m pip install --upgrade pip
+(ai-course-env) $ python -m pip install numpy scipy scikit-learn matplotlib jupyter pandas</code></pre>
+
+<p>pip resolves each requested package together with its transitive dependencies, so the list above pulls in considerably more than six distributions — scikit-learn requires NumPy, SciPy, <code>joblib</code> and <code>threadpoolctl</code>; Jupyter drags in a whole constellation of server, kernel and messaging packages. Inspect the result:</p>
+
+<pre><code>(ai-course-env) $ pip list
+Package         Version
+--------------- -------
+joblib          1.4.2
+matplotlib      3.8.4
+numpy           1.26.4
+pandas          2.2.2
+scikit-learn    1.4.2
+scipy           1.13.0
+threadpoolctl   3.5.0
+...
+
+(ai-course-env) $ pip show scikit-learn
+Name: scikit-learn
+Version: 1.4.2
+Location: /Users/you/projects/ai-coursework/ai-course-env/lib/python3.11/site-packages
+Requires: joblib, numpy, scipy, threadpoolctl
+Required-by:
+</code></pre>
+
+<p><code>pip show</code> is the diagnostic to reach for when something behaves unexpectedly: the <code>Location</code> line proves whether the package landed inside your environment or somewhere else entirely, and <code>Requires</code>/<code>Required-by</code> reveal the dependency relationships that explain why removing one package may break another. A related command, <code>pip check</code>, scans the environment for unsatisfied or conflicting requirements and reports them.</p>
+
+<p>Note the import names do not always match the install names. You install <code>scikit-learn</code> but write <code>import sklearn</code>; you install <code>pillow</code> but write <code>import PIL</code>; you install <code>opencv-python</code> but write <code>import cv2</code>. Running <code>pip install sklearn</code> is a classic error — it fetches a deprecated placeholder package, not the real library.</p>
+
+<p>Inside an Anaconda or Miniconda installation, prefer conda's own installer, drawing from the community-maintained <code>conda-forge</code> channel, which is broader and more current than the default channel:</p>
+
+<pre><code>(ai-course) $ conda install -c conda-forge scikit-learn matplotlib jupyter pandas</code></pre>
+
+<p><strong>The ordering rule matters.</strong> pip and conda maintain separate pictures of what is installed. conda records its packages in its own metadata; pip records its own in <code>site-packages</code>. Neither fully understands the other's bookkeeping. If you conda-install SciPy and then pip-install a package that silently upgrades NumPy underneath it, conda's dependency graph becomes stale and you can end up with a binary-incompatible pair that raises obscure errors at import time (the notorious "numpy.dtype size changed" style of message). The practical discipline is:</p>
+
+<ul>
+  <li>Decide per environment whether it is a conda environment or a pip environment, and stick to it.</li>
+  <li>In a conda environment, <strong>install everything conda can provide with conda first</strong>, in as few commands as possible so the solver sees all constraints at once.</li>
+  <li>Only then use pip, and only for packages conda genuinely lacks.</li>
+  <li>After that point, avoid going back to conda for installs in that environment — if you need to change things substantially, it is cleaner and faster to delete the environment (<code>conda env remove -n ai-course</code>) and rebuild it from a specification file.</li>
+</ul>
+
+<p><strong>Reproducibility with Requirements Files</strong></p>
+
+<p>"It works on my machine" is not a defence when a marker cannot run your submission. A requirements file is the written contract describing exactly what your code needs. Capture the active environment:</p>
+
+<pre><code>(ai-course-env) $ pip freeze &gt; requirements.txt
+(ai-course-env) $ cat requirements.txt
+contourpy==1.2.1
+cycler==0.12.1
+joblib==1.4.2
+matplotlib==3.8.4
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.4.2
+scipy==1.13.0
+threadpoolctl==3.5.0
+</code></pre>
+
+<p>The crucial detail is the <code>==</code> operator: <code>pip freeze</code> <em>pins</em> every package to the exact version currently installed, including transitive dependencies you never asked for directly. That is what makes the file reproducible. Anyone — a teammate, a marker, a continuous-integration server, or you six months from now on a new laptop — can recreate the environment:</p>
+
+<pre><code>$ python3 -m venv ai-course-env
+$ source ai-course-env/bin/activate
+(ai-course-env) $ python -m pip install -r requirements.txt</code></pre>
+
+<p>This matters in AI work more than in most programming because numerical results are version-sensitive. A change in scikit-learn's default solver, a new random-number stream, or a different tie-breaking rule can shift accuracy figures between releases. Pinning versions means the numbers in your report can be regenerated by whoever reads it.</p>
+
+<p>A useful refinement is to keep two files: a short hand-written <code>requirements.in</code> listing only your direct, top-level dependencies (readable by humans, easy to update), and the machine-generated <code>requirements.txt</code> with the full pinned closure. Tools such as <code>pip-compile</code> generate the latter from the former, but even maintaining both by hand clarifies intent.</p>
+
+<p>Conda's equivalent captures the Python version and non-Python binaries too:</p>
+
+<pre><code>(ai-course) $ conda env export &gt; environment.yml
+$ conda env create -f environment.yml</code></pre>
+
+<p>A caveat: a raw <code>conda env export</code> includes platform-specific build strings, so a file exported on macOS may fail to solve on Linux. For a portable file, use <code>conda env export --from-history</code>, which records only the packages you explicitly requested.</p>
+
+<p>Commit the requirements file (and your <code>.gitignore</code>) to your repository; do <em>not</em> commit the environment directory itself. The combination of pinned requirements file plus ignored environment directory is the standard, expected shape of a Python project repository, and it is what makes an assignment submission self-documenting.</p>
+
+<p><strong>Troubleshooting Common Setup Issues</strong></p>
+
+<p>Almost every setup failure you will meet is one of five patterns. Learning to recognise the symptom and map it to the cause saves hours.</p>
+
+<ul>
+  <li><strong><code>'python' is not recognized...</code> / <code>command not found: python</code>.</strong> The interpreter is installed but not on PATH. On Windows, re-run the installer, choose <em>Modify</em>, and enable "Add Python to PATH" — or add the install directory and its <code>Scripts</code> subfolder manually via Environment Variables, then open a <em>new</em> terminal (PATH changes do not affect already-open shells). In the meantime, <code>py --version</code> often works because the launcher is installed separately. On macOS/Linux, try <code>python3</code> rather than <code>python</code>; the unversioned name frequently does not exist.</li>
+
+  <li><strong><code>ModuleNotFoundError: No module named 'sklearn'</code> immediately after a successful install.</strong> The install succeeded — just not for the interpreter you are now running. Either you forgot to activate the environment in this terminal, or your editor/notebook is launching a different interpreter. Diagnose from <em>inside the failing process</em>:
+    <pre><code>&gt;&gt;&gt; import sys
+&gt;&gt;&gt; sys.executable
+&gt;&gt;&gt; sys.path</code></pre>
+    Compare <code>sys.executable</code> with the output of <code>which python</code> in the activated shell. If they differ, you have found the problem. In VS Code, use the <em>Python: Select Interpreter</em> command and choose the one inside <code>ai-course-env</code>; in Jupyter, register the environment as a kernel with <code>python -m ipykernel install --user --name ai-course-env</code> and then select that kernel in the notebook. A notebook quick check is to run <code>!which python</code> or <code>import sys; print(sys.executable)</code> in a cell.</li>
+
+  <li><strong>Packages going to the wrong interpreter.</strong> Bare <code>pip</code> is just whichever <code>pip</code> executable PATH finds first, which may belong to a different Python. Always prefer <code>python -m pip install ...</code>. This form says "run the pip module <em>using this interpreter</em>", so the package necessarily lands in that interpreter's <code>site-packages</code>. Make it a habit even when you are confident; it costs six characters and eliminates an entire failure mode.</li>
+
+  <li><strong><code>PermissionError: [Errno 13] Permission denied</code> or "Access is denied" during install.</strong> pip is trying to write into a system-owned directory, which means no virtual environment is active. The correct fix is to activate (or create) one and install there. <strong>Do not use <code>sudo pip install</code>:</strong> it writes root-owned files into the system Python, mixes distribution-managed and pip-managed packages, and is exactly the route to breaking OS utilities. On modern Python versions you may instead see an <code>externally-managed-environment</code> error — that is the interpreter deliberately protecting itself, and the intended response is, again, to use a virtual environment.</li>
+
+  <li><strong>Compilation failures on scientific packages</strong> — long walls of C compiler output ending in <code>error: command 'gcc' failed</code> or <code>Microsoft Visual C++ 14.0 or greater is required</code>. This means pip could not find a pre-built wheel matching your platform, Python version and CPU architecture, so it fell back to building the package from source — and the machine lacks the toolchain to do so. Try these in order:
+    <pre><code>(ai-course-env) $ python -m pip install --upgrade pip setuptools wheel</code></pre>
+    An old pip may not recognise newer wheel tags (for example, Apple Silicon or recent <code>manylinux</code> variants) and will needlessly compile. If upgrading does not help, check whether a wheel exists for your Python version at all — the newest Python releases often run ahead of the scientific stack by a few months, in which case installing one minor version behind is the pragmatic fix. Failing that, switch to conda, whose packages ship as compiled binaries complete with their BLAS/LAPACK and C++ runtime dependencies, so no local compiler is ever required.</li>
+</ul>
+
+<p>Two further problems are worth naming because their error messages point away from the real cause. The first is the <strong>shadowing import</strong>: if you name a file <code>random.py</code>, <code>queue.py</code>, <code>heapq.py</code> or <code>collections.py</code> in your working directory, Python finds your file before the standard library module, and you get errors such as <code>AttributeError: module 'random' has no attribute 'choice'</code>. The <code>__pycache__</code> directory beside the offending file is a giveaway. Rename the file and delete the cache. The second is the <strong>stale terminal</strong>: PATH changes, newly created environments and freshly installed launchers are picked up only by shells started afterwards, so "it still doesn't work" is frequently cured by closing the terminal and opening a new one.</p>
+
+<p>A compact diagnostic routine, in order, resolves most incidents:</p>
+
+<table>
+  <thead>
+    <tr><th>Symptom</th><th>Most likely cause</th><th>First command to run</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>python: command not found</code></td><td>Not on PATH, or wrong name</td><td><code>python3 --version</code> / <code>py --version</code></td></tr>
+    <tr><td><code>ModuleNotFoundError</code></td><td>Environment not active, or wrong interpreter</td><td><code>python -c "import sys; print(sys.executable)"</code></td></tr>
+    <tr><td>Install "succeeds" but import fails</td><td>pip bound to a different Python</td><td><code>pip show &lt;package&gt;</code> and read <code>Location</code></td></tr>
+    <tr><td><code>PermissionError</code> / <code>externally-managed-environment</code></td><td>Installing into system Python</td><td><code>source ai-course-env/bin/activate</code></td></tr>
+    <tr><td>Compiler errors during install</td><td>No matching wheel; building from source</td><td><code>python -m pip install --upgrade pip</code></td></tr>
+    <tr><td>Odd <code>AttributeError</code> on a stdlib module</td><td>Local file shadowing the stdlib</td><td><code>python -c "import random; print(random.__file__)"</code></td></tr>
+    <tr><td>Notebook behaves differently from terminal</td><td>Kernel bound to another environment</td><td><code>import sys; sys.executable</code> in a cell</td></tr>
+  </tbody>
+</table>
+
+<p>Put together, the end-to-end sequence for starting the module's coursework on a fresh machine is short enough to memorise:</p>
+
+<pre><code>$ cd ~/projects/ai-coursework
+$ python3 -m venv ai-course-env
+$ source ai-course-env/bin/activate          # Windows: ai-course-env\Scripts\activate
+(ai-course-env) $ python -m pip install --upgrade pip
+(ai-course-env) $ python -m pip install numpy scipy pandas scikit-learn matplotlib jupyter
+(ai-course-env) $ python -c "import sklearn, numpy, pandas; print(sklearn.__version__)"
+(ai-course-env) $ pip freeze &gt; requirements.txt
+$ echo "ai-course-env/" &gt;&gt; .gitignore</code></pre>
+
+<p>Run it once, commit <code>requirements.txt</code> and <code>.gitignore</code>, and every subsequent import error in the module becomes a genuine question about your code rather than an accident of configuration.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Directly and fully supported: the topic covers installing Python 3, verifying the interpreter, creating and activating an isolated virtual environment with <code>venv</code> or conda, installing the course libraries, and pinning them with <code>pip freeze &gt; requirements.txt</code> for rebuilding elsewhere.</li>
+  <li><strong>MO2</strong> — Supported indirectly only. The topic does not teach functions, classes, comprehensions, generators or recursion, but it provides the working interpreter and REPL in which that pseudocode-to-Python implementation work will be carried out.</li>
+  <li><strong>MO3</strong> — Not addressed. Comparing lists, sets, dictionaries, deques and <code>heapq</code> priority queues is covered elsewhere; this topic only ensures the interpreter is available to run and time such comparisons.</li>
+  <li><strong>MO4</strong> — Supported as a prerequisite: the installation and verification of pandas, NumPy and scikit-learn in a reproducible environment is what makes the later load/vectorise/fit/predict workflow runnable, though the workflow itself is not taught here.</li>
+  <li><strong>MO5</strong> — Partially supported: the topic introduces the <code>.gitignore</code> entry that keeps the environment directory out of version control and the practice of committing <code>requirements.txt</code> to the repository, but commits, branches, merges and remote pushes are covered in the Git topic.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Commands are shown with the &lt;code&gt;$&lt;/code&gt; / &lt;code&gt;PS&amp;gt;&lt;/code&gt; prompt included so students can distinguish shell input from output; prompts should not be typed. Version numbers in sample output (Python 3.11.9, scikit-learn 1.4.2, etc.) are illustrative and should be refreshed each delivery. Windows paths use backslashes and the &lt;code&gt;Scripts&lt;/code&gt; directory, macOS/Linux use forward slashes and &lt;code&gt;bin&lt;/code&gt; — worth demonstrating live on both platforms if the cohort is mixed. Possible lab exercise: have students deliberately break their setup (deactivate the environment, or install with bare &lt;code&gt;pip&lt;/code&gt; outside it), observe the resulting error, then diagnose it with &lt;code&gt;sys.executable&lt;/code&gt; and &lt;code&gt;pip show&lt;/code&gt;. Note for review: one stray non-standard tag (&lt;code&gt;&amp;lt;a-less&amp;gt;&lt;/code&gt;) appears around the word "Homebrew" in the installation section and should be removed to plain text before publication.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Before you can write a single line of AI code, your machine needs a working, predictable Python setup. This topic walks through installing Python 3, confirming the installation actually works from your terminal, and then isolating each project in its own virtual environment so that the libraries you install for this course never collide with other projects or with your operating system's Python.</p>
+<p>This matters more in an AI course than it might seem. The libraries you will use later in this module - NumPy, pandas, scikit-learn - are version-sensitive, and code that runs on your laptop should also run on a grader's machine or a classmate's. Virtual environments plus a pinned requirements file are what make that possible, and knowing how pip and conda differ will save you hours when an install fails.</p>
+<p>As you watch the videos, pay attention to the exact commands being typed and to where files end up on disk. Notice how the shell prompt changes when an environment is activated, how a package is installed into that environment rather than globally, and how the speaker diagnoses problems such as a command not being found or the wrong Python version answering. Those small observations are the ones you will reuse whenever setup goes wrong.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Python Virtual Environments - Full Tutorial for Beginners</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/Y21OR1OPC9A?cc_load_policy=1&amp;rel=0" title="Video: Python Virtual Environments - Full Tutorial for Beginners (Tech With Tim)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Tech With Tim</strong> · 9:05 · 396,815 views · 2y ago · captions — <a href="https://www.youtube.com/watch?v=Y21OR1OPC9A" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A beginner-focused walkthrough of Python virtual environments: what they are, why project isolation is needed, and how to create, activate, and deactivate one. Given the title and length, expect practical terminal demonstrations of installing packages inside an environment and likely a mention of exporting or sharing dependency lists.</p>
+<h3>Why this video</h3>
+<p>This is the most direct coverage of the core subtopic - creating isolated environments - and Tech With Tim is a well-established, clearly paced beginner channel, so it maps straight onto the environment and package-management portions of this topic.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Modules and Pip | Python Tutorial - Day #3</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/xwKO_y2gHxQ?cc_load_policy=1&amp;rel=0" title="Video: Modules and Pip | Python Tutorial - Day #3 (CodeWithHarry)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>CodeWithHarry</strong> · 12:41 · 3,720,777 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=xwKO_y2gHxQ" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>Part of a structured beginner Python series, this lesson introduces modules and the pip package manager. Expect an explanation of importing modules, finding and installing third-party packages with pip, and how installed packages become usable in your own scripts.</p>
+<h3>Why this video</h3>
+<p>It gives you the conceptual grounding behind pip and the import system that virtual environment tutorials often assume, and CodeWithHarry's course-style format keeps it beginner friendly for students new to the toolchain.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: How I handle multiple Python Versions (pyenv)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/MVyb-nI4KyI?cc_load_policy=1&amp;rel=0" title="Video: How I handle multiple Python Versions (pyenv) (NetworkChuck (2))" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>NetworkChuck (2)</strong> · 7:36 · 44,568 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=MVyb-nI4KyI" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short practical video on managing multiple Python versions on one machine using pyenv. It is likely to cover why version conflicts happen, how to install and switch between Python versions, and how that interacts with per-project setups.</p>
+<h3>Why this video</h3>
+<p>Version conflicts are one of the most common setup problems students hit, so this directly supports the installation, verification, and troubleshooting subtopics and shows a tool that complements - rather than replaces - virtual environments.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos target MO1 most directly: the virtual environment tutorial shows how to create and activate an isolated Python 3 environment, the pip lesson shows how to install the course libraries into it, and the pyenv video addresses the Python version issues that commonly block a clean setup. A reliable, reproducible environment is also the prerequisite for everything else in this module - you cannot practice functions and data structures (MO2, MO3), load data with pandas or train a scikit-learn model (MO4), or commit working code to GitHub (MO5) until your interpreter and packages are installed correctly and can be reproduced from a requirements file.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

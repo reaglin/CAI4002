@@ -1,0 +1,216 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foundations of Constraint Satisfaction Problems</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Satisfaction Problems and Backtracking Search</a></div>
+  <header>
+    <h1>Foundations of Constraint Satisfaction Problems</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Foundations of Constraint Satisfaction Problems</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>A great many problems that look superficially unrelated — colouring a map so that neighbouring regions differ, filling a Sudoku grid, placing queens on a chessboard, assigning lectures to rooms and timeslots, or deciding which digit each letter stands for in a puzzle like <code>SEND + MORE = MONEY</code> — turn out to share a single underlying shape. In each case there is a fixed collection of decisions to make, each decision has a limited set of possible outcomes, and certain combinations of outcomes are forbidden. The <strong>constraint satisfaction problem</strong> (CSP) is the formalism that captures exactly this shape. Its power comes not from being able to express more than ordinary search can express — any CSP can be rewritten as a state-space search problem — but from the fact that it exposes the <em>internal structure</em> of a problem in a uniform way that a general-purpose solver can inspect, reason about, and exploit.</p>
+
+<p><strong>The CSP triple</strong></p>
+
+<p>Formally, a constraint satisfaction problem is a triple <code>&lt;X, D, C&gt;</code>. Each component has a precise role, and learning to separate them cleanly is the single most important modelling skill in this area.</p>
+
+<p><code>X = {X1, X2, ..., Xn}</code> is a <strong>finite set of variables</strong>. Each variable stands for one decision that the solver must make — exactly one, no more and no less. In map colouring, there is one variable per region: the decision "what colour does Western Australia get?" In Sudoku, there is one variable per cell: 81 decisions in total. In N-Queens, the usual formulation uses one variable per column, representing the decision "which row holds the queen in this column?" If you find yourself unable to say in plain English what question a variable answers, the model is probably wrong.</p>
+
+<p><code>D = {D1, D2, ..., Dn}</code> is the set of <strong>domains</strong>, one per variable, where <code>Di</code> is the set of values that <code>Xi</code> is permitted to take. Domains need not be identical across variables. In a timetabling problem, the variable <em>Lecture-Hall-for-CS101</em> might range over <code>{A1, A2, B7}</code> while <em>Timeslot-for-CS101</em> ranges over <code>{Mon9, Mon11, Tue9, ...}</code>. Choosing the domain is itself a modelling decision: by declaring that a Sudoku cell ranges over <code>{1..9}</code> you have already built the rule "every cell holds a digit from 1 to 9" into the representation, so it never needs to be written as a constraint.</p>
+
+<p><code>C = {C1, C2, ..., Cm}</code> is the set of <strong>constraints</strong>. Each constraint restricts the combinations of values that some subset of the variables may take simultaneously. A single constraint says nothing about variables outside its subset; the global effect of the problem emerges from how the constraints interlock.</p>
+
+<p><strong>Constraints as (scope, relation) pairs</strong></p>
+
+<p>The standard way to write a constraint is as a pair <code>(scope, rel)</code>:</p>
+
+<ul>
+  <li>The <strong>scope</strong> is an ordered tuple of the variables the constraint talks about, for example <code>(X1, X2)</code>. The number of variables in the scope is the constraint's <em>arity</em>.</li>
+  <li>The <strong>relation</strong> defines which tuples of values, drawn from the corresponding domains, satisfy the constraint. Formally it is a subset of the Cartesian product <code>D1 × D2 × ... </code> over the scope's variables.</li>
+</ul>
+
+<p>A relation can be given in two equivalent styles. <strong>Extensionally</strong> (explicitly), it is simply a list of the permitted tuples. <strong>Intensionally</strong> (implicitly), it is a predicate or arithmetic expression that a tuple must satisfy. Suppose <code>X1</code> and <code>X2</code> both have domain <code>{A, B}</code> and we want them to differ:</p>
+
+<pre><code>Extensional form:  ((X1, X2), {(A, B), (B, A)})
+Intensional form:  ((X1, X2), X1 != X2)</code></pre>
+
+<p>Both describe the same relation. The extensional form is explicit and easy for a solver to test by table lookup, but it grows as the product of the domain sizes: a binary constraint over two variables with 100 values each could require up to 10,000 tuples. The intensional form is compact and is the only practical option when domains are large, but it requires the solver to evaluate a predicate. Real constraint toolkits support both, plus a library of named <em>global</em> constraints such as <code>AllDifferent(X1, ..., Xk)</code>, which is intensionally defined and whose extensional expansion would be astronomically large.</p>
+
+<p>A worked miniature will make the triple concrete. Consider colouring three mutually adjacent regions with two colours:</p>
+
+<pre><code>X = {R1, R2, R3}
+D = {D_R1 = {red, green}, D_R2 = {red, green}, D_R3 = {red, green}}
+C = { ((R1,R2), R1 != R2),
+      ((R2,R3), R2 != R3),
+      ((R1,R3), R1 != R3) }</code></pre>
+
+<p>This CSP has 2<sup>3</sup> = 8 complete assignments and <em>no</em> solution: three mutually adjacent regions require three colours. Notice how the formalism makes the unsatisfiability a property of the stated constraints rather than of some hidden procedure — a solver can in principle prove it, and later in the module you will see techniques that detect such failures without enumerating all eight assignments.</p>
+
+<p><strong>Assignments: partial, complete, consistent, solution</strong></p>
+
+<p>An <strong>assignment</strong> is a mapping from variables to values, where each assigned variable receives a value from its own domain. Four qualifiers on assignments are used constantly, and they are independent of one another in ways that beginners often confuse.</p>
+
+<ul>
+  <li>A <strong>partial assignment</strong> leaves at least one variable in <code>X</code> unassigned. Written as a set of variable–value pairs, <code>{R1 = red}</code> is partial when <code>X</code> contains three variables. Partial assignments are the normal state of affairs during search: a backtracking solver spends virtually all of its time holding a partial assignment and deciding how to extend it.</li>
+  <li>A <strong>complete assignment</strong> gives every variable in <code>X</code> exactly one value. "Complete" says nothing whatever about legality — <code>{R1 = red, R2 = red, R3 = red}</code> is complete and badly broken.</li>
+  <li>A <strong>consistent</strong> (or <em>legal</em>) assignment violates no constraint among the variables that have been assigned. The qualification matters enormously: a constraint whose scope includes an unassigned variable is simply not yet evaluated, so it cannot be violated. Thus <code>{R1 = red}</code> is consistent, and so is <code>{R1 = red, R2 = green}</code>, even though no extension of the latter can succeed.</li>
+  <li>A <strong>solution</strong> is an assignment that is both complete and consistent. For the three-region two-colour CSP above, no such assignment exists, and the problem is called <em>unsatisfiable</em> or <em>inconsistent</em>.</li>
+</ul>
+
+<p>The following table traces several assignments for the three-region example to make the distinctions crisp.</p>
+
+<table>
+  <thead>
+    <tr><th>Assignment</th><th>Complete?</th><th>Consistent?</th><th>Solution?</th><th>Comment</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>{}</code></td><td>No</td><td>Yes</td><td>No</td><td>The empty assignment is trivially consistent; it is the root of the search tree.</td></tr>
+    <tr><td><code>{R1 = red}</code></td><td>No</td><td>Yes</td><td>No</td><td>No constraint has both of its variables assigned yet.</td></tr>
+    <tr><td><code>{R1 = red, R2 = green}</code></td><td>No</td><td>Yes</td><td>No</td><td>Consistent now, but no extension will succeed — detecting this early is the job of inference.</td></tr>
+    <tr><td><code>{R1 = red, R2 = red}</code></td><td>No</td><td>No</td><td>No</td><td>Violates <code>R1 != R2</code>; the entire subtree below it can be discarded.</td></tr>
+    <tr><td><code>{R1 = red, R2 = green, R3 = red}</code></td><td>Yes</td><td>No</td><td>No</td><td>Complete but violates <code>R1 != R3</code>.</td></tr>
+  </tbody>
+</table>
+
+<p>One subtlety deserves emphasis. Consistency of a partial assignment is a <em>local, cheap, syntactic</em> check — "do the constraints I can currently evaluate hold?" It is not the same as <em>extensibility</em> — "can this partial assignment be grown into a full solution?" Extensibility is as hard as solving the problem itself. The gap between the two is exactly where search effort is wasted, and the whole art of CSP solving consists of techniques (forward checking, arc consistency, good variable ordering) that narrow the gap by making a cheap test reject more hopeless partial assignments.</p>
+
+<p><strong>CSPs versus general state-space search</strong></p>
+
+<p>In classical state-space search — the framework behind breadth-first search, depth-first search, and A* — a problem is specified by an initial state, a successor function, a step-cost function, and a <strong>goal test</strong>. The goal test is an arbitrary black-box predicate: the algorithm calls <code>isGoal(state)</code> and receives <code>true</code> or <code>false</code>. It cannot ask <em>why</em> a state failed, which part of the state was responsible, or what would have to change. States themselves are opaque atoms with no declared internal structure.</p>
+
+<p>A CSP replaces that black box with a white one. The state is a structured object — a partial assignment of values to named variables — and the goal test is nothing more than "all variables assigned, and all constraints satisfied." Because the constraints are explicitly listed and individually inspectable, four powerful consequences follow.</p>
+
+<ul>
+  <li><strong>Early failure detection.</strong> A general search algorithm applying a black-box goal test to a problem with 50 decisions would have to construct a complete state before learning it was bad. A CSP solver tests consistency after every single assignment. If <code>{R1 = red, R2 = red}</code> is already illegal, every one of the assignments extending it is illegal too, and the whole subtree — potentially <code>d^(n-2)</code> leaves — vanishes from consideration with one test.</li>
+  <li><strong>Wholesale pruning.</strong> Pruning in CSPs is not one node at a time but one <em>region</em> at a time. In a 50-variable problem with 10 values each, discovering a violation after the second assignment eliminates 10<sup>48</sup> complete assignments at the cost of a single comparison. This is why backtracking search is feasible at all on problems whose raw combinatorics are hopeless.</li>
+  <li><strong>Generic, domain-independent heuristics.</strong> Because the structure is uniform, one can define heuristics in terms of the formalism itself rather than in terms of the application. "Choose the variable with the fewest remaining legal values" (minimum remaining values) and "choose the value that rules out the fewest choices for neighbouring variables" (least constraining value) make sense for <em>every</em> CSP, with no knowledge of maps, digits, or machines. In ordinary state-space search, by contrast, an informative heuristic must be hand-crafted for each new problem.</li>
+  <li><strong>Explainable failure.</strong> A refuted partial assignment comes with a reason: the specific constraint that was violated and the variables in its scope. Advanced solvers use this to perform <em>backjumping</em> — leaping back to the decision that actually caused the conflict rather than undoing the most recent one — and <em>constraint learning</em>, recording a new constraint that prevents the same conflict recurring elsewhere in the tree.</li>
+</ul>
+
+<p>There is a further structural difference worth noting: in a CSP, paths do not matter. Two search paths that assign the same variables the same values in different orders reach the same state. The problem is <em>commutative</em>, which means a solver may fix the variable to branch on at each level and consider only values for that one variable, shrinking the search tree from <code>n! · d^n</code> leaves (if order mattered) to <code>d^n</code>. Also, solution depth is known in advance and is always <code>n</code>, so there is no need for iterative deepening or for worrying about infinite paths.</p>
+
+<p><strong>Why the formalism pays off</strong></p>
+
+<p>The practical argument for CSPs is one of <em>separation of concerns</em>. Modelling effort shifts from writing a bespoke algorithm for each new problem to writing a declarative description: name the decisions, list the options, state the rules. The solving machinery — backtracking, heuristics, constraint propagation — is written once and reused. A single implementation of backtracking search with the minimum-remaining-values heuristic will solve map colouring, Sudoku, cryptarithmetic puzzles, N-Queens, and job-shop scheduling without a line of change; only the <code>&lt;X, D, C&gt;</code> description differs. This is precisely the motivation behind industrial constraint-programming toolkits such as MiniZinc, Google OR-Tools, Gecode, and Choco: you write a model, the system supplies the search.</p>
+
+<p>A second payoff is the dramatic collapse of the effective search space. The naive count of complete assignments is the product of the domain sizes, but constraints make most of that space unreachable. In 8-Queens, modelling one queen per column gives 8<sup>8</sup> = 16,777,216 complete assignments; adding the requirement that no two queens share a row (an <code>AllDifferent</code> constraint) reduces the candidate space to 8! = 40,320, a factor of 416 before any diagonal checking occurs. In a standard Sudoku, the raw count is 9<sup>81</sup> ≈ 10<sup>77</sup>, yet constraint propagation alone solves most newspaper puzzles with little or no search, because each clue cascades through the row, column, and box constraints and eliminates vast numbers of possibilities.</p>
+
+<p>A third payoff is explanation and debugging. If a timetable is infeasible, a CSP solver can report "no value remains for <em>Timeslot-for-CS101</em> given the current assignment, because of the room-capacity constraint and the lecturer-availability constraint." Contrast this with a bespoke procedural program returning <code>null</code>. Many solvers can extract a <em>minimal unsatisfiable core</em> — a smallest subset of constraints that is already contradictory — which tells a human modeller exactly which requirements to relax.</p>
+
+<p><strong>Domain types and why they matter</strong></p>
+
+<p>The character of a CSP, and the algorithms appropriate to it, depend heavily on the kind of domains involved.</p>
+
+<table>
+  <thead>
+    <tr><th>Domain type</th><th>Example</th><th>Can values be enumerated?</th><th>Typical solution method</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Discrete and finite</td><td><code>{red, green, blue}</code>; digits <code>1..9</code>; rows <code>1..8</code></td><td>Yes — at most <code>d^n</code> complete assignments</td><td>Backtracking search plus constraint propagation and heuristics</td></tr>
+    <tr><td>Discrete and infinite</td><td>All non-negative integers; all finite strings</td><td>No</td><td>Constraint language with special-purpose reasoning (e.g. integer linear arithmetic, bounds propagation)</td></tr>
+    <tr><td>Continuous</td><td>Real-valued start times; temperatures; positions</td><td>No</td><td>Linear programming, mixed-integer programming, interval/nonlinear methods</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Finite discrete domains</strong> are the main concern of this module. Here each <code>Di</code> is a finite set, so if the largest domain has size <code>d</code> and there are <code>n</code> variables, the number of complete assignments is at most <code>d^n</code>. This bound is exhaustively enumerable <em>in principle</em> but almost never <em>in practice</em>: with <code>n = 30</code> and <code>d = 5</code> there are about 9.3 × 10<sup>20</sup> complete assignments, far beyond brute force. The bound nevertheless matters because it tells us the search tree has depth exactly <code>n</code> and branching factor at most <code>d</code>, which frames everything that follows. The general CSP over finite domains is NP-complete — 3-colourability and SAT reduce to it straightforwardly — so no polynomial algorithm is expected, and the realistic goal is to make the exponential as small as possible through pruning and ordering.</p>
+
+<p><strong>Discrete infinite domains</strong> arise naturally in scheduling with no fixed horizon: let <code>StartJob1</code> be any non-negative integer number of days. One cannot write a constraint extensionally, because the table of permitted tuples would be infinite; constraints must be expressed in a <em>constraint language</em>, typically linear inequalities such as <code>StartJob1 + 5 &lt;= StartJob2</code>. For linear constraints over integers, decision procedures exist (integer programming, and polynomial-time methods for some restricted fragments), but if arbitrary nonlinear integer constraints are permitted, the problem becomes undecidable — a consequence of the unsolvability of Hilbert's tenth problem. In practice, solvers either impose artificial finite bounds to recover a finite-domain problem, or reason symbolically over intervals rather than enumerating values.</p>
+
+<p><strong>Continuous domains</strong> appear whenever a decision is a real quantity: the exact start time of an observation, the flow rate in a pipe, the angle of a joint. Enumeration is meaningless here, and the appropriate machinery is mathematical optimisation. If both the constraints and the objective are linear, linear programming solves the problem in polynomial time; with integrality requirements added, one gets mixed-integer programming; with nonlinear relationships, convex or general nonlinear programming. A well-known example is scheduling the Hubble Space Telescope's observations, where continuous timing constraints are combined with discrete choices about which instrument to use — a <em>hybrid</em> model.</p>
+
+<p>A final remark on the <em>type</em> of value, as distinct from the size of the domain: values may be <strong>Boolean</strong> (giving the special case known as SAT, propositional satisfiability), <strong>categorical/symbolic</strong> with no natural order (colours, machines), or <strong>numeric</strong> with order and arithmetic available (digits, times). Numeric domains let a solver reason about <em>bounds</em> — propagating that <code>X &lt; Y</code> and <code>Y &lt;= 4</code> implies <code>X &lt;= 3</code> — without touching every value, which is why large numeric domains remain tractable in practice. Symbolic domains offer no such shortcut and must be handled value by value. Recognising which kind of domain you are modelling with therefore shapes not only the correctness of the model but the efficiency of every algorithm applied to it. Throughout the rest of this module the focus stays on finite discrete domains, for which depth-first backtracking search, augmented with consistency checking and ordering heuristics, is the standard and highly effective approach.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> Directly supported. The topic defines the CSP as the triple <code>&lt;X, D, C&gt;</code>, explains constraints as (scope, relation) pairs, and draws out the distinctions between partial, complete, consistent, and solution assignments with a worked comparison table.</li>
+  <li><strong>MO2:</strong> Partially supported. The topic introduces constraint arity and mentions global constraints such as <code>AllDifferent</code>, laying the groundwork for classification, but it does not develop the unary/binary/higher-order taxonomy or constraint-graph and hypergraph representations, which are treated elsewhere in the module.</li>
+  <li><strong>MO3:</strong> Partially supported. Map colouring, Sudoku, N-Queens, cryptarithmetic, and scheduling are used as illustrative examples of the triple and of search-space size, giving a template for formulation, though full formulations of each problem are developed in a later topic.</li>
+  <li><strong>MO4:</strong> Supported as background. By establishing that the search tree has depth <code>n</code>, that CSPs are commutative so one variable may be fixed per level, and that consistency is tested on partial assignments, the topic provides the conceptual basis for implementing depth-first backtracking search, without presenting the algorithm itself.</li>
+  <li><strong>MO5:</strong> Supported as motivation only. The topic explains why problem structure enables generic, domain-independent heuristics and names minimum-remaining-values and least-constraining-value, but it does not define the degree heuristic in detail or evaluate heuristics empirically by node counts.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Teaching notes: the three-region/two-colour example is deliberately unsatisfiable so students see that "complete" and "consistent" are independent properties. The consistency-versus-extensibility distinction (row 3 of the assignment table) is the key conceptual hinge for later material on forward checking and arc consistency. The claim about undecidability of nonlinear integer constraints rests on Hilbert's tenth problem (Matiyasevich, 1970); linear integer constraint satisfaction is decidable (NP-complete). Figures quoted: 8^8 = 16,777,216; 8! = 40,320; 9^81 ≈ 1.97 × 10^77; 5^30 ≈ 9.3 × 10^20.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>A constraint satisfaction problem, or CSP, is a way of describing a problem not by the steps you take to solve it but by the conditions a solution must satisfy. Formally a CSP is a triple: a set of variables, a domain of possible values for each variable, and a set of constraints that restrict which combinations of values are allowed. A solution is an assignment that is both complete (every variable has a value) and consistent (no constraint is violated); along the way a solver works with partial assignments that may be consistent so far but are not yet solutions.</p>
+<p>This matters in the course because CSPs are our first example of a problem representation that exposes structure. In general state-space search, states are opaque black boxes and the only thing you can do is generate successors. In a CSP, the state is a set of variable assignments, so a solver can see which variables are still unassigned, how large their remaining domains are, and which constraints are already violated. That visibility is exactly what makes backtracking search, constraint propagation, and the ordering heuristics later in this module possible.</p>
+<p>While watching, try to pin down four things in each example: what the variables are, what each variable's domain is, how the constraints are written, and whether a given assignment is partial, complete, consistent, or an actual solution. Also pay attention to how domain type matters — finite and discrete domains (colors, digits, board columns) behave very differently from infinite or continuous ones, and the choice of variables and domains is itself a modeling decision that can make a problem easy or hard.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Constraint Satisfaction Problems (CSPs) 1 - Overview | Stanford CS221: AI (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/-IO4fPO0rxk?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problems (CSPs) 1 - Overview | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 13:50 · 56,216 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=-IO4fPO0rxk" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>The opening lecture segment of Stanford's CS221 unit on constraint satisfaction problems, giving an overview of what CSPs are and where they sit relative to the search methods covered earlier in that course. Expect motivating examples and an informal picture of problems described by variables and constraints rather than by sequences of actions. It sets up the vocabulary used in the rest of the CSP lectures.</p>
+<h3>Why this video</h3>
+<p>As an overview from a well-regarded university AI course, it is a reliable starting point for the 'CSPs versus general state-space search' and 'why CSPs are a useful formalism' subtopics before you meet the formal definitions.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Constraint Satisfaction Problems (CSPs) 2 - Definitions | Stanford CS221: AI (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/uj5wCcHsSlA?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problems (CSPs) 2 - Definitions | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 19:12 · 21,537 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=uj5wCcHsSlA" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>The follow-up Stanford CS221 segment that makes the CSP definitions precise: variables, their domains, and constraints (often expressed as factors over subsets of variables), plus what it means for an assignment to be consistent and to be a solution. It is the longest of the three videos and is the most definition-heavy. Expect worked notation that you can reuse when you write your own CSP formulations.</p>
+<h3>Why this video</h3>
+<p>This directly covers the CSP triple and the partial/complete/consistent assignment distinctions at the level of rigor the module expects, from the same instructor and notation as the overview video.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: The 4 Queens Problem, AI &amp; CSPs</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/X6m0DXt95bs?cc_load_policy=1&amp;rel=0" title="Video: The 4 Queens Problem, AI &amp; CSPs (a bit of intelligence)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>a bit of intelligence</strong> · 5:51 · 15,056 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=X6m0DXt95bs" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short animated explainer that uses the 4-Queens puzzle — a scaled-down Eight Queens problem — to introduce constraint satisfaction. Based on its description, it walks through the puzzle and shows how it can be cast in CSP terms, with variables for the queens and constraints forbidding shared rows, columns, and diagonals. Its brevity makes it a good concrete anchor after the more abstract definitions.</p>
+<h3>Why this video</h3>
+<p>It grounds the formalism in a single small example you can follow end to end, which is exactly the kind of modeling practice (choosing variables and finite domains) that the module asks you to do for N-Queens and similar problems.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos build the conceptual base the module's outcomes rest on. The two Stanford segments supply the overview and the formal definitions behind MO1 — the variables/domains/constraints triple and the partial, complete, and consistent assignment distinctions — and their contrast with ordinary state-space search explains why constraint structure can later be exploited by backtracking (MO4) and by the MRV, degree, and least-constraining-value heuristics (MO5). The 4-Queens explainer gives a concrete formulation exercise that supports MO3 and previews the kinds of binary constraints you will classify and draw as a constraint graph in MO2. None of the videos implements a solver, so treat them as the modeling foundation and rely on the module's readings and programming work for MO4 and MO5.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

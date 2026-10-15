@@ -1,0 +1,287 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admissibility and Consistency</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Heuristic Functions, Best-First Search, and A*</a></div>
+  <header>
+    <h1>Admissibility and Consistency</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Admissibility and Consistency</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>A heuristic function <code>h(n)</code> is a piece of domain knowledge injected into a search algorithm: a guess at how much more it will cost to get from node <code>n</code> to a goal. Because it is only a guess, we need a precise way of saying when a guess is <em>safe</em> — that is, when the guarantees we care about (finding a least-cost solution, never having to redo work) still hold. Two properties do almost all of the work here. <strong>Admissibility</strong> is a global condition comparing the estimate to the true remaining cost. <strong>Consistency</strong> (also called <strong>monotonicity</strong>) is a local condition comparing the estimate at one node to the estimate at each of its successors. The two are closely related but not identical, and understanding exactly how they differ explains a great deal about why A* is implemented the way it is — why it keeps a closed list, why it sometimes has to reopen nodes, and why heuristics derived from relaxed problems are so prized.</p>
+
+<p>Throughout, let <code>g(n)</code> be the cost of the path from the start node to <code>n</code> that the search currently holds, let <code>h*(n)</code> denote the <em>true</em> optimal cost of the cheapest path from <code>n</code> to any goal (with <code>h*(n) = ∞</code> if no goal is reachable from <code>n</code>), let <code>c(n, a, n′)</code> be the cost of applying action <code>a</code> in node <code>n</code> to reach successor <code>n′</code>, and let <code>C*</code> be the cost of an optimal solution from the start. A* orders its frontier by <code>f(n) = g(n) + h(n)</code>.</p>
+
+<p><strong>Admissibility: never overestimate</strong></p>
+
+<p>A heuristic <code>h</code> is <em>admissible</em> if for every node <code>n</code> in the state space</p>
+
+<pre><code>0 ≤ h(n) ≤ h*(n)</code></pre>
+
+<p>In words: the estimate is non-negative and never exceeds the actual cheapest remaining cost. Admissible heuristics are therefore <em>optimistic</em> — they may be too cheerful about how close the goal is, but never too gloomy. The condition must hold at <em>every</em> node, not merely at the start or on the nodes a particular run happens to visit; a single node where <code>h(n) &gt; h*(n)</code> is enough to destroy admissibility.</p>
+
+<p>One immediate corollary is that <code>h(goal) = 0</code> for every goal node, because <code>h*(goal) = 0</code> and <code>h</code> is non-negative and bounded above by it. This is easy to forget when designing a heuristic by formula: if your formula happens to return a small positive number at a goal state, the heuristic is inadmissible no matter how sensible it looks elsewhere.</p>
+
+<p>The simplest admissible heuristic is the <em>zero heuristic</em>, <code>h(n) = 0</code> for all <code>n</code>. Since <code>h*(n) ≥ 0</code> always, the inequality holds trivially. But the zero heuristic carries no domain knowledge: it cannot distinguish a node adjacent to the goal from one on the far side of the map. With <code>h = 0</code> we have <code>f(n) = g(n)</code>, and A* degenerates exactly into uniform-cost search (Dijkstra's algorithm), expanding nodes in order of path cost outward from the start in all directions. This is the useful baseline: admissibility alone guarantees <em>correctness</em>, never <em>efficiency</em>. The practical design goal is to be as large as possible — as close to <code>h*</code> as possible — while remaining under the bound.</p>
+
+<p><strong>Why admissibility yields optimality (tree search).</strong> The argument is short and worth internalising. Suppose A* with an admissible <code>h</code> is about to select a suboptimal goal node <code>G₂</code> from the frontier, with <code>g(G₂) &gt; C*</code>. Since <code>h(G₂) = 0</code>, we have <code>f(G₂) = g(G₂) &gt; C*</code>. Because the start node has been expanded and the optimal path has not yet been completed, some node <code>n</code> on an optimal path to the optimal goal must still be on the frontier. For that node, <code>g(n)</code> is the optimal cost to reach it (in tree search every path is kept separately, so the optimal-path node appears with its optimal <code>g</code>), and admissibility gives</p>
+
+<pre><code>f(n) = g(n) + h(n) ≤ g(n) + h*(n) = C* &lt; f(G₂)</code></pre>
+
+<p>So <code>n</code> has a strictly smaller <code>f</code>-value and would have been chosen before <code>G₂</code>. Contradiction — therefore A* cannot return a suboptimal goal. Note that the goal test must be applied when a node is <em>selected for expansion</em>, not when it is generated; testing at generation time can return a goal found on the frontier before a cheaper path to it has surfaced.</p>
+
+<p><strong>What overestimation does.</strong> Consider this tiny graph, where <code>h</code> is admissible at every node except <code>A</code>:</p>
+
+<pre><code>S --1--&gt; A --1--&gt; G        h(S)=0, h(A)=5, h(G)=0
+S --3--------------&gt; G      h*(S)=2, h*(A)=1</code></pre>
+
+<p>A* expands <code>S</code> and generates two nodes: <code>A</code> with <code>f = 1 + 5 = 6</code>, and <code>G</code> via the direct edge with <code>f = 3 + 0 = 3</code>. The frontier's cheapest node is <code>G</code>, so A* expands it, finds a goal, and returns the path of cost 3 — even though the optimal solution <code>S → A → G</code> costs 2. The inflated estimate at <code>A</code> made the good route look expensive, and the algorithm never examined it. This is the generic failure mode: an overestimating heuristic can prune away the optimal path and let a more expensive goal be expanded first. (Note also that the returned solution is not arbitrarily bad: if <code>h</code> overestimates by at most <code>ε</code>, the solution returned is at most <code>ε</code> worse than optimal — the idea behind deliberately "weighted" or ε-admissible heuristics when speed matters more than exactness.)</p>
+
+<p><strong>Admissibility of the 8-puzzle heuristics.</strong> The two standard 8-puzzle heuristics are both admissible, and in both cases the reason is a counting argument about what a single move can accomplish. A legal move slides exactly one tile into the blank square, one position horizontally or vertically.</p>
+
+<ul>
+<li><code>h₁</code> = <strong>number of misplaced tiles</strong> (not counting the blank). Each move changes the position of exactly one tile, so it can reduce the misplaced count by at most 1. Any solution must reduce the count to 0, so it needs at least <code>h₁(n)</code> moves: <code>h₁(n) ≤ h*(n)</code>.</li>
+<li><code>h₂</code> = <strong>Manhattan (city-block) distance</strong>, the sum over all tiles of the vertical plus horizontal distance from the tile's current square to its goal square. Each move changes one tile's Manhattan distance by exactly ±1, so one move reduces the total sum by at most 1. Since the sum must reach 0, at least <code>h₂(n)</code> moves are needed: <code>h₂(n) ≤ h*(n)</code>.</li>
+</ul>
+
+<p>Both are also instances of the general relaxation principle discussed below: <code>h₁</code> is the exact solution cost when a tile may teleport to its goal square in one move; <code>h₂</code> is the exact cost when a tile may move to any adjacent square regardless of whether it is blank. Because <code>h₂(n) ≥ h₁(n)</code> everywhere (a misplaced tile contributes at least 1 to the Manhattan sum), <code>h₂</code> <em>dominates</em> <code>h₁</code> and is the better heuristic: A* with <code>h₂</code> never expands a node that A* with <code>h₁</code> skips.</p>
+
+<p><strong>Consistency (monotonicity) and the triangle inequality</strong></p>
+
+<p>A heuristic <code>h</code> is <em>consistent</em> (or monotone) if for every node <code>n</code>, every action <code>a</code>, and the resulting successor <code>n′</code>,</p>
+
+<pre><code>h(n) ≤ c(n, a, n′) + h(n′)</code></pre>
+
+<p>and <code>h(goal) = 0</code> for every goal node. Rearranged as <code>h(n) − h(n′) ≤ c(n, a, n′)</code>, the condition reads: <em>the heuristic may drop by at most the cost of the edge you traverse</em>. You are not allowed to "earn" more estimated progress than you actually pay for. Equally, the estimate may rise by any amount when you move to a successor (that just means the move was a bad idea), so the condition is one-sided.</p>
+
+<p>This is a form of the <strong>triangle inequality</strong>. Think of <code>h(n)</code> as a measured distance from <code>n</code> to the goal. The triangle with vertices <code>n</code>, <code>n′</code> and the goal says that going from <code>n</code> to the goal directly must not cost more than going via <code>n′</code>. Consistency requires the heuristic's own estimates to obey that geometric common sense relative to the real edge costs of the graph.</p>
+
+<p>The crucial practical difference from admissibility is <em>how you check it</em>. Admissibility is a <strong>global</strong> condition: it compares <code>h(n)</code> to <code>h*(n)</code>, a quantity that is generally as hard to compute as solving the problem itself. Consistency is a <strong>local</strong> condition: it is verified edge by edge, looking only at a node, one successor, and one edge cost. That usually reduces to a short case analysis over the available action types, which is why consistency is often easier to prove than admissibility even though it is the stronger property.</p>
+
+<p><strong>Consistency of straight-line distance.</strong> In route-finding on a map, let <code>h_SLD(n)</code> be the Euclidean straight-line distance from <code>n</code>'s location to the goal's location, and let road segments have cost equal to their true (road) length, which is at least the straight-line separation of their endpoints. For any road from <code>n</code> to <code>n′</code>:</p>
+
+<pre><code>h_SLD(n) = |n − goal|
+         ≤ |n − n′| + |n′ − goal|       (Euclidean triangle inequality)
+         ≤ c(n, a, n′) + h_SLD(n′)      (road length ≥ straight-line length)</code></pre>
+
+<p>In plain terms: the direct distance between two points is never longer than any detour through a third point, so straight-line distance can never shrink faster than you travel. Hence <code>h_SLD</code> is consistent, and also admissible since <code>h_SLD(goal) = 0</code> and straight-line distance lower-bounds any actual route.</p>
+
+<p><strong>Consistency of the 8-puzzle heuristics.</strong> Again, a one-line case analysis. Every action has cost 1. Manhattan distance changes by exactly +1 or −1 per move (one tile moves one square), so <code>h₂(n) − h₂(n′) ≤ 1 = c(n, a, n′)</code>. Misplaced tiles changes by −1, 0 or +1, so <code>h₁(n) − h₁(n′) ≤ 1</code>. Both are consistent. Notice how much easier these proofs were than the corresponding admissibility arguments — but they also deliver more.</p>
+
+<p><strong>The relationship between the two properties</strong></p>
+
+<p><strong>Consistency implies admissibility.</strong> Suppose <code>h</code> is consistent and let <code>n</code> be any node from which a goal is reachable. Take an optimal path <code>n = n₀ → n₁ → … → n_k = goal</code> of total cost <code>h*(n)</code>. Applying consistency along each edge and chaining:</p>
+
+<pre><code>h(n₀) ≤ c(n₀,n₁) + h(n₁)
+      ≤ c(n₀,n₁) + c(n₁,n₂) + h(n₂)
+      ≤ …
+      ≤ c(n₀,n₁) + … + c(n_{k−1},n_k) + h(n_k)
+      = h*(n) + h(goal) = h*(n)</code></pre>
+
+<p>(Formally this is an induction on the number of edges to the goal.) If no goal is reachable, <code>h*(n) = ∞</code> and the bound is trivial. So every consistent heuristic is admissible — consistency is the strictly stronger property.</p>
+
+<p><strong>The converse fails.</strong> Admissible-but-inconsistent heuristics do exist. They are rare in practice and almost always arise from hand-tuning individual values, from lookups in a table built by an ad-hoc procedure, or from mixing several estimators without care. Here is a minimal example:</p>
+
+<pre><code>Edges:  S→A cost 1,  S→B cost 3,  A→B cost 1,  B→G cost 4
+h:      h(S)=0, h(A)=4, h(B)=1, h(G)=0
+True:   h*(S)=6, h*(A)=5, h*(B)=4, h*(G)=0   →  admissible everywhere
+Check edge A→B:  h(A)=4  ≤  c(A,B) + h(B) = 1 + 1 = 2 ?   NO  →  inconsistent</code></pre>
+
+<p>The estimate plunges from 4 to 1 across an edge that costs only 1 — a drop of 3 that was not paid for.</p>
+
+<p><strong>Why inconsistency forces re-expansion.</strong> Trace A* graph search on that example, with a closed list that refuses to reopen nodes:</p>
+
+<table>
+<thead>
+<tr><th>Step</th><th>Node expanded</th><th>g</th><th>h</th><th>f</th><th>Frontier after expansion</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>S</td><td>0</td><td>0</td><td>0</td><td>A (g=1, f=5), B (g=3, f=4)</td></tr>
+<tr><td>2</td><td>B</td><td>3</td><td>1</td><td>4</td><td>A (g=1, f=5), G (g=7, f=7)</td></tr>
+<tr><td>3</td><td>A</td><td>1</td><td>4</td><td>5</td><td>G (g=7, f=7); successor B found with g=2 but B is closed</td></tr>
+<tr><td>4</td><td>G</td><td>7</td><td>0</td><td>7</td><td>returns a path of cost 7</td></tr>
+</tbody>
+</table>
+
+<p>The optimal solution costs 6 (<code>S → A → B → G</code>), but A* returned 7. The inconsistent estimate at <code>A</code> made <code>A</code> look worse than <code>B</code>, so <code>B</code> was closed with a suboptimal <code>g</code> of 3; when the better route to <code>B</code> (<code>g = 2</code>) was discovered one step later, the closed list blocked the correction. The repairs are: (i) allow <strong>reopening</strong> — whenever a closed node is reached by a cheaper path, remove it from the closed list and push it back on the frontier with the new <code>g</code>; or (ii) apply <strong>pathmax</strong>, propagating <code>h(n′) ← max(h(n′), h(n) − c(n, a, n′))</code> as nodes are generated, which repairs local inconsistencies on the fly. Reopening restores optimality but can cost extra expansions — in pathological cases exponentially many. This is precisely the overhead that consistency buys you out of.</p>
+
+<p>The good news for practitioners: <strong>nearly every naturally occurring heuristic is consistent</strong>. Heuristics derived by relaxing the problem, by pattern-database lookup, by max-ing other consistent heuristics, or by metric distance (straight-line, Manhattan, Chebyshev, octile) are all consistent as a by-product of how they are constructed. You normally have to work at it to produce an inconsistent heuristic.</p>
+
+<table>
+<thead>
+<tr><th>Property</th><th>Formal condition</th><th>Scope of check</th><th>What it guarantees</th></tr>
+</thead>
+<tbody>
+<tr><td>Admissibility</td><td>0 ≤ h(n) ≤ h*(n)</td><td>Global — needs the true remaining cost</td><td>A* tree search returns an optimal solution; graph search needs reopening</td></tr>
+<tr><td>Consistency</td><td>h(n) ≤ c(n, a, n′) + h(n′), h(goal) = 0</td><td>Local — one edge at a time</td><td>Admissibility, non-decreasing f along paths, optimal g on first expansion, safe closed list</td></tr>
+</tbody>
+</table>
+
+<p><strong>Monotonic f-values along a path</strong></p>
+
+<p>The name <em>monotonicity</em> comes from what consistency does to <code>f</code>. Let <code>n′</code> be a successor of <code>n</code> on the path the search is following, so <code>g(n′) = g(n) + c(n, a, n′)</code>. Then</p>
+
+<pre><code>f(n′) = g(n′) + h(n′)
+      = g(n) + c(n, a, n′) + h(n′)
+      ≥ g(n) + h(n)                  (by consistency)
+      = f(n)</code></pre>
+
+<p>So <code>f</code> never decreases as you move deeper along any path. The <code>f</code>-value is a running estimate of the total cost of the complete solution through the current node, and consistency says that estimate can only improve (rise) as you learn more by going deeper — it never collapses on you.</p>
+
+<p>Three consequences follow, and together they justify the standard implementation of A* graph search.</p>
+
+<ul>
+<li><strong>A* expands nodes in order of non-decreasing f-value.</strong> Since any successor's <code>f</code> is at least its parent's, no node can ever be generated with an <code>f</code> smaller than that of the node currently being expanded. The sequence of <code>f</code>-values of expanded nodes is therefore non-decreasing over the whole run.</li>
+<li><strong>When a node is selected for expansion, its optimal path has already been found</strong> — that is, <code>g(n) = g*(n)</code>, the true cheapest cost from the start to <code>n</code>. Sketch: if a cheaper route to <code>n</code> existed, some node <code>m</code> on that route would still be on the frontier, and by the non-decreasing-<code>f</code> property that route's <code>f</code>-values are all bounded by <code>g*(n) + h(n) &lt; g(n) + h(n)</code>, so <code>m</code> would have been chosen first. Hence no cheaper route can still be hiding.</li>
+<li><strong>The closed list is safe without reopening.</strong> Because the first expansion of a node already carries its optimal <code>g</code>, any later path to that node is at best equally good and can be discarded outright. The familiar "if the successor is in the closed set, skip it" line is correct exactly when <code>h</code> is consistent; with a merely admissible <code>h</code> it is a bug.</li>
+</ul>
+
+<p>It is worth being precise about what "no re-expansion" costs you if you lose it. With a consistent heuristic every node is expanded at most once, so the number of expansions is bounded by the number of distinct states with <code>f(n) &lt; C*</code> (plus some tie-breaking at <code>f = C*</code>). With reopening under an inconsistent heuristic, a node may be expanded many times, and contrived graphs exist in which the number of re-expansions grows exponentially in the number of nodes.</p>
+
+<p><strong>Contours.</strong> A geometric way to see all of this is to draw the <em>contours</em> of equal <code>f</code>-value in the state space. Because <code>f</code> is non-decreasing along paths, the set of nodes with <code>f(n) ≤ k</code> forms a connected region containing the start, and these regions are <em>nested</em>: the region for <code>k = 380</code> sits entirely inside the region for <code>k = 400</code>. A* sweeps outward through these bands in order, finishing one contour before starting the next, and it stops as soon as it expands a goal, having fully expanded every node strictly inside the contour <code>f = C*</code>.</p>
+
+<p>The shape of the bands is what distinguishes one heuristic from another:</p>
+
+<ul>
+<li>With <code>h = 0</code>, <code>f = g</code> and the contours are circles (in cost terms) centred on the start — A* expands blindly in every direction, which is uniform-cost search.</li>
+<li>With an informative <code>h</code>, the contours are stretched and pulled toward the goal: nodes pointing away from the goal get a large <code>h</code> and fall outside the band, while nodes along a promising corridor stay inside. The search explores a narrow elongated ellipse rather than a disc.</li>
+<li>In the limit <code>h = h*</code>, the contour for <code>f = C*</code> contains only the nodes of an optimal path, and A* walks straight to the goal with no wasted expansions.</li>
+<li>If <code>h₂</code> dominates <code>h₁</code> (both admissible, <code>h₂(n) ≥ h₁(n)</code> everywhere), then every node with <code>g + h₂ &lt; C*</code> also has <code>g + h₁ &lt; C*</code>, so A* with <code>h₂</code> expands a subset of the nodes A* with <code>h₁</code> expands. Bigger (still-admissible) heuristics mean narrower bands and strictly less work.</li>
+</ul>
+
+<p>This is why "as large as possible without exceeding <code>h*</code>" is the correct design objective, and why the effective branching factor of A* on the 8-puzzle falls sharply from <code>h₁</code> (misplaced tiles) to <code>h₂</code> (Manhattan) to pattern databases.</p>
+
+<p><strong>Verifying a candidate heuristic</strong></p>
+
+<p>Given a proposed <code>h</code>, you have four basic moves: prove admissibility via relaxation, prove consistency via edge-wise case analysis, refute either with a counterexample, or build the heuristic in a way that makes both properties automatic.</p>
+
+<p><strong>1. Proving admissibility by relaxation.</strong> A <em>relaxed problem</em> is the original problem with some restrictions on the actions removed. Every solution to the original problem is still a solution to the relaxed problem (the relaxed problem permits everything the original permits, and more), so the optimal relaxed cost can only be smaller:</p>
+
+<pre><code>h(n) = optimal cost of the relaxed problem from n  ≤  h*(n)</code></pre>
+
+<p>That single sentence is the whole proof of admissibility, which is why relaxation is such a productive design method. Worked examples:</p>
+
+<ul>
+<li><strong>8-puzzle, misplaced tiles.</strong> Original rule: a tile may move to an adjacent square <em>if</em> that square is blank. Drop both conditions — a tile may move anywhere in one step. The optimal relaxed solution moves each misplaced tile once, costing <code>h₁(n)</code>. Admissible.</li>
+<li><strong>8-puzzle, Manhattan distance.</strong> Drop only the "must be blank" condition; a tile may move to any adjacent square, through other tiles. Tiles are now independent, and each needs exactly its Manhattan distance, so the relaxed optimum is <code>h₂(n)</code>. Admissible.</li>
+<li><strong>Grid pathfinding, Manhattan distance with 4-way movement and unit costs.</strong> Relax by deleting all obstacles. The optimum on an empty grid is <code>|Δx| + |Δy|</code>. Admissible. (Careful: if diagonal moves of cost 1 are permitted, this relaxation argument breaks and the correct admissible heuristic is the Chebyshev distance <code>max(|Δx|, |Δy|)</code>; for diagonals of cost √2 it is the octile distance. A heuristic is admissible only with respect to a specific action set and cost model.)</li>
+<li><strong>Route finding, straight-line distance.</strong> Relax by allowing travel off-road in a straight line between any two points. The optimum is <code>|n − goal|</code>. Admissible.</li>
+</ul>
+
+<p><strong>2. Proving consistency by edge-wise case analysis.</strong> Fix an arbitrary node <code>n</code> and an arbitrary legal action <code>a</code> with successor <code>n′</code>, and show</p>
+
+<pre><code>h(n) − h(n′) ≤ c(n, a, n′)</code></pre>
+
+<p>for every action type the domain offers. The work is usually small because there are few action types and each changes <code>h</code> in a bounded way. For grid pathfinding with 4-way unit-cost moves and Manhattan distance: any single move changes <code>|Δx| + |Δy|</code> by exactly ±1, and the edge costs 1, so the inequality holds with equality in the worst case. For the 8-puzzle with Manhattan distance: the moved tile's distance changes by ±1 and no other tile's distance changes, so the drop is at most 1 = the edge cost. For a weighted graph with a table-defined <code>h</code>, the "case analysis" is simply checking every edge in the table — tedious but finite.</p>
+
+<p><strong>3. Refuting with a counterexample.</strong> Both properties are universally quantified, so a <em>single</em> violating instance kills them.</p>
+
+<ul>
+<li>To refute <strong>admissibility</strong>, exhibit one node <code>n</code> with <code>h(n) &gt; h*(n)</code>. Example: on a grid with 8-way movement at unit cost, Manhattan distance from <code>(0,0)</code> to <code>(3,3)</code> is 6, but the true cost is 3 diagonal moves — <code>h = 6 &gt; 3 = h*</code>. Inadmissible. Another classic: a sliding-tile heuristic that adds a bonus term for "linear conflicts" counted twice can exceed <code>h*</code> on some configurations.</li>
+<li>To refute <strong>consistency</strong>, exhibit one edge <code>(n, a, n′)</code> with <code>h(n) &gt; c(n, a, n′) + h(n′)</code>, as in the <code>A→B</code> edge of the earlier four-node graph. Note the asymmetry: a heuristic can be admissible everywhere and still fail this test on a single edge, so refuting consistency does <em>not</em> refute admissibility. Conversely, refuting admissibility at some node automatically refutes consistency (since consistency implies admissibility).</li>
+</ul>
+
+<p><strong>4. Let the construction do the work.</strong> Relaxation-derived heuristics are not merely admissible — they are also consistent, and for a structural reason. If <code>h</code> is the exact optimal cost of a relaxed problem whose action set includes the original actions at no greater cost, then <code>h</code> itself satisfies the triangle inequality in the relaxed space: moving from <code>n</code> to <code>n′</code> in the real problem is one of the options available in the relaxed problem, so the relaxed optimum from <code>n</code> cannot exceed <code>c(n, a, n′)</code> plus the relaxed optimum from <code>n′</code>. That is exactly consistency. The same argument covers <strong>pattern databases</strong>, which store exact optimal costs for an abstracted (projected) version of the puzzle: because each real move maps to a move of cost ≤ 1 in the abstraction, the stored values obey the triangle inequality and the heuristic is consistent as well as admissible. Hence the practical advice: design heuristics by relaxation or abstraction, and you get both properties for free rather than having to argue for them.</p>
+
+<p><strong>Combining heuristics.</strong> Suppose you have several admissible heuristics <code>h₁, h₂, …, h_m</code>, none dominating the others. The safe combiner is the <strong>maximum</strong>:</p>
+
+<pre><code>h_max(n) = max( h₁(n), h₂(n), …, h_m(n) )</code></pre>
+
+<ul>
+<li><strong>Admissibility is preserved.</strong> Each <code>h_i(n) ≤ h*(n)</code>, so the largest of them is also ≤ <code>h*(n)</code>.</li>
+<li><strong>Consistency is preserved.</strong> If every <code>h_i</code> is consistent, pick the index <code>j</code> achieving the max at <code>n</code>; then <code>h_max(n) = h_j(n) ≤ c(n,a,n′) + h_j(n′) ≤ c(n,a,n′) + h_max(n′)</code>.</li>
+<li><strong>And it dominates.</strong> <code>h_max ≥ h_i</code> for every <code>i</code>, so the combination is at least as informative as any component — at the cost of evaluating all of them at each node.</li>
+</ul>
+
+<p><strong>Summation generally does not work.</strong> <code>h₁ + h₂</code> can easily exceed <code>h*</code> because the two heuristics may be "charging" for the same moves. On the 8-puzzle, misplaced tiles plus Manhattan distance at a state one move from the goal gives <code>1 + 1 = 2 &gt; 1 = h*</code> — inadmissible. Summing is legitimate only when the components account for <em>disjoint</em> portions of the cost: this is the idea behind <strong>disjoint (additive) pattern databases</strong>, where each database counts only the moves of the tiles in its own pattern and no move is counted twice, so the sum remains a lower bound. Verifying that disjointness condition is the price of being allowed to add.</p>
+
+<table>
+<thead>
+<tr><th>Combination</th><th>Admissible?</th><th>Consistent?</th><th>Condition / comment</th></tr>
+</thead>
+<tbody>
+<tr><td>max(h₁, …, h_m)</td><td>Yes</td><td>Yes, if all components are</td><td>Always safe; dominates every component</td></tr>
+<tr><td>min(h₁, …, h_m)</td><td>Yes</td><td>Yes, if all components are</td><td>Safe but weaker than any component — rarely useful</td></tr>
+<tr><td>h₁ + h₂</td><td>No in general</td><td>No in general</td><td>Safe only if the components count disjoint costs (additive PDBs)</td></tr>
+<tr><td>w·h, w &gt; 1</td><td>No</td><td>No</td><td>Weighted A*: trades a bounded w-factor of suboptimality for speed</td></tr>
+<tr><td>(h₁ + h₂)/2 or any convex combination</td><td>Yes</td><td>Yes, if all components are</td><td>Admissible but dominated by max — no reason to prefer it</td></tr>
+</tbody>
+</table>
+
+<p><strong>A checklist for a candidate h.</strong> (1) Is <code>h(n) ≥ 0</code> everywhere and <code>h(goal) = 0</code> at every goal state? (2) Can you describe a relaxed problem whose exact optimal cost is <code>h</code>? If yes, admissibility and consistency are both settled. (3) If not, enumerate the action types and check <code>h(n) − h(n′) ≤ c(n, a, n′)</code> for each. (4) If any check fails, hunt for an explicit counterexample rather than patching the formula blindly. (5) If <code>h</code> is admissible but you cannot establish consistency, either enable node reopening in your A* implementation or apply pathmax — and expect extra expansions.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+<li><strong>MO1:</strong> Supported indirectly. The topic uses straight-line distance, misplaced tiles and Manhattan distance throughout as running examples, showing explicitly how each encodes domain knowledge by solving a relaxed version of the problem, though its focus is on the properties of these estimates rather than on introducing them.</li>
+<li><strong>MO2:</strong> Directly and fully supported. The topic states both definitions — <code>0 ≤ h(n) ≤ h*(n)</code> and <code>h(n) ≤ c(n, a, n′) + h(n′)</code> — proves them for standard heuristics, shows how to refute each with a single counterexample, and gives a verification checklist for applying them to a candidate heuristic.</li>
+<li><strong>MO3:</strong> Partially supported. A short A* trace on an inconsistent heuristic illustrates open-list and closed-list management and the handling of repeated states (reopening versus discarding closed nodes), but the topic does not systematically trace the full expansion loop on pathfinding or 8-puzzle instances.</li>
+<li><strong>MO4:</strong> Largely not addressed. Greedy best-first search is not discussed; the topic does, however, explain how admissibility underwrites A*'s optimality and how consistency bounds its expansions to one per node, which is the foundation for any later complexity comparison.</li>
+<li><strong>MO5:</strong> Directly supported. The verification section shows how to derive admissible (and automatically consistent) heuristics from relaxed problems, pattern databases and subproblem decomposition for both sliding-tile puzzles and grid pathfinding, and states the rules for combining them by maximum or by disjoint summation.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Worked numeric examples (the inadmissible S–A–G graph, the four-node inconsistent graph and its A* trace) are deliberately small enough to be reproduced on a whiteboard or set as in-class exercises. The pathmax rule and the exponential re-expansion result for inconsistent heuristics are included as enrichment and can be flagged as optional. The tables on property comparison and heuristic combination are intended as revision aids.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

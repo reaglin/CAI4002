@@ -1,0 +1,307 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conditional Independence and Bayes&#39; Rule</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Probabilistic Reasoning with Bayesian Networks and HMMs</a></div>
+  <header>
+    <h1>Conditional Independence and Bayes&#39; Rule</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Conditional Independence and Bayes&#39; Rule</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Probability theory gives an agent a principled way to hold graded beliefs about an uncertain world, but raw probability on its own does not scale. A domain described by <code>n</code> Boolean variables has <code>2ⁿ</code> possible worlds, and the full joint probability distribution over those worlds needs <code>2ⁿ − 1</code> independent numbers. For even a modest medical or diagnostic domain with 30 variables, that is over a billion numbers — impossible to elicit from an expert, impossible to learn reliably from data, and impossible to sum over quickly. The escape route is <em>structure</em>: the observation that most variables in a real domain do not interact directly with most other variables, once we know the right intermediate facts. This topic builds the machinery that turns that observation into computation — conditional probability, the product and chain rules, Bayes' rule, and above all conditional independence, which is the single idea that makes probabilistic reasoning tractable.</p>
+
+<p>Throughout we will use a small running example from dentistry, with three Boolean variables: <strong>Cavity</strong> (the patient has a cavity), <strong>Toothache</strong> (the patient reports toothache), and <strong>Catch</strong> (the dentist's steel probe catches in the tooth). The full joint distribution is given below; every row is one possible world, and the eight numbers sum to 1.</p>
+
+<table>
+  <thead>
+    <tr><th>World</th><th>Cavity</th><th>Toothache</th><th>Catch</th><th>Probability</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>w₁</td><td>true</td><td>true</td><td>true</td><td>0.108</td></tr>
+    <tr><td>w₂</td><td>true</td><td>true</td><td>false</td><td>0.012</td></tr>
+    <tr><td>w₃</td><td>true</td><td>false</td><td>true</td><td>0.072</td></tr>
+    <tr><td>w₄</td><td>true</td><td>false</td><td>false</td><td>0.008</td></tr>
+    <tr><td>w₅</td><td>false</td><td>true</td><td>true</td><td>0.016</td></tr>
+    <tr><td>w₆</td><td>false</td><td>true</td><td>false</td><td>0.064</td></tr>
+    <tr><td>w₇</td><td>false</td><td>false</td><td>true</td><td>0.144</td></tr>
+    <tr><td>w₈</td><td>false</td><td>false</td><td>false</td><td>0.576</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Conditional probability and the product rule.</strong> An unconditional (or <em>prior</em>) probability <code>P(a)</code> is the agent's degree of belief in proposition <code>a</code> before any evidence arrives. A conditional (or <em>posterior</em>) probability <code>P(a | b)</code> is the degree of belief in <code>a</code> given that everything the agent knows is summarised by <code>b</code>. The definition is:</p>
+
+<pre><code>P(a | b) = P(a ∧ b) / P(b),   defined whenever P(b) &gt; 0</code></pre>
+
+<p>The division by <code>P(b)</code> has a clear geometric reading. Learning <code>b</code> eliminates every possible world in which <code>b</code> is false. The surviving worlds keep their relative weights, but those weights no longer sum to 1, so we rescale them by dividing by the total surviving mass <code>P(b)</code>. Conditioning therefore <em>narrows the set of possible worlds under consideration</em> and renormalises what remains. Using the dentistry table:</p>
+
+<pre><code>P(toothache)          = 0.108 + 0.012 + 0.016 + 0.064 = 0.20
+P(cavity ∧ toothache) = 0.108 + 0.012                 = 0.12
+P(cavity | toothache) = 0.12 / 0.20 = 0.6</code></pre>
+
+<p>The four worlds in which <code>toothache</code> is false (w₃, w₄, w₇, w₈) have been discarded; of the remaining 0.20 of probability mass, 0.12 involves a cavity, giving 0.6. Note the contrast with the prior <code>P(cavity) = 0.108 + 0.012 + 0.072 + 0.008 = 0.2</code>. The evidence has tripled our belief.</p>
+
+<p>Multiplying out the definition gives the <strong>product rule</strong>, which is the workhorse of everything that follows:</p>
+
+<pre><code>P(a ∧ b) = P(a | b) P(b) = P(b | a) P(a)</code></pre>
+
+<p>In words: for both <code>a</code> and <code>b</code> to hold, <code>b</code> must hold and then <code>a</code> must hold given <code>b</code> — or equivalently, with the roles swapped. The symmetry of the two forms is exactly what will give us Bayes' rule. When written for whole variables rather than single propositions, <code>P(X, Y) = P(X | Y) P(Y)</code> is a set of equations, one for each combination of values of <code>X</code> and <code>Y</code>.</p>
+
+<p>Two conceptual warnings are worth stating explicitly. First, <strong>a conditional probability is not a causal claim</strong>. <code>P(cavity | toothache) = 0.6</code> does not say that toothache produces cavities; it says that among patients with toothache, 60% have a cavity. Probabilistic conditioning runs in whatever direction we point it, and the arithmetic is blind to which way causality actually flows. Conditional probabilities express <em>updated belief</em>, not mechanism. Second, <code>P(a | b)</code> is not the probability that "<code>b</code> causes <code>a</code>" nor the probability of a conditional statement in logic; it is simply a ratio of masses within the joint distribution.</p>
+
+<p>A pleasant and important fact is that <strong>all the usual axioms of probability continue to hold inside a conditioned distribution</strong>. Fixing the evidence <code>b</code> and letting <code>P_b(a) = P(a | b)</code> defines a perfectly ordinary probability distribution: <code>P_b(a) ≥ 0</code>; <code>P_b(true) = 1</code>; <code>P_b(a ∨ a′) = P_b(a) + P_b(a′)</code> for mutually exclusive <code>a</code> and <code>a′</code>; and <code>P_b(¬a) = 1 − P_b(a)</code>. Consequently every rule we derive for unconditional probabilities — marginalisation, the product rule, Bayes' rule itself — has a conditioned twin obtained by writing <code>| b</code> after every term. For instance <code>P(a ∧ c | b) = P(a | c, b) P(c | b)</code>. This "background evidence stays along for the ride" principle is used constantly in Bayesian network inference.</p>
+
+<p><strong>The chain rule and the full joint distribution.</strong> The full joint distribution is a complete specification of the agent's beliefs: any question about the domain can be answered from it. The product rule, applied repeatedly, lets us decompose the joint into a product of conditionals. For three variables:</p>
+
+<pre><code>P(X₁, X₂, X₃) = P(X₃ | X₁, X₂) P(X₁, X₂)
+              = P(X₃ | X₁, X₂) P(X₂ | X₁) P(X₁)</code></pre>
+
+<p>and in general the <strong>chain rule</strong> is</p>
+
+<pre><code>P(X₁, …, Xₙ) = ∏ᵢ₌₁ⁿ P(Xᵢ | X₁, …, Xᵢ₋₁)</code></pre>
+
+<p>This is an identity: it is true for <em>every</em> joint distribution, with no assumptions whatsoever. It is also true for <strong>any ordering of the variables</strong>, since nothing in the derivation privileged a particular sequence. Applied to the dentistry example we could write either</p>
+
+<pre><code>P(C, T, K) = P(C) P(T | C) P(K | C, T)
+P(C, T, K) = P(K) P(T | K) P(C | K, T)</code></pre>
+
+<p>and both are exactly correct. This freedom matters enormously in practice: it is the licence to organise a model around causes first (<code>Cavity</code> before its symptoms) rather than symptoms first. Both orderings represent the same distribution, but — as we shall see — the causal ordering is the one in which many of the conditional terms simplify, because <code>P(K | C, T)</code> will turn out to equal <code>P(K | C)</code>, whereas in the reverse ordering no such simplification occurs. Choosing a bad ordering yields a mathematically valid but needlessly dense factorisation.</p>
+
+<p>Three operations let us extract answers from a joint distribution.</p>
+
+<ul>
+  <li><strong>Marginalisation (summing out).</strong> To obtain the distribution over a subset of variables, sum over all values of the rest: <code>P(Y) = Σ_z P(Y, z)</code>, where <code>z</code> ranges over all value combinations of the other variables <code>Z</code>. In the table, <code>P(Cavity = true) = 0.108 + 0.012 + 0.072 + 0.008 = 0.2</code>.</li>
+  <li><strong>Conditioning.</strong> Substituting the product rule into marginalisation gives <code>P(Y) = Σ_z P(Y | z) P(z)</code>, sometimes called the law of total probability. This is the form used when a model stores conditionals rather than joint entries — which is precisely how Bayesian networks store their parameters.</li>
+  <li><strong>Normalisation.</strong> A query of the form <code>P(Y | e)</code> requires dividing by <code>P(e)</code>, but we can often avoid computing <code>P(e)</code> directly. Write <code>P(Y | e) = α P(Y, e)</code>, compute the unnormalised vector of values, then choose the constant <code>α</code> so the entries sum to 1.</li>
+</ul>
+
+<p>Normalisation in action for the dentistry example:</p>
+
+<pre><code>P(Cavity | toothache) = α ⟨ P(cavity, toothache), P(¬cavity, toothache) ⟩
+                      = α ⟨ 0.108 + 0.012, 0.016 + 0.064 ⟩
+                      = α ⟨ 0.12, 0.08 ⟩
+                      = ⟨ 0.6, 0.4 ⟩        (α = 1 / 0.20 = 5)</code></pre>
+
+<p>We never had to think about <code>P(toothache)</code> as a quantity in its own right; it appeared automatically as <code>1/α</code>. The general query pattern, combining all three operations, is</p>
+
+<pre><code>P(X | e) = α P(X, e) = α Σ_y P(X, e, y)</code></pre>
+
+<p>where <code>X</code> is the query variable, <code>e</code> the observed evidence, and <code>Y</code> the hidden variables. This single formula answers any probabilistic question from a joint distribution — and its cost, <code>O(2ⁿ)</code> for <code>n</code> Boolean variables, is exactly the problem that conditional independence will address.</p>
+
+<p><strong>Bayes' rule: inverting the direction of inference.</strong> Equating the two forms of the product rule, <code>P(a | b) P(b) = P(b | a) P(a)</code>, and dividing by <code>P(b)</code> gives:</p>
+
+<pre><code>P(h | e) = P(e | h) P(h) / P(e)
+
+posterior = likelihood × prior / evidence,   or   posterior ∝ likelihood × prior</code></pre>
+
+<p>Each term has a standard name and role. <code>P(h)</code> is the <strong>prior</strong>, the belief in hypothesis <code>h</code> before seeing evidence. <code>P(e | h)</code> is the <strong>likelihood</strong>, how well the hypothesis predicts the observed evidence. <code>P(h | e)</code> is the <strong>posterior</strong>, the updated belief. <code>P(e)</code> is the <strong>evidence</strong> or marginal likelihood.</p>
+
+<p>The deep practical value of Bayes' rule is that it lets us compute a quantity we want but cannot easily estimate from quantities we can. <strong>Causal knowledge of the form <code>P(effect | cause)</code> is typically more stable and easier to obtain than diagnostic knowledge of the form <code>P(cause | effect)</code>.</strong> A physiologist can tell you that roughly 70% of meningitis patients present with a stiff neck; that figure reflects the mechanism of the disease and holds across hospitals, seasons, and populations. The diagnostic figure <code>P(meningitis | stiff neck)</code>, by contrast, depends on how common meningitis currently is — during an epidemic it rises sharply, even though nothing about the disease's physiology changed. Bayes' rule lets a system store the robust causal numbers and derive the fragile diagnostic ones on demand, plugging in whatever prior is appropriate.</p>
+
+<pre><code>Meningitis example
+P(stiff neck | meningitis) = 0.7      (causal, stable)
+P(meningitis)              = 1/50000  = 0.00002
+P(stiff neck)              = 0.01
+
+P(meningitis | stiff neck) = 0.7 × 0.00002 / 0.01 = 0.0014</code></pre>
+
+<p>Fewer than one in seven hundred stiff-necked patients has meningitis, despite the very high likelihood term. The low prior dominates.</p>
+
+<p>As with any conditional query, <strong>the denominator is just a normalising constant</strong>. Since <code>P(e) = Σ_h P(e | h) P(h)</code> does not depend on which value of <code>H</code> we are scoring, we can write <code>P(H | e) = α P(e | H) P(H)</code>, compute the unnormalised products for every value of <code>H</code>, and normalise at the end. For the meningitis case we would need <code>P(stiff neck | ¬meningitis)</code> to do this; the point is that one of the two routes is always available, and we pick whichever matches the numbers we actually possess.</p>
+
+<p>Failing to multiply by the prior is the <strong>base-rate fallacy</strong>, perhaps the most consequential reasoning error in applied probability. Consider a screening test for a disease affecting 1 in 1000 people, with 99% sensitivity (<code>P(+ | disease) = 0.99</code>) and a 1% false-positive rate (<code>P(+ | ¬disease) = 0.01</code>).</p>
+
+<table>
+  <thead>
+    <tr><th>Quantity</th><th>Symbolic form</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Prior (base rate)</td><td>P(d)</td><td>0.001</td></tr>
+    <tr><td>Sensitivity</td><td>P(+ | d)</td><td>0.99</td></tr>
+    <tr><td>False-positive rate</td><td>P(+ | ¬d)</td><td>0.01</td></tr>
+    <tr><td>Unnormalised, disease</td><td>P(+ | d) P(d)</td><td>0.00099</td></tr>
+    <tr><td>Unnormalised, no disease</td><td>P(+ | ¬d) P(¬d)</td><td>0.00999</td></tr>
+    <tr><td>Marginal likelihood</td><td>P(+)</td><td>0.01098</td></tr>
+    <tr><td><strong>Posterior</strong></td><td>P(d | +)</td><td><strong>0.0902</strong></td></tr>
+  </tbody>
+</table>
+
+<p>A positive result on a 99%-accurate test leaves only a 9% chance of disease. The intuition people reach for — "the test is 99% accurate, so I'm 99% likely to be ill" — silently substitutes the likelihood <code>P(+ | d)</code> for the posterior <code>P(d | +)</code>, discarding the base rate. A frequency framing makes it vivid: in 100,000 people, about 100 have the disease and 99 of them test positive, while 99,900 are healthy and about 999 of those also test positive. Of the 1098 positives, only 99 are genuine — 9%. Rare conditions are massively over-diagnosed whenever priors are ignored.</p>
+
+<p>Finally, Bayesian updating is <strong>incremental</strong>: a posterior computed after one piece of evidence becomes the prior for the next. Suppose the patient above takes a second, independent test (independent given disease status) and it is also positive. Using the previous posterior 0.0902 as the new prior:</p>
+
+<pre><code>P(d | +₁, +₂) = α P(+₂ | d) P(d | +₁)
+              = α ⟨ 0.99 × 0.0902,  0.01 × 0.9098 ⟩
+              = α ⟨ 0.08930, 0.00910 ⟩
+              ≈ ⟨ 0.907, 0.093 ⟩</code></pre>
+
+<p>Belief jumps to about 91%. The same answer is obtained by applying both likelihoods at once to the original prior, <code>α ⟨0.99² × 0.001, 0.01² × 0.999⟩ ≈ ⟨0.907, 0.093⟩</code>, which demonstrates <em>order invariance</em>: the final posterior does not depend on the sequence in which evidence arrives. A neat way to see this is in odds form, where Bayes' rule becomes "posterior odds = likelihood ratio × prior odds": prior odds 1:999, each positive test multiplies by 99, so two tests give <code>99² : 999 = 9801 : 999 ≈ 9.81</code>, i.e. a probability of 0.907. Crucially, this incremental form <em>requires</em> the conditional independence of the two tests given the disease; if both tests share a hidden flaw, the second provides far less new information than the formula suggests.</p>
+
+<p><strong>Independence and conditional independence.</strong> Two propositions or variables are <strong>absolutely (marginally) independent</strong> when knowing one tells you nothing about the other:</p>
+
+<pre><code>P(X, Y) = P(X) P(Y)      ⟺      P(X | Y) = P(X)      ⟺      P(Y | X) = P(Y)</code></pre>
+
+<p>Independence is enormously valuable when it holds, because it lets the joint distribution split into separate factors. If a dentistry domain were extended with <code>Weather</code>, and weather were independent of all dental variables, then <code>P(Cavity, Toothache, Catch, Weather) = P(Cavity, Toothache, Catch) P(Weather)</code>, reducing a 32-entry table (for a four-valued <code>Weather</code>) to an 8-entry table plus a 4-entry table. Unfortunately, <strong>absolute independence is rare</strong> in interesting domains: almost everything is weakly correlated with almost everything else, because variables share common causes. In our dental table, <code>Toothache</code> and <code>Catch</code> are definitely not independent — <code>P(catch) = 0.108 + 0.072 + 0.016 + 0.144 = 0.34</code> while <code>P(catch | toothache) = (0.108 + 0.016)/0.2 = 0.62</code>.</p>
+
+<p><strong>Conditional independence</strong> is the far more common and far more useful notion. <code>X</code> and <code>Y</code> are conditionally independent given <code>Z</code> — written <code>X ⫫ Y | Z</code> — when:</p>
+
+<p>Equivalently, in the forms that are most useful in derivations:</p>
+
+<pre><code>P(X, Y | Z) = P(X | Z) P(Y | Z)
+P(X | Y, Z) = P(X | Z)
+P(Y | X, Z) = P(Y | Z)</code></pre>
+
+<p>The second form carries the intuition: <em>once <code>Z</code> is known, learning <code>Y</code> adds nothing further about <code>X</code></em>. The information that <code>Y</code> carried about <code>X</code> was information about <code>Z</code>, and <code>Z</code> is now known directly, so <code>Y</code> becomes redundant. Note also that the three forms are equivalent only when the conditioning probabilities are non-zero, and that conditional independence is symmetric in <code>X</code> and <code>Y</code>.</p>
+
+<p>The canonical generator of conditional independence is the <strong>common cause</strong>. <code>Toothache</code> and <code>Catch</code> are correlated, but only because both are caused by <code>Cavity</code>: the decay irritates the nerve (producing pain) and leaves a soft hole (producing a catch). The two symptoms do not influence one another directly. So once we know whether there is a cavity, the presence of a toothache tells the dentist nothing more about whether the probe will catch. Check this against the numbers:</p>
+
+<pre><code>P(catch | toothache, cavity) = 0.108 / (0.108 + 0.012) = 0.9
+P(catch | cavity)            = (0.108 + 0.072) / 0.2   = 0.9     ✓
+
+P(catch | toothache, ¬cavity) = 0.016 / (0.016 + 0.064) = 0.2
+P(catch | ¬cavity)            = (0.016 + 0.144) / 0.8   = 0.2     ✓</code></pre>
+
+<p>So <code>Toothache ⫫ Catch | Cavity</code> holds exactly in this distribution, even though the two are strongly dependent unconditionally. The same pattern recurs everywhere: two medical tests for the same condition, two thermometers in the same room, two witnesses to the same event, two sensors on the same robot. In each case the readings are correlated, and in each case the correlation is fully explained by the shared underlying state.</p>
+
+<p>It is essential to appreciate that <strong>conditional independence and absolute independence are logically unrelated — neither implies the other</strong>.</p>
+
+<ul>
+  <li><em>Conditionally independent but not absolutely independent:</em> the dental example above. <code>Toothache</code> and <code>Catch</code> are dependent (0.62 vs 0.34) yet conditionally independent given <code>Cavity</code>. Conditioning on a common cause <em>removes</em> a dependence.</li>
+  <li><em>Absolutely independent but not conditionally independent:</em> let <code>Burglary</code> and <code>Earthquake</code> be independent events, each of which can set off an <code>Alarm</code>. Before any observation, hearing about an earthquake tells you nothing about burglary. But given that the alarm has sounded, learning that there was an earthquake <em>lowers</em> the probability of a burglary — the earthquake already explains the alarm. This is <strong>explaining away</strong>, and it shows that conditioning on a <em>common effect</em> can <em>create</em> a dependence where none existed.</li>
+</ul>
+
+<p>The following table summarises the two structural patterns, both of which will reappear as the core cases of d-separation in Bayesian networks.</p>
+
+<table>
+  <thead>
+    <tr><th>Structure</th><th>Example</th><th>Unconditional relation between the two outer variables</th><th>Relation given the middle variable</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Common cause (fork): T ← C → K</td><td>Toothache ← Cavity → Catch</td><td>Dependent</td><td>Independent</td></tr>
+    <tr><td>Chain: C → T → R</td><td>Cavity → Toothache → TakesPainkiller</td><td>Dependent</td><td>Independent</td></tr>
+    <tr><td>Common effect (collider): B → A ← E</td><td>Burglary → Alarm ← Earthquake</td><td>Independent</td><td>Dependent (explaining away)</td></tr>
+  </tbody>
+</table>
+
+<p>A last caution: conditional independence is a property of a <em>particular distribution relative to a particular conditioning set</em>. <code>X ⫫ Y | Z</code> does not entail <code>X ⫫ Y | Z, W</code>, nor does it entail <code>X ⫫ Y</code>. Independence claims must always be stated together with what is being conditioned on.</p>
+
+<p><strong>Why conditional independence makes inference tractable.</strong> Return to the dental joint distribution. Written by the chain rule in the causal ordering, and then simplified using <code>Toothache ⫫ Catch | Cavity</code>:</p>
+
+<pre><code>P(Toothache, Catch, Cavity) = P(Toothache | Catch, Cavity) P(Catch | Cavity) P(Cavity)
+                            = P(Toothache | Cavity) P(Catch | Cavity) P(Cavity)</code></pre>
+
+<p>Count the numbers. The original table needed <code>2³ − 1 = 7</code> independent parameters. The factored form needs 1 for <code>P(Cavity)</code>, 2 for <code>P(Toothache | Cavity)</code> and 2 for <code>P(Catch | Cavity)</code> — just 5. A saving of two numbers is unimpressive, but the pattern generalises spectacularly. Suppose a single cause <code>C</code> with <code>n</code> effects <code>E₁, …, Eₙ</code> that are mutually conditionally independent given <code>C</code>. Then</p>
+
+<pre><code>P(C, E₁, …, Eₙ) = P(C) ∏ᵢ₌₁ⁿ P(Eᵢ | C)</code></pre>
+
+<p>This is the <strong>naive Bayes</strong> (or Bayesian-classifier) model. Its parameter count is <code>1 + 2n</code>, i.e. <code>O(n)</code>, against the <code>2ⁿ⁺¹ − 1</code> entries of the unfactored joint. The contrast is worth tabulating.</p>
+
+<table>
+  <thead>
+    <tr><th>Number of effects n</th><th>Full joint parameters (2ⁿ⁺¹ − 1)</th><th>Naive Bayes parameters (2n + 1)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>3</td><td>15</td><td>7</td></tr>
+    <tr><td>5</td><td>63</td><td>11</td></tr>
+    <tr><td>10</td><td>2,047</td><td>21</td></tr>
+    <tr><td>20</td><td>2,097,151</td><td>41</td></tr>
+    <tr><td>30</td><td>2,147,483,647</td><td>61</td></tr>
+  </tbody>
+</table>
+
+<p>The exponential-to-linear collapse buys four distinct advantages.</p>
+
+<ul>
+  <li><strong>Storage and specification.</strong> Sixty-one numbers can be written down; two billion cannot. The model becomes representable at all.</li>
+  <li><strong>Learning from data.</strong> Each parameter of the factored model is estimated from a comparatively large slice of the data — <code>P(Eᵢ | c)</code> uses every example with <code>C = c</code>, regardless of the other effects' values. Estimating a full joint entry instead requires examples matching <em>all</em> <code>n+1</code> variables simultaneously, and with 30 variables almost every cell would be empty. Factorisation therefore dramatically reduces the <em>sample complexity</em> of learning and yields far lower-variance estimates.</li>
+  <li><strong>Elicitation from experts.</strong> Asking a clinician "of patients with condition C, what fraction show symptom Eᵢ?" is a question they can answer from training and experience. Asking "what is the probability of this exact combination of twelve symptoms together with the disease?" is unanswerable. Small, locally meaningful tables map onto the way human experts actually hold knowledge.</li>
+  <li><strong>Speed of inference.</strong> Diagnostic queries become cheap. With naive Bayes, <code>P(C | e₁, …, eₙ) = α P(C) ∏ᵢ P(eᵢ | C)</code> — a single pass multiplying <code>n</code> small factors, then normalising, instead of summing over exponentially many joint entries. Applied to the dental case with both symptoms observed:
+    <pre><code>P(Cavity | toothache, catch) = α P(Cavity) P(toothache | Cavity) P(catch | Cavity)
+                             = α ⟨ 0.2 × 0.6 × 0.9,  0.8 × 0.1 × 0.2 ⟩
+                             = α ⟨ 0.108, 0.016 ⟩
+                             ≈ ⟨ 0.871, 0.129 ⟩</code></pre>
+    which agrees exactly with reading the figures straight out of the full joint table (0.108 and 0.016), as it must.</li>
+</ul>
+
+<p>These independence assumptions are precisely what a <strong>Bayesian network encodes graphically</strong>. A directed acyclic graph with one node per variable and an arrow from each direct cause to each direct effect is simply a picture of a chain-rule factorisation in which each variable has been made conditionally independent of its non-descendants given its parents:</p>
+
+<pre><code>P(X₁, …, Xₙ) = ∏ᵢ P(Xᵢ | Parents(Xᵢ))</code></pre>
+
+<p>Compare this with the unrestricted chain rule <code>∏ᵢ P(Xᵢ | X₁, …, Xᵢ₋₁)</code>: the network replaces the full set of predecessors with the much smaller parent set, and every arrow <em>absent</em> from the graph is an explicit assertion of conditional independence. The dental network is <code>Toothache ← Cavity → Catch</code>, a three-node fork; the missing arrow between the two symptoms is the claim <code>Toothache ⫫ Catch | Cavity</code>. The size of a node's conditional probability table is exponential only in its number of parents, so sparse graphs give compact models. This is also why the freedom to choose any variable ordering matters: ordering causes before effects produces a sparse network, whereas ordering effects before causes produces a tangled one that encodes the same distribution with far more parameters.</p>
+
+<p>The trade-off must be stated honestly. <strong>Independence assumptions are assumptions, and if they are wrong the model is systematically — not just randomly — biased.</strong> Errors do not wash out with more data; the model converges confidently to the wrong answer. Naive Bayes applied to text, for example, treats the words in a document as conditionally independent given the topic, which is plainly false ("New" and "York" co-occur far more than the model allows). The practical consequence is well known: naive Bayes classifiers often pick the right class but produce wildly overconfident posteriors, because correlated evidence is counted as if it were independent and the likelihood terms multiply too aggressively. The same failure appears in the two-test example above: if both tests share a common flaw, treating them as conditionally independent given the disease over-counts the second positive result. Good modelling therefore means asking, for every absent arrow, "is there a path of influence here that my conditioning set does not block?" — and, where there is, either adding the arrow or introducing a hidden variable that genuinely explains the correlation. The art of probabilistic modelling lies exactly in trading a little fidelity for a great deal of tractability, with eyes open about which is being given up.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Directly supported. The topic develops marginalisation (<code>P(Y) = Σ_z P(Y, z)</code>), conditioning, normalisation with <code>α</code>, and Bayes' rule, and works posterior computations from a full joint distribution (the dental and screening-test examples).</li>
+  <li><strong>MO2</strong> — Supported as foundation. The chain rule, the freedom of variable ordering, and the parents-based factorisation <code>∏ᵢ P(Xᵢ | Parents(Xᵢ))</code> establish exactly why a DAG plus conditional probability tables suffices to specify a joint distribution, though the construction procedure itself is covered elsewhere.</li>
+  <li><strong>MO3</strong> — Supported as foundation. The fork, chain and collider patterns, together with explaining away, are the three local cases from which the d-separation criterion is built; the formal graphical criterion is not stated here.</li>
+  <li><strong>MO4</strong> — Partially supported. The parameter-count comparison and the cost of enumerating <code>O(2ⁿ)</code> joint entries motivate the need for efficient inference, but no specific exact or sampling algorithm is compared in this topic.</li>
+  <li><strong>MO5</strong> — Not addressed. Hidden Markov Models and the forward, forward–backward and Viterbi algorithms are not covered here, although the chain rule and conditional independence underpin the Markov assumptions those algorithms exploit.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>All numeric examples are internally consistent and can be verified directly against the eight-row dental joint distribution given at the start (figures follow the standard Russell &amp; Norvig dentistry example). The two-positive-test calculation assumes conditional independence of the tests given disease status, which is flagged in the text as the very assumption under discussion. The odds-form check (9801:999 ≈ 0.907) is included deliberately so students can cross-validate the incremental update. The explaining-away example is included here in anticipation of d-separation in a later topic.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

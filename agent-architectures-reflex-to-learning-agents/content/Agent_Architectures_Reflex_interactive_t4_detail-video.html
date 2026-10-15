@@ -1,0 +1,264 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goal-Based Agents</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Agent Architectures: Reflex to Learning Agents</a></div>
+  <header>
+    <h1>Goal-Based Agents</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Goal-Based Agents</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>A goal-based agent is the first architecture in the standard progression of agent designs that explicitly represents <em>what it is trying to achieve</em>, separately from <em>what it currently knows</em> and <em>what it can do</em>. Simple reflex agents map a percept directly to an action; model-based reflex agents add an internal state so that the mapping can account for unobservable parts of the world. Both, however, bury the agent's purpose inside the condition–action rules themselves. If you want a model-based reflex taxi to drive to the airport instead of the railway station, you must rewrite the rules. A goal-based agent instead keeps the world model and bolts on a declarative statement of the desired outcome, then <em>reasons</em> about which sequence of actions will transform the current state into one that satisfies that statement. This shift — from lookup to deliberation — is what gives goal-based agents their characteristic flexibility and their characteristic cost.</p>
+
+<p><strong>What makes an agent goal-based.</strong> Three features, taken together, define the architecture. First, it <strong>retains the internal world model</strong> inherited from the model-based reflex design. Because real environments are usually partially observable, the agent cannot read the full state off its sensors; it maintains a belief about the current state and updates that belief as new percepts arrive. A warehouse robot whose camera sees only the aisle in front of it still "knows" that a pallet was left in aisle 7 two minutes ago, because its internal state records it. Without this model, lookahead would be impossible — you cannot predict the consequences of an action if you do not know what state you are acting in.</p>
+
+<p>Second, the agent holds a <strong>goal</strong>: a description of a state or, more usually, a <em>set</em> of states that count as success. Goals are normally written as a predicate over states rather than as a single enumerated state. "The robot is at the loading dock" is satisfied by any state in which the robot's position is the dock, regardless of battery level, gripper contents, or time of day. A goal test such as <code>IsGoal(s) = (s.location == DOCK and s.carrying == nothing)</code> partitions the state space into goal states and non-goal states. This is a <em>binary</em> notion — a state either satisfies the goal or it does not — and that binary character is both the source of the architecture's simplicity and, as we will see, the source of its main limitation.</p>
+
+<p>Third, <strong>action selection becomes a reasoning problem rather than a lookup problem</strong>. A reflex agent answers "what rule matches this percept?" A goal-based agent answers "which of the action sequences available to me leads from my current believed state to a goal state?" That question is answered by simulating the future: <em>what will happen if I do this?</em> The agent applies its transition model to candidate actions, obtains predicted successor states, applies the model again to those, and so on, building a tree of hypothetical futures until one of them satisfies the goal test. Consider a taxi at a junction deciding whether to turn left. A reflex rule might say "if the light is green, go." A goal-based agent asks: if I turn left, I end up on Elm Street; from Elm Street can I still reach the airport, and at what cost? The decision at the junction is justified by events several steps downstream.</p>
+
+<p>Finally, goals make the agent's purpose <strong>explicit and inspectable</strong>. You can print the goal, log it, change it at run time, and explain a decision by reference to it ("I turned left because the only route to the airport that avoids the closed bridge goes through Elm Street"). In a reflex agent the purpose is implicit — smeared across hundreds of rules — and therefore cannot be audited, swapped, or reasoned about by the agent itself or by a human reviewer.</p>
+
+<p><strong>Core components of the agent program.</strong> The goal-based agent program is conventionally decomposed into five cooperating parts, executed in a perceive–deliberate–act loop.</p>
+
+<ul>
+  <li><strong>Sensors and state estimation.</strong> Each cycle, the sensors supply a percept. The agent combines the percept with its previous belief and its knowledge of what it just did to produce an updated belief about the current state. This is the same <code>UPDATE-STATE</code> step used by the model-based reflex agent, and its quality bounds everything downstream: plan on a wrong state and you will execute a wrong plan.</li>
+  <li><strong>A model of how the world evolves.</strong> This captures change that happens independently of the agent — traffic builds up at rush hour, a conveyor belt advances, an opponent moves a piece. In deterministic, static domains this component may be trivial; in dynamic domains it is essential for predicting the state at the moment the agent's action will actually take effect.</li>
+  <li><strong>A model of what my actions do.</strong> The transition function <code>RESULT(s, a) = s'</code> predicts the successor state. In a planning formalism this is usually written as preconditions and effects rather than as a lookup table, because the state space is far too large to enumerate.</li>
+  <li><strong>An explicit goal representation.</strong> A goal test, a conjunction of literals, a target state, or a set of acceptable states. This is the component that is swapped when the task changes.</li>
+  <li><strong>A search or planning procedure.</strong> This is the deliberation engine: it chains predicted states together to find a sequence <code>[a1, a2, ..., an]</code> such that applying the transition model to the current state in order yields a goal state.</li>
+  <li><strong>Actuators.</strong> The agent executes the <em>first</em> action of the chosen sequence, then the loop repeats. Re-planning (or at least re-checking the plan) after each action is what keeps the agent robust when the world does not behave exactly as the model predicted.</li>
+</ul>
+
+<pre><code>function GOAL-BASED-AGENT(percept) returns an action
+    persistent: state, the agent's current belief about the world
+                model, how the world evolves and what my actions do
+                goal,  a description of the desired set of states
+                plan,  an action sequence, initially empty
+
+    state &lt;- UPDATE-STATE(state, last_action, percept, model)
+    if plan is empty or not VALID(plan, state, model) then
+        plan &lt;- SEARCH(state, goal, model)      // deliberation
+    if plan is empty then
+        return NoOp                              // goal unreachable
+    last_action &lt;- FIRST(plan)
+    plan &lt;- REST(plan)
+    return last_action</code></pre>
+
+<p>Notice two design details in this skeleton. The agent only re-plans when the stored plan is empty or has been invalidated — this amortises the cost of deliberation over many cycles, an important optimisation given how expensive search is. And the agent commits to only one action at a time, so a surprise in the next percept can trigger a fresh plan before much damage is done. An architecture that computed a 200-step plan and then executed it blindly would be brittle in any environment that is not perfectly deterministic and static.</p>
+
+<p><strong>Search and planning as decision making.</strong> Deliberation can be organised in two broad styles, which differ in how richly they represent actions.</p>
+
+<p><em>Search</em> treats states as atomic, opaque objects. The agent knows only that it has a start state, a successor function, and a goal test; it explores the space of action sequences by repeatedly expanding states. Breadth-first search, uniform-cost search, and A* are all instances. For route finding this is natural: a state is "the taxi is at junction 42," the successors are the junctions reachable by one road, and the goal test is "is this junction the airport?"</p>
+
+<p><em>Planning</em> keeps a structured, factored representation of states and actions. A state is a set of true facts, and an action is described by its preconditions and effects, for example:</p>
+
+<pre><code>Action(Load(crate, truck, loc),
+  PRECOND: At(crate, loc) &amp; At(truck, loc) &amp; Empty(truck)
+  EFFECT:  ~At(crate, loc) &amp; In(crate, truck) &amp; ~Empty(truck))
+
+Goal: In(crate7, truckB) &amp; At(truckB, depot)</code></pre>
+
+<p>Because the planner can see <em>inside</em> states and actions, it can reason about which action achieves which sub-goal, ignore irrelevant facts, and decompose the problem — things an atomic-state search cannot do. For large, structured domains such as logistics, spacecraft operations, or manufacturing scheduling, planning is dramatically more efficient than blind search over the same space.</p>
+
+<p>The depth of lookahead required depends entirely on the task. <strong>A single-step lookahead suffices only when one action achieves the goal directly</strong>: a vacuum agent in a dirty square need only check that <code>Suck</code> produces a clean square. This degenerate case looks almost like a reflex agent, and indeed a goal-based agent in such a domain buys you little. The interesting cases need <strong>multi-step lookahead</strong>, and here the cost bites. If each state has branching factor <em>b</em> and the shallowest solution lies at depth <em>d</em>, an uninformed search may generate on the order of <em>b<sup>d</sup></em> nodes. With <em>b</em> = 10 and <em>d</em> = 12 — a modest route-planning problem — that is of the order of 10<sup>12</sup> nodes, which is already infeasible to enumerate one by one.</p>
+
+<p>This is why <strong>heuristics</strong> matter. A heuristic <em>h(s)</em> estimates the remaining cost from state <em>s</em> to the nearest goal state, letting the search order its frontier so that promising branches are expanded first and hopeless ones are effectively pruned. Straight-line distance is the classic heuristic for route finding; the number of misplaced tiles or the sum of Manhattan distances serves the 8-puzzle; the count of unsatisfied goal literals, or the cost of a relaxed plan that ignores delete effects, serves classical planning. A heuristic that never overestimates the true remaining cost is called <em>admissible</em>, and A* with an admissible heuristic is guaranteed to return an optimal solution while typically expanding orders of magnitude fewer nodes than uninformed search. The heuristic is where domain knowledge re-enters a design that otherwise prides itself on being general.</p>
+
+<p><strong>Flexibility compared to reflex agents.</strong> The practical payoff of separating goal from model is modularity, and it shows up in four distinct ways.</p>
+
+<ul>
+  <li><strong>New goals yield new behaviour for free.</strong> Tell the delivery robot <code>At(dock)</code> today and <code>At(bay3)</code> tomorrow and it produces entirely different action sequences from the <em>same</em> map and the <em>same</em> transition model. No code is rewritten; only data changes. A reflex agent would need a fresh rule set per destination.</li>
+  <li><strong>Model improvements propagate to every goal.</strong> Add a newly opened corridor to the map, or correct the model of how long the lift takes, and every future plan — for every destination — benefits immediately. In a reflex design, the same correction would have to be applied by hand to every rule that implicitly encoded the old route.</li>
+  <li><strong>Novel situations are handled without anticipation.</strong> Suppose a bridge closes. A goal-based taxi, told the edge no longer exists, simply searches again and finds a detour the designer never thought about. A reflex taxi has no rule for "bridge closed on the route to the airport" unless someone wrote one, and no mechanism for inventing a replacement.</li>
+  <li><strong>Behaviour is explainable.</strong> Because the goal and the model are explicit objects, a decision can be justified: "I chose <code>TurnLeft</code> because, given my belief that the bridge is closed, the cheapest path satisfying <code>At(airport)</code> starts with <code>TurnLeft</code>." This transparency matters enormously for debugging, for certification in safety-critical domains, and for user trust.</li>
+</ul>
+
+<p>Contrast this with the combinatorics facing a reflex designer. If there are <em>S</em> distinguishable situations and <em>D</em> possible destinations, condition–action rules must in principle cover <em>S</em> × <em>D</em> combinations. The goal-based agent needs one model of size roughly <em>S</em> plus a goal of size roughly 1, and it computes the cross-product on demand. The cost is paid in CPU time at run time rather than in designer effort at design time — which is precisely the trade-off the next section examines.</p>
+
+<p><strong>Computational cost and limitations.</strong> Deliberation is not free, and goal-based agents have several well-understood weaknesses.</p>
+
+<ul>
+  <li><strong>Exponential blow-up.</strong> As noted, both time and memory can grow as <em>b<sup>d</sup></em>. Breadth-first search stores the entire frontier, so memory usually fails before time does. Real systems mitigate this with heuristics, iterative deepening, pattern databases, hierarchical decomposition, or plan caching — but the worst case remains intractable, and classical planning is PSPACE-complete in general.</li>
+  <li><strong>Latency versus reflexes.</strong> A reflex agent responds in effectively constant time: match a rule, emit an action. In a real-time domain — collision avoidance, a control loop running at 100 Hz, an industrial safety interlock — a planner that takes 300 ms to think is simply the wrong tool. Practical architectures therefore often layer a fast reflex "safety" level beneath a slower deliberative level, letting reflexes pre-empt the plan when something urgent happens.</li>
+  <li><strong>Binary goals cannot rank successes.</strong> If two routes both reach the airport, one taking 20 minutes and one taking 90, the goal test says "success" to both. You can patch this by adding path costs and using uniform-cost search or A*, which optimises a single cost measure, but the <em>goal itself</em> still carries no notion of degree of satisfaction.</li>
+  <li><strong>No trade-offs between competing goals.</strong> A taxi should be fast, safe, cheap, legal, and comfortable. These conflict: faster means less safe, cheaper means slower. A binary goal conjunction can only say "achieve all of them" — and if the conjunction is unsatisfiable, the agent simply reports failure rather than finding the best available compromise. Partially achievable goals ("deliver 8 of the 10 parcels") are likewise outside its natural vocabulary.</li>
+  <li><strong>Model uncertainty breaks confident plans.</strong> Search assumes the transition model is correct. If actions are stochastic, if other agents interfere, or if the world model is stale, a plan that looked guaranteed can fail mid-execution. Partial remedies include re-planning every cycle, contingency planning that branches on observations, and conformant planning that works for all possible outcomes — all of which increase cost further.</li>
+</ul>
+
+<p>These limitations are exactly the motivation for the <strong>utility-based agent</strong>, which replaces the binary goal test with a utility function mapping each state (or each sequence) to a real number. Utility lets the agent say "this outcome is somewhat better than that one," supports principled trade-offs between conflicting objectives, and — combined with probabilities from an uncertain model — supports maximising <em>expected</em> utility rather than hoping a plan succeeds. Goal-based agents can be seen as the special case in which utility is 1 at goal states and 0 elsewhere.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Dimension</th>
+      <th>Simple reflex</th>
+      <th>Model-based reflex</th>
+      <th>Goal-based</th>
+      <th>Utility-based</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Internal state</td>
+      <td>None</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Purpose representation</td>
+      <td>Implicit in rules</td>
+      <td>Implicit in rules</td>
+      <td>Explicit binary goal</td>
+      <td>Explicit utility function</td>
+    </tr>
+    <tr>
+      <td>Decision mechanism</td>
+      <td>Rule lookup</td>
+      <td>Rule lookup on state</td>
+      <td>Search / planning over futures</td>
+      <td>Expected-utility maximisation</td>
+    </tr>
+    <tr>
+      <td>Lookahead depth</td>
+      <td>Zero</td>
+      <td>Zero</td>
+      <td>Multi-step</td>
+      <td>Multi-step, probability-weighted</td>
+    </tr>
+    <tr>
+      <td>Typical decision cost</td>
+      <td>O(1)</td>
+      <td>O(1)</td>
+      <td>Up to O(b<sup>d</sup>)</td>
+      <td>Equal to or greater than goal-based</td>
+    </tr>
+    <tr>
+      <td>Handles conflicting objectives</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No (only conjunction)</td>
+      <td>Yes, by weighting</td>
+    </tr>
+    <tr>
+      <td>Changing the task</td>
+      <td>Rewrite rules</td>
+      <td>Rewrite rules</td>
+      <td>Swap the goal</td>
+      <td>Swap or re-weight the utility function</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Choosing a goal-based architecture.</strong> Architecture selection should be argued from the properties of the task environment and the operational constraints, not from fashion. Four questions settle most cases.</p>
+
+<ul>
+  <li><strong>Do the goals change often while the dynamics stay stable?</strong> This is the sweet spot. A warehouse robot's map and motion model are fixed for months, but its destination changes every few minutes. Encoding the stable part once (the model) and varying the volatile part (the goal) minimises maintenance effort — one of the strongest practical arguments for the design.</li>
+  <li><strong>Does the correct action depend on consequences several steps ahead?</strong> If a locally attractive action can lead into a dead end — turning onto a one-way street, spending a resource that is needed later, taking a cul-de-sac in a maze — then lookahead is not optional. Reflex rules, which see only the present, systematically fall into such traps.</li>
+  <li><strong>Are responses required immediately, over a small set of situations?</strong> Then prefer a reflex design, or a hybrid in which reflexes handle time-critical events and a planner handles the longer horizon. A thermostat, an anti-lock braking controller, and a packet-dropping firewall rule need microseconds, not a search tree.</li>
+  <li><strong>Is a reliable transition model actually available?</strong> This is the precondition everyone forgets. Planning is only as good as <code>RESULT(s, a)</code>. If the domain is poorly understood, highly stochastic, or populated by adversaries, a nominally brilliant plan will fail on contact with reality; you may need stochastic planning, online re-planning, or a learning agent that acquires the model from experience.</li>
+</ul>
+
+<p>When you do commit to the architecture, make the justification concrete by naming three things: <em>the goal representation</em> ("goal test <code>At(robot, bay3) &amp; Carrying(nothing)</code>"), <em>the search method</em> ("A* over the grid graph with a Manhattan-distance heuristic, re-planned on each obstacle detection"), and <em>the expected cost</em> ("branching factor 4, typical depth 60, under 5,000 node expansions, well inside the 100 ms control budget"). Stating the rejected alternatives strengthens the case: a simple reflex wall-follower was rejected because it cannot guarantee reaching an arbitrary bay; a utility-based design was rejected because all successful routes are acceptable and no trade-off between competing objectives is required, so the extra modelling effort would buy nothing. That pattern — goal, method, cost, rejected alternatives — is what turns an architectural preference into a defensible engineering decision.</p>
+
+<p><strong>Worked illustration.</strong> Consider a hospital delivery robot that must take a sample from Ward C to the Lab. Its sensors report corridor occupancy and its own position; its internal state records the floor plan plus the fact that the east lift has been out of service since 09:00 — information no current percept provides, which is exactly why the world model is needed. Its goal is <code>At(robot, Lab) &amp; Holding(nothing)</code>. Its transition model says a <code>Move</code> action succeeds unless a corridor is blocked, that <code>UseLift</code> requires the lift to be in service, and that <code>Deposit</code> requires being at the Lab counter. A* with a floor-aware distance heuristic returns the sequence <code>[Move(C, junction1), Move(junction1, westLift), UseLift(3, 1), Move(liftLobby, Lab), Deposit]</code>. The robot executes <code>Move(C, junction1)</code> only, then re-perceives. If a trolley now blocks junction1, the stored plan is invalidated and a new search finds a route via the south corridor — a response the designer never explicitly programmed. Had the task instead been "deliver all six samples in whatever order minimises total time while never letting any sample exceed its 30-minute stability window," the binary goal test would be inadequate: that problem needs a continuous measure over outcomes, and the appropriate architecture would be utility-based.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> The topic uses and reinforces the core vocabulary of rational agents — percepts feeding state estimation, the agent program as the implementation of an agent function, and the architecture as the sensor–processor–actuator arrangement in which that program runs.</li>
+  <li><strong>MO2:</strong> This topic does not address the four components of a learning agent directly; it touches learning only in passing, noting that an unavailable or unreliable transition model may motivate a learning agent that acquires the model from experience.</li>
+  <li><strong>MO3:</strong> The topic supports PEAS construction indirectly: the delivery-robot and taxi examples make performance measures, environment, actuators, and sensors explicit, and the discussion of environment properties (partial observability, dynamism, determinism) is the same analysis that drives a PEAS specification.</li>
+  <li><strong>MO4:</strong> Central to the topic. The comparison table and the surrounding discussion differentiate simple reflex, model-based reflex, goal-based and utility-based designs by the environment properties and task demands each addresses, and explain why binary goals and model uncertainty push a design toward utility-based or learning architectures.</li>
+  <li><strong>MO5:</strong> The sections on computational cost and on choosing a goal-based architecture give explicit criteria — performance, latency, model reliability, goal volatility, maintainability — and a four-part justification pattern (goal representation, search method, expected cost, rejected alternatives) for defending an architectural choice.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Suggested classroom extensions: (1) have students hand-trace the GOAL-BASED-AGENT pseudocode on a 3x3 grid world with one blocked cell, recording state, plan, and action for each cycle; (2) ask them to re-run the same trace after changing only the goal, to see that behaviour changes without any rule being rewritten; (3) ask them to invalidate the model (close a corridor mid-execution) and observe the re-planning branch of the pseudocode firing.
+
+Common misconceptions worth pre-empting: students often assume a goal-based agent must compute a complete plan once and then execute it blindly — emphasise the one-action-then-re-perceive loop. They also frequently conflate "goal" with "performance measure"; stress that a goal is a binary predicate over states supplied to the agent, whereas a performance measure is an external, often continuous criterion used to judge the agent, and that closing the gap between the two is precisely what utility-based agents do.
+
+Assessment ideas: give a scenario (lift controller, chess engine opening book, parcel-sorting arm, autonomous lawnmower) and require a one-paragraph architecture justification naming goal representation, search method, expected node expansions or latency budget, and at least one rejected alternative with a reason.
+
+Terminology note for consistency with Russell &amp; Norvig: "model-based, goal-based agent" is the full name used in the textbook for this design; the shorter "goal-based agent" is used throughout here, but the retained world model should never be presented as optional.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>A goal-based agent goes beyond reacting to what it currently senses. It keeps an internal model of how the world works and how actions change it, and it also holds explicit information about the state it is trying to reach. Action selection becomes a reasoning problem: the agent projects possible futures, asks "what would happen if I did this?", and chooses a sequence of actions that leads toward the goal. This is where search and planning enter the picture as the machinery behind the decision.</p>
+<p>This topic matters in the course because it marks the transition from condition-action rules to deliberation. A model-based reflex agent can tell you what the world is like; a goal-based agent can tell you what the world should become. That added flexibility is real — change the goal and the behavior changes without rewriting rules — but it is paid for in computation, model accuracy, and design effort. Knowing when that price is worth paying is a core design skill.</p>
+<p>As you watch, keep three questions in front of you. First, what components does the agent program need (state, transition model, goal test, search procedure)? Second, exactly where does a goal-based agent succeed in a situation that defeats a reflex agent? Third, what does the deliberation cost, and at what point would you reject this architecture in favor of something simpler or something utility-based?</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/fXizBc03D7E?cc_load_policy=1&amp;rel=0" title="Video: 5 Types of AI Agents: Autonomous Functions &amp; Real-World Applications (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 10:22 · 430,733 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=fXizBc03D7E" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A compact tour of five standard agent types, moving from simple reflex to model-based reflex, goal-based, utility-based, and learning agents, with timestamps marking each section. The goal-based segment begins around 4:20 and sits deliberately between the model-based reflex and utility-based discussions. Expect short real-world framings for each type rather than formal algorithm detail.</p>
+<h3>Why this video</h3>
+<p>Its side-by-side ordering is exactly the comparison this topic needs: you see what a goal-based agent adds to a reflex design and what a utility-based agent adds on top of goals, from a producer that consistently sticks close to standard AI textbook terminology.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: How AI Agents Actually Work (Every Piece Explained &amp; Built)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/HzGOWq5UyjY?cc_load_policy=1&amp;rel=0" title="Video: How AI Agents Actually Work (Every Piece Explained &amp; Built) (Tech With Tim)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Tech With Tim</strong> · 19:28 · 216,320 views · 1mo ago · captions — <a href="https://www.youtube.com/watch?v=HzGOWq5UyjY" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A longer, build-oriented walkthrough that takes an AI agent apart piece by piece and explains what each part actually does, rather than treating the agent as a black box. The framing starts from the common confusion over what an agent even is, then works through the components and how they fit together. Expect concrete, implementation-flavored explanation.</p>
+<h3>Why this video</h3>
+<p>It gives you a component-level view that maps well onto the "core components of the agent program" subtopic, and the practical construction angle makes the abstract textbook diagram feel like something you could actually build.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: Generative vs Agentic AI: Shaping the Future of AI Collaboration</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/EDb37y_MhRw?cc_load_policy=1&amp;rel=0" title="Video: Generative vs Agentic AI: Shaping the Future of AI Collaboration (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 7:19 · 1,461,675 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=EDb37y_MhRw" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short IBM explainer contrasting generative AI systems, which produce content in response to prompts, with agentic AI, which pursues objectives and takes action toward them. The discussion centers on autonomy, goal-directed behavior, and how the two paradigms can work together. It is conceptual rather than technical.</p>
+<h3>Why this video</h3>
+<p>It reinforces the central idea of this topic — that holding an explicit goal changes how a system decides — and connects the classical goal-based architecture to the agentic AI vocabulary you will encounter outside the textbook.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos build the vocabulary and the comparative judgment the module asks for. The IBM five-types video directly serves MO4 by placing goal-based agents in sequence with simple reflex, model-based reflex, utility-based, and learning architectures, so you can articulate what each one adds and which environment properties motivate it. The Tech With Tim walkthrough supports MO1 by grounding terms like agent program, internal state, and action selection in a concrete build, giving you a mental picture of the components behind the diagram. The generative-versus-agentic comparison supports MO5 by highlighting the autonomy and cost trade-offs that justify choosing a deliberative, goal-directed design over a simpler reactive one. None of the three substitutes for the textbook treatment of search and planning algorithms, so pair them with the assigned reading when you work through the computational cost subtopic.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

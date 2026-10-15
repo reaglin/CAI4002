@@ -1,0 +1,526 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semantic Networks and Ontologies</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Knowledge Representation Structures and Expert Systems</a></div>
+  <header>
+    <h1>Semantic Networks and Ontologies</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Semantic Networks and Ontologies</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Semantic networks and ontologies form the structural backbone of symbolic knowledge representation. Where production rules capture <em>how</em> to act, graph-based representations capture <em>what exists</em> in a domain and <em>how things relate</em>. The central intuition is simple and very old: meaning can be modelled as a network of concepts connected by named relationships. Quillian's original semantic memory model of the 1960s was built to simulate how humans retrieve word meanings; sixty years later the same intuition drives industrial knowledge graphs with billions of edges. Between those two endpoints lies a long engineering story of making the informal boxes-and-arrows diagram precise enough for a machine to reason over reliably.</p>
+
+<p>This topic traces that story. It begins with the raw graph formalism and its reasoning mechanisms, moves to the inheritance machinery that makes graphs compact (and nonmonotonic), then to formal ontologies that add logical commitment, to the simpler cousins of ontologies (taxonomies, controlled vocabularies, thesauri), to the description logics that give ontologies a decidable semantics, and finally to the Semantic Web stack — RDF, RDFS, OWL, SPARQL — that lets these structures be published, merged, and queried across organisational boundaries.</p>
+
+<p><strong>Graph-Based Knowledge Representation</strong></p>
+
+<p>A semantic network is a labelled, directed graph. Nodes stand for things we wish to talk about; arcs stand for binary relations between them. The vocabulary of node types is usually richer than it first appears, and distinguishing the types carefully is the first discipline a knowledge engineer must learn.</p>
+
+<ul>
+  <li><strong>Concept or class nodes</strong> denote categories: <code>Mammal</code>, <code>Invoice</code>, <code>FebrileIllness</code>. They denote sets of possible individuals, not any particular individual.</li>
+  <li><strong>Individual nodes</strong> denote particular entities: <code>Clyde</code>, <code>Invoice-20394</code>, <code>PatientSmith</code>.</li>
+  <li><strong>Attribute-value nodes</strong> denote literals or fillers: <code>Grey</code>, <code>38.7C</code>, <code>1200kg</code>. In many systems these are terminal nodes with no outgoing arcs.</li>
+  <li><strong>Event or situation nodes</strong> are used to <em>reify</em> n-ary relations. Because arcs are binary, a three-place fact such as "Dr. Lee prescribed amoxicillin to Smith on 3 May" cannot be a single arc. It is modelled as an event node <code>Prescription-17</code> with arcs <code>agent → DrLee</code>, <code>drug → Amoxicillin</code>, <code>patient → Smith</code>, <code>date → 2024-05-03</code>. Reification is the standard workaround for the binary-arc limitation and it recurs in RDF as "blank nodes" or intermediate resources.</li>
+</ul>
+
+<p>Arcs carry labels that name the relation. A small set of relations recurs across almost every domain:</p>
+
+<table>
+  <thead>
+    <tr><th>Arc label</th><th>Reads as</th><th>Example</th><th>Formal character</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>is-a</code> (subclass-of)</td><td>every member of A is a member of B</td><td>Elephant is-a Mammal</td><td>Transitive, reflexive, antisymmetric — a partial order</td></tr>
+    <tr><td><code>instance-of</code></td><td>this individual belongs to that class</td><td>Clyde instance-of Elephant</td><td>Not transitive; relates an individual to a class</td></tr>
+    <tr><td><code>part-of</code> (meronymy)</td><td>A is a component of B</td><td>Trunk part-of Elephant</td><td>Usually transitive, but several distinct varieties exist</td></tr>
+    <tr><td><code>has-property</code> / attribute arcs</td><td>A has value V for attribute P</td><td>Elephant has-colour Grey</td><td>Functional or non-functional depending on the attribute</td></tr>
+    <tr><td><code>located-in</code></td><td>A is spatially contained in B</td><td>Nairobi located-in Kenya</td><td>Transitive</td></tr>
+    <tr><td><code>causes</code>, <code>treats</code>, <code>precedes</code></td><td>domain-specific relations</td><td>Streptococcus causes Pharyngitis</td><td>Domain axioms must state the properties</td></tr>
+  </tbody>
+</table>
+
+<p>A worked fragment makes the structure concrete. Consider a small zoological network written in an indented textual form:</p>
+
+<pre><code>Animal        has-property: alive
+   ^ is-a
+Bird          has-property: can-fly = true
+              has-part:     feathers
+   ^ is-a            ^ is-a
+Penguin                     Eagle
+  can-fly = false           habitat = mountains
+   ^ instance-of
+Opus (an individual)
+  colour = black-and-white
+  located-in = Antarctica</code></pre>
+
+<p><strong>Reasoning by traversal.</strong> Inference in a semantic network is graph search. Three mechanisms dominate:</p>
+
+<ul>
+  <li><strong>Link following / inheritance retrieval.</strong> To answer "Is Opus alive?", follow <code>instance-of</code> from <code>Opus</code> to <code>Penguin</code>, then climb <code>is-a</code> arcs to <code>Bird</code> and then <code>Animal</code>, where <code>alive</code> is stored. The answer is yes, obtained without ever storing "Opus is alive" explicitly.</li>
+  <li><strong>Path-based inference.</strong> Transitive relations compose along paths. From <code>Trunk part-of Elephant</code> and <code>Elephant located-in Africa</code> a system may (with care) derive facts about the location of trunks. Path semantics must be declared: not all relation compositions are valid, and naively chaining <code>part-of</code> with <code>has-property</code> produces nonsense ("a human's hand is mortal" is arguable; "a human's hand is a citizen" is not).</li>
+  <li><strong>Spreading activation and intersection search.</strong> Quillian's original retrieval method activates two or more nodes simultaneously, propagates activation outward along arcs with decreasing strength, and reports the nodes where the activation fronts meet. Asking for the connection between <code>Fire</code> and <code>Smoke</code> might intersect at a <code>Combustion</code> node; asking the relation between <code>Nurse</code> and <code>Hospital</code> might intersect at <code>Employment</code>. This is an associative, similarity-flavoured inference rather than a logically sound one, and it is the ancestor of modern graph-embedding similarity measures and of "related searches" features.</li>
+</ul>
+
+<p><strong>Strengths.</strong> The graph form is extraordinarily readable. A domain expert with no logic training can usually validate a drawn network, which shortens the knowledge-acquisition bottleneck. Retrieval of "everything related to X" is a cheap local operation — all the arcs incident on a node — whereas in a flat logical database it requires scanning formulas. The representation is also economical: a property asserted once at a high node serves thousands of descendants.</p>
+
+<p><strong>The critical weakness: unstandardised link semantics.</strong> Woods' famous 1975 critique, "What's in a Link?", observed that the same diagram can mean different things in different systems. Consider the arc <code>Elephant → Grey</code> labelled <code>colour</code>. Does it mean:</p>
+
+<ul>
+  <li>all elephants are grey (universal quantification),</li>
+  <li>typical elephants are grey (a default, defeasible),</li>
+  <li>some elephant is grey (existential),</li>
+  <li>the <em>concept</em> Elephant has the attribute "grey" as part of its definition (definitional/necessary-and-sufficient), or</li>
+  <li>grey is a permitted value in the colour slot (a type restriction)?</li>
+</ul>
+
+<p>The picture cannot tell you. Similarly, an <code>is-a</code> arc has historically been overloaded to mean subclass, instance-of, part-of, role-playing ("Clyde is-a circus performer"), and even similarity. Without a declared semantics, two systems exchanging a network will silently draw different conclusions, and automated reasoning becomes unreliable. The entire subsequent history of the field — structured inheritance networks, KL-ONE, description logics, OWL — can be read as the project of fixing exactly this ambiguity by assigning each link a model-theoretic meaning.</p>
+
+<p><strong>Is-A Hierarchies and Property Inheritance</strong></p>
+
+<p>The <code>is-a</code> backbone is the most important structure in any semantic network, because it is the channel through which properties flow. Two distinct link types must be kept apart, a distinction novices frequently collapse:</p>
+
+<ul>
+  <li><strong>Subclass (is-a / subsumption)</strong> relates two classes and is transitive: if <code>Penguin is-a Bird</code> and <code>Bird is-a Animal</code> then <code>Penguin is-a Animal</code>.</li>
+  <li><strong>Instance-of (membership)</strong> relates an individual to a class and is <em>not</em> transitive in the same way. <code>Opus instance-of Penguin</code> plus <code>Penguin is-a Bird</code> gives <code>Opus instance-of Bird</code> — but you may never conclude <code>Opus is-a Bird</code> in the subclass sense, because Opus is not a category.</li>
+</ul>
+
+<p>A classic error illustrates why this matters. "Clyde is-a Elephant" and "Elephant is-a EndangeredSpecies" must not combine to yield "Clyde is-a EndangeredSpecies" — Clyde is an animal, not a species. The mistake arises from using one arc label for two relations. Formal systems force the distinction (OWL uses <code>rdfs:subClassOf</code> versus <code>rdf:type</code>).</p>
+
+<p><strong>Inheritance and compactness.</strong> Inheritance means a node acquires, by default, the attribute–value pairs stored on its ancestors. If <code>Animal</code> carries <code>breathes = true</code>, <code>mortal = true</code>, <code>needs-food = true</code>, then every one of ten thousand descendant species inherits them from a single storage site. The saving is not merely in memory; it is in maintenance. Correcting an error at the ancestor corrects it everywhere, which is the knowledge-base analogue of avoiding duplicated code.</p>
+
+<p>The retrieval algorithm is a simple upward search:</p>
+
+<pre><code>function GET-VALUE(node, attribute):
+    if attribute is stored locally on node:
+        return local value
+    for each parent P of node, in precedence order:
+        v = GET-VALUE(P, attribute)
+        if v is not null: return v
+    return null        # attribute unknown</code></pre>
+
+<p><strong>Default inheritance and overriding.</strong> Rigid inheritance — "every property of an ancestor holds absolutely of every descendant" — is too brittle for real domains, which are full of typical cases and exceptions. Default inheritance says an inherited value holds <em>unless</em> the descendant states otherwise. The textbook case:</p>
+
+<table>
+  <thead>
+    <tr><th>Node</th><th>Locally stored</th><th>Effective value of <code>can-fly</code></th><th>Why</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Animal</td><td>—</td><td>unknown</td><td>Nothing stored or inherited</td></tr>
+    <tr><td>Bird</td><td><code>can-fly = true</code></td><td>true</td><td>Local default</td></tr>
+    <tr><td>Eagle</td><td>—</td><td>true</td><td>Inherited from Bird</td></tr>
+    <tr><td>Penguin</td><td><code>can-fly = false</code></td><td>false</td><td>Local value overrides ancestor</td></tr>
+    <tr><td>Opus (instance of Penguin)</td><td>—</td><td>false</td><td>Nearest ancestor with a value is Penguin</td></tr>
+    <tr><td>InjuredEagle</td><td><code>can-fly = false</code></td><td>false</td><td>Override at a lower, more specific class</td></tr>
+  </tbody>
+</table>
+
+<p>The governing principle is <strong>specificity</strong>: the value from the most specific class that supplies one wins. This is sometimes called the "shortest path" or "inferential distance" criterion, though path length is a poor proxy and the proper criterion is subsumption-based specificity.</p>
+
+<p><strong>Nonmonotonicity.</strong> Classical logic is monotonic: adding premises never removes conclusions. Default inheritance breaks this. Suppose the knowledge base contains only "Tweety is a bird". The system concludes <code>can-fly(Tweety) = true</code>. Now add one fact — "Tweety is a penguin" — and the previous conclusion must be <em>retracted</em>. Knowledge grew, conclusions shrank. This is nonmonotonic reasoning, and it carries concrete engineering consequences:</p>
+
+<ul>
+  <li>Conclusions must be tagged with their justifications so they can be withdrawn; this is the role of a truth-maintenance system (TMS) or justification-based dependency network.</li>
+  <li>Anything derived <em>from</em> a defeated default must also be re-examined. If the system booked a flight cage for Tweety on the basis of flight capability, that downstream decision is now suspect.</li>
+  <li>Order of assertion can affect intermediate states, so systems should recompute rather than cache defaults carelessly.</li>
+  <li>Formal accounts of this behaviour include Reiter's default logic, circumscription, and the closed-world assumption; inheritance networks are a restricted, computationally cheap fragment of these.</li>
+</ul>
+
+<p><strong>Multiple inheritance and conflict.</strong> When a node has more than one parent, it may inherit contradictory values. The canonical "Nixon diamond" illustrates it:</p>
+
+<pre><code>Quaker  -- pacifist = true          Republican -- pacifist = false
+     ^ is-a                               ^ is-a
+            \                           /
+                     Nixon (individual)</code></pre>
+
+<p>Neither parent is more specific than the other, so specificity gives no answer and the network is <em>ambiguous</em>: two equally defensible extensions exist. Systems resolve such conflicts by policy, and the policy must be declared:</p>
+
+<ul>
+  <li><strong>Explicit precedence ordering</strong> on parents — e.g. in a frame system, the first parent in the <code>a-kind-of</code> list wins. Simple, deterministic, but arbitrary.</li>
+  <li><strong>Linearisation algorithms</strong> such as the C3 method used in Python's method-resolution order, which compute a single consistent total order over all ancestors and preserve local precedence.</li>
+  <li><strong>Sceptical reasoning</strong> — conclude nothing when parents conflict, and flag the clash for a human or for a more specific rule. Safer in medical or legal applications.</li>
+  <li><strong>Credulous reasoning</strong> — accept any one consistent extension, possibly carrying all alternatives forward as hypotheses.</li>
+  <li><strong>Explicit override at the child</strong> — the knowledge engineer asserts <code>Nixon.pacifist = false</code> directly, removing the ambiguity by fiat. This is usually the most honest fix.</li>
+  <li><strong>Prohibit the structure</strong> — many ontologies restrict themselves to single inheritance for the primitive taxonomy and express cross-cutting characteristics as separate properties or as defined classes.</li>
+</ul>
+
+<p>A practical design heuristic follows: cross-cutting dimensions (life stage, legal status, role, condition) usually should not be is-a parents at all. Instead of making <code>Employee</code> and <code>Student</code> both superclasses of <code>WorkingStudent</code>, model <code>Person</code> with <code>hasRole</code> arcs to role instances. This prevents combinatorial explosion of the hierarchy and sidesteps most inheritance conflicts.</p>
+
+<p><strong>Formal Ontologies</strong></p>
+
+<p>An ontology, in the computing sense, is a formal, explicit specification of a shared conceptualisation (Gruber's definition, and still the standard one). Each word earns its place: <em>formal</em> means machine-interpretable with a defined semantics; <em>explicit</em> means the constraints are stated rather than assumed; <em>shared</em> means it represents consensus among a community, not a single modeller's private view; <em>conceptualisation</em> means it captures the abstract model behind a domain, not one database schema.</p>
+
+<p><strong>Core components.</strong></p>
+
+<table>
+  <thead>
+    <tr><th>Component</th><th>Role</th><th>Example</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Classes (concepts)</td><td>Sets of individuals sharing characteristics; organised by subsumption</td><td><code>Pump</code>, <code>CentrifugalPump</code>, <code>MaintenanceEvent</code></td></tr>
+    <tr><td>Individuals (instances)</td><td>Particular named entities in the domain</td><td><code>Pump-P101</code>, <code>WorkOrder-8842</code></td></tr>
+    <tr><td>Properties — object properties</td><td>Binary relations between individuals</td><td><code>installedIn</code>, <code>hasComponent</code>, <code>performedBy</code></td></tr>
+    <tr><td>Properties — datatype properties</td><td>Relations from individuals to literal values</td><td><code>serialNumber</code>, <code>ratedFlow</code>, <code>commissioningDate</code></td></tr>
+    <tr><td>Restrictions</td><td>Constraints on how properties may be used by a class</td><td>"every Pump has at least one Impeller"; "ratedFlow has exactly one value"</td></tr>
+    <tr><td>Axioms</td><td>Logical statements asserting truths: disjointness, equivalence, property characteristics</td><td><code>Pump</code> disjoint-with <code>Valve</code>; <code>hasComponent</code> is transitive</td></tr>
+    <tr><td>Annotations</td><td>Human-facing metadata carrying no logical force</td><td>labels, definitions, provenance, version notes</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Levels of ontology.</strong> Ontologies are layered by generality, and reuse flows downward:</p>
+
+<ul>
+  <li><strong>Upper (foundational, top-level) ontologies</strong> define domain-neutral categories: <code>Object</code> versus <code>Process</code>, <code>Continuant</code> versus <code>Occurrent</code>, <code>Quality</code>, <code>Role</code>, <code>Function</code>, <code>SpatialRegion</code>, <code>TemporalRegion</code>. Established examples include BFO (Basic Formal Ontology, heavily used in biomedicine), DOLCE (grounded in cognitive and linguistic analysis), SUMO, and UFO. Their value is that they settle hard modelling questions once — is a disease a process or a disposition? is an organisation an object or a collective? — so that independently built domain ontologies make compatible choices.</li>
+  <li><strong>Mid-level / core ontologies</strong> cover concepts common to many domains: units of measure, time intervals, geospatial features, organisations, provenance. Examples include QUDT, OWL-Time, GeoSPARQL and PROV-O.</li>
+  <li><strong>Domain ontologies</strong> specialise the above for a field: SNOMED CT and the Gene Ontology in life sciences, FIBO in finance, schema.org for web content, ISO 15926 for process plants.</li>
+  <li><strong>Application ontologies</strong> are narrow, task-specific, often short-lived, and tuned to the needs of a single system.</li>
+</ul>
+
+<p>A specialisation chain might run: <code>Continuant → MaterialEntity → Artifact → Equipment → RotatingEquipment → Pump → CentrifugalPump</code>, with the upper three levels taken from a foundational ontology and the lower levels contributed by the engineering domain.</p>
+
+<p><strong>Interoperability.</strong> The strongest practical argument for ontologies is semantic integration. Two hospitals record a lab result; one calls the field <code>HGB</code>, the other <code>Haemoglobin_g_dL</code>. A shared ontology maps both to the same concept with an explicit unit and an explicit specimen type, so a research query returns correct results across both sites. Without such agreement, integration is done by hand-written, brittle, pairwise mappings — n(n−1)/2 of them for n systems, versus n mappings to a common ontology. Ontologies also make the <em>meaning</em> of an integration explicit and auditable, rather than buried in ETL code.</p>
+
+<p><strong>Services ontologies provide.</strong></p>
+
+<ul>
+  <li><strong>Consistency checking</strong> — detecting that the knowledge base entails a contradiction, e.g. an individual asserted to be both a <code>Pump</code> and a <code>Valve</code> when those are declared disjoint, or an individual with three values for a functional property.</li>
+  <li><strong>Automated classification</strong> — the reasoner computes the subsumption hierarchy rather than requiring it to be drawn by hand. If <code>HighRiskPatient ≡ Patient ⊓ ∃hasDiagnosis.CardiacCondition</code> and <code>MyocardialInfarction ⊑ CardiacCondition</code>, then any patient with an MI is automatically classified as high-risk. SNOMED CT relies on this: its hundreds of thousands of concepts are organised by a reasoner, not by editors.</li>
+  <li><strong>Inference of implicit facts</strong> — transitive property closure, inverse properties, symmetric relations, inherited restrictions, and type inference all add facts that were never asserted. Asserting <code>P101 installedIn UnitA</code> and declaring <code>installedIn</code> to have inverse <code>contains</code> yields <code>UnitA contains P101</code> for free.</li>
+  <li><strong>Query answering over inferred knowledge</strong> — queries are answered against the deductive closure, so a request for "all rotating equipment in Unit A" retrieves pumps, turbines and compressors without the query author enumerating subclasses.</li>
+</ul>
+
+<p><strong>Ontology engineering as a process.</strong> Building an ontology is a software-engineering activity with its own lifecycle. Methodologies such as METHONTOLOGY, On-To-Knowledge, NeOn and the widely taught Ontology Development 101 share a common skeleton:</p>
+
+<ul>
+  <li><strong>Scoping and requirements.</strong> Decide the purpose, the intended users, and the boundaries. The standard technique is to write <em>competency questions</em> — concrete queries the finished ontology must be able to answer, such as "Which pumps installed before 2015 have had more than two seal failures?" Competency questions double as acceptance tests: if the model cannot answer one, something is missing; if a class answers no question, it may be out of scope.</li>
+  <li><strong>Reuse survey.</strong> Before modelling, look for existing ontologies to import or align with. Reinventing a units-of-measure or time ontology is wasted effort and destroys interoperability.</li>
+  <li><strong>Term elicitation from experts.</strong> Interviews, document and form analysis, card sorting, laddering ("what is this a kind of?", "what kinds of this are there?"), and protocol analysis of experts solving real cases. The output is a glossary of candidate terms with informal definitions, separated into things that will become classes, things that will become properties, and things that are really values.</li>
+  <li><strong>Conceptualisation and formalisation.</strong> Organise terms into an is-a hierarchy, decide class-versus-individual for each term, define properties with domains and ranges, add restrictions and disjointness axioms, then encode in a formal language such as OWL.</li>
+  <li><strong>Evaluation and iteration.</strong> Run a reasoner to check consistency and to inspect the inferred hierarchy for surprises (an unexpected subsumption is usually a modelling bug). Check against the competency questions with real SPARQL queries. Apply pitfall catalogues — OOPS! lists common errors such as creating synonymous classes, missing disjointness, confusing a class with its name, or cycles in the hierarchy. Have domain experts review natural-language renderings of the axioms.</li>
+  <li><strong>Maintenance and versioning.</strong> Publish under stable URIs, deprecate rather than delete terms, record change rationale, and manage releases, because downstream consumers depend on the vocabulary remaining stable.</li>
+</ul>
+
+<p>Two recurring modelling decisions deserve emphasis. First, <em>class or individual?</em> Treat something as a class if you need to talk about its members; as an individual if it is the finest grain you will ever reason about. "Boeing 747" is a class if you track specific airframes, an individual if you only catalogue aircraft models. Second, <em>what is a subclass?</em> The test is strict set inclusion: every instance of the subclass must necessarily be an instance of the superclass. "Pump is-a Equipment" passes. "Pump is-a Maintenance" fails — the relation is <code>subjectOf</code>, not subsumption. Most beginner ontologies are full of is-a links that are really part-of, instance-of, or topical association.</p>
+
+<p><strong>Taxonomies and Controlled Vocabularies</strong></p>
+
+<p>Ontologies sit at the expressive end of a spectrum of knowledge organisation systems. The weaker members of the family are enormously useful in their own right, and often cheaper to build and maintain.</p>
+
+<table>
+  <thead>
+    <tr><th>Artefact</th><th>What it contains</th><th>Relations expressed</th><th>Machine inference possible</th><th>Typical use</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Controlled vocabulary / authority list</td><td>An approved flat list of terms</td><td>Preferred term vs. non-preferred synonym</td><td>Normalisation only</td><td>Form drop-downs, metadata fields, country or currency codes</td></tr>
+    <tr><td>Taxonomy</td><td>Terms in a single hierarchy</td><td>Broader/narrower (subsumption)</td><td>Hierarchical roll-up and query expansion</td><td>Product catalogues, document classification, site navigation</td></tr>
+    <tr><td>Thesaurus</td><td>Terms with multiple relation types</td><td>BT, NT, RT, USE/UF, scope notes</td><td>Query expansion along several link types</td><td>Library indexing, MeSH, AGROVOC, EuroVoc</td></tr>
+    <tr><td>Ontology</td><td>Classes, properties, axioms, individuals</td><td>Arbitrary named relations plus logical constraints</td><td>Full deductive reasoning</td><td>Data integration, automated classification, knowledge graphs</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Taxonomy versus ontology.</strong> A taxonomy captures only subsumption: it tells you that <code>CentrifugalPump</code> is narrower than <code>Pump</code>, and nothing else. An ontology adds arbitrary relations (<code>Pump hasComponent Impeller</code>, <code>Pump installedIn ProcessUnit</code>) and logical constraints (<code>Pump</code> and <code>Valve</code> are disjoint; every <code>Pump</code> has exactly one <code>ratedFlow</code>). The practical consequence is that a taxonomy supports navigation and roll-up reporting, while an ontology supports deduction and consistency checking. Many successful projects deliberately stop at a taxonomy: if the only requirement is "let users browse and filter documents", the extra cost of axiomatisation buys nothing.</p>
+
+<p><strong>Controlled vocabularies.</strong> The point of restricting terminology is to collapse the many ways humans name the same thing. A fault-reporting system that allows free text will accumulate <em>seal leak</em>, <em>leaking seal</em>, <em>mech seal leaking</em>, <em>MS leak</em> and <em>seal failure (leak)</em> as five unrelated strings; no reliability analysis can count them. A controlled vocabulary designates one preferred term, lists the rest as non-preferred entry terms pointing to it (<code>USE</code> / <code>UF</code> relations), and forbids anything else. Benefits: consistent indexing, reliable retrieval, comparable statistics, and simpler downstream integration. Costs: governance effort, a change-request process, and the risk of a vocabulary that lags the language of its users.</p>
+
+<p><strong>Thesauri.</strong> A thesaurus (standardised by ISO 25964 and expressible in SKOS) extends a controlled vocabulary with inter-concept links:</p>
+
+<ul>
+  <li><strong>BT / NT (broader term / narrower term)</strong> — the hierarchical backbone, e.g. <em>Analgesics</em> NT <em>Opioid analgesics</em>.</li>
+  <li><strong>RT (related term)</strong> — associative, non-hierarchical links, e.g. <em>Anaesthesia</em> RT <em>Operating theatres</em>. These support "see also" navigation and recall-oriented query expansion.</li>
+  <li><strong>USE / UF (used for)</strong> — synonym control, e.g. <em>Myocardial infarction</em> UF <em>Heart attack</em>.</li>
+  <li><strong>Scope notes</strong> — human-readable guidance on exactly when to apply a term, which is the main defence against inconsistent indexing.</li>
+</ul>
+
+<p>Note the important semantic difference from an ontology: thesaurus BT/NT is a <em>documentation</em> relation meaning "is indexed under", not strict set inclusion. <em>Hospitals</em> may be NT of <em>Health facilities</em>, but <em>Surgery</em> might also be NT of <em>Medicine</em> in a sense that is topical, not subsumptive. Treating SKOS <code>broader</code> as if it were OWL <code>subClassOf</code> is a classic source of bad inference when thesauri are migrated to the Semantic Web.</p>
+
+<p><strong>Consistent classification criteria.</strong> A well-formed taxonomy divides each level by a single criterion — what ontologists call maintaining one <em>facet</em> per level of division. A fault taxonomy that lists, as siblings, <code>MechanicalFault</code>, <code>ElectricalFault</code> and <code>FaultDuringStartup</code> mixes a <em>system</em> criterion with a <em>timing</em> criterion; an electrical fault occurring at startup belongs in two places at once and reporting becomes incoherent. The repair is faceted classification: keep separate dimensions separate.</p>
+
+<table>
+  <thead>
+    <tr><th>Facet</th><th>Permitted values</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Affected subsystem</td><td>mechanical, electrical, instrumentation, software</td></tr>
+    <tr><td>Operating phase</td><td>startup, steady-state, shutdown, standby</td></tr>
+    <tr><td>Severity</td><td>minor, major, critical</td></tr>
+    <tr><td>Detection method</td><td>operator observation, alarm, scheduled inspection, condition monitoring</td></tr>
+  </tbody>
+</table>
+
+<p>Each incident then receives one value per facet, giving unambiguous, mutually exclusive, collectively exhaustive categories at every level and enabling cross-tabulated analysis that a single tangled tree cannot support. Other quality rules follow from the same discipline: sibling categories should be mutually exclusive, the set of children should exhaust the parent (add an explicit "other" only when genuinely necessary), hierarchies should be no deeper than users will tolerate browsing, and a node should normally have between two and roughly a dozen children — a single child indicates a pointless level, fifty children indicate a missing level of division.</p>
+
+<p><strong>Entry point for indexing, search and tagging.</strong> In knowledge-management practice these artefacts earn their keep at the point where content meets users. A taxonomy drives faceted navigation in a document repository or e-commerce catalogue; a controlled vocabulary populates the tagging interface so that contributors cannot invent new labels; a thesaurus expands a user's query from <em>heart attack</em> to the indexed term <em>myocardial infarction</em> and then down the NT branches, raising recall without flooding results. Auto-classification tools match text against vocabulary terms to suggest tags, and the same structures provide the labels for supervised text classifiers. When an organisation later builds an ontology or knowledge graph, the existing taxonomy is usually the seed for its class hierarchy — which is why investing in consistent classification criteria early pays off twice.</p>
+
+<p><strong>Description Logics</strong></p>
+
+<p>Description logics (DLs) are the family of formal languages created to give semantic networks and frames a precise, decidable logical foundation. They are, in essence, carefully chosen fragments of first-order logic: expressive enough to describe structured concepts, restricted enough that key inference problems are guaranteed to terminate. They are the direct formal ancestor of OWL.</p>
+
+<p><strong>TBox and ABox.</strong> A DL knowledge base is split into two parts:</p>
+
+<ul>
+  <li>The <strong>TBox</strong> (terminological box) holds general knowledge about concepts: definitions and subsumption axioms. It is the schema level — the vocabulary and its logical structure. Example axioms: <code>Mother ≡ Woman ⊓ ∃hasChild.Person</code>, <code>Penguin ⊑ Bird</code>, <code>Man ⊑ ¬Woman</code>.</li>
+  <li>The <strong>ABox</strong> (assertional box) holds facts about named individuals: concept memberships and role fillers. Example assertions: <code>Woman(mary)</code>, <code>hasChild(mary, john)</code>, <code>Person(john)</code>.</li>
+</ul>
+
+<p>Given that TBox and ABox, a reasoner infers <code>Mother(mary)</code> — never asserted, but entailed. Some systems add an <strong>RBox</strong> for axioms about roles themselves (transitivity, inverses, role hierarchies such as <code>hasMother ⊑ hasParent</code>).</p>
+
+<p><strong>Concept constructors.</strong> Complex concepts are built from atomic concept names (<code>Person</code>, <code>Document</code>) and role names (<code>hasChild</code>, <code>authorOf</code>) using a fixed set of operators:</p>
+
+<table>
+  <thead>
+    <tr><th>Constructor</th><th>Syntax</th><th>Reads as</th><th>Example</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Intersection (conjunction)</td><td><code>C ⊓ D</code></td><td>things that are both C and D</td><td><code>Woman ⊓ Professor</code></td></tr>
+    <tr><td>Union (disjunction)</td><td><code>C ⊔ D</code></td><td>things that are C or D</td><td><code>Undergraduate ⊔ Postgraduate</code></td></tr>
+    <tr><td>Negation (complement)</td><td><code>¬C</code></td><td>things that are not C</td><td><code>¬Vegetarian</code></td></tr>
+    <tr><td>Existential restriction</td><td><code>∃R.C</code></td><td>things related via R to at least one C</td><td><code>∃hasChild.Doctor</code> — has some child who is a doctor</td></tr>
+    <tr><td>Universal (value) restriction</td><td><code>∀R.C</code></td><td>things all of whose R-fillers are C</td><td><code>∀hasChild.Female</code> — all children (if any) are female</td></tr>
+    <tr><td>Number restrictions</td><td><code>≥n R</code>, <code>≤n R</code>, <code>=n R</code></td><td>cardinality limits on a role</td><td><code>≥3 hasWheel</code>; <code>≤1 hasSpouse</code></td></tr>
+    <tr><td>Qualified number restriction</td><td><code>≥n R.C</code></td><td>cardinality limited to fillers of type C</td><td><code>≥2 hasComponent.Impeller</code></td></tr>
+    <tr><td>Top and bottom</td><td><code>⊤</code>, <code>⊥</code></td><td>everything; nothing</td><td><code>C ⊓ ¬C ≡ ⊥</code></td></tr>
+    <tr><td>Nominals</td><td><code>{a, b}</code></td><td>the class containing exactly these individuals</td><td><code>EUFoundingState ≡ {france, germany, italy, …}</code></td></tr>
+  </tbody>
+</table>
+
+<p>Two traps are worth highlighting. First, <code>∀R.C</code> is <em>trivially satisfied</em> by anything with no R-fillers at all: a childless person vacuously satisfies <code>∀hasChild.Female</code>. Modellers who want "has children and all of them are female" must write <code>∃hasChild.⊤ ⊓ ∀hasChild.Female</code>. Second, DLs make the <strong>open-world assumption</strong>: what is not stated is unknown, not false. If the ABox does not say Mary has a child, the reasoner does <em>not</em> conclude she is childless. This is the right default for web-scale and integrated data, but it surprises people used to databases, where the closed-world assumption applies. It also explains why DL reasoners cannot find "missing data" errors — that job needs closed-world validation tools such as SHACL.</p>
+
+<p><strong>Standard reasoning tasks.</strong></p>
+
+<ul>
+  <li><strong>Subsumption</strong> — does <code>C ⊑ D</code> follow from the TBox? Is every <code>MarriedPerson</code> necessarily a <code>Person</code>? This is the fundamental service.</li>
+  <li><strong>Satisfiability / consistency</strong> — can a concept have any instances at all without contradiction, and is the whole knowledge base contradiction-free? An unsatisfiable class (equivalent to <code>⊥</code>) is almost always a modelling bug, typically caused by a disjointness axiom colliding with a restriction.</li>
+  <li><strong>Classification</strong> — compute the complete subsumption lattice of all named concepts, producing the inferred hierarchy. This is how a reasoner discovers that <code>CheeseAndTomatoPizza</code> belongs under <code>VegetarianPizza</code> without anyone drawing that link.</li>
+  <li><strong>Instance checking and instance retrieval</strong> — is individual <code>a</code> a member of concept <code>C</code>, and which individuals are members of <code>C</code>? This answers queries over the deductive closure, not merely the asserted data.</li>
+  <li><strong>Equivalence and disjointness checking</strong> — are two concepts necessarily co-extensive, or necessarily non-overlapping?</li>
+</ul>
+
+<p>All of these reduce to satisfiability testing in logics with full negation: <code>C ⊑ D</code> holds exactly when <code>C ⊓ ¬D</code> is unsatisfiable. Implementations therefore concentrate on one highly optimised procedure, usually a tableau algorithm that attempts to build a model and reports subsumption when every attempt yields a clash.</p>
+
+<p><strong>The expressiveness/complexity trade-off.</strong> DL research is organised around naming languages by the constructors they include, because each addition costs computation. The base language <code>ALC</code> provides intersection, union, negation, and both restrictions; letters are then appended — <code>S</code> for <code>ALC</code> with transitive roles, <code>H</code> role hierarchies, <code>O</code> nominals, <code>I</code> inverse roles, <code>N</code> number restrictions, <code>Q</code> qualified number restrictions, <code>(D)</code> datatypes. OWL 2 DL corresponds to <code>SROIQ(D)</code>.</p>
+
+<table>
+  <thead>
+    <tr><th>Language</th><th>Key features</th><th>Worst-case complexity</th><th>Practical standing</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>EL++</code> (OWL 2 EL)</td><td>intersection, existential restrictions, no negation or disjunction</td><td>Polynomial time</td><td>Scales to the hundreds of thousands of concepts in SNOMED CT and the Gene Ontology</td></tr>
+    <tr><td><code>DL-Lite</code> (OWL 2 QL)</td><td>tuned for query answering over databases</td><td>Query answering in <code>AC⁰</code>; rewritable to SQL</td><td>Ontology-based data access over relational stores</td></tr>
+    <tr><td><code>ALC</code></td><td>full Boolean concept operators plus ∃ and ∀</td><td>ExpTime-complete</td><td>Theoretical baseline</td></tr>
+    <tr><td><code>SHOIN(D)</code> (OWL DL)</td><td>adds transitivity, hierarchies, nominals, inverses, cardinality</td><td>NExpTime-complete</td><td>OWL 1 DL</td></tr>
+    <tr><td><code>SROIQ(D)</code> (OWL 2 DL)</td><td>adds role chains, qualified cardinality, reflexivity, disjoint roles</td><td>2NExpTime-complete</td><td>OWL 2 DL; decidable but demanding</td></tr>
+    <tr><td>Full first-order logic</td><td>unrestricted quantification, n-ary predicates</td><td>Undecidable</td><td>No guarantee of termination</td></tr>
+  </tbody>
+</table>
+
+<p>The crucial design philosophy is that expressiveness is deliberately <em>sacrificed</em> to preserve decidability and tractability. Restrictions to binary roles, to tree-shaped models, and on how role chains may interact are not oversights; they are what keeps reasoning guaranteed to terminate. Worst-case complexities also look worse than practice: real ontologies are far from worst case, and heavily optimised reasoners classify large ontologies in seconds. Nevertheless, a project that only needs subsumption over conjunctive definitions should choose the EL profile and enjoy polynomial performance rather than pay for expressiveness it will never use.</p>
+
+<p><strong>Reasoners.</strong> Several mature implementations automate these tasks and plug into editors such as Protégé through the OWL API:</p>
+
+<ul>
+  <li><strong>HermiT</strong> — uses a hypertableau calculus that reduces the nondeterminism of classic tableaux; strong general-purpose OWL 2 DL classification.</li>
+  <li><strong>Pellet</strong> (and its successor Openllet) — tableau-based, with good ABox reasoning, SPARQL-DL query support, incremental reasoning and explanation of entailments.</li>
+  <li><strong>FaCT++</strong> — a C++ tableau reasoner noted for fast TBox classification.</li>
+  <li><strong>ELK</strong> — a specialised, highly parallel <code>EL</code> reasoner that classifies SNOMED CT in seconds.</li>
+  <li><strong>Konclude</strong>, <strong>RacerPro</strong>, and rule-based materialisers such as <strong>RDFox</strong> and <strong>GraphDB</strong>'s inference engine cover other points in the performance/expressiveness space.</li>
+</ul>
+
+<p>A typical development loop: edit the ontology in Protégé, run HermiT, inspect the inferred hierarchy, notice that a class has turned red (unsatisfiable) or has moved under an unexpected parent, ask the tool to explain the entailment, and correct the offending axiom. The explanation facility — computing the minimal set of axioms responsible for an entailment, known as justifications — is what makes debugging large ontologies feasible at all.</p>
+
+<p><strong>Semantic Web Standards and Sharing</strong></p>
+
+<p>The Semantic Web stack, standardised by the W3C, turns the ideas above into an interoperable publishing infrastructure. Its premise is that data, not just documents, should be linkable across the web, with meaning attached in a machine-readable way.</p>
+
+<p><strong>RDF: triples and URIs.</strong> The Resource Description Framework represents every fact as a three-part statement — <em>subject, predicate, object</em> — and a set of such triples forms a directed labelled graph. Subjects and predicates are identified by URIs (more precisely IRIs), so names are globally unique and dereferenceable; objects may be URIs or literal values with datatypes and language tags. A blank node stands for an unnamed resource, typically used for reification of n-ary relations exactly as "event nodes" were used in classical semantic networks.</p>
+
+<pre><code>@prefix ex:   &lt;http://example.org/plant#&gt; .
+@prefix rdf:  &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
+@prefix xsd:  &lt;http://www.w3.org/2001/XMLSchema#&gt; .
+
+ex:P101  rdf:type        ex:CentrifugalPump .
+ex:P101  ex:installedIn  ex:UnitA .
+ex:P101  ex:serialNumber "SN-44821" .
+ex:P101  ex:ratedFlow    "350"^^xsd:decimal .
+
+# reified n-ary fact: a maintenance event
+ex:WO8842 rdf:type        ex:MaintenanceEvent ;
+          ex:performedOn  ex:P101 ;
+          ex:performedBy  ex:TechLee ;
+          ex:startDate    "2024-05-03"^^xsd:date .</code></pre>
+
+<p>Three properties of this model matter in practice. First, it is <em>schema-last</em>: new predicates can be added to any resource at any time without altering a table definition, which suits heterogeneous and evolving data. Second, merging two datasets is simply taking the union of their triple sets; identifiers that coincide automatically join the graphs, which is why stable URIs are the foundation of linked data. Third, RDF by itself carries almost no semantics — it says a relation holds, not what the relation means. That is the job of the layers above it.</p>
+
+<p><strong>RDF Schema.</strong> RDFS adds a light modelling vocabulary: <code>rdfs:Class</code>, <code>rdfs:subClassOf</code>, <code>rdf:Property</code>, <code>rdfs:subPropertyOf</code>, <code>rdfs:domain</code>, <code>rdfs:range</code>, plus annotation terms <code>rdfs:label</code> and <code>rdfs:comment</code>. It supplies precisely the is-a hierarchy and property typing discussed earlier, with simple entailment rules:</p>
+
+<table>
+  <thead>
+    <tr><th>Asserted</th><th>RDFS entailment rule</th><th>Inferred</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>ex:CentrifugalPump rdfs:subClassOf ex:Pump</code> and <code>ex:P101 rdf:type ex:CentrifugalPump</code></td><td>subclass membership propagation</td><td><code>ex:P101 rdf:type ex:Pump</code></td></tr>
+    <tr><td><code>ex:Pump rdfs:subClassOf ex:Equipment</code></td><td>transitivity of <code>rdfs:subClassOf</code></td><td><code>ex:CentrifugalPump rdfs:subClassOf ex:Equipment</code></td></tr>
+    <tr><td><code>ex:installedIn rdfs:domain ex:Equipment</code> and <code>ex:P101 ex:installedIn ex:UnitA</code></td><td>domain typing</td><td><code>ex:P101 rdf:type ex:Equipment</code></td></tr>
+    <tr><td><code>ex:installedIn rdfs:range ex:ProcessUnit</code></td><td>range typing</td><td><code>ex:UnitA rdf:type ex:ProcessUnit</code></td></tr>
+    <tr><td><code>ex:hasImpeller rdfs:subPropertyOf ex:hasComponent</code></td><td>sub-property propagation</td><td><code>ex:P101 ex:hasComponent ex:Imp-7</code></td></tr>
+  </tbody>
+</table>
+
+<p>Note the direction of the domain/range rules: they are <em>inferential</em>, not restrictive. Declaring a domain does not cause a violation when the subject has the wrong type — it causes the reasoner to infer that the subject must have that type. This open-world behaviour catches beginners who expect database-style validation; constraint checking requires SHACL or ShEx instead.</p>
+
+<p><strong>OWL.</strong> The Web Ontology Language supplies description-logic expressiveness on top of RDF, giving exactly the constructors described earlier in a web-publishable syntax. Its main additions over RDFS:</p>
+
+<ul>
+  <li><strong>Class constructors and axioms</strong> — <code>owl:intersectionOf</code>, <code>owl:unionOf</code>, <code>owl:complementOf</code>, <code>owl:equivalentClass</code>, <code>owl:disjointWith</code>, <code>owl:oneOf</code> (nominals).</li>
+  <li><strong>Property restrictions</strong> — <code>owl:someValuesFrom</code> (∃), <code>owl:allValuesFrom</code> (∀), <code>owl:hasValue</code>, and cardinality limits <code>owl:minQualifiedCardinality</code>, <code>owl:maxCardinality</code>, <code>owl:cardinality</code>.</li>
+  <li><strong>Property characteristics</strong> — <code>owl:TransitiveProperty</code>, <code>owl:SymmetricProperty</code>, <code>owl:AsymmetricProperty</code>, <code>owl:FunctionalProperty</code>, <code>owl:InverseFunctionalProperty</code>, <code>owl:ReflexiveProperty</code>, <code>owl:inverseOf</code>, and OWL 2 property chains.</li>
+  <li><strong>Individual identity</strong> — <code>owl:sameAs</code> and <code>owl:differentFrom</code>, needed because RDF makes no unique-name assumption: two URIs may denote the same thing unless stated otherwise.</li>
+  <li><strong>Profiles</strong> — OWL 2 EL, QL and RL, each a syntactic subset with better computational guarantees, plus OWL 2 DL (decidable, <code>SROIQ(D)</code>) and OWL 2 Full (RDF-compatible but undecidable).</li>
+</ul>
+
+<pre><code>ex:Pump  rdf:type  owl:Class ;
+         rdfs:subClassOf ex:RotatingEquipment ;
+         owl:disjointWith ex:Valve ;
+         rdfs:subClassOf [ rdf:type owl:Restriction ;
+                           owl:onProperty ex:hasComponent ;
+                           owl:someValuesFrom ex:Impeller ] .
+
+ex:CriticalAsset  owl:equivalentClass
+     [ rdf:type owl:Class ;
+       owl:intersectionOf ( ex:Equipment
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty ex:hasFailureConsequence ;
+                              owl:someValuesFrom ex:SafetyConsequence ] ) ] .
+
+ex:hasComponent  rdf:type  owl:TransitiveProperty ;
+                 owl:inverseOf ex:componentOf .</code></pre>
+
+<p>With these axioms a reasoner will classify any piece of equipment whose failure has a safety consequence as a <code>CriticalAsset</code> without that label ever being typed by a human, will infer <code>ex:Imp-7 ex:componentOf ex:P101</code> from the inverse, will propagate component membership transitively from sub-assemblies, and will flag an inconsistency if someone asserts that <code>ex:P101</code> is also a <code>Valve</code>.</p>
+
+<p><strong>SPARQL.</strong> SPARQL is the standard query language and protocol for RDF. Queries are graph patterns: sets of triple patterns with variables, matched against the dataset, optionally against its inferred closure. The language supports <code>SELECT</code>, <code>ASK</code>, <code>CONSTRUCT</code> (which returns a new graph and is the standard way to write mapping and transformation rules), and <code>DESCRIBE</code>; modifiers include <code>FILTER</code>, <code>OPTIONAL</code>, <code>UNION</code>, <code>GROUP BY</code>, aggregation, property paths, sub-queries and federation across remote endpoints via <code>SERVICE</code>. SPARQL 1.1 Update adds <code>INSERT</code>/<code>DELETE</code> for manipulating graph data.</p>
+
+<pre><code>PREFIX ex:   &lt;http://example.org/plant#&gt;
+PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt;
+
+SELECT ?pump ?unit (COUNT(?event) AS ?failures)
+WHERE {
+  ?pump  a            ex:Pump ;              # inferred types included
+         ex:installedIn ?unit .
+  ?pump  ex:hasComponent+ ?part .            # property path: any depth
+  OPTIONAL {
+    ?event a              ex:SealFailure ;
+           ex:performedOn ?pump ;
+           ex:startDate   ?d .
+    FILTER (?d &gt;= "2015-01-01"^^xsd:date)
+  }
+}
+GROUP BY ?pump ?unit
+HAVING (COUNT(?event) &gt; 2)
+ORDER BY DESC(?failures)</code></pre>
+
+<p>This single query answers the competency question posed earlier. Note that <code>?pump a ex:Pump</code> retrieves centrifugal, positive-displacement and every other subclass automatically when run over an entailed graph — the payoff of putting the hierarchy in the data rather than in the application code. The <code>+</code> property path walks assemblies to arbitrary depth, something awkward in SQL without recursive CTEs.</p>
+
+<p><strong>Standards at industrial scale.</strong> These technologies are not laboratory curiosities:</p>
+
+<ul>
+  <li><strong>Search engine knowledge graphs</strong> — the entity panels shown beside search results are driven by graphs of billions of triples about people, places, organisations, films and products, assembled from structured sources and from <code>schema.org</code> markup that site owners embed in pages as JSON-LD, RDFa or Microdata. The same markup powers rich results for recipes, events, job postings and product offers.</li>
+  <li><strong>Product and parts catalogues</strong> — manufacturers and retailers publish product taxonomies and specifications so that attributes, compatibilities and substitutions can be matched across suppliers; GS1, eCl@ss and ISO 15926 serve this role in retail and process industries respectively.</li>
+  <li><strong>Life sciences</strong> — SNOMED CT, the Gene Ontology, ChEBI, Uniprot and the Bio2RDF/EBI endpoints publish hundreds of millions of triples; the Gene Ontology's automated classification underpins daily genomics analysis.</li>
+  <li><strong>Public and cultural data</strong> — Wikidata, DBpedia, EuroVoc, Europeana, national statistics and geospatial agencies expose SPARQL endpoints that anyone may query or federate against.</li>
+  <li><strong>Enterprise integration</strong> — financial institutions use FIBO to reconcile instrument and counterparty definitions across systems; pharmaceutical firms use ontology-based data access to query dozens of legacy databases through one vocabulary.</li>
+</ul>
+
+<p>Scale also forces pragmatic compromises. Very large graphs typically rely on cheap materialised inference (RDFS or OWL 2 RL rules applied forward over the store) rather than full DL tableau reasoning; identity management across sources (<code>owl:sameAs</code> chains) becomes a major engineering problem; provenance and versioning must be tracked with named graphs or PROV-O; and validation shifts to SHACL because open-world DL semantics cannot express "this record must have a date". Property graph databases offer an alternative with easier per-edge attributes but weaker standardised semantics. The enduring lesson is the one Woods identified fifty years ago: a graph is only as useful as the agreed meaning of its links, and RDF, RDFS, OWL and SPARQL are the current best answer to supplying that meaning in a form that machines — and organisations — can share.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — The topic examines a major family of symbolic schemes and evaluates them explicitly against adequacy criteria: the expressiveness of semantic networks versus description logics, the inferential adequacy delivered by subsumption, classification and inheritance, and the deliberate expressiveness/complexity trade-off embodied in the DL and OWL profiles.</li>
+  <li><strong>MO2</strong> — The treatment of is-a hierarchies, instance-of links, attribute slots, value restrictions, default inheritance and override, together with the ontology-engineering lifecycle and worked domain fragments, supplies the modelling techniques needed to construct a knowledge model of a given domain.</li>
+  <li><strong>MO3</strong> — Forward and backward chaining over production rules are not covered here; the inference discussed is graph traversal, inheritance search and DL subsumption. The topic does, however, provide the structured fact base over which such rules would operate.</li>
+  <li><strong>MO4</strong> — Expert system architecture is not the subject of this topic, though the ontology corresponds to the knowledge base component, DL reasoners illustrate inference engines, and reasoner justifications prefigure the explanation facility.</li>
+  <li><strong>MO5</strong> — Uncertainty-handling methods are outside the scope of this topic. The nonmonotonic behaviour of default inheritance and the open-world assumption are related issues of incomplete knowledge but do not address certainty factors, Bayesian networks, Dempster-Shafer theory or fuzzy logic.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Terminology follows standard usage: Quillian/Woods for semantic networks, Gruber for the ontology definition, Reiter for default logic, and W3C specifications for RDF/RDFS/OWL 2/SPARQL 1.1. Complexity figures quoted (EL++ polynomial, ALC ExpTime-complete, SHOIN NExpTime-complete, SROIQ 2NExpTime-complete) are the established worst-case results and are presented as such, with the caveat that practical performance is usually far better. Code blocks use Turtle and SPARQL syntax with angle brackets escaped for HTML safety.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Semantic networks represent knowledge as a graph: concepts become nodes, and labeled links encode the relationships between them. The most important link type is is-a, which builds a hierarchy of classes and instances and allows properties stated once at a general level to be inherited by everything below it. This makes graph-based representation compact and intuitive, but it also raises questions the course cares about — what exactly does a link mean, when may an inherited default be overridden, and how much reasoning can a system actually perform.</p>
+<p>Formal ontologies answer those questions by giving the graph a precise semantics. Taxonomies and controlled vocabularies standardize the terms a community uses; description logics supply a family of decidable logics with concepts, roles, subsumption and classification; and Semantic Web standards such as RDF, RDFS and OWL package all of this so that vocabularies can be published, merged, and reasoned over by machines. Knowledge graphs are the large-scale industrial form of these ideas.</p>
+<p>As you watch, keep three threads in mind. First, notice the trade-off between expressiveness and tractability — the more you can say, the harder inference becomes. Second, track how is-a and property inheritance appear in each presentation, whether it is called subsumption, subclass, or a typed edge. Third, think about how these symbolic structures relate to the statistical methods covered elsewhere in the course, since modern systems increasingly combine the two.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: DL: Description Logics</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/_WMfnDO2bCc?cc_load_policy=1&amp;rel=0" title="Video: DL: Description Logics (NPTEL-NOC IITM)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>NPTEL-NOC IITM</strong> · 15:48 · 13,023 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=_WMfnDO2bCc" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A lecture segment from Prof. Deepak Khemani's NPTEL course on knowledge representation and reasoning, introducing description logics. Based on its title and source, it should cover the basic vocabulary of DL — concepts, roles, individuals, and constructors for building complex concept descriptions — along with the TBox/ABox distinction and reasoning tasks such as subsumption and classification. Expect the emphasis to be on formal syntax and semantics rather than tooling.</p>
+<h3>Why this video</h3>
+<p>This is the most direct treatment of the description logics subtopic, from an established university lecture series, and it supplies the formal underpinning for is-a hierarchies and for OWL-style ontology languages.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: What is a Knowledge Graph?</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/y7sXDpffzQQ?cc_load_policy=1&amp;rel=0" title="Video: What is a Knowledge Graph? (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 5:36 · 256,561 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=y7sXDpffzQQ" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short explainer from IBM Technology defining what a knowledge graph is: entities as nodes, relationships as edges, and the way facts about a domain are linked into a navigable structure. It is likely to illustrate the idea with everyday examples and to mention how knowledge graphs are built from data and used in search, recommendation, and question answering.</p>
+<h3>Why this video</h3>
+<p>It gives a clear, modern, industry-facing picture of graph-based knowledge representation, making the semantic network idea concrete before you move to the more formal ontology and description-logic material.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: What Is NeuroSymbolic AI? Bridging Reasoning &amp; Neural Networks</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/ZfWDVO3rzeA?cc_load_policy=1&amp;rel=0" title="Video: What Is NeuroSymbolic AI? Bridging Reasoning &amp; Neural Networks (IBM Technology)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>IBM Technology</strong> · 5:47 · 33,100 views · 7mo ago · captions — <a href="https://www.youtube.com/watch?v=ZfWDVO3rzeA" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>An IBM Technology overview of neurosymbolic AI, which combines symbolic knowledge structures and logical reasoning with neural network learning. It should explain why purely statistical models struggle with explicit, explainable reasoning and how symbolic components such as knowledge graphs and rules can supply structure, constraints, and interpretability.</p>
+<h3>Why this video</h3>
+<p>It situates semantic networks and ontologies in current practice, showing why structured, shareable symbolic knowledge still matters alongside machine learning — useful context for judging representational adequacy.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos support MO1 by surfacing the adequacy trade-offs between expressiveness and tractability that motivate description logics, and by showing what symbolic representations contribute that learned models do not. The knowledge graph explainer and the description logics lecture directly serve MO2, giving you both an informal and a formal account of nodes, labeled links, class hierarchies, and inherited properties that you can reuse when modeling your own domain. The description logics material also connects to MO3 and MO4 by showing how a reasoner derives new facts (such as subsumption and classification) from a declarative knowledge base, which parallels the inference engine's role in an expert system consultation; MO5 is addressed mainly through other module readings and activities on uncertainty.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

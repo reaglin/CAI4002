@@ -1,0 +1,301 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Applying Local Search to Large-Scale Problems</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Local Search: Hill Climbing and Simulated Annealing</a></div>
+  <header>
+    <h1>Applying Local Search to Large-Scale Problems</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Applying Local Search to Large-Scale Problems</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Local search is the workhorse of practical optimisation. Once a problem becomes large enough that the state space cannot be enumerated and the path to a solution is irrelevant, the systematic search algorithms that build and store partial solutions become impractical. Local search abandons the idea of exploring a tree of partial plans and instead keeps a single <em>complete</em> candidate configuration, repeatedly nudging it with small modifications that tend to improve an objective function. The result is an algorithm family that uses almost no memory, scales to problems with millions of variables, and can be stopped at any moment to return the best configuration found so far. This topic examines where that trade-off pays off, how classic benchmark and industrial problems are encoded for local search, how to choose between hill climbing and simulated annealing, how to tune a cooling schedule, and how to report results honestly by weighing solution quality against computational cost.</p>
+
+<p><strong>When local search is the right tool</strong></p>
+
+<p>The first question to ask about any problem is: <em>is the answer a configuration, or is it a sequence of actions?</em> If the deliverable is a route plan, a sequence of robot motions, or a proof that must be replayed step by step, then the path matters and a path-finding algorithm such as A* or a planner is appropriate. If the deliverable is an arrangement — which queen sits in which row, which nurse works which shift, where each transistor cell is placed on a die — then the path by which you arrive at that arrangement is of no interest whatsoever. This is the <em>complete-state formulation</em>: every state in the search space is already a full candidate answer, possibly a bad one, and search means repair rather than construction.</p>
+
+<p>The consequences for memory are dramatic. A breadth-first or A* search stores a frontier that grows exponentially with depth; a local search stores the current state, the incumbent best state, and a handful of scalars. For an 8-queens problem the difference is trivial, but for a one-million-queens instance — which local search solves in under a minute — the difference is between feasible and impossible. Memory use is <em>O(1)</em> in the size of the search space and <em>O(n)</em> in the size of a single state description.</p>
+
+<p>A second precondition is <strong>cheap incremental evaluation</strong>. Local search lives or dies on how fast it can score a neighbour. If evaluating a candidate from scratch costs <em>O(n²)</em> but evaluating the <em>change</em> caused by a single move costs <em>O(n)</em> or <em>O(1)</em>, then the algorithm can afford to examine orders of magnitude more candidates per second. This is called <em>delta evaluation</em> or incremental evaluation, and designing a move operator that admits it is often the single most important engineering decision in the whole project. Consider the travelling-salesperson problem with a 2-opt move that removes edges <code>(a,b)</code> and <code>(c,d)</code> and reconnects them as <code>(a,c)</code> and <code>(b,d)</code>. Recomputing the whole tour length is <em>O(n)</em>; computing the delta is:</p>
+
+<pre><code>delta = d(a,c) + d(b,d) - d(a,b) - d(c,d)</code></pre>
+
+<p>which is four distance lookups, independent of <em>n</em>. The same trick applies in n-queens: moving one queen changes only the conflicts involving that queen, so the change in <em>h</em> can be computed by inspecting one column's interactions rather than all <em>n(n−1)/2</em> pairs. Problems where every move forces a complete re-simulation (for instance, an objective that requires running a discrete-event simulation of a factory for each candidate) are still tractable for local search, but the iteration budget shrinks by orders of magnitude and surrogate models or coarse screening become necessary.</p>
+
+<p>Finally, there is the question of <strong>guarantees</strong>. Local search is incomplete and non-optimal: it may fail to find an existing solution, and when it returns an answer it usually cannot certify that nothing better exists. If the task demands a proven optimum (an exact bin-packing certificate for a regulatory filing), a proof of infeasibility (no schedule exists under these constraints), or an auditable bound on the gap, then branch-and-bound, integer programming, constraint programming with propagation, or SAT solving remain the correct tools. In practice the two families are often combined: a local search produces a good incumbent in seconds, and that incumbent is fed to an exact solver as an upper bound to prune its search tree.</p>
+
+<table>
+  <thead>
+    <tr><th>Problem characteristic</th><th>Favours local search</th><th>Favours systematic/exact search</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Deliverable</td><td>A configuration (assignment, layout, schedule)</td><td>A sequence of actions or a proof</td></tr>
+    <tr><td>State space size</td><td>Astronomical; cannot be enumerated</td><td>Small enough to prune exhaustively</td></tr>
+    <tr><td>Memory budget</td><td>Tight; constant-space required</td><td>Ample; frontier can be stored</td></tr>
+    <tr><td>Neighbour evaluation</td><td>Cheap and incremental</td><td>Expensive either way</td></tr>
+    <tr><td>Quality requirement</td><td>"Good enough, fast" / anytime behaviour</td><td>Provably optimal or provably infeasible</td></tr>
+    <tr><td>Constraint structure</td><td>Soft constraints, easy to repair violations</td><td>Hard logical constraints with strong propagation</td></tr>
+  </tbody>
+</table>
+
+<p><strong>N-queens as a benchmark problem</strong></p>
+
+<p>The n-queens problem is the standard teaching benchmark for local search because every design decision is visible in miniature. The complete-state formulation places exactly one queen in each column, so a state is an array <code>q[0..n-1]</code> where <code>q[i]</code> is the row of the queen in column <em>i</em>. This encoding already builds in two of the three constraint families — no two queens share a column by construction, and the representation is compact — leaving only row and diagonal conflicts to be optimised away.</p>
+
+<p>The <strong>successor function</strong> moves a single queen to a different row within its own column. For an 8-queens board that gives 8 columns × 7 alternative rows = 56 neighbours; in general the neighbourhood has <em>n(n−1)</em> members. This is small enough to enumerate exhaustively for steepest ascent at modest <em>n</em>, and it is a well-behaved neighbourhood because any configuration can be transformed into any other by a finite sequence of such moves (the neighbourhood is <em>connected</em>).</p>
+
+<p>The <strong>objective function</strong> <code>h</code> counts the number of pairs of queens that attack each other, directly or indirectly (ignoring blocking pieces, since there are none). A goal state has <code>h = 0</code>, so this is a <em>minimisation</em> problem; by convention we speak of hill climbing, which simply means we ascend on <code>−h</code>. Consider the state <code>q = [0, 1, 2, 3, 4, 5, 6, 7]</code> — all eight queens on the main diagonal. Every pair of queens attacks along that diagonal, so <code>h = 28</code>, the worst possible value. A single move of the queen in column 0 from row 0 to row 4 removes seven diagonal conflicts and introduces one row conflict (with the queen at <code>q[4] = 4</code>) plus possible new diagonal conflicts, giving an immediate, measurable improvement. This fine-grained response of <code>h</code> to single moves is exactly what makes the landscape climbable.</p>
+
+<pre><code>function STEEPEST-ASCENT(problem) returns a state
+    current &lt;- random complete state
+    loop do
+        neighbour &lt;- the successor of current with the lowest h
+        if h(neighbour) &gt;= h(current) then return current   // no strict improvement
+        current &lt;- neighbour</code></pre>
+
+<p>The empirical behaviour of this algorithm on randomly generated 8-queens states is the classic result: it <strong>gets stuck roughly 86% of the time</strong>, solving only about 14% of instances. When it does succeed it is very fast, taking about 4 moves on average; when it fails it takes about 3 moves before freezing. The failure modes are the familiar landscape pathologies — a <em>local minimum</em> where every single-queen move increases <code>h</code>, and <em>plateaux</em> where many moves leave <code>h</code> unchanged. The state with <code>h = 1</code> where no single move reaches <code>h = 0</code> is a textbook local minimum: the configuration is tantalisingly close yet unreachable under the move operator.</p>
+
+<p>Two cheap modifications transform these numbers. First, <strong>allowing sideways moves</strong> — accepting a neighbour with equal <code>h</code> — lets the search drift across plateaux, which in n-queens are frequently <em>shoulders</em> (flat regions with an exit that continues uphill) rather than true flat local optima. With a cap of 100 consecutive sideways moves to prevent infinite looping, the success rate on 8-queens rises from about 14% to about <strong>94%</strong>, at the cost of a longer average run: roughly 21 steps per success and 64 per failure. Second, <strong>random restarts</strong> exploit the fact that failure is cheap and independent across runs. If a single run succeeds with probability <em>p</em>, the expected number of runs needed is <em>1/p</em>, so with <em>p</em> ≈ 0.14 about 7 restarts suffice — roughly 22 total moves, which is a few microseconds of computation. Random-restart hill climbing is therefore <em>complete with probability approaching 1</em>, simply because it eventually generates a goal state as its initial state if nothing else works.</p>
+
+<table>
+  <thead>
+    <tr><th>Variant on random 8-queens instances</th><th>Success rate</th><th>Average steps when successful</th><th>Average steps when stuck</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Steepest-ascent, no sideways moves</td><td>~14%</td><td>~4</td><td>~3</td></tr>
+    <tr><td>Steepest-ascent with ≤100 sideways moves</td><td>~94%</td><td>~21</td><td>~64</td></tr>
+    <tr><td>Random-restart (no sideways)</td><td>~100% given ~7 restarts</td><td>~22 total moves</td><td>—</td></tr>
+    <tr><td>Random-restart with sideways moves</td><td>~100% given ~1.06 restarts</td><td>~25 total moves</td><td>—</td></tr>
+  </tbody>
+</table>
+
+<p>Scaling matters here. The success rate of plain hill climbing does not collapse as <em>n</em> grows — for large <em>n</em> the solution density is enormous and repair-based methods such as min-conflicts (choose a conflicted queen at random, move it to the row with fewest conflicts) solve million-queens instances in seconds, independent of problem size. The 8-queens failure statistics are a property of small, tightly constrained boards rather than a prediction about large instances, which is itself a useful lesson: benchmark results must be read with the instance size and constrainedness in mind.</p>
+
+<p><strong>Scheduling, layout, and routing applications</strong></p>
+
+<p>The n-queens formulation generalises directly to industrial problems, where the pattern is always the same triple: a <em>state encoding</em> that captures a complete candidate, a <em>move operator</em> that perturbs it locally, and an <em>objective</em> that mixes hard-constraint penalties with cost terms.</p>
+
+<p>In <strong>job-shop scheduling</strong>, a state is an assignment of start times (or an ordering of operations on each machine) for every operation of every job. The usual objective is <em>makespan</em> — the completion time of the last job — though weighted tardiness, energy cost, or a weighted sum is common in practice. Effective move operators include swapping two adjacent operations on the same machine's sequence, shifting a start time earlier or later, and reassigning an operation to a parallel machine. The celebrated refinement is to restrict swaps to operations on the <em>critical path</em>, because only those can possibly change the makespan; this prunes a huge neighbourhood down to a handful of promising moves and is a general design principle — <em>bias the neighbourhood toward moves that can actually change the objective</em>. In <strong>airline scheduling</strong>, states assign crews and aircraft to flight legs; moves swap a crew pairing between two rotations or reassign a tail number, and the objective blends crew cost, deadhead flights, hotel nights, and penalties for violating duty-time regulations. Because the constraint set is legally mandated, a common architecture is to keep hard constraints inviolate by construction (the move operator only generates legal states) and to optimise cost within that feasible region.</p>
+
+<p>In <strong>VLSI design</strong>, the two classic local-search stages are <em>cell layout</em> (placement) and <em>channel routing</em>. In placement, a state is the position and orientation of each standard cell or macro block on the die; moves translate a cell, swap two cells, or rotate/mirror a block; the objective is a weighted sum of estimated total wire length (usually the half-perimeter bounding box of each net), overlap penalties, and area or timing-slack terms. In channel routing, a state assigns wires to tracks and layers, and moves reassign a net to a different track or introduce a via; the objective minimises channel height, crossings, and via count. Simulated annealing achieved its industrial fame precisely here: the TimberWolf placement system of the 1980s demonstrated that an annealer could outperform hand-crafted constructive heuristics on real chips, and the technique remains embedded in modern physical-design flows.</p>
+
+<p>In <strong>vehicle routing and the travelling-salesperson problem</strong>, a state is a set of routes (a permutation of customers per vehicle). The canonical moves are:</p>
+
+<ul>
+  <li><strong>2-opt</strong>: remove two edges and reverse the intervening segment, replacing <code>a→b … c→d</code> with <code>a→c … b→d</code>. This is the move that eliminates crossing edges in a Euclidean tour.</li>
+  <li><strong>Or-opt</strong>: relocate a chain of one, two, or three consecutive customers to another position, possibly reversed, without reversing the rest of the tour.</li>
+  <li><strong>3-opt and Lin–Kernighan</strong>: remove three or a variable number of edges, giving a richer but more expensive neighbourhood; Lin–Kernighan-style variable-depth search remains the state of the art for large TSP instances.</li>
+  <li><strong>Cross-exchange / relocate between routes</strong>: in multi-vehicle problems, move or swap customer segments between different vehicles to balance load and respect capacity and time windows.</li>
+</ul>
+
+<p>Because a 2-opt neighbourhood has <em>O(n²)</em> members, large instances use <em>neighbour lists</em> (only consider reconnections to one of a city's 10 nearest neighbours) and <em>don't-look bits</em> (skip cities whose neighbourhood yielded no improvement and whose surroundings have not changed). These are not theoretical refinements but the difference between minutes and days on a 100,000-city instance.</p>
+
+<p>Beyond these, local search is established in <strong>telecommunications network configuration</strong> — choosing link capacities, routing demands, and placing concentrators to minimise cost subject to survivability constraints — and in <strong>automatic programming</strong> and program synthesis, where states are candidate programs or expression trees and moves mutate subexpressions, with the objective measuring how many test cases pass. Related industrial uses include timetabling, frequency assignment in mobile networks, portfolio construction, protein structure prediction, and hyperparameter tuning.</p>
+
+<table>
+  <thead>
+    <tr><th>Domain</th><th>State</th><th>Move operator</th><th>Objective</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>N-queens</td><td>Row index per column</td><td>Move one queen within its column</td><td>Number of attacking pairs (minimise to 0)</td></tr>
+    <tr><td>Job-shop scheduling</td><td>Operation order per machine</td><td>Swap adjacent critical-path operations</td><td>Makespan or weighted tardiness</td></tr>
+    <tr><td>Airline crew scheduling</td><td>Crew pairing per flight leg</td><td>Swap pairings; reassign rotation</td><td>Crew cost + deadhead + rule penalties</td></tr>
+    <tr><td>VLSI placement</td><td>Cell coordinates and orientations</td><td>Translate, swap, rotate a cell</td><td>Wire length + overlap + area</td></tr>
+    <tr><td>Channel routing</td><td>Track/layer per net</td><td>Reassign net to another track</td><td>Channel height + vias + crossings</td></tr>
+    <tr><td>Vehicle routing</td><td>Customer sequence per vehicle</td><td>2-opt, or-opt, inter-route relocate</td><td>Distance + vehicle count + time-window penalty</td></tr>
+    <tr><td>Network configuration</td><td>Link capacities and demand routes</td><td>Reroute a demand; resize a link</td><td>Capital cost subject to survivability</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Choosing between hill climbing and simulated annealing</strong></p>
+
+<p>All of these algorithms share the same skeleton — propose a neighbour, decide whether to accept it — and differ only in the proposal and acceptance rules. The choice among them is driven by two properties of the problem: the <em>ruggedness</em> of the landscape (how many local optima there are and how deep their basins run) and the <em>cost per neighbour evaluation</em> relative to the branching factor.</p>
+
+<ul>
+  <li><strong>Plain or steepest-ascent hill climbing</strong> suits smooth landscapes with few local optima — convex-ish objectives, problems where a greedy repair almost always converges, or situations where you merely need to polish an already good solution produced by a constructive heuristic. Steepest ascent evaluates every neighbour and takes the best, which gives the most informed step per iteration but costs <em>O(|N|)</em> evaluations per move.</li>
+  <li><strong>First-choice hill climbing</strong> generates successors at random and accepts the first improvement found. This is the right choice when the branching factor is large — thousands or millions of neighbours — because enumerating the full neighbourhood to find the single best move wastes effort that could have been spent making many adequate moves. In a VLSI placement with 100,000 cells, the swap neighbourhood is astronomically large and first-choice (or a randomly sampled subset) is the only practical option.</li>
+  <li><strong>Stochastic hill climbing</strong> chooses among the uphill moves with probability weighted by steepness. It converges more slowly than steepest ascent but explores more, and often finds better final solutions on landscapes where the steepest move leads reliably into a shallow trap.</li>
+  <li><strong>Random-restart hill climbing</strong> is the right answer whenever a single run is cheap and the per-run success probability <em>p</em> is not vanishingly small, since expected total cost is roughly <em>(1/p) × cost per run</em>. It is trivially parallelisable — run <em>k</em> restarts on <em>k</em> cores and take the best — and requires no parameter tuning beyond the restart count. It degrades badly when <em>p</em> is tiny (say 10<sup>−6</sup>), because then restarting is just repeated failure; in that regime an algorithm that escapes local optima <em>without</em> discarding its progress is needed.</li>
+  <li><strong>Simulated annealing</strong> is that algorithm. It accepts a worsening move of magnitude <code>ΔE</code> with probability <code>exp(−ΔE/T)</code>, where the temperature <em>T</em> falls over time. Early on it wanders almost randomly and is effectively doing a global exploration; late on it behaves like first-choice hill climbing. Use it when the landscape is rugged, when a single run is expensive so restarts are wasteful, and when final quality matters more than the time to the first feasible answer. The theoretical guarantee — that with a logarithmically slow schedule the probability of ending in a global optimum approaches 1 — is of no practical use (the required schedule is slower than exhaustive enumeration), but the practical performance on layout, scheduling, and routing is excellent.</li>
+</ul>
+
+<pre><code>function SIMULATED-ANNEALING(problem, schedule) returns a state
+    current &lt;- initial state
+    best    &lt;- current
+    for t = 1 to infinity do
+        T &lt;- schedule(t)
+        if T &lt; T_min or budget exhausted then return best
+        next  &lt;- a randomly selected neighbour of current
+        dE    &lt;- value(next) - value(current)          // positive = better (maximisation)
+        if dE &gt; 0 then
+            current &lt;- next
+        else if random(0,1) &lt; exp(dE / T) then
+            current &lt;- next                             // accept a worsening move
+        if value(current) &gt; value(best) then best &lt;- current</code></pre>
+
+<p>Note the explicit <code>best</code> variable: annealing's current state is allowed to deteriorate, so a production implementation must always retain the incumbent best separately. Forgetting this is one of the most common implementation bugs.</p>
+
+<table>
+  <thead>
+    <tr><th>Algorithm</th><th>Neighbour selection</th><th>Accepts worsening moves?</th><th>Best suited to</th><th>Main weakness</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Steepest-ascent HC</td><td>Best of all neighbours</td><td>No</td><td>Small neighbourhoods, smooth landscapes</td><td>Stuck at first local optimum; costly per step</td></tr>
+    <tr><td>First-choice HC</td><td>First random improvement</td><td>No</td><td>Very large branching factors</td><td>Still stuck at local optima</td></tr>
+    <tr><td>Stochastic HC</td><td>Random uphill, weighted</td><td>No</td><td>Landscapes where greedy steps mislead</td><td>Slower convergence</td></tr>
+    <tr><td>Random-restart HC</td><td>Restart from random state on failure</td><td>No (within a run)</td><td>Cheap runs with reasonable success rate</td><td>Discards all progress; poor when p is tiny</td></tr>
+    <tr><td>Simulated annealing</td><td>Random neighbour</td><td>Yes, with probability exp(−ΔE/T)</td><td>Rugged landscapes, expensive single runs</td><td>Needs schedule tuning; no optimality proof</td></tr>
+  </tbody>
+</table>
+
+<p>These choices are not mutually exclusive. A standard industrial recipe is <em>hybridisation</em>: construct a reasonable starting solution with a greedy heuristic (nearest neighbour for TSP, earliest-due-date for scheduling), improve it with fast first-choice hill climbing until no improvement is found, then apply simulated annealing or restarts from that incumbent. Because the annealer begins in a good region, the initial temperature can be set lower and the whole budget is spent refining rather than rediscovering obvious structure.</p>
+
+<p><strong>Tuning the cooling schedule and parameters</strong></p>
+
+<p>Simulated annealing has four tunable components — initial temperature, cooling rate, neighbourhood definition, and stopping criterion — and the first three interact. The guiding principle is that temperature should be calibrated in the <em>units of the objective function</em>: a temperature of 10 means nothing in the abstract, but a temperature equal to the average magnitude of a worsening move means a great deal.</p>
+
+<p><strong>Initial temperature.</strong> Set <code>T₀</code> so that almost all proposed worsening moves are accepted at the start — an acceptance ratio of roughly 0.8 to 0.95 is the usual target. The standard calibration procedure is empirical: perform a few hundred random moves from a random state, record the average increase in cost <code>Δ̄</code> among the worsening ones, and solve <code>exp(−Δ̄/T₀) = χ₀</code> for the desired acceptance ratio <code>χ₀</code>, giving</p>
+
+<pre><code>T0 = -mean_positive_delta / ln(chi_0)
+   e.g. mean_positive_delta = 12.0, chi_0 = 0.9  ->  T0 = -12.0 / ln(0.9) = 113.9</code></pre>
+
+<p>Too high a <code>T₀</code> wastes budget on a pure random walk that carries no information; too low a <code>T₀</code> freezes the search in whatever basin it started in, reducing annealing to hill climbing with noise.</p>
+
+<p><strong>Cooling rate.</strong> The three common schedules are geometric, linear, and logarithmic:</p>
+
+<table>
+  <thead>
+    <tr><th>Schedule</th><th>Update rule</th><th>Behaviour</th><th>Typical use</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Geometric (exponential)</td><td><code>T ← αT</code>, with α ∈ [0.8, 0.999]</td><td>Fast early cooling, long low-temperature tail</td><td>The practical default for almost all applications</td></tr>
+    <tr><td>Linear</td><td><code>T ← T₀ − βt</code></td><td>Constant decrement; spends little time at low T</td><td>Short fixed budgets</td></tr>
+    <tr><td>Logarithmic</td><td><code>T ← c / log(1 + t)</code></td><td>Theoretically convergent to the global optimum</td><td>Proofs only; far too slow in practice</td></tr>
+    <tr><td>Adaptive / reheating</td><td>Lower T only when quality stalls; raise T if frozen too early</td><td>Self-tuning, robust to bad α</td><td>Long runs, heterogeneous instances</td></tr>
+  </tbody>
+</table>
+
+<p>With a geometric schedule the two knobs are α and the number of proposed moves per temperature level (the <em>Markov chain length</em>, often set proportional to the neighbourhood size, e.g. <code>L = k·n</code>). The goal is <em>quasi-equilibrium</em>: at each temperature the search should make enough moves for the distribution of visited states to settle before cooling further. Cooling too quickly produces <em>quenching</em> — the search is trapped in whatever basin it happened to occupy, which is exactly the local-optimum failure that annealing was meant to avoid. Cooling too slowly means the run does not reach low temperatures before the time budget expires, leaving a solution that is still being randomly perturbed. A simple and effective rule is to fix the total iteration budget <em>first</em> (from the time available), then derive α from <code>α = (T_min/T₀)^(1/K)</code>, where <em>K</em> is the number of temperature levels the budget allows. For a budget of 10<sup>7</sup> moves with <code>L = 1000</code> moves per level, <em>K</em> = 10,000 levels, and cooling from <code>T₀ = 100</code> to <code>T_min = 0.01</code> gives <code>α = (0.0001)^(1/10000) ≈ 0.99908</code>.</p>
+
+<p><strong>Neighbourhood design.</strong> The move operator defines the landscape, so it is a tuning parameter as much as any numeric constant. Moves must be <em>small enough to be informative</em> — a move that randomises half the state produces a delta uncorrelated with the current solution, which turns annealing into blind sampling — and <em>large enough to traverse the space</em>, meaning the neighbourhood graph must be connected so that any solution is reachable. Three practical guidelines:</p>
+
+<ul>
+  <li><strong>Locality:</strong> the objective change caused by a move should be small and computable incrementally. If a typical delta dwarfs the current temperature range, the operator is too coarse.</li>
+  <li><strong>Connectivity and symmetry:</strong> if move <em>m</em> can take state <em>s</em> to <em>s′</em>, some move should be able to return; asymmetric proposal distributions bias the stationary distribution in ways the Metropolis criterion does not correct.</li>
+  <li><strong>Composite neighbourhoods:</strong> many strong implementations mix several operators with fixed probabilities — e.g. 70% single-customer relocate, 20% 2-opt, 10% inter-route swap — so that the search can both fine-tune and make structural changes. Choosing among several neighbourhoods systematically is the idea behind variable-neighbourhood search.</li>
+</ul>
+
+<p><strong>Stopping criteria.</strong> Terminate on whichever of these fires first: the temperature falls below <code>T_min</code>; a fixed iteration or wall-clock budget is exhausted; a whole temperature level completes with <em>zero accepted moves</em> (the system is frozen); the incumbent has not improved for <em>N</em> consecutive levels; or a known target/bound is reached (e.g. <code>h = 0</code> for n-queens, where you should stop immediately on a feasible solution). The "no accepted moves" test is particularly useful because it is self-calibrating — it detects freezing regardless of what α was set to.</p>
+
+<p>For hill climbing the parameter list is shorter but still real: the sideways-move cap (100 in the classic n-queens experiment), the restart count or restart budget, the neighbourhood sample size for first-choice, and the random-seed policy for reproducibility. A sensible discipline is to tune on a <em>training set</em> of instances and report results on a held-out set, exactly as in machine learning; otherwise the reported parameters are overfitted to the instances you happened to test.</p>
+
+<p><strong>Evaluating solution quality against computational cost</strong></p>
+
+<p>Local search is stochastic, so a single run tells you almost nothing. Any credible evaluation repeats each configuration over many independent runs (30 is a common minimum for stable statistics) and over a set of instances, then reports a <em>distribution</em>, not a point. The essential statistics are the mean objective value, the standard deviation, the best value found, and the median; the mean alone hides the case where an algorithm is usually mediocre but occasionally excellent, which matters a great deal if you intend to run it many times in parallel and keep the best.</p>
+
+<p><strong>Success rate and effort.</strong> For problems with a feasibility threshold (find a conflict-free queens placement; find a schedule under the deadline) report the fraction of runs that reached the threshold together with the average number of objective evaluations or moves per run. Evaluations are the fairer currency than seconds because they are hardware-independent, though wall-clock time should also be given since incremental evaluation costs differ between operators. The two numbers combine into the expected cost of a successful run:</p>
+
+<pre><code>expected_evaluations_to_success
+    = evaluations_per_run / success_rate        (with restarts)
+
+e.g. 5,000 evals/run at 25% success  ->  20,000 evals per solved instance</code></pre>
+
+<p>This single figure lets you compare, say, "fast but often failing" random-restart hill climbing against "slow but reliable" annealing on an equal footing.</p>
+
+<p><strong>Anytime curves.</strong> The most informative comparison plots best-so-far objective value against elapsed time (or evaluations), averaged over runs. Such a curve reveals behaviour a final-quality table conceals: hill climbing typically plunges quickly and then flatlines; annealing improves slowly at first (while the temperature is high and the current state is noisy) and overtakes hill climbing later. If your deployment must answer in 200 ms, the crossover point — not the asymptote — decides which algorithm to ship.</p>
+
+<table>
+  <thead>
+    <tr><th>Budget</th><th>Random-restart HC (mean tour length)</th><th>Simulated annealing (mean tour length)</th><th>Better choice</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>0.1 s</td><td>8.4% above optimum</td><td>19.7% above optimum</td><td>Hill climbing</td></tr>
+    <tr><td>1 s</td><td>6.9% above optimum</td><td>6.1% above optimum</td><td>Roughly equal</td></tr>
+    <tr><td>10 s</td><td>6.5% above optimum</td><td>2.3% above optimum</td><td>Annealing</td></tr>
+    <tr><td>100 s</td><td>6.3% above optimum</td><td>1.4% above optimum</td><td>Annealing</td></tr>
+  </tbody>
+</table>
+
+<p>(The pattern illustrated here — hill climbing saturating at a quality ceiling while annealing keeps improving — is the typical shape of such an experiment, and it shows why conclusions drawn at one budget do not transfer to another.)</p>
+
+<p><strong>Reference points.</strong> Raw objective values are meaningless without a yardstick. Use, in order of preference: a known optimum (available for benchmark libraries such as TSPLIB or standard job-shop instances); a computed <em>lower bound</em> from a relaxation (the Held–Karp bound for TSP, a machine-load bound for job shops, an LP relaxation generally), which lets you report a guaranteed-correct "gap ≤ x%"; or, failing both, a competent baseline heuristic (nearest neighbour plus 2-opt, earliest-due-date dispatching) and the best-known published solution. Reporting "our annealer achieved cost 14,732" conveys nothing; "cost 14,732, which is 1.8% above the Held–Karp lower bound and 11% better than the greedy baseline" is an evaluation.</p>
+
+<p><strong>Diminishing returns.</strong> Improvement in local search is strongly front-loaded: the first few percent of the budget typically captures most of the attainable gain, after which each additional order of magnitude of computation buys a fraction of a percent. This has a direct managerial consequence — decide what a 1% improvement is worth in the application domain. For a delivery fleet, 1% of annual fuel spend may justify hours of nightly computation; for an interactive layout tool, a 1% shorter wire length is worthless if the user waits ten seconds for it. Practical rules that follow from the diminishing-returns curve include: stop when the incumbent has not improved for a defined share of the budget; prefer many short parallel runs over one very long run when the quality ceiling of a single run is low; and spend engineering effort on the move operator and incremental evaluation (which shift the whole curve) rather than on squeezing the last fraction of a percent out of α.</p>
+
+<p>Finally, evaluate <em>robustness</em>, not just peak performance. An algorithm whose quality collapses when the instance distribution shifts, or which requires per-instance retuning of <code>T₀</code> and α, is a liability in production. Parameter sensitivity analysis — sweeping α over {0.95, 0.99, 0.999} and <code>T₀</code> over an order of magnitude, and reporting how much quality varies — is as important a result as the headline number, because it tells a deployment team how much slack they have when the problem changes next quarter.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1:</strong> Supported throughout — the topic repeatedly frames each application as a complete-state formulation with an explicit state encoding, neighbour/move operator, and objective function, and explains how memory-constant navigation of the resulting state-space landscape works.</li>
+  <li><strong>MO2:</strong> Directly supported by the n-queens encoding (row per column, single-queen move, attacking-pair count) and by the scheduling, layout, and routing table that specifies states, move operators, and objectives for each domain, giving students templates for formulating new problems.</li>
+  <li><strong>MO3:</strong> Supported by the steepest-ascent and simulated-annealing pseudocode together with the n-queens statistics for steepest-ascent, sideways-move, first-choice, stochastic, and random-restart variants, which provide the behavioural detail needed to trace these algorithms on a landscape.</li>
+  <li><strong>MO4:</strong> Supported where the n-queens discussion identifies local minima, plateaux, and shoulders as the causes of the 86% failure rate, and where quenching, freezing, and quality ceilings are diagnosed as landscape-driven failures; ridges are touched on only indirectly as a motivation for composite neighbourhoods.</li>
+  <li><strong>MO5:</strong> Central to the topic — the algorithm-selection criteria, the cooling-schedule tuning rules, the expected-evaluations-to-success calculation, the anytime-curve comparison, and the diminishing-returns discussion together form an explicit framework for justifying a choice of method and parameters on quality-versus-cost grounds.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Numerical figures for 8-queens hill-climbing performance (14% / 94% success, ~4, ~3, ~21, ~64 steps, ~7 and ~1.06 restarts) follow the standard results reported in Russell &amp;amp; Norvig. The TSP budget/quality table and the T0 calibration example are illustrative values used to show the shape of the trade-off, not measurements from a specific published experiment; instructors may wish to replace them with data from a live lab exercise.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

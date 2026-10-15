@@ -1,0 +1,174 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foundations of Local Search</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Local Search: Hill Climbing and Simulated Annealing</a></div>
+  <header>
+    <h1>Foundations of Local Search</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Foundations of Local Search</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Classical search algorithms such as breadth-first search, uniform-cost search and A* treat a problem as the construction of a <em>path</em>. They begin at an initial state, expand nodes into successors, and build up a search tree until a goal state is reached; the answer they return is the sequence of actions that was followed. <strong>Local search</strong> turns this picture inside out. Instead of building partial solutions outward from a start state, it begins with a complete — though probably poor — candidate solution and iteratively nudges it toward a better one. The answer it returns is a <em>state</em>, not a route. This apparently small shift in perspective has enormous consequences for memory consumption, for the kinds of problems that become tractable, and for the theoretical guarantees that the algorithm can offer.</p>
+
+<p>Local search sits at the intersection of artificial intelligence and mathematical optimisation. Hill climbing, simulated annealing, tabu search, genetic algorithms and gradient descent are all members of the family. What unites them is a common architecture: a representation in which every state is a legitimate (if imperfect) answer, a <em>move operator</em> that defines which states count as neighbours of which, and an <em>objective function</em> that scores states so that the search knows which direction is "better". Everything else — the sophistication of the move acceptance rule, the use of randomness, the handling of memory — is variation on that theme.</p>
+
+<p><strong>What local search is.</strong> The defining structural feature is that <em>each node in local search is a complete, valid configuration of the problem</em>. In the 8-queens problem, for example, a classical formulation might place queens one column at a time, so that intermediate nodes hold three or four queens and the rest of the board is empty. A local search formulation never does this. Every state has all eight queens on the board — one per column, say — and the only question is whether those queens attack one another. A state with twelve pairs of mutually attacking queens is a <em>bad</em> state, but it is still a state; it is not a fragment. Similarly, in a job-shop scheduling problem, a local search state is a complete schedule assigning every operation to a machine and a time slot, even if that schedule is wildly late and violates precedence preferences.</p>
+
+<p>Because every state is complete, the algorithm does not need to grow anything. It simply <em>keeps a current state and repeatedly replaces it with a neighbour</em>. The loop is strikingly simple:</p>
+
+<pre><code>current &lt;- some initial complete state
+loop:
+    neighbours &lt;- MOVES(current)          // all states reachable by one local edit
+    next &lt;- SELECT(neighbours, current)   // the rule that distinguishes algorithms
+    if next is not better than current:
+        return current                    // or apply an escape strategy
+    current &lt;- next</code></pre>
+
+<p>Only two things live in memory at any moment: <code>current</code>, and whichever neighbour is being examined. There is no queue of unexpanded nodes and no record of where the search has been.</p>
+
+<p><em>Neighbours are generated by small, local modifications to the current state.</em> The choice of what counts as "small" is a design decision, and it is arguably the single most important one a practitioner makes. For 8-queens with the one-queen-per-column representation, the natural move is "pick a column, move its queen to a different row in that column", which yields 8 × 7 = 56 neighbours. For the travelling salesperson problem, the classic 2-opt move removes two edges from the tour and reconnects the resulting fragments the other way around, reversing a segment; a tour of <em>n</em> cities has roughly <em>n</em>²/2 such neighbours. For a Boolean satisfiability instance, the move is to flip a single variable from true to false or vice versa, giving exactly <em>n</em> neighbours. A move operator that is too timid produces a landscape full of traps; one that is too aggressive produces an enormous neighbourhood that is expensive to scan and that destroys whatever structure the current state has already achieved.</p>
+
+<p><em>Progress is measured by an objective or cost function rather than by distance from a start node.</em> In A*, the quantity <code>g(n)</code> — the cost accumulated along the path so far — is central, and the algorithm prefers nodes that are cheap to reach. In local search, how the current state was reached is completely irrelevant; two identical board configurations are the same state whether one of them took three moves to reach and the other three thousand. All that matters is the scalar value <code>f(current)</code>. For 8-queens the usual objective is the number of attacking pairs, which is to be <em>minimised</em> to zero. For a timetable it might be a weighted sum of penalties: 100 points for each room double-booking, 10 for each lecturer clash, 1 for each student forced into a lunchtime gap. Maximisation and minimisation are interchangeable — simply negate the function — and the literature slips freely between "hill climbing" and "gradient descent" for this reason.</p>
+
+<p><strong>When the path does not matter.</strong> Local search is the right tool precisely when the question being asked is "what configuration should I adopt?" rather than "how do I get from here to there?". Consider the following contrast.</p>
+
+<table>
+  <thead>
+    <tr><th>Problem</th><th>What the user wants</th><th>Is the path part of the answer?</th><th>Suitable for local search?</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>8-queens</td><td>A board with no attacking queens</td><td>No — nobody cares how the queens got there</td><td>Yes</td></tr>
+    <tr><td>University timetabling</td><td>A clash-free schedule for next term</td><td>No</td><td>Yes</td></tr>
+    <tr><td>VLSI circuit layout / floorplanning</td><td>A placement of components minimising wire length</td><td>No</td><td>Yes</td></tr>
+    <tr><td>Job-shop scheduling</td><td>An assignment of operations to machines and times</td><td>No</td><td>Yes</td></tr>
+    <tr><td>Travelling salesperson (as optimisation)</td><td>A short closed tour</td><td>The tour is the state, not the search path</td><td>Yes</td></tr>
+    <tr><td>Route planning (city A to city B)</td><td>The sequence of roads to drive</td><td><strong>Yes</strong> — the path <em>is</em> the answer</td><td>No</td></tr>
+    <tr><td>Rubik's cube / 15-puzzle</td><td>The sequence of twists or slides to solve it</td><td><strong>Yes</strong></td><td>No</td></tr>
+    <tr><td>Robot motion planning</td><td>A collision-free trajectory</td><td><strong>Yes</strong></td><td>Not in the plain form</td></tr>
+  </tbody>
+</table>
+
+<p>The distinction is sharp. If you hand someone a solved Rubik's cube and say "there you are", you have not solved their problem — they wanted to know the twists. A local search that teleports from one cube configuration to another by arbitrary edits produces states that are unreachable by legal moves and a "solution" that is no solution at all. (Local search can still be applied to such domains indirectly, for instance by searching over the space of candidate <em>plans</em>, where each state is a complete sequence of actions and a move perturbs that sequence. But then the state is the plan, and the principle is unchanged.)</p>
+
+<p><em>Because the path is irrelevant, no search tree or parent pointers need to be stored.</em> In A*, every node carries a pointer back to its parent so the solution path can be reconstructed when a goal is found. Local search needs none of this bookkeeping — not the pointers, not the node objects, not the tree structure. This is why a local search implementation is often a few dozen lines of code with a single mutable array as its entire data structure.</p>
+
+<p><em>Goal tests are often replaced by an objective function to maximise or a cost to minimise.</em> Sometimes there is still a crisp goal test — in 8-queens, zero attacking pairs is unambiguously a solution and the algorithm can stop. But in a great many applications there is no such thing as "the goal". No timetable is perfect; no circuit layout has zero wire length. The algorithm has no termination condition derived from the problem, only from the resources available: stop after <em>k</em> iterations, stop after <em>m</em> seconds, stop when no improvement has been seen for 1,000 moves, or stop when a human says the answer is good enough. This blurs the traditional AI line between "search" and "optimisation", and in modern practice that line has largely dissolved.</p>
+
+<p><strong>The state-space landscape.</strong> The standard mental picture for local search is a <em>landscape</em>: a surface stretched over the space of all states, in which horizontal position encodes <em>which</em> state you are in and vertical position encodes <em>how good</em> it is. <em>Elevation corresponds to the objective value for maximisation or cost for minimisation.</em> If we are maximising, we speak of climbing hills and seeking peaks; if minimising, of descending into valleys and seeking basins. The two pictures are mirror images and the terminology is used interchangeably in the literature, which is a frequent source of confusion for newcomers: a "local minimum" in a cost landscape is exactly a "local maximum" in the negated-objective landscape.</p>
+
+<p>The horizontal axis of the picture is a convenient fiction. A real state space is not one-dimensional or even two-dimensional; the 8-queens space with one queen per column has 8⁸ = 16,777,216 states and its neighbourhood structure is a graph, not a plane. The landscape drawing is a projection that preserves the one thing that matters — the <em>adjacency</em> induced by the move operator — and discards everything else. Change the move operator and you change the landscape, even though the set of states and their objective values are unchanged. This is a subtle but important point: <strong>the landscape is a property of the state space <em>plus</em> the neighbourhood relation, not of the state space alone.</strong></p>
+
+<p>Within that landscape:</p>
+
+<ul>
+  <li><strong>Global maximum</strong> — <em>the best state overall in the entire landscape</em>. There may be several states tied for the best value; any of them is a global optimum. This is what an exact optimisation method would return, and what local search aspires to but cannot promise.</li>
+  <li><strong>Local maximum</strong> — a state that is better than all of its neighbours, but not globally best. Standing on a local maximum, every available move looks like a step downhill, so a strictly improving algorithm has nowhere to go and halts prematurely.</li>
+  <li><strong>Plateau</strong> — a flat region in which many adjacent states have identical objective values. Because no neighbour is <em>better</em>, a strict hill climber stops; because no neighbour is <em>worse</em>, a sideways-moving climber can wander for a long time without making progress. A plateau that has an uphill exit somewhere along its edge is a <strong>shoulder</strong>, and crossing it is productive; a plateau with no uphill exit is a <strong>flat local maximum</strong>, and crossing it is futile. Crucially, from the inside, the two look identical.</li>
+  <li><strong>Ridge</strong> — a sequence of local maxima forming a narrow crest that ascends in a direction not aligned with any single move. Imagine a staircase viewed edge-on: the overall slope rises, but every individual step from the current position goes down before it goes up. Each move operator can only take you perpendicular or parallel to the crest, never diagonally along it, so the search oscillates and stalls. Ridges are notoriously difficult because, unlike plateaus, they are not flat — the algorithm genuinely sees every neighbour as worse.</li>
+</ul>
+
+<p>The last structural fact is the most important of all: <em>the algorithm can only perceive the landscape immediately around its current state.</em> A local search is a blindfolded climber who can feel the ground within arm's reach and nothing beyond. It cannot see that a far higher peak lies two valleys to the east; it cannot tell whether the flat ground it is standing on is a shoulder or a flat summit; it does not even know whether the current state is the global optimum, because confirming that would require examining the whole space. All local search strategies are, in essence, different answers to the question: <em>given only local information, how should I decide where to step next?</em></p>
+
+<p><strong>Memory and efficiency advantages.</strong> The practical appeal of local search comes down to resource consumption. <em>No frontier or explored set needs to be maintained, unlike BFS or A*.</em> Breadth-first search on a problem with branching factor <em>b</em> and solution depth <em>d</em> stores O(b<sup>d</sup>) nodes in its frontier; A* typically stores a comparable number, and in practice it is memory, not time, that kills A* on hard instances. Local search stores one state. If an algorithm variant needs a tabu list or a population, it stores a constant or user-chosen number of states — never a number that grows with the depth or breadth of exploration.</p>
+
+<table>
+  <thead>
+    <tr><th>Property</th><th>Systematic search (BFS, A*)</th><th>Local search</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Node contents</td><td>Partial solution plus path information</td><td>Complete candidate solution</td></tr>
+    <tr><td>Memory</td><td>Exponential in depth (frontier + explored set)</td><td>O(1) — one or a few states</td></tr>
+    <tr><td>Uses parent pointers</td><td>Yes, to reconstruct the path</td><td>No</td></tr>
+    <tr><td>Can revisit states</td><td>Prevented by the explored set</td><td>Possible; usually harmless, sometimes cyclic</td></tr>
+    <tr><td>Completeness</td><td>Guaranteed under standard conditions</td><td>Generally not guaranteed</td></tr>
+    <tr><td>Optimality</td><td>Guaranteed by A* with an admissible heuristic</td><td>Not guaranteed; returns a local optimum</td></tr>
+    <tr><td>Handles continuous spaces</td><td>Only after discretisation</td><td>Naturally, via gradient or sampled moves</td></tr>
+    <tr><td>Answer returned</td><td>A sequence of actions</td><td>A configuration</td></tr>
+  </tbody>
+</table>
+
+<p><em>Memory requirements remain small and usually independent of problem size.</em> More precisely, memory is proportional to the size of a single state — an array of <em>n</em> integers for n-queens, a permutation of <em>n</em> cities for TSP — and independent of how long the search runs or how large the space is. Doubling the search time costs nothing extra in memory. This is what makes local search the method of choice for long-running background optimisation.</p>
+
+<p><em>Local search can run on state spaces too large to enumerate, including continuous and infinite ones.</em> The space of 1,000-city tours contains roughly 999!/2 ≈ 10<sup>2564</sup> elements, vastly more than the number of atoms in the observable universe; no systematic method will ever enumerate it, but a 2-opt local search will happily improve a tour in that space on a laptop. More strikingly, local search extends directly to continuous domains. If the state is a vector of real numbers — the positions of airport terminals, the weights of a neural network, the geometry of an aerofoil — the neighbourhood is an infinitesimal step and the move operator becomes <code>x ← x + α∇f(x)</code>, i.e. gradient ascent. Every notion in this topic (landscape, local optimum, plateau, ridge) transfers unchanged; ill-conditioned optimisation problems in machine learning are literally the ridge phenomenon in high dimensions, which is why techniques like momentum exist.</p>
+
+<p><em>It can often find reasonable solutions quickly, even when optimal search is intractable.</em> Consider the concrete and much-cited case of n-queens. Exhaustive or backtracking search becomes awkward for large <em>n</em>, but min-conflicts local search — repeatedly pick a conflicted queen and move it to the row in its column with fewest conflicts — solves the <em>million</em>-queens problem in well under a minute, taking on average around fifty moves regardless of <em>n</em>. The runtime is essentially independent of problem size, a property that no systematic method comes close to. Similarly, Lin–Kernighan-style local search routinely produces TSP tours within 2% of optimal on instances with tens of thousands of cities, while exact solution of such instances is a research-paper-sized effort.</p>
+
+<p><strong>Completeness and optimality trade-offs.</strong> All of this comes at a price, and it is important to state the price honestly. <em>Local search is generally incomplete</em>: it may become stuck before reaching a goal, and even if a solution exists it may never find one. A basic hill climber on 8-queens with random restarts disabled gets stuck roughly 86% of the time, solving the problem only about 14% of the time from a random start. Incompleteness here means something specific — the algorithm terminates, but it terminates on a non-solution and cannot tell you whether a solution exists. Contrast this with BFS, which on a finite space will find a solution if one exists and will report failure otherwise. Local search can never report "no solution exists"; it can only report "I did not find one", which is why local search is useless for <em>proving</em> unsatisfiability.</p>
+
+<p><em>It is not optimal, since it may settle on a local rather than global optimum.</em> Even when a solution is found, there is no guarantee it is the best one. A 2-opt TSP search converges to a tour that cannot be improved by any single 2-opt move; such a tour is typically 5% worse than optimal, and nothing in the algorithm indicates how far from optimal it is. Being unable to certify quality is in some ways worse than being suboptimal, because it leaves the engineer without a stopping criterion.</p>
+
+<p><em>Systematic search offers completeness guarantees but can require exponential memory.</em> This is the fundamental trade. A* with an admissible heuristic will return an optimal path and will tell you it is optimal — but it may exhaust 16 GB of RAM in minutes on a problem that local search handles in kilobytes. Depth-first search and IDA* reduce memory but pay in repeated work, and still face exponential time. The engineering decision is therefore rarely "which algorithm is better" and almost always "which failure mode can I tolerate": the systematic method's failure mode is running out of memory and returning nothing; the local method's failure mode is returning something imperfect without warning.</p>
+
+<p><em>In practice, anytime behaviour is valuable: a usable solution is available whenever the search is stopped.</em> This is perhaps the most underappreciated advantage. Because the current state is always a complete, legal configuration, a local search can be interrupted at any instant and still hand back an answer. If a delivery company must dispatch routes at 05:00, it starts the optimiser at midnight, interrupts it at 04:59, and uses whatever the best-so-far tour is — guaranteed valid, probably good, certainly better than nothing. A* interrupted before termination yields nothing usable at all. This profile — monotonically improving, interruptible, bounded memory — maps neatly onto real deployment constraints, and it is why local search dominates industrial scheduling, routing, placement and configuration software even though it offers no guarantees whatsoever.</p>
+
+<p>A useful summary framing: systematic search asks <em>"is there a path to a goal?"</em> and spends memory to answer it rigorously; local search asks <em>"can I make this good solution better?"</em> and spends time to answer it approximately. The remainder of the module is concerned with the many ways of answering that second question well — how to choose among neighbours, how to escape the traps the landscape sets, and how to balance the cost of searching against the quality of what is found.</p>
+        <div class="notes"><strong>Notes</strong>Key terms introduced: complete-state formulation, move/neighbour operator, objective/cost function, state-space landscape, global maximum, local maximum, plateau, shoulder, flat local maximum, ridge, anytime algorithm, incompleteness.
+
+Worked figures cited: 8-queens one-queen-per-column space = 8^8 = 16,777,216 states, 56 neighbours per state; basic hill climbing solves 8-queens ~14% of the time; min-conflicts solves million-queens in ~50 moves; 2-opt TSP typically ~5% above optimal.
+
+Alignment with Learning Outcomes — the body deliberately omits this section because the instruction block requires it, so it is noted here for the editor: MO1 is directly and fully supported (complete-state formulation, neighbour/move operators, objective functions, landscape). MO2 is supported through the n-queens, scheduling, timetabling and TSP formulation examples that specify states, moves and objectives. MO3 is only set up, not delivered — the specific hill-climbing variants are traced in later topics. MO4 is supported by the landscape-features subtopic (local maxima, plateaus, shoulders, ridges) at a conceptual/diagnostic level. MO5 is supported by the completeness/optimality and memory trade-off discussion, though simulated annealing and cooling schedules are not covered here. If the client requires the alignment paragraph inside the HTML body, insert it as a final &lt;p&gt; element.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

@@ -1,0 +1,356 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unification and Lifted Inference</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Logical Agents: Propositional and First-Order Logic</a></div>
+  <header>
+    <h1>Unification and Lifted Inference</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Unification and Lifted Inference</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>When reasoning moves from propositional logic to first-order logic, the inference machinery gains enormous expressive power but also faces a new technical problem. In propositional logic, a rule such as <code>Rain ⇒ WetGround</code> matches a fact only if the fact is literally the symbol <code>Rain</code>. In first-order logic, a rule such as <code>∀x King(x) ∧ Greedy(x) ⇒ Evil(x)</code> is supposed to apply to <em>every</em> individual, so the inference engine must recognise that the stored fact <code>King(John)</code> is an instance of the rule's premise <code>King(x)</code>. The operation that performs this recognition — finding the variable assignments that make two logical expressions syntactically identical — is called <strong>unification</strong>, and the data structure that records those assignments is a <strong>substitution</strong>. Unification is the single mechanism that allows propositional inference rules to be "lifted" so that one first-order inference step stands in for an unbounded number of propositional steps.</p>
+
+<p>This topic develops that machinery from the ground up: what substitutions are and how they compose, what it means for two expressions to unify, why we insist on the <em>most general</em> unifier, how the recursive unification algorithm works (including the subtle occur-check), and finally how unification powers the two central lifted inference rules — Generalized Modus Ponens for definite clauses and first-order resolution for full first-order logic.</p>
+
+<p><strong>Substitutions: binding variables to terms.</strong> A substitution is a finite set of <em>variable/term</em> pairs, written with a slash, such as <code>θ = {x/John, y/Richard}</code>. Each pair is a <strong>binding</strong>: it says "wherever the variable <code>x</code> appears, put the term <code>John</code> instead." The variables on the left-hand sides must be distinct, so a substitution is really a function from a finite set of variables to terms. Terms on the right may themselves be constants (<code>John</code>), other variables (<code>z</code>), or compound function terms (<code>Mother(y)</code>, <code>F(G(z))</code>).</p>
+
+<p>Applying a substitution <code>θ</code> to a sentence or term <code>α</code> is written <code>SUBST(θ, α)</code>, or more compactly <code>αθ</code>. The operation walks through <code>α</code> and simultaneously replaces every <em>free</em> occurrence of each bound variable by its associated term. "Simultaneously" matters: the replacement is not iterated, so terms introduced by the substitution are not themselves re-scanned for further replacement.</p>
+
+<pre><code>θ = {x/John, y/Richard}
+
+SUBST(θ, Knows(x, y))            =  Knows(John, Richard)
+SUBST(θ, Loves(Father(x), y))    =  Loves(Father(John), Richard)
+SUBST(θ, Knows(x, z))            =  Knows(John, z)        (z is untouched)
+SUBST(θ, King(Arthur))           =  King(Arthur)          (no variables, no change)
+
+σ = {x/y, y/John}
+SUBST(σ, P(x, y))                =  P(y, John)            NOT P(John, John)</code></pre>
+
+<p>That last example is worth dwelling on. Because the replacement is simultaneous, the <code>y</code> produced from <code>x</code> is <em>not</em> then rewritten to <code>John</code>. Implementations that naively apply bindings one at a time in a loop will get this wrong and produce unsound results.</p>
+
+<p>A substitution is <strong>legal</strong> (sometimes called idempotent, or free of circularity) only if no variable is bound to a term that contains that same variable. The binding <code>{x/F(x)}</code> is illegal: applying it to <code>P(x)</code> gives <code>P(F(x))</code>, which still contains <code>x</code>, and applying it again gives <code>P(F(F(x)))</code>, and so on without limit. This is the <strong>occur-check condition</strong>, and it is the syntactic guard that prevents an inference engine from constructing infinite terms. More generally, a substitution should contain no cycles among its bindings: <code>{x/G(y), y/H(x)}</code> is equally illegal even though neither binding alone violates the simple test, because resolving the bindings leads to <code>x/G(H(G(H(…))))</code>.</p>
+
+<p>A <strong>ground substitution</strong> binds every variable in the expression to a term containing no variables at all. The result is a <strong>ground sentence</strong>: one with no variables, which behaves essentially like a propositional symbol as far as truth-value evaluation is concerned. Ground sentences are the bridge between first-order logic and propositional reasoning, and they are what a model checker ultimately evaluates.</p>
+
+<pre><code>θg = {x/John, y/Mother(John)}
+SUBST(θg, Knows(x, y))  =  Knows(John, Mother(John))     -- ground
+σ  = {x/John}
+SUBST(σ,  Knows(x, y))  =  Knows(John, y)                -- not ground, y remains</code></pre>
+
+<p><strong>Composing substitutions</strong> lets an inference engine chain results together across several steps. The composition <code>θ ∘ σ</code> (often written <code>θσ</code>) means "apply <code>θ</code> first, then <code>σ</code>," so that <code>α(θσ) = (αθ)σ</code>. Computationally, the composition is built by applying <code>σ</code> to every term on the right-hand side of <code>θ</code>, and then adding any bindings of <code>σ</code> whose variables do not already appear on the left of <code>θ</code>.</p>
+
+<pre><code>θ = {x/F(y)}        σ = {y/Albert, z/John}
+
+θσ = {x/F(Albert), y/Albert, z/John}
+
+Check:  P(x, y, z) θ   =  P(F(y), y, z)
+        P(F(y), y, z) σ =  P(F(Albert), Albert, John)
+        P(x, y, z) (θσ) =  P(F(Albert), Albert, John)     ✓ same result</code></pre>
+
+<p>Composition is associative but <em>not</em> commutative: <code>σθ</code> in the example above would be <code>{y/Albert, z/John, x/F(y)}</code>, which still leaves a free <code>y</code> inside the binding for <code>x</code>. This is exactly why a chain of resolution or chaining steps must thread its accumulated substitution forward in a fixed order.</p>
+
+<p><strong>The unification problem.</strong> Unification inverts the question. Rather than being given a substitution and asked for the result, we are given two expressions and asked for a substitution that makes them identical. Formally, <code>UNIFY(p, q)</code> returns a substitution <code>θ</code> such that <code>SUBST(θ, p) = SUBST(θ, q)</code>, and returns <strong>failure</strong> if no such substitution exists. Two expressions for which such a <code>θ</code> exists are called <em>unifiable</em>, and <code>θ</code> is a <em>unifier</em>.</p>
+
+<p>The classic series of examples uses a knowledge base of <code>Knows</code> facts together with the query <code>Knows(John, x)</code> — "whom does John know?":</p>
+
+<table>
+  <thead>
+    <tr><th>p</th><th>q</th><th>UNIFY(p, q)</th><th>Comment</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>Knows(John, x)</code></td><td><code>Knows(John, Jane)</code></td><td><code>{x/Jane}</code></td><td>Constants match; the variable binds to <code>Jane</code>.</td></tr>
+    <tr><td><code>Knows(John, x)</code></td><td><code>Knows(y, Bill)</code></td><td><code>{x/Bill, y/John}</code></td><td>Bindings flow in both directions.</td></tr>
+    <tr><td><code>Knows(John, x)</code></td><td><code>Knows(y, Mother(y))</code></td><td><code>{y/John, x/Mother(John)}</code></td><td>A variable may bind to a compound term.</td></tr>
+    <tr><td><code>Knows(John, x)</code></td><td><code>Knows(x, Elizabeth)</code></td><td><strong>failure</strong></td><td><code>x</code> cannot be <code>John</code> and <code>Elizabeth</code> at once.</td></tr>
+    <tr><td><code>Knows(John, x)</code></td><td><code>Likes(John, x)</code></td><td><strong>failure</strong></td><td>Different predicate symbols.</td></tr>
+    <tr><td><code>P(A, F(x))</code></td><td><code>P(y, F(G(y)))</code></td><td><code>{y/A, x/G(A)}</code></td><td>Nested function terms unify argument-wise.</td></tr>
+    <tr><td><code>P(x, x)</code></td><td><code>P(F(y), y)</code></td><td><strong>failure</strong> (occur-check)</td><td>Would require <code>y = F(y)</code>.</td></tr>
+  </tbody>
+</table>
+
+<p>The fourth row deserves careful attention, because its failure is <em>accidental</em> rather than fundamental. "John knows everyone" and "everyone knows Elizabeth" ought to let us conclude that John knows Elizabeth; the only reason unification fails is that the two sentences happen to reuse the same variable letter. Since variables in distinct sentences are independently quantified, the letter is meaningless — <code>∀x Knows(John, x)</code> and <code>∀z Knows(z, Elizabeth)</code> say exactly the same things. The fix is <strong>standardizing apart</strong>: before attempting unification, rename all variables in one of the sentences to fresh names that occur nowhere else, for example turning <code>x</code> into <code>x17</code>.</p>
+
+<pre><code>Original:        Knows(John, x)    and    Knows(x, Elizabeth)     -- fails
+
+Standardized:    Knows(John, x)    and    Knows(x17, Elizabeth)
+UNIFY returns:   {x/Elizabeth, x17/John}
+Both become:     Knows(John, Elizabeth)                            -- succeeds</code></pre>
+
+<p>Practical systems standardize apart every time a clause or rule is retrieved from the knowledge base, usually by attaching an incrementing counter to each variable name. Omitting this step is one of the most common sources of silently missed inferences in a first-order reasoner.</p>
+
+<p>The matching rules that underlie unification are purely syntactic and can be stated compactly:</p>
+<ul>
+  <li><strong>Constant vs. constant:</strong> unify only if they are the identical symbol. <code>John</code> and <code>John</code> succeed with the empty substitution <code>{}</code>; <code>John</code> and <code>Richard</code> fail.</li>
+  <li><strong>Variable vs. anything:</strong> succeeds by binding the variable to the other term, provided the variable is not already bound inconsistently and the occur-check passes.</li>
+  <li><strong>Function or predicate terms:</strong> unify only if the function/predicate symbols are identical <em>and</em> the arities match <em>and</em> the argument lists unify pairwise, left to right, with bindings accumulated as we go. <code>F(x, A)</code> and <code>F(B, y)</code> unify as <code>{x/B, y/A}</code>; <code>F(x)</code> and <code>G(x)</code> fail; <code>F(x)</code> and <code>F(x, y)</code> fail on arity.</li>
+  <li><strong>Constant vs. compound term:</strong> always fails. <code>John</code> cannot be made identical to <code>Mother(y)</code> by any substitution, since substitution never alters a term's outermost symbol.</li>
+</ul>
+
+<p><strong>Most general unifier (MGU).</strong> When two expressions are unifiable, they are typically unifiable in many ways. Consider <code>Knows(John, x)</code> and <code>Knows(y, z)</code>. All of the following are unifiers:</p>
+
+<pre><code>θ1 = {y/John, x/z}
+θ2 = {y/John, x/z, z/Jane}        -- forces z to be Jane
+θ3 = {y/John, x/John, z/John}     -- forces everything to John
+θ4 = {y/John, x/Mother(w), z/Mother(w)}</code></pre>
+
+<p>All four make the two expressions identical, but <code>θ2</code>, <code>θ3</code> and <code>θ4</code> impose extra commitments that the matching problem never demanded. A unifier <code>θ1</code> is <strong>more general</strong> than <code>θ2</code> if there exists a further substitution <code>λ</code> such that <code>θ2 = θ1λ</code> — that is, <code>θ2</code> can be obtained from <code>θ1</code> by additional specialisation. Here <code>θ2 = θ1{z/Jane}</code> and <code>θ3 = θ1{z/John}</code>, so <code>θ1</code> is more general than both. The <strong>most general unifier</strong> is a unifier that is more general than every other unifier of the pair; for this example it is <code>θ1 = {y/John, x/z}</code>.</p>
+
+<p>Why insist on the MGU? Because an inference engine that commits to <code>θ3</code> has silently decided that <code>z</code> is <code>John</code>, and any later step that needed <code>z</code> to be <code>Jane</code> will now fail even though the overall proof was available. The MGU places the <em>fewest possible restrictions</em> on the variables, leaving every downstream option open; it is the least-commitment choice and therefore preserves the completeness of the search. Premature commitment would force the engine to backtrack over arbitrary bindings, converting a deterministic matching step into an unnecessary branch point.</p>
+
+<p>For any two unifiable expressions, the MGU is <strong>unique up to renaming of variables</strong>. For the example above, <code>{y/John, z/x}</code> is also an MGU; it differs from <code>{y/John, x/z}</code> only in which of the two equivalent variables was kept. Either can be converted to the other by a bijective renaming (a <em>variable permutation</em>), so they are considered the same unifier for all practical purposes. This uniqueness is what makes unification a well-defined, deterministic subroutine rather than a search.</p>
+
+<p><strong>The unification algorithm.</strong> The standard algorithm is a recursive procedure over pairs of expressions that threads an accumulating substitution <code>θ</code> through the recursion. It returns either the extended substitution or <code>failure</code>. In pseudocode:</p>
+
+<pre><code>function UNIFY(x, y, θ) returns a substitution or failure
+  if θ = failure then return failure
+  else if x = y                      then return θ
+  else if VARIABLE?(x)               then return UNIFY-VAR(x, y, θ)
+  else if VARIABLE?(y)               then return UNIFY-VAR(y, x, θ)
+  else if COMPOUND?(x) and COMPOUND?(y) then
+        return UNIFY(ARGS(x), ARGS(y), UNIFY(OP(x), OP(y), θ))
+  else if LIST?(x) and LIST?(y) then
+        return UNIFY(REST(x), REST(y), UNIFY(FIRST(x), FIRST(y), θ))
+  else return failure
+
+function UNIFY-VAR(var, x, θ) returns a substitution or failure
+  if {var/val} ∈ θ            then return UNIFY(val, x, θ)
+  else if {x/val} ∈ θ         then return UNIFY(var, val, θ)
+  else if OCCUR-CHECK?(var, x) then return failure
+  else return add {var/x} to θ</code></pre>
+
+<p>Several design features are worth unpacking.</p>
+<ul>
+  <li><strong>Accumulation and propagation.</strong> The substitution built so far is passed into each recursive call, so a binding made while unifying the first argument constrains the unification of later arguments. Unifying <code>P(x, x)</code> with <code>P(A, B)</code> first yields <code>{x/A}</code>; the second argument pair then becomes effectively <code>A</code> against <code>B</code>, which fails — exactly as it should.</li>
+  <li><strong>UNIFY-VAR and existing bindings.</strong> When one side is a variable, <code>UNIFY-VAR</code> first checks whether that variable already has a binding in <code>θ</code>. If it does, the algorithm <em>follows the existing binding</em> and recursively unifies the bound value against the other term, rather than overwriting. If the other term is itself an already-bound variable, the same dereferencing applies to it. Only when neither side is already bound is a genuinely new binding added.</li>
+  <li><strong>The occur-check.</strong> Before adding <code>{var/x}</code>, the algorithm tests whether <code>var</code> occurs anywhere inside <code>x</code>. Attempting to unify <code>x</code> with <code>F(x)</code> triggers this test and returns failure, which is correct: no finite term satisfies <code>t = F(t)</code>. Without the check, the engine would build a cyclic structure and typically loop forever when it later tried to print or traverse the term. The check costs linear time in the size of <code>x</code>, which in the worst case makes naive unification quadratic; for this reason many Prolog implementations omit it by default (trading soundness for speed) and provide a separate sound unification predicate for when it matters.</li>
+  <li><strong>Compound expressions.</strong> A compound is decomposed into its operator (the function or predicate symbol) and its argument list. The operators must unify — in practice, be identical — and then the argument lists are traversed element by element, with each element's result feeding the next.</li>
+  <li><strong>Failure propagation.</strong> The very first line, <code>if θ = failure then return failure</code>, means a failure anywhere deep in the recursion short-circuits every enclosing call. There is no partial success: unification is all or nothing.</li>
+</ul>
+
+<p>A worked trace makes the flow concrete. Unify <code>P(A, F(x), z)</code> with <code>P(y, F(G(w)), G(y))</code>, starting from <code>θ = {}</code>:</p>
+
+<pre><code>1. OP: P vs P                     → θ = {}
+2. Arg1: A vs y   → y is a variable, unbound, occur-check OK
+                                  → θ = {y/A}
+3. Arg2: F(x) vs F(G(w))
+     OP: F vs F                   → θ = {y/A}
+     Arg: x vs G(w)  → x unbound, x does not occur in G(w)
+                                  → θ = {y/A, x/G(w)}
+4. Arg3: z vs G(y)  → z unbound, z does not occur in G(y)
+                                  → θ = {y/A, x/G(w), z/G(y)}
+
+MGU = {y/A, x/G(w), z/G(y)}
+Both sides become: P(A, F(G(w)), G(A))      [after resolving z/G(y), y/A]</code></pre>
+
+<p>Contrast that with a failing case, <code>UNIFY(P(x, x), P(F(y), y))</code>:</p>
+
+<pre><code>1. OP: P vs P                     → θ = {}
+2. Arg1: x vs F(y)  → bind        → θ = {x/F(y)}
+3. Arg2: x vs y     → x is bound to F(y), so UNIFY(F(y), y, θ)
+                    → y is a variable; OCCUR-CHECK?(y, F(y)) is TRUE
+                    → failure
+Result: failure (propagates up through every enclosing call)</code></pre>
+
+<p><strong>Efficient retrieval.</strong> In a knowledge base with hundreds of thousands of sentences, running <code>UNIFY</code> against every stored sentence to answer a query is hopeless. Two complementary indexing techniques narrow the candidate set:</p>
+<ul>
+  <li><strong>Predicate indexing</strong> stores all facts under a key formed from the predicate symbol (and often the arity, and sometimes the principal functor of the first argument). A query <code>Knows(John, x)</code> then retrieves only the <code>Knows/2</code> bucket instead of scanning everything. Combined indexing on <code>(predicate, first-argument-constant)</code> is standard in Prolog systems and is often enough to reduce the candidate set to a handful.</li>
+  <li><strong>Subsumption lattices</strong> organise queries by generality. Each node is a pattern, with edges from more general patterns to more specific ones: <code>Employs(x, y)</code> sits above <code>Employs(x, Richard)</code> and <code>Employs(AIMA, y)</code>, which in turn sit above the ground fact <code>Employs(AIMA, Richard)</code>. Facts are stored at the nodes that subsume them, so answering a query means collecting the facts stored at or below the query's node. The lattice grows exponentially in the number of arguments (a pattern with <em>n</em> arguments has up to 2<sup><em>n</em></sup> generalisations), so real systems index on a selected subset of argument positions chosen to match the expected query mix.</li>
+</ul>
+
+<p><strong>Generalized Modus Ponens: lifting propositional inference.</strong> With unification in hand we can lift Modus Ponens itself. The <strong>Generalized Modus Ponens</strong> (GMP) rule states: given atomic sentences <code>p1′, p2′, …, pn′</code> and an implication <code>(p1 ∧ p2 ∧ … ∧ pn ⇒ q)</code>, where there exists a substitution <code>θ</code> with <code>SUBST(θ, pi′) = SUBST(θ, pi)</code> for every <em>i</em>, infer <code>SUBST(θ, q)</code>. Written as an inference schema:</p>
+
+<pre><code>   p1′, p2′, …, pn′,   (p1 ∧ p2 ∧ … ∧ pn ⇒ q)
+  ------------------------------------------------   where piθ = pi′θ for all i
+                   SUBST(θ, q)</code></pre>
+
+<p>The canonical example: the knowledge base contains</p>
+
+<pre><code>(1)  ∀x  King(x) ∧ Greedy(x) ⇒ Evil(x)
+(2)  King(John)
+(3)  ∀y  Greedy(y)</code></pre>
+
+<p>Here <code>p1′ = King(John)</code>, <code>p2′ = Greedy(y)</code>, <code>p1 = King(x)</code>, <code>p2 = Greedy(x)</code>, and <code>q = Evil(x)</code>. The substitution <code>θ = {x/John, y/John}</code> satisfies the condition, since <code>King(x)θ = King(John) = King(John)θ</code> and <code>Greedy(x)θ = Greedy(John) = Greedy(y)θ</code>. GMP therefore infers <code>SUBST(θ, Evil(x)) = Evil(John)</code> in a single step.</p>
+
+<p>Contrast this with the propositional route. To use propositional Modus Ponens we would first have to <strong>propositionalize</strong> the knowledge base: instantiate every universally quantified sentence with every ground term in the language, then treat each resulting ground atom as a propositional symbol. With sentence (1) and a domain containing <em>n</em> constants, that produces <em>n</em> ground copies of the rule, of which exactly one is useful. Worse, if the language contains any function symbol — say <code>Father</code> — the set of ground terms is infinite (<code>John</code>, <code>Father(John)</code>, <code>Father(Father(John))</code>, …), so full propositionalization never terminates. Herbrand's theorem guarantees that if a sentence is entailed, some <em>finite</em> subset of the ground instances suffices, which is why iterative-deepening propositionalization is semi-decidable; but it is hopelessly inefficient, since it generates vast numbers of irrelevant instances such as <code>King(Father(Father(Richard)))</code>. <strong>Lifting</strong> avoids all of this: unification finds exactly the instantiations the proof needs, on demand, and ignores the rest.</p>
+
+<table>
+  <thead>
+    <tr><th>Aspect</th><th>Propositionalization + propositional MP</th><th>Lifted inference with GMP</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Instances created</td><td>All ground instances of every rule</td><td>Only those demanded by unification</td></tr>
+    <tr><td>Behaviour with function symbols</td><td>Infinite ground term set; may not terminate</td><td>Terms constructed only as needed</td></tr>
+    <tr><td>Steps for the King/Greedy example</td><td><em>n</em> rule instances for <em>n</em> constants, then 1 MP step</td><td>1 step</td></tr>
+    <tr><td>Matching cost</td><td>Symbol equality</td><td>Unification (near-linear with good indexing)</td></tr>
+    <tr><td>Representation of the answer</td><td>Ground atom</td><td>Possibly a general sentence with variables</td></tr>
+  </tbody>
+</table>
+
+<p>GMP is <strong>sound</strong>: every conclusion it draws is entailed by its premises. The argument is short and instructive. For any sentence <code>p</code> that is universally quantified and any substitution <code>θ</code>, Universal Instantiation gives <code>p ⊨ SUBST(θ, p)</code>. So from the premises <code>p1′, …, pn′</code> we may infer <code>p1′θ, …, pn′θ</code>, and from the implication we may infer <code>(p1θ ∧ … ∧ pnθ ⇒ qθ)</code>. By the unification condition, <code>piθ = pi′θ</code> for each <em>i</em>, so the instantiated premises exactly match the antecedent conjuncts, and ordinary propositional Modus Ponens yields <code>qθ</code>. GMP is thus simply Universal Instantiation plus Modus Ponens, compressed into one rule and with the instantiation chosen automatically by unification.</p>
+
+<p>GMP applies to <strong>definite clauses</strong>: disjunctions of literals with exactly one positive literal, equivalently implications whose antecedent is a conjunction of positive atoms and whose consequent is a single positive atom. Facts such as <code>King(John)</code> are the degenerate case with an empty antecedent. This restricted form is precisely what makes GMP usable as the single inference rule of the two main first-order chaining algorithms:</p>
+<ul>
+  <li><strong>Forward chaining</strong> starts from the known facts and repeatedly applies GMP to derive new facts, adding each one to the knowledge base, until the query appears or no new facts can be produced. It is data-driven and naturally computes all consequences; production systems and deductive databases (Datalog) work this way.</li>
+  <li><strong>Backward chaining</strong> starts from the query, unifies it with the consequent of some rule, and recursively attempts to prove that rule's antecedents, composing substitutions along the way. It is goal-driven and is the execution model of Prolog.</li>
+</ul>
+
+<p>In both algorithms every match between a goal (or fact) and a clause head is performed by <code>UNIFY</code>, and every answer returned is a substitution — the composition of all the MGUs used along the successful branch. A short backward-chaining trace for the query <code>Evil(q)</code> against the King/Greedy knowledge base shows the composition in action:</p>
+
+<pre><code>Goal: Evil(q)
+  unify Evil(q) with head Evil(x17)      → θ1 = {q/x17}
+  subgoals: King(x17), Greedy(x17)
+    Goal King(x17)
+      unify with fact King(John)         → θ2 = {x17/John}
+    Goal Greedy(John)        (θ2 applied)
+      unify with fact Greedy(y18)        → θ3 = {y18/John}
+Answer substitution: θ1θ2θ3 restricted to q  =  {q/John}</code></pre>
+
+<p>The efficiency gain from lifting is not merely constant-factor. A single lifted step can stand in for an entire family of propositional steps; if a rule has <em>k</em> variables ranging over <em>n</em> constants, one GMP application replaces up to <em>n<sup>k</sup></em> propositional rule instances that would otherwise have to be generated and tested. This is the central reason first-order reasoners are practical at all.</p>
+
+<p><strong>First-order resolution with unification.</strong> GMP is complete only for definite-clause knowledge bases. For full first-order logic — including disjunction, negation and existential quantification — we need <strong>resolution</strong>, which is likewise lifted by unification. The binary resolution rule for first-order clauses states: given two clauses that have been standardized apart,</p>
+
+<pre><code>  ℓ1 ∨ … ∨ ℓk          and          m1 ∨ … ∨ mn
+
+and a substitution θ = UNIFY(ℓi, ¬mj) ,  infer the resolvent
+
+  SUBST(θ,  ℓ1 ∨ … ∨ ℓi−1 ∨ ℓi+1 ∨ … ∨ ℓk ∨ m1 ∨ … ∨ mj−1 ∨ mj+1 ∨ … ∨ mn)</code></pre>
+
+<p>In words: two clauses resolve when a literal in one and a <em>complementary</em> literal in the other (same predicate, opposite sign) unify under an MGU <code>θ</code>. The <strong>resolvent</strong> is the disjunction of all the remaining literals from both clauses, with <code>θ</code> applied to every one of them. Applying <code>θ</code> to the leftovers — not just to the resolved pair — is essential, because the bindings discovered during the match constrain the rest of the clause as well.</p>
+
+<p>A worked example. Suppose the knowledge base contains "everyone who is rich is happy" and "John is rich":</p>
+
+<pre><code>C1:  ¬Rich(x) ∨ Happy(x)
+C2:  Rich(John)
+
+Resolve Happy? No — pick the complementary pair:
+   ℓ1 = ¬Rich(x)   from C1
+   m1 =  Rich(John) from C2
+   UNIFY(Rich(x), Rich(John)) = θ = {x/John}
+
+Resolvent = SUBST(θ, Happy(x)) = Happy(John)</code></pre>
+
+<p>A richer case, showing why leftovers must be substituted too:</p>
+
+<pre><code>C1:  ¬Animal(y) ∨ Loves(Jack, y)            ("Jack loves all animals")
+C2:  ¬Loves(Jack, z) ∨ ¬Kills(z, Jack)      ("whoever Jack loves does not kill Jack")
+
+UNIFY(Loves(Jack, y), Loves(Jack, z)) = {z/y}
+
+Resolvent = ¬Animal(y) ∨ ¬Kills(y, Jack)
+            ("no animal kills Jack")</code></pre>
+
+<p><strong>Standardizing apart</strong> is mandatory before each resolution step, for the same reason as before. If two clauses both happen to use the variable <code>x</code>, unification may fail spuriously — or, worse, succeed with bindings that illegitimately tie together two independently quantified variables, producing an unsound resolvent. Consider resolving <code>P(x) ∨ Q(x)</code> with <code>¬P(A) ∨ R(x)</code>: without renaming, <code>θ = {x/A}</code> would be applied to the <code>R(x)</code> literal as well, yielding <code>Q(A) ∨ R(A)</code> and wrongly discarding the more general conclusion. After renaming the second clause's variable to <code>x9</code>, we obtain the correct resolvent <code>Q(A) ∨ R(x9)</code>.</p>
+
+<p><strong>Factoring</strong> handles a subtlety that has no propositional counterpart. Substitution can make two literals of the <em>same</em> clause become identical; since a clause is logically a set of literals, duplicates must be collapsed. The factoring rule says: if two or more literals of the same sign in one clause unify with MGU <code>θ</code>, the clause may be replaced by its factor, obtained by applying <code>θ</code> and merging the now-identical literals.</p>
+
+<pre><code>Clause:  P(x) ∨ P(F(y)) ∨ Q(y)
+UNIFY(P(x), P(F(y))) = {x/F(y)}
+Factor:  P(F(y)) ∨ Q(y)</code></pre>
+
+<p>Factoring is not an optional tidy-up: binary resolution <em>without</em> factoring is incomplete. The standard illustration is the unsatisfiable pair <code>{P(x) ∨ P(y), ¬P(u) ∨ ¬P(v)}</code>. Repeated binary resolution between them only ever produces clauses of the form <code>P(a) ∨ ¬P(b)</code>, never the empty clause; factoring each clause first to <code>P(x)</code> and <code>¬P(u)</code> lets a single resolution step close the proof.</p>
+
+<p><strong>Resolution refutation.</strong> Resolution is used not to derive the goal directly but to show that its negation is contradictory. To prove <code>KB ⊨ α</code>, the procedure is:</p>
+<ul>
+  <li>Form <code>KB ∧ ¬α</code>.</li>
+  <li>Convert the result to <strong>conjunctive normal form</strong>: eliminate <code>⇔</code> and <code>⇒</code>, drive negations inward (<code>¬∀x p</code> becomes <code>∃x ¬p</code>, and <code>¬∃x p</code> becomes <code>∀x ¬p</code>), standardize variables apart, <strong>Skolemize</strong> existentials (replacing <code>∃x</code> by a fresh Skolem constant, or by a Skolem function of the enclosing universally quantified variables), drop the now-redundant universal quantifiers, and distribute <code>∨</code> over <code>∧</code>.</li>
+  <li>Repeatedly resolve pairs of clauses, standardizing apart and factoring as required, adding each resolvent to the clause set.</li>
+  <li>If the <strong>empty clause</strong> <code>□</code> — a disjunction of no literals, which is unsatisfiable — is derived, then <code>KB ∧ ¬α</code> is unsatisfiable and therefore <code>KB ⊨ α</code>.</li>
+</ul>
+
+<p>A compact end-to-end refutation, proving <code>Evil(John)</code> from the earlier knowledge base:</p>
+
+<table>
+  <thead>
+    <tr><th>Step</th><th>Clause</th><th>Justification</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td><code>¬King(x) ∨ ¬Greedy(x) ∨ Evil(x)</code></td><td>CNF of the rule</td></tr>
+    <tr><td>2</td><td><code>King(John)</code></td><td>Given fact</td></tr>
+    <tr><td>3</td><td><code>Greedy(y)</code></td><td>Given fact</td></tr>
+    <tr><td>4</td><td><code>¬Evil(John)</code></td><td>Negated query</td></tr>
+    <tr><td>5</td><td><code>¬Greedy(John) ∨ Evil(John)</code></td><td>Resolve 1 and 2, θ = {x/John}</td></tr>
+    <tr><td>6</td><td><code>Evil(John)</code></td><td>Resolve 5 and 3, θ = {y/John}</td></tr>
+    <tr><td>7</td><td><code>□</code></td><td>Resolve 6 and 4, θ = {}</td></tr>
+  </tbody>
+</table>
+
+<p>Notice that the query variable bindings fall out of the proof for free: had the query been <code>∃q Evil(q)</code>, the negated query would be <code>¬Evil(q)</code>, and the substitution <code>{q/John}</code> accumulated during the refutation would be the answer.</p>
+
+<p>First-order resolution is <strong>refutation-complete</strong>: if a set of clauses is unsatisfiable, resolution will eventually derive the empty clause. This result — essentially Robinson's 1965 theorem, resting on Herbrand's theorem plus the lifting lemma (any propositional resolution step on ground instances can be mirrored by a first-order resolution step on the general clauses, whose MGU is at least as general) — is the theoretical foundation of automated theorem proving. Two caveats temper it. First, refutation-completeness is weaker than generative completeness: resolution is not guaranteed to generate every entailed sentence, only to refute every unsatisfiable set. Second, "eventually" carries real weight: first-order entailment is only semi-decidable, so if <code>KB ⊭ α</code> the procedure may run forever without ever concluding anything. Practical provers therefore layer on strategies — unit preference, set-of-support, input resolution, subsumption deletion and term indexing — that prune the enormous space of possible resolvents while preserving completeness where possible.</p>
+
+<p>Stepping back, the three layers of this topic fit together as a single idea. Substitutions give us a representation for "partial knowledge about which individuals a sentence is talking about." Unification gives us a deterministic, least-commitment way to compute the weakest such partial knowledge that makes two expressions match. And once we have that, every propositional inference rule has a first-order counterpart obtained by inserting a unification step: Modus Ponens becomes Generalized Modus Ponens, and propositional resolution becomes first-order resolution. The payoff is that the inference engine reasons with general rules directly, instantiating them only as far as a particular proof requires.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1</strong> — Only indirectly supported. The topic describes the inference machinery that sits behind the ASK operation of a knowledge-based agent (unification is what matches a query against stored sentences), but it does not itself describe the agent architecture or the TELL/ASK control loop.</li>
+  <li><strong>MO2</strong> — Not addressed. The topic assumes well-formed sentences as input and works at the first-order level; it does not cover the propositional connectives or the BNF grammar for constructing sentences.</li>
+  <li><strong>MO3</strong> — Partially supported, at one level up. The treatment of conversion to CNF, resolution refutation and derivation of the empty clause is the first-order generalisation of the propositional procedure named in the outcome, so it reinforces and extends the entailment-by-refutation method; model checking is not covered here.</li>
+  <li><strong>MO4</strong> — Supported through worked material. The many examples written as predicates, constants, function terms and quantified rules (for instance <code>∀x King(x) ∧ Greedy(x) ⇒ Evil(x)</code> and <code>Knows(y, Mother(y))</code>) give practice in reading and manipulating first-order sentences with appropriate predicates, functions and quantifiers, including Skolemization of existentials.</li>
+  <li><strong>MO5</strong> — Directly supported. Generalized Modus Ponens is presented as the single lifted rule that both forward chaining and backward chaining apply to definite-clause knowledge bases, and the topic contrasts the data-driven and goal-driven styles, providing the inferential basis for judging which suits a given task.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Suggested teaching sequence: (1) drill SUBST and composition by hand before introducing UNIFY, since most student errors with unification trace back to applying bindings sequentially rather than simultaneously; (2) run the Knows(John, x) table as a class exercise, withholding the standardizing-apart fix until students have hit the spurious failure themselves. Common misconceptions to pre-empt: believing that a constant can unify with a compound term; forgetting to apply θ to the non-resolved literals of a resolvent; assuming resolution completeness implies decidability. The occur-check discussion pairs well with a live Prolog demo of `X = f(X).` (which succeeds and prints a cyclic term in most systems) versus `unify_with_occurs_check(X, f(X)).` Possible assessment items: compute the MGU for three expression pairs including one occur-check failure; convert a short English argument to CNF and produce a full refutation with substitutions annotated on each step; explain in two or three sentences why propositionalization fails when function symbols are present.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

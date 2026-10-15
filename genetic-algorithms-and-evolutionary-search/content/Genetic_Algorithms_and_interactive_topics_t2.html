@@ -1,0 +1,339 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Problem Encoding and Representation</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Genetic Algorithms and Evolutionary Search</a></div>
+  <header>
+    <h1>Problem Encoding and Representation</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Problem Encoding and Representation</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Every genetic algorithm (GA) operates on two distinct levels. On one level there is the <strong>problem</strong> itself — a timetable, a circuit layout, a set of aerofoil parameters, a routing plan. On the other level there is the <strong>chromosome</strong>, the artificial data structure that the algorithm actually manipulates. The bridge between these two levels is the <em>encoding</em> (also called the representation). Nothing in a GA is more consequential than this choice: selection, crossover and mutation are all blind to the meaning of the problem and see only the chromosome, so the encoding determines what the algorithm can express, what it can combine, and what it can never reach at all. Two teams can implement identical selection schemes and identical population sizes and obtain wildly different results purely because one chose a representation whose structure matched the problem and the other did not.</p>
+
+<p><strong>The role of encoding in genetic algorithms.</strong> Borrowing the vocabulary of biology, a GA distinguishes the <em>genotype</em> — the encoded chromosome — from the <em>phenotype</em> — the actual candidate solution that the chromosome stands for. A chromosome is a structured string of <em>genes</em>; each gene occupies a fixed position, called its <em>locus</em>, and holds an <em>allele</em>, a value drawn from a defined alphabet. In a binary encoding the alphabet is simply <code>{0, 1}</code>; in an integer encoding for a graph-colouring problem it might be <code>{red, green, blue, yellow}</code>; in a real-valued encoding it is a bounded interval of the reals. The alphabet, the number of genes, and the rules governing their arrangement together constitute the representation.</p>
+
+<p><em>Decoding</em> is the procedure that turns a genotype back into a phenotype so that the fitness function can judge it. Decoding may be trivial — a vector of three real numbers interpreted directly as three physical dimensions — or it may be an elaborate computation, as when a chromosome of priority values is fed into a scheduling heuristic that constructs an actual timetable. The important point is that fitness is a property of the <em>phenotype</em>, while variation operators act on the <em>genotype</em>. Everything interesting about representation design lives in the quality of the mapping between the two.</p>
+
+<p>Consider a concrete miniature example: the 0/1 knapsack problem with five items. A natural genotype is a five-bit string, and decoding means reading each bit as "take this item" or "leave it".</p>
+
+<pre><code>Items:      A      B      C      D      E
+Value:      10     7      12     3      8
+Weight:     5      3      6      2      4     Capacity: 10
+
+Genotype:   1 0 1 0 0
+Decoding:   take A, take C
+Phenotype:  {A, C}  ->  value 22, weight 11  -> OVER CAPACITY, infeasible
+</code></pre>
+
+<p>Three structural consequences of encoding deserve emphasis.</p>
+
+<ul>
+  <li><strong>The encoding defines the search space.</strong> The set of all strings the representation permits is exactly the set of solutions the GA can ever visit. If you encode a travelling salesman tour as a permutation of ten cities, the search space contains 10! = 3,628,800 points and nothing else — no partial tours, no tours that revisit a city. That is usually a virtue, because infeasible regions are excluded by construction. But it is also a hard boundary: a representation that cannot express the optimum guarantees that the optimum will never be found, no matter how long the run or how clever the operators. A classic failure is fixing the number of components (say, "exactly four layers in the neural network") when the best solution needs five.</li>
+  <li><strong>A good encoding keeps related information close together.</strong> The building-block intuition behind crossover is that short, low-order, high-fitness patterns of genes — <em>schemata</em> — are inherited intact and recombined across parents. One-point and two-point crossover cut the chromosome at a small number of loci, so genes that sit adjacent to one another survive together with high probability, while genes at opposite ends are easily separated. If the x- and y-coordinates of the same physical component are adjacent in the chromosome, crossover tends to inherit that component as a unit; if they are scattered at loci 2 and 47, crossover will routinely shred a good component into two useless halves. Designing for locality of meaning along the chromosome is therefore a deliberate act, not an accident of implementation order.</li>
+  <li><strong>Poor encodings create redundancy.</strong> Redundancy occurs when many distinct genotypes decode to the same phenotype. A moderate amount can be benign or even helpful (it adds neutral paths through the search space), but gratuitous redundancy wastes evaluations and dilutes selective pressure. The canonical example is encoding a set of <em>k</em> items as an ordered list: the same set of three items can be written in 3! = 6 ways, so the GA spends effort rediscovering permutations that are semantically identical. Similar waste arises when unused "junk" genes are carried along, or when a chromosome contains more parameters than the decoder actually reads.</li>
+</ul>
+
+<p><strong>Binary representation.</strong> The classical GA of Holland and Goldberg used fixed-length binary strings, and the binary alphabet remains the reference point against which other representations are compared. Its appeal is that the operators are maximally simple: one-point, two-point or uniform crossover on the bit string, and bit-flip mutation applied independently at each locus with some small probability (a common default is 1/<em>L</em>, where <em>L</em> is chromosome length, so that on average one bit flips per offspring).</p>
+
+<p>Binary encoding is an exact fit for <em>Boolean decision problems</em>: subset selection, feature selection for a classifier, knapsack packing, sensor placement, switch settings in a logic circuit. Each bit answers one yes/no question and no decoding arithmetic is required. For <em>feature selection</em> over 40 candidate features, a 40-bit chromosome has one bit per feature; crossover swaps whole blocks of feature decisions between two promising subsets.</p>
+
+<p>Continuous parameters can also be squeezed into binary by <em>discretisation</em>: allocate a block of <em>n</em> bits per variable, read the block as an unsigned integer <em>g</em> in [0, 2<sup>n</sup>−1], and scale it linearly into the variable's range [<em>lo</em>, <em>hi</em>]:</p>
+
+<pre><code>x = lo + g * (hi - lo) / (2^n - 1)
+
+Example: 8 bits for a variable in [-5, 5]
+  bits 10110010  ->  g = 178
+  x = -5 + 178 * 10 / 255 = -5 + 6.980 = 1.980
+Resolution = 10 / 255 = 0.0392 per step
+</code></pre>
+
+<p>This immediately exposes a <strong>precision/length trade-off</strong>. Ten bits per variable over the same range gives a resolution of 10/1023 ≈ 0.0098, four times finer, but a problem with 30 variables then needs a 300-bit chromosome. Longer chromosomes enlarge the search space exponentially (2<sup>300</sup> points), slow convergence, and demand larger populations. If the required precision is 10<sup>−6</sup> over a range of width 100, you need <em>n</em> such that 100/(2<sup>n</sup>−1) ≤ 10<sup>−6</sup>, i.e. <em>n</em> ≥ 27 bits <em>per variable</em> — at which point a real-valued encoding is almost always the better engineering decision.</p>
+
+<p>Standard binary coding also introduces an artefact with no counterpart in the problem: the <strong>Hamming cliff</strong>. Numerically adjacent values can be very distant in bit space, so a single mutation cannot move between them. The transition from 7 to 8 in four bits requires all four bits to flip simultaneously:</p>
+
+<table>
+  <thead>
+    <tr><th>Integer</th><th>Standard binary</th><th>Hamming distance to next</th><th>Gray code</th><th>Hamming distance to next</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>5</td><td>0101</td><td>1</td><td>0111</td><td>1</td></tr>
+    <tr><td>6</td><td>0110</td><td>1</td><td>0101</td><td>1</td></tr>
+    <tr><td>7</td><td>0111</td><td>4</td><td>0100</td><td>1</td></tr>
+    <tr><td>8</td><td>1000</td><td>1</td><td>1100</td><td>1</td></tr>
+    <tr><td>9</td><td>1001</td><td>1</td><td>1101</td><td>1</td></tr>
+  </tbody>
+</table>
+
+<p>If the optimum sits at 8 and the population has converged around 7, bit-flip mutation must perform four coordinated flips — an event of probability roughly <em>p</em><sup>4</sup> — to cross the cliff. The search stalls for reasons that are entirely an artefact of the code, not of the fitness landscape.</p>
+
+<p><strong>Gray coding</strong> repairs this. A Gray code is a binary numbering in which consecutive integers differ in exactly one bit, so single mutations always produce numerically adjacent values and the genotype distance better reflects phenotype distance. Conversion is cheap:</p>
+
+<pre><code>Binary -> Gray:   g[0] = b[0]
+                  g[i] = b[i-1] XOR b[i]        (i &gt; 0)
+
+Gray -> Binary:   b[0] = g[0]
+                  b[i] = b[i-1] XOR g[i]        (i &gt; 0)
+
+Example: binary 0111 (=7) -> Gray 0100
+         binary 1000 (=8) -> Gray 1100    (differ in one bit)
+</code></pre>
+
+<p>Gray coding smooths local search behaviour and is a standard default whenever numeric quantities are encoded in bits. It does not eliminate all pathologies — large jumps still require multiple flips — but it removes the worst discontinuities around powers of two.</p>
+
+<p><strong>Integer and real-valued representations.</strong> When the decision variables are naturally discrete but not binary, an <em>integer encoding</em> is more honest than packing values into bits. Each gene holds a value from a finite set: the machine assigned to a job, the colour assigned to a vertex, the discrete gear ratio chosen for a stage, the resource level (0–5) allocated to a task. A graph-colouring chromosome for seven vertices with four available colours is simply <code>[2, 0, 3, 1, 0, 2, 3]</code>. Crossover can be the usual point or uniform variety (it never breaks validity, because any value from the alphabet is legal at any locus), and mutation resets a gene to a randomly chosen alternative value. Where the integers are <em>cardinal</em> rather than merely <em>nominal</em> — a quantity such as "number of vehicles", where 4 is closer to 5 than to 12 — a creep mutation that adds ±1 or ±2 is usually better than a uniform random reset, because it respects the ordering of the alphabet.</p>
+
+<p><em>Real-valued</em> (floating-point) encoding stores each design parameter directly as a double, so a chromosome is a vector such as <code>[1.982, -0.447, 12.6031]</code>. There is no bit-level discretisation, no Hamming cliff, and no precision ceiling imposed by chromosome length; the genotype is the phenotype. This makes real coding the standard choice for continuous parameter optimisation — aerodynamic shape design, controller tuning, curve fitting, calibration of simulation models.</p>
+
+<p>The price is that bit-string operators no longer apply, so real-coded GAs need <strong>specialised operators</strong>:</p>
+
+<ul>
+  <li><strong>Arithmetic (whole or single) crossover:</strong> the child is a convex combination of the parents, <code>c = α·p1 + (1−α)·p2</code> with α ∈ [0,1]. With α drawn fresh each time, offspring lie on the line segment between the parents.</li>
+  <li><strong>Blend crossover (BLX-α):</strong> for each gene, let <em>d</em> = |p1<sub>i</sub> − p2<sub>i</sub>| and sample uniformly from <code>[min − α·d, max + α·d]</code>, typically with α = 0.5. Unlike pure arithmetic crossover this can produce values <em>outside</em> the parental interval, which counteracts the inexorable shrinkage of population spread.</li>
+  <li><strong>Simulated binary crossover (SBX):</strong> uses a polynomial distribution to mimic the spread statistics of one-point binary crossover; widely used in modern multi-objective algorithms.</li>
+  <li><strong>Gaussian mutation:</strong> add a normally distributed perturbation, <code>x' = x + N(0, σ)</code>. Variants include uniform mutation within the bounds and non-uniform mutation whose spread shrinks with generation number.</li>
+</ul>
+
+<p>The <strong>mutation step size σ</strong> becomes a first-class tuning parameter and effectively controls the exploration/exploitation balance. A large σ relative to the variable's range (say 20% of the range) scatters offspring widely and behaves like global search; a small σ (0.1% of range) performs fine local refinement but will not escape a basin of attraction. Common practice is to set σ as a fraction of the range per variable, to anneal it downwards over the run, or — as in evolution strategies — to <em>self-adapt</em> it by storing σ inside the chromosome alongside the object variables and letting selection tune it implicitly.</p>
+
+<pre><code>Self-adaptive real chromosome:
+   [ x1, x2, x3 | sigma1, sigma2, sigma3 ]
+   mutate sigma first:  sigma_i' = sigma_i * exp(tau * N(0,1))
+   then mutate x:       x_i'     = x_i + sigma_i' * N(0,1)
+</code></pre>
+
+<p><strong>Box constraints</strong> — the lower and upper bound on each variable — are not automatically respected by arithmetic or Gaussian operators, so every offspring must be made legal before evaluation. Three standard remedies exist, and the choice matters:</p>
+
+<table>
+  <thead>
+    <tr><th>Technique</th><th>Rule for a value <em>x</em> outside [lo, hi]</th><th>Behaviour and caution</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Clipping (clamping)</td><td>x ← lo if x &lt; lo; x ← hi if x &gt; hi</td><td>Simplest; causes a build-up of individuals exactly on the bound, which is fine if optima are on the bound but biasing otherwise.</td></tr>
+    <tr><td>Reflection (bouncing)</td><td>x ← lo + (lo − x), repeated until inside</td><td>Keeps the distribution inside the box without clumping at the edge; needs iteration for extreme overshoots.</td></tr>
+    <tr><td>Wrapping (toroidal)</td><td>x ← lo + ((x − lo) mod (hi − lo))</td><td>Only sensible for genuinely cyclic variables such as angles; otherwise it teleports solutions across the space.</td></tr>
+    <tr><td>Resample / repair</td><td>Redraw the perturbation until the child is feasible, or project onto the feasible set</td><td>Unbiased but can be expensive near corners of the box.</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Permutation representation.</strong> A large family of combinatorial problems asks not <em>which</em> items to use but in <em>what order</em> or <em>in what one-to-one assignment</em>: the travelling salesman problem (TSP), job-shop sequencing on a single machine, the quadratic assignment problem, flowshop scheduling, and ordering of operations in a production line. Here the chromosome is a permutation of 1..n and the defining constraint is that <strong>each element appears exactly once</strong> — no duplicates, no omissions.</p>
+
+<p>This constraint is fragile. Standard one-point crossover destroys it immediately:</p>
+
+<pre><code>Parent 1:  1 2 3 | 4 5 6 7
+Parent 2:  5 3 7 | 1 6 2 4
+
+One-point child:  1 2 3 1 6 2 4     <- 1 and 2 duplicated, 5 and 7 missing: INVALID
+</code></pre>
+
+<p>Hence permutation GAs use <strong>order-preserving crossovers</strong> that are closed under the representation:</p>
+
+<ul>
+  <li><strong>Order crossover (OX).</strong> Copy a contiguous segment from parent 1 into the child at the same positions. Then walk through parent 2 starting after the segment end, wrapping around, and fill the remaining child positions (also starting after the segment, wrapping) with the elements not yet present, in the order they appear in parent 2. OX preserves the <em>relative order</em> of the non-copied genes and is the workhorse for cyclic tour problems.</li>
+  <li><strong>Partially mapped crossover (PMX).</strong> Copy a segment from parent 1, then use the positional correspondence between the two parents' segments as a mapping to place parent 2's remaining elements without conflict. PMX preserves <em>absolute positions</em> more strongly than OX, which suits assignment problems where "element 7 sits in slot 3" is itself meaningful.</li>
+  <li><strong>Cycle crossover (CX).</strong> Identifies cycles of positions under the permutation that maps parent 1 to parent 2, then takes whole cycles alternately from each parent. Every gene in the child therefore occupies a position it held in one of the parents — maximal positional inheritance, minimal novelty.</li>
+  <li><strong>Edge recombination (ERX).</strong> Builds an adjacency table of the edges present in both parents and constructs the child by always moving to the neighbour with fewest remaining connections. Designed specifically for the symmetric TSP, where the meaningful unit of inheritance is the <em>edge</em>, not the position.</li>
+</ul>
+
+<pre><code>OX example  (segment = positions 3..5)
+
+Parent 1:  1 2 [3 4 5] 6 7
+Parent 2:  4 6 [2 7 1] 3 5
+
+Child starts:  _ _ 3 4 5 _ _
+Read P2 from position 6 onward, wrapping: 3, 5, 4, 6, 2, 7, 1
+Drop those already in child (3,4,5):       6, 2, 7, 1
+Fill child from position 6 onward, wrapping:
+Child:         2 7 3 4 5 6 1       <- a valid permutation
+</code></pre>
+
+<p>Mutation is likewise redesigned. Flipping or resetting a single gene would create a duplicate, so permutation mutation rearranges existing genes:</p>
+
+<table>
+  <thead>
+    <tr><th>Operator</th><th>Action on 1 2 3 4 5 6 7</th><th>Typical effect</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Swap (exchange)</td><td>swap positions 2 and 6 → 1 <strong>6</strong> 3 4 5 <strong>2</strong> 7</td><td>Small positional change; for a TSP it alters four edges, so it is quite disruptive to tours.</td></tr>
+    <tr><td>Insertion (displacement)</td><td>move 6 after 1 → 1 <strong>6</strong> 2 3 4 5 7</td><td>Shifts one element while preserving the relative order of the rest; gentle on order-based problems.</td></tr>
+    <tr><td>Inversion (2-opt)</td><td>reverse 3..6 → 1 2 <strong>6 5 4 3</strong> 7</td><td>Changes only two edges in a symmetric tour; the natural local move for TSP.</td></tr>
+    <tr><td>Scramble</td><td>shuffle 3..6 → 1 2 <strong>5 3 6 4</strong> 7</td><td>Larger, more exploratory perturbation of a contiguous block.</td></tr>
+  </tbody>
+</table>
+
+<p>The final — and frequently overlooked — point is that different permutation problems care about different <em>semantics</em>, and the operator should match. In a symmetric TSP, the solution is defined by its set of <strong>edges</strong>; rotating or reversing a tour yields the identical phenotype, so operators that preserve adjacency (inversion, ERX, OX) are appropriate and positional operators waste effort chasing redundant encodings. In a machine-scheduling problem with release dates, the <strong>absolute position</strong> of a job in the sequence determines its start time, so PMX or CX — which transmit positions — align better with the fitness structure. Asking "does my fitness depend on <em>who is next to whom</em> or on <em>who is in slot k</em>?" is the diagnostic question that selects the operator set.</p>
+
+<p><strong>Tree and variable-length representations.</strong> Not every problem has a fixed, known number of decision variables. When the object being evolved is an expression, a program, a controller, or a rule, the natural representation is a <em>tree</em> of variable size and shape — the domain of <em>genetic programming</em> (GP). In a GP tree, <strong>internal nodes</strong> hold functions or operators drawn from a <em>function set</em> (arithmetic operators, <code>IF-THEN-ELSE</code>, trigonometric functions, logical connectives, robot commands), while <strong>leaf nodes</strong> hold terminals from a <em>terminal set</em> (input variables, random constants, zero-argument actions such as <code>move-forward</code>).</p>
+
+<pre><code>Expression:  (x * x) + (3 / y)
+
+Tree:                +
+                   /   \
+                  *     /
+                 / \   / \
+                x   x 3   y
+
+Prefix (Lisp-style) encoding:  (+ (* x x) (/ 3 y))
+</code></pre>
+
+<p>Variation operators work on subtrees rather than on string positions:</p>
+
+<ul>
+  <li><strong>Subtree crossover:</strong> pick a random node in each parent (commonly biased 90% toward internal nodes, so that whole functional blocks rather than single leaves are exchanged) and swap the subtrees rooted there. Because the swapped fragments can be of very different sizes, offspring size varies freely from generation to generation.</li>
+  <li><strong>Subtree mutation:</strong> pick a random node and replace the subtree rooted there with a freshly generated random subtree. Related operators include <em>point mutation</em> (replace a single node with another of the same arity), <em>hoist mutation</em> (promote a subtree to become the whole individual, which shrinks programs), and <em>permutation mutation</em> (reorder the arguments of a function node).</li>
+</ul>
+
+<p>Tree encodings evolve things that a fixed-length vector simply cannot express: symbolic regression models whose functional form is unknown in advance, decision rules for a classifier, agent control programs, electronic circuit topologies, and even the architectures of other learning systems. The representation chooses both the <em>structure</em> and the <em>parameters</em> at once, which is its great strength — and the source of its characteristic pathologies.</p>
+
+<p>The most notorious of these is <strong>bloat</strong>: the tendency of average program size to grow rapidly over generations without a corresponding improvement in fitness. Trees accumulate <em>introns</em> — semantically inert fragments such as <code>(* x 1)</code>, <code>(+ y 0)</code>, or <code>(IF false ... )</code> — because larger individuals are statistically more likely to survive crossover with their behaviour unchanged, and because the space of large programs with a given behaviour is far bigger than the space of small ones. Bloat inflates evaluation cost, consumes memory, and produces unreadable solutions. The standard countermeasures are:</p>
+
+<table>
+  <thead>
+    <tr><th>Control</th><th>Mechanism</th><th>Trade-off</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Depth or node limit</td><td>Reject (or re-attempt) any offspring exceeding a maximum depth, e.g. 17 levels, or a maximum node count</td><td>Simple and effective, but a hard ceiling can block the discovery of genuinely large solutions and causes individuals to pile up at the limit.</td></tr>
+    <tr><td>Parsimony pressure</td><td>Subtract a size term from fitness: <code>f' = f − c·(nodes)</code></td><td>Gives a graded preference for compact programs; the coefficient <em>c</em> must be tuned, since too large a value suppresses useful complexity.</td></tr>
+    <tr><td>Multi-objective treatment</td><td>Optimise accuracy and size as two objectives and keep a Pareto front</td><td>Avoids choosing a coefficient, at the cost of a more elaborate algorithm.</td></tr>
+    <tr><td>Operator bias</td><td>Use size-fair crossover or hoist mutation to balance growth and shrinkage</td><td>Keeps size distributions stable without an explicit fitness penalty.</td></tr>
+    <tr><td>Editing / simplification</td><td>Algebraically simplify trees periodically</td><td>Improves readability but removes neutral material that may aid exploration.</td></tr>
+  </tbody>
+</table>
+
+<p>Two design requirements make tree GP work at all. <strong>Closure</strong> demands that every function in the function set accept, without error, any value that any subtree might return. Division is the classic offender: <code>(/ 3 0)</code> crashes or returns infinity, so GP systems substitute <em>protected division</em> that returns 1 (or 0) when the denominator is zero; similarly <code>sqrt</code> is protected to take the absolute value and <code>log</code> to guard against non-positive arguments. If closure cannot be arranged — for example when a program mixes booleans, floats and vectors — the alternative is <em>strongly typed GP</em>, in which every node declares argument and return types and crossover may only swap subtrees of compatible type. <strong>Sufficiency</strong> demands that the primitive set be rich enough to express a satisfactory solution at all: attempting symbolic regression of a periodic signal with a function set of only <code>{+, −, ×, ÷}</code> and terminal <code>{x}</code> can only ever produce polynomial approximations. Sufficiency is the tree-encoding version of the general truth that the representation delimits the reachable search space; adding primitives enlarges that space but also enlarges the search burden, so the primitive set should be as small as domain knowledge allows.</p>
+
+<p>Other variable-length schemes follow the same logic. Linear genetic programming evolves variable-length sequences of register machine instructions; grammatical evolution evolves an integer string that is interpreted through a BNF grammar to generate syntactically valid programs; messy GAs use variable-length lists of (locus, allele) pairs with under- and over-specification rules. All of them trade the convenience of fixed-length operators for the power to evolve structure.</p>
+
+<p><strong>Representation, constraints, and operator choice.</strong> Representation and operators are not independent choices made in sequence; they are a single design decision. The governing principle is <strong>closure under the representation</strong>: every operator must map valid chromosomes to valid chromosomes. One-point crossover is closed over binary strings, over integer strings whose alphabet is position-independent, and over real vectors (ignoring bounds), but it is <em>not</em> closed over permutations — which is precisely why OX, PMX and CX exist. If you change the representation, you must re-audit every operator.</p>
+
+<p>When closure cannot be guaranteed — typically because the problem carries constraints beyond the shape of the chromosome — there are three broad strategies, and most real systems blend them:</p>
+
+<ul>
+  <li><strong>Penalty functions.</strong> Allow infeasible offspring into the population but degrade their fitness in proportion to the degree of violation, e.g. for the knapsack <code>f = total_value − λ·max(0, weight − capacity)</code>. Graded penalties are far better than a flat "fitness = 0", because they give the GA a gradient to follow back towards feasibility. A static λ risks being too soft (the population drifts into infeasible space) or too hard (the search cannot cross a thin infeasible barrier to reach a better feasible region), so adaptive or annealed penalties are common. Penalties shine when optima lie <em>on</em> the constraint boundary, since the search can approach it from both sides.</li>
+  <li><strong>Repair procedures.</strong> Take an infeasible child and transform it into a feasible one, usually with a greedy heuristic: for the overweight knapsack, remove items in ascending order of value-to-weight ratio until the capacity is met; for a duplicated permutation, overwrite duplicates with the missing elements. Repair is often highly effective but embeds a heuristic bias into the search, and one must decide whether the repair is written back into the chromosome (<em>Lamarckian</em>) or used only for evaluation (<em>Baldwinian</em>), the two choices having markedly different effects on diversity.</li>
+  <li><strong>Feasibility-by-construction encodings.</strong> Design the representation so that no invalid chromosome exists. A permutation encoding for the TSP makes "visit a city twice" unrepresentable. A random-key encoding — store a real number per item and decode by sorting — makes <em>every</em> real vector decode to a valid permutation, so ordinary real-coded operators can be used unchanged. This is the most elegant option when it is available, but it is not always possible, and it can introduce redundancy (many key vectors sort to the same order).</li>
+</ul>
+
+<p><strong>Locality</strong> is the quality metric that ties all of this together: a representation has high locality when a small change in the genotype produces a small change in the phenotype, and hence usually a small change in fitness. High locality makes mutation a tool for incremental refinement and makes the fitness landscape navigable; low locality turns mutation into random restart, and the GA degenerates towards random search. Gray coding improves locality over standard binary; real-valued encoding with small Gaussian steps has excellent locality; a hash-based or heavily indirect encoding may have almost none. Locality should be tested empirically during design: sample random individuals, apply single mutations, and plot the distribution of resulting fitness changes. A representation in which one mutation routinely sends fitness anywhere is a representation to redesign.</p>
+
+<p>A further axis is <strong>direct versus indirect encoding</strong>. A <em>direct</em> encoding maps genes straight onto solution components — gene <em>i</em> is the colour of vertex <em>i</em>, or the x-coordinate of node <em>i</em>. It is transparent, easy to debug, and its locality is easy to reason about, but it scales linearly (or worse) with problem size and cannot exploit regularity. An <em>indirect</em> encoding stores parameters or instructions that a <em>decoder</em> interprets to build the solution. Examples include:</p>
+
+<ul>
+  <li><strong>Random keys:</strong> a vector of reals decoded by sorting into a sequence or schedule.</li>
+  <li><strong>Priority-rule encodings:</strong> the chromosome holds a list of dispatching-rule choices, and a scheduling heuristic constructs an always-feasible schedule from them — standard practice in resource-constrained project scheduling.</li>
+  <li><strong>Generative/developmental encodings:</strong> a compact grammar or network (as in HyperNEAT or L-systems) that "grows" a large structure, allowing a short genome to specify a huge, regular phenotype.</li>
+</ul>
+
+<p>Indirect encodings guarantee feasibility, compress the search space and can capture symmetry, but they weaken locality (one gene may influence the entire phenotype), can be expensive to decode, and make it harder to understand why a solution is good. The choice is a genuine trade-off, not a matter of fashion.</p>
+
+<p>Finally, real engineering problems rarely fit into a single pure representation, so <strong>hybrid or mixed chromosomes</strong> are common. A chromosome may be partitioned into typed segments, each with its own alphabet and its own operators applied segment-wise:</p>
+
+<pre><code>Mixed chromosome for a wind-farm controller design:
+
+[ 1 0 1 1 0 | 3 1 0 | 12.44  0.83  -2.07 | 4 2 7 1 5 6 3 ]
+  binary      integer   real-valued         permutation
+  (which      (control  (gains, set-        (maintenance
+   sensors     mode per  points)             visit order)
+   active)     turbine)
+
+Operator plan:
+  binary segment      -> uniform crossover, bit-flip mutation (p = 1/5)
+  integer segment     -> uniform crossover, random-reset mutation
+  real segment        -> BLX-0.5 crossover, Gaussian mutation (sigma = 5% of range)
+  permutation segment -> order crossover (OX), inversion mutation
+</code></pre>
+
+<p>The rule for mixed chromosomes is that crossover and mutation are applied <em>within</em> segments, never across segment boundaries, so that closure is maintained for each part. Mutation rates are usually specified per segment as well, because what counts as a "gentle" perturbation differs enormously between a bit flip and a Gaussian step. Mixed encodings are the norm in design optimisation, where a product is defined simultaneously by topology choices, discrete component selections, continuous dimensions and an assembly order.</p>
+
+<p>Pulling the threads together, representation design can be approached as a checklist: Can the representation express the optimum (sufficiency)? Does it exclude invalid solutions, or do I need penalties or repair? Are the operators closed under it? Does it keep interacting genes near one another so crossover inherits building blocks? Is its locality good enough that mutation refines rather than randomises? Is redundancy kept to a defensible level? And is decoding cheap enough to run thousands of times per generation? Answering these questions before writing the main loop saves far more time than tuning population size and crossover rate afterwards.</p>
+
+<p><strong>A comparative overview.</strong> The following table summarises the principal representations against the criteria developed above.</p>
+
+<table>
+  <thead>
+    <tr><th>Representation</th><th>Typical problems</th><th>Crossover</th><th>Mutation</th><th>Main strength</th><th>Main weakness</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Binary</td><td>Subset/feature selection, knapsack, Boolean settings</td><td>One-point, two-point, uniform</td><td>Bit flip (p ≈ 1/L)</td><td>Simple, well-studied, natural for yes/no decisions</td><td>Hamming cliffs and precision limits when encoding numbers</td></tr>
+    <tr><td>Gray-coded binary</td><td>Discretised continuous parameters</td><td>As binary</td><td>Bit flip</td><td>Removes Hamming cliffs; better locality</td><td>Still length-limited precision; extra encode/decode step</td></tr>
+    <tr><td>Integer</td><td>Graph colouring, machine assignment, resource levels</td><td>Uniform, n-point</td><td>Random reset or ±creep</td><td>Direct, compact, closed under standard operators</td><td>Must distinguish nominal from ordinal alphabets</td></tr>
+    <tr><td>Real-valued</td><td>Parameter tuning, shape design, model calibration</td><td>Arithmetic, BLX-α, SBX</td><td>Gaussian, uniform, non-uniform</td><td>Full precision, excellent locality, self-adaptable step size</td><td>Needs bound handling and careful σ tuning</td></tr>
+    <tr><td>Permutation</td><td>TSP, sequencing, assignment, flowshop</td><td>OX, PMX, CX, ERX</td><td>Swap, insertion, inversion, scramble</td><td>Feasibility built in; no duplicates possible</td><td>Standard operators invalid; order vs position semantics must match</td></tr>
+    <tr><td>Tree (GP)</td><td>Symbolic regression, rule and program induction</td><td>Subtree exchange</td><td>Subtree, point, hoist</td><td>Evolves structure and parameters together; variable size</td><td>Bloat; needs closure/sufficiency and type discipline</td></tr>
+    <tr><td>Mixed/hybrid</td><td>Engineering design with heterogeneous variables</td><td>Segment-wise operators</td><td>Segment-wise operators</td><td>Models real problems faithfully</td><td>More implementation complexity and more parameters</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> Only indirectly supported. The topic does not describe the generational cycle itself, but it establishes the chromosome, decoding and operator vocabulary on which the crossover, mutation and evaluation stages of that cycle depend.</li>
+  <li><strong>MO2:</strong> Directly and fully supported. The topic presents binary, integer, real-valued, permutation and tree representations with their natural problem classes, trade-offs and a comparative table, which is exactly the basis for selecting an appropriate representation for a given problem.</li>
+  <li><strong>MO3:</strong> Partially supported. Fitness function construction is not the focus, but the discussion of constraint handling through penalty functions, repair procedures and feasibility-by-construction encodings supplies the constraint-handling component of fitness design.</li>
+  <li><strong>MO4:</strong> Not addressed. Selection strategies and selective pressure fall outside this topic; the material here concerns representation and the variation operators that act on it.</li>
+  <li><strong>MO5:</strong> Indirectly supported. Concepts such as redundancy, locality and bloat explain mechanisms behind premature convergence and loss of diversity, which informs the diagnostics used when evaluating convergence behaviour, though no experimental methodology is presented here.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Worked examples (knapsack decoding, 8-bit scaling, Gray conversion, OX walkthrough, mixed chromosome layout) are written so they can be lifted directly into slides or lab sheets. The comparative table at the end works well as a revision summary or as the basis for a representation-selection exercise. Possible lab extension: implement the same TSP instance with (a) a permutation encoding plus OX and (b) a random-key encoding plus BLX-α, and compare solution quality and diversity — this also feeds MO5.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

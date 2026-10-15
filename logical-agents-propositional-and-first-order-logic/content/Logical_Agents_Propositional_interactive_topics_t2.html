@@ -1,0 +1,291 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Propositional Logic: Syntax and Semantics</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Logical Agents: Propositional and First-Order Logic</a></div>
+  <header>
+    <h1>Propositional Logic: Syntax and Semantics</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Propositional Logic: Syntax and Semantics</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Propositional logic — sometimes called Boolean logic or sentential logic — is the simplest formal language that is still powerful enough to support genuine automated reasoning. It is the natural starting point for the study of knowledge representation because it separates, with unusual clarity, two things that are easy to confuse in ordinary language: <strong>syntax</strong>, which governs which strings of symbols count as legal sentences, and <strong>semantics</strong>, which governs what those sentences mean and when they are true. A propositional sentence is a piece of notation; its meaning is supplied entirely by a <em>model</em>, a complete assignment of truth values to the symbols from which the sentence is built. Everything else in propositional logic — entailment, validity, satisfiability, equivalence, and the correctness of inference procedures — is defined in terms of these two ideas. This topic develops both in detail: the grammar that generates well-formed formulas, the models that interpret them, the truth tables that define the connectives, the recursive procedure that evaluates an arbitrary sentence in an arbitrary model, and the three semantic properties (validity, satisfiability, equivalence) that classify sentences by the sets of models that satisfy them.</p>
+
+<p><strong>Atomic sentences and proposition symbols.</strong> The indivisible building blocks of the language are <em>proposition symbols</em>, each of which stands for a single fact about the world that is either true or false. Conventionally they are written beginning with an uppercase letter: <code>Rain</code>, <code>Umbrella</code>, <code>W</code><code>1,3</code> (usually typeset <code>W1,3</code> and read "there is a wumpus in square [1,3]"), <code>B2,1</code> ("square [2,1] is breezy"), <code>P</code>, <code>Q</code>, <code>R</code>. A sentence consisting of nothing but a single proposition symbol is called an <strong>atomic sentence</strong>. The word <em>atomic</em> is meant literally: the logic cannot look inside the symbol. From the point of view of propositional logic, <code>P1,2</code> is a single opaque token; the subscripts "1,2" are part of its <em>name</em>, not a structure that any rule of inference can decompose, index over, or quantify across. This is exactly the limitation that first-order logic later removes by introducing objects, relations, and quantifiers.</p>
+
+<p>Two atomic sentences are special constants with fixed, model-independent meanings. <code>True</code> is the always-true proposition and <code>False</code> is the always-false proposition. They are grammatically atomic sentences, so they can appear anywhere a symbol can, but no model is free to reassign them. They are convenient in simplification: <code>α ∧ True</code> is equivalent to <code>α</code>, <code>α ∨ True</code> is equivalent to <code>True</code>, and <code>α ∧ False</code> is equivalent to <code>False</code>.</p>
+
+<p>It is worth dwelling on the fact that symbol names are <strong>arbitrary labels</strong>. If a knowledge base uses the symbol <code>Rain</code>, the logic does not know anything about precipitation; it knows only that there is a symbol which, in any given model, is either true or false. The connection between the symbol and the world is held in the head of the knowledge engineer (and documented, one hopes, in a comment). This is a strength as well as a weakness: the inference machinery is completely general because it is completely blind to intended meaning. Consistently renaming every occurrence of <code>Rain</code> to <code>X7</code> throughout a knowledge base changes nothing whatsoever about which conclusions follow.</p>
+
+<p>Finally, a knowledge base is always written over a <strong>fixed vocabulary</strong> of proposition symbols, and that vocabulary alone determines the entire space of possible worlds under consideration. If the vocabulary is {<code>P</code>, <code>Q</code>, <code>R</code>}, then there are exactly eight possible worlds, no more and no fewer, and every semantic question about the knowledge base reduces to a question about which of those eight worlds are compatible with it. Enlarging the vocabulary doubles the space of worlds for each new symbol — a fact with major computational consequences.</p>
+
+<p><strong>Logical connectives.</strong> From atomic sentences, <em>complex sentences</em> are built using five standard connectives.</p>
+
+<ul>
+  <li><strong>Negation (¬).</strong> The only <em>unary</em> connective. <code>¬P</code> is read "not P" and is true exactly when <code>P</code> is false. An atomic sentence or a negated atomic sentence is called a <strong>literal</strong>: <code>P</code> is a <em>positive literal</em> and <code>¬P</code> is a <em>negative literal</em>. Literals matter later because the normal forms used by resolution are built entirely out of them.</li>
+  <li><strong>Conjunction (∧).</strong> <code>P ∧ Q</code> is read "P and Q"; the two parts <code>P</code> and <code>Q</code> are its <em>conjuncts</em>. It is true only when both conjuncts are true — it is the most demanding of the binary connectives, ruling out three of the four possible combinations.</li>
+  <li><strong>Disjunction (∨).</strong> <code>P ∨ Q</code> is read "P or Q"; the parts are its <em>disjuncts</em>. It is <em>inclusive</em> or: true when at least one disjunct is true, including the case where both are true. English "or" is often exclusive ("you may have soup or salad"), so translation requires care; exclusive or must be written out, for example as <code>(P ∨ Q) ∧ ¬(P ∧ Q)</code>.</li>
+  <li><strong>Implication (⇒).</strong> <code>P ⇒ Q</code> is read "P implies Q" or "if P then Q"; <code>P</code> is the <em>premise</em> or <em>antecedent</em> and <code>Q</code> is the <em>conclusion</em> or <em>consequent</em>. It is false in exactly one case: premise true, conclusion false. Everywhere else it is true. This <em>material</em> reading surprises newcomers, because it makes <code>Rain ⇒ 2 + 2 = 4</code> true and makes any implication with a false premise vacuously true. The justification is that <code>P ⇒ Q</code> is not a claim of causation or relevance; it is simply a claim that the case "P true and Q false" does not arise.</li>
+  <li><strong>Biconditional (⇔).</strong> <code>P ⇔ Q</code> is read "P if and only if Q" and asserts that the two sides always share a truth value in the model at hand. It is equivalent to <code>(P ⇒ Q) ∧ (Q ⇒ P)</code>. Biconditionals are heavily used in knowledge engineering to state definitions, as in <code>B1,1 ⇔ (P1,2 ∨ P2,1)</code>: a square is breezy <em>exactly when</em> a neighbouring square holds a pit. Writing only <code>(P1,2 ∨ P2,1) ⇒ B1,1</code> would permit breezes with no cause, so the stronger biconditional is usually what is intended.</li>
+</ul>
+
+<p>When parentheses are omitted, a standard <strong>precedence</strong> order resolves the ambiguity, from tightest to loosest binding: <code>¬</code>, then <code>∧</code>, then <code>∨</code>, then <code>⇒</code>, then <code>⇔</code>. Thus <code>¬P ∧ Q ⇒ R ∨ S</code> abbreviates <code>((¬P) ∧ Q) ⇒ (R ∨ S)</code>. Because precedence conventions vary between textbooks and tools, explicit parentheses are preferable in anything that must be read by other people.</p>
+
+<p><strong>Well-formed formulas and the formal grammar.</strong> The set of legal sentences is defined by a recursive grammar, usually presented in Backus–Naur Form (BNF). A string is a <strong>well-formed formula (wff)</strong> if and only if the grammar can generate it.</p>
+
+<pre><code>Sentence        -&gt; AtomicSentence | ComplexSentence
+
+AtomicSentence  -&gt; True | False | P | Q | R | ...
+
+ComplexSentence -&gt; ( Sentence )
+                 | ¬ Sentence
+                 | ( Sentence ∧ Sentence )
+                 | ( Sentence ∨ Sentence )
+                 | ( Sentence ⇒ Sentence )
+                 | ( Sentence ⇔ Sentence )
+
+OPERATOR PRECEDENCE:  ¬ , ∧ , ∨ , ⇒ , ⇔   (highest to lowest)</code></pre>
+
+<p>The grammar has a <strong>base case</strong> — every atomic sentence, including the constants <code>True</code> and <code>False</code>, is already a well-formed formula — and a <strong>recursive case</strong>: if α and β are well-formed formulas, then so are <code>¬α</code>, <code>(α ∧ β)</code>, <code>(α ∨ β)</code>, <code>(α ⇒ β)</code>, and <code>(α ⇔ β)</code>. Here α and β are <em>metavariables</em> ranging over sentences, not symbols of the language itself. Because the recursive case can be applied to its own output without limit, sentences of <strong>arbitrary nesting depth</strong> are legal: from <code>P</code> and <code>Q</code> we may build <code>(P ⇒ Q)</code>, then <code>¬(P ⇒ Q)</code>, then <code>(¬(P ⇒ Q) ∨ R)</code>, then <code>((¬(P ⇒ Q) ∨ R) ⇔ (S ∧ ¬T))</code>, and so on indefinitely. The language is therefore infinite even over a finite vocabulary.</p>
+
+<p>Here are some strings that are and are not well formed:</p>
+
+<table>
+  <thead>
+    <tr><th>String</th><th>Well formed?</th><th>Reason</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>P</code></td><td>Yes</td><td>Base case: an atomic sentence.</td></tr>
+    <tr><td><code>¬¬¬P</code></td><td>Yes</td><td>Negation applied three times; ¬ takes a single sentence argument.</td></tr>
+    <tr><td><code>(P ∧ (Q ∨ ¬R))</code></td><td>Yes</td><td>Built by two applications of the recursive case.</td></tr>
+    <tr><td><code>(True ⇒ False)</code></td><td>Yes</td><td>The constants are atomic sentences; grammatically ordinary (and semantically false).</td></tr>
+    <tr><td><code>P ∧ ∨ Q</code></td><td>No</td><td>A binary connective requires a sentence on each side; <code>∨</code> has no left argument.</td></tr>
+    <tr><td><code>(P ∧ Q</code></td><td>No</td><td>Unbalanced parentheses — the production <code>( Sentence ∧ Sentence )</code> is not completed.</td></tr>
+    <tr><td><code>P Q</code></td><td>No</td><td>Juxtaposition is not a production of the grammar; no connective joins the two atoms.</td></tr>
+    <tr><td><code>¬ ∧ P</code></td><td>No</td><td><code>¬</code> must be followed by a sentence, and <code>∧</code> is not a sentence.</td></tr>
+    <tr><td><code>(P ⇒ Q ⇒ R)</code></td><td>Ambiguous/ill-formed</td><td>Without parentheses the grammar does not fix a reading; write <code>(P ⇒ (Q ⇒ R))</code> or <code>((P ⇒ Q) ⇒ R)</code>, which are <em>not</em> equivalent.</td></tr>
+  </tbody>
+</table>
+
+<p>An ungrammatical string such as <code>P ∧ ∨ Q</code> is not false — it is <em>meaningless</em>. Truth values are assigned only to well-formed formulas, so asking whether <code>P ∧ ∨ Q</code> is true in a model is like asking whether the string "the the of" is true. This is the key point about syntax: <strong>syntax alone says nothing about truth</strong>. The grammar is a filter that determines which expressions are legal and, just as importantly, imposes a unique parse structure on each legal expression so that the semantics has something unambiguous to work on. <code>(P ∧ Q)</code> and <code>(P ⇒ Q)</code> are equally well formed; the grammar does not prefer one, and it certainly does not tell us that one of them is true. Meaning arrives only with models.</p>
+
+<p><strong>Models and truth assignments.</strong> A <strong>model</strong> in propositional logic is a <em>complete</em> assignment of a truth value to every proposition symbol in the vocabulary. The word "complete" matters: a model leaves nothing undetermined. Over the vocabulary {<code>P1,2</code>, <code>P2,2</code>, <code>P3,1</code>}, the assignment</p>
+
+<pre><code>m1 = { P1,2 = false,  P2,2 = false,  P3,1 = true }</code></pre>
+
+<p>is one model; a partial assignment that fixes only <code>P1,2</code> is not a model (it is a partial assignment, useful inside algorithms such as DPLL but not a possible world). Each model can be thought of as one <em>possible world</em>: a fully specified way things might be, as far as the chosen vocabulary can express.</p>
+
+<p>Because each of the <em>n</em> symbols may independently take either of two values, a vocabulary of <em>n</em> symbols yields exactly <strong>2<sup>n</sup></strong> distinct models. Three symbols give 8 models, ten symbols give 1024, and sixty-four symbols give over 10<sup>19</sup>. This exponential blow-up is the reason that model-by-model enumeration, although conceptually perfect, is impractical for large knowledge bases, and it is the reason that syntactic inference procedures exist at all.</p>
+
+<p>A model <em>m</em> <strong>satisfies</strong> a sentence α — equivalently, α is <em>true in</em> m, or m is a <em>model of</em> α — if α evaluates to true under the assignment m. The standard notation for the set of all models in which α is true is <strong>M(α)</strong>. This set-of-models view is extremely useful because it converts logical relationships into set relationships:</p>
+
+<ul>
+  <li>α is valid exactly when <code>M(α)</code> is the set of <em>all</em> models.</li>
+  <li>α is unsatisfiable exactly when <code>M(α)</code> is empty.</li>
+  <li>α and β are equivalent exactly when <code>M(α) = M(β)</code>.</li>
+  <li>A knowledge base <em>KB</em> entails α (<code>KB ⊨ α</code>) exactly when <code>M(KB) ⊆ M(α)</code> — every world in which the knowledge base holds is a world in which α holds. Adding sentences to a knowledge base shrinks <code>M(KB)</code>, which is why more knowledge yields more conclusions.</li>
+</ul>
+
+<p>Models are therefore the <strong>bridge between syntax and the world</strong>. Strings on a page have no inherent truth; models supply the interpretation that makes "true", "false", "entails", and "sound inference" precise, checkable notions rather than matters of opinion.</p>
+
+<p><strong>Truth tables for the connectives.</strong> The semantics of each connective is given exhaustively by a truth table, which specifies the value of the compound sentence for every combination of values of its parts. The five standard connectives are defined by the following table.</p>
+
+<table>
+  <thead>
+    <tr><th>P</th><th>Q</th><th>¬P</th><th>P ∧ Q</th><th>P ∨ Q</th><th>P ⇒ Q</th><th>P ⇔ Q</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>false</td><td>false</td><td>true</td><td>false</td><td>false</td><td>true</td><td>true</td></tr>
+    <tr><td>false</td><td>true</td><td>true</td><td>false</td><td>true</td><td>true</td><td>false</td></tr>
+    <tr><td>true</td><td>false</td><td>false</td><td>false</td><td>true</td><td>false</td><td>false</td></tr>
+    <tr><td>true</td><td>true</td><td>false</td><td>true</td><td>true</td><td>true</td><td>true</td></tr>
+  </tbody>
+</table>
+
+<p>Reading the columns individually makes the character of each connective clear. <code>¬P</code> is true in exactly the rows where <code>P</code> is false — it simply flips the value. <code>P ∧ Q</code> is true in only one of the four rows, the last. <code>P ∨ Q</code> is true in three of the four rows and false only when both disjuncts are false; this single false row is what makes disjunction inclusive. <code>P ⇒ Q</code> is false in exactly one row, the third, where the premise is true and the conclusion false. Comparing the <code>P ⇒ Q</code> column with the <code>¬P</code> and <code>P ∨ Q</code> columns shows immediately that <code>P ⇒ Q</code> is logically equivalent to <code>¬P ∨ Q</code> — both have the pattern true, true, false, true. This equivalence is the standard way of eliminating implications when converting sentences to conjunctive normal form. Finally, <code>P ⇔ Q</code> is true in the two rows where <code>P</code> and <code>Q</code> agree (both false, or both true) and false in the two rows where they differ; its negation is exactly exclusive or.</p>
+
+<p>A worked example of translation into these connectives: "If it is raining and I have no umbrella, I get wet" becomes <code>(Rain ∧ ¬Umbrella) ⇒ Wet</code>. Note that in a world with no rain, the sentence is true regardless of <code>Wet</code> — the knowledge base simply makes no commitment about whether I am wet for other reasons. If we wanted to claim that rain-without-umbrella is the <em>only</em> way to get wet, we would strengthen the arrow to a biconditional.</p>
+
+<p><strong>Evaluating complex sentences recursively.</strong> Because every well-formed formula has a unique parse tree, and because every connective is defined by a truth table that depends only on the truth values of its arguments, there is a simple recursive procedure that computes the value of any sentence in any model:</p>
+
+<ul>
+  <li><strong>Base case:</strong> if the sentence is a proposition symbol, look up its value in the model. If it is <code>True</code> or <code>False</code>, return that fixed value.</li>
+  <li><strong>Recursive case:</strong> evaluate the immediate subsentences first, then apply the truth table of the top connective to the resulting values.</li>
+</ul>
+
+<p>Equivalently: work bottom-up through the parse tree, from the leaves (symbols) outward, until the top-level connective has been evaluated. Consider the sentence</p>
+
+<pre><code>α = ((P ∨ ¬Q) ⇒ (R ∧ P))
+
+and the model   m = { P = true,  Q = true,  R = false }
+
+Parse tree:
+            ⇒
+          /   \
+         ∨     ∧
+        / \   / \
+       P   ¬ R   P
+           |
+           Q
+
+Evaluation, leaves outward:
+   P        = true          (lookup)
+   Q        = true          (lookup)
+   R        = false         (lookup)
+   ¬Q       = false         (negation of true)
+   P ∨ ¬Q   = true          (true ∨ false)
+   R ∧ P    = false         (false ∧ true)
+   whole    = false         (true ⇒ false  is the one false row of ⇒)</code></pre>
+
+<p>Changing the model changes only the leaf lookups; the structure of the computation is fixed by the parse tree. In the model <code>{P = true, Q = true, R = true}</code> the same sentence evaluates to <code>true ⇒ true</code> = true, and in <code>{P = false, Q = true, R = false}</code> it evaluates to <code>(false ∨ false) ⇒ …</code> = <code>false ⇒ false</code> = true. A short nested example involving the constants: <code>(¬False ∧ (P ∨ False))</code> reduces to <code>(True ∧ P)</code>, and so has the same value as <code>P</code> in every model.</p>
+
+<p>Two properties of this procedure deserve emphasis. First, <strong>every well-formed sentence receives exactly one truth value in every model</strong>: the recursion always terminates (each step moves to strictly smaller subsentences), it is defined for every case of the grammar, and the parse is unique, so there is no possibility of a sentence being "both true and false" or "neither". The logic is unambiguous and total. Second, the semantics is <strong>truth-functional</strong>, also called compositional: the value of a compound depends only on the <em>truth values</em> of its parts, never on their internal form, subject matter, or how they were derived. Consequently, if two subsentences happen to have the same truth value in a model, swapping one for the other cannot change the value of the whole in that model. This is precisely the property that licenses substitution of logical equivalents anywhere inside a sentence — the engine behind normal-form conversion and behind most simplification steps performed by reasoning systems. (Natural language is not truth-functional in this way; "Alice believes that P" can change value when P is replaced by an equally true sentence, which is one reason that modelling belief requires richer logics.)</p>
+
+<p><strong>Validity, satisfiability, and logical equivalence.</strong> Once truth in a model is defined, sentences can be classified by the shape of <code>M(α)</code>.</p>
+
+<table>
+  <thead>
+    <tr><th>Property</th><th>Definition</th><th>Set of models</th><th>Example</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Valid</strong> (tautology)</td><td>True in every model</td><td><code>M(α)</code> = all models</td><td><code>P ∨ ¬P</code>; <code>(P ∧ (P ⇒ Q)) ⇒ Q</code>; <code>True</code></td></tr>
+    <tr><td><strong>Satisfiable</strong></td><td>True in at least one model</td><td><code>M(α) ≠ ∅</code></td><td><code>P ∧ Q</code>; <code>P ⇒ Q</code>; every valid sentence</td></tr>
+    <tr><td><strong>Unsatisfiable</strong> (contradiction)</td><td>True in no model</td><td><code>M(α) = ∅</code></td><td><code>P ∧ ¬P</code>; <code>(P ⇔ ¬P)</code>; <code>False</code></td></tr>
+    <tr><td><strong>Contingent</strong></td><td>True in some models and false in others</td><td>∅ ⊂ <code>M(α)</code> ⊂ all models</td><td><code>P</code>; <code>P ∧ Q</code>; <code>(P ∨ Q) ⇒ R</code></td></tr>
+  </tbody>
+</table>
+
+<p>A <strong>valid</strong> sentence, or <em>tautology</em>, is true under every possible assignment of truth values. <code>P ∨ ¬P</code> (the law of the excluded middle) is the classic example: whichever value <code>P</code> takes, one disjunct is true. Validity can always be tested by building the full truth table and checking that the final column contains no <code>false</code>. Valid sentences carry no information about the world — they rule out no possible world — but they are enormously useful, because every sound inference rule corresponds to a valid implication. Modus ponens, for instance, corresponds to the validity of <code>(P ∧ (P ⇒ Q)) ⇒ Q</code>.</p>
+
+<p>A <strong>satisfiable</strong> sentence is true in at least one model; that model is a <em>witness</em> to its satisfiability. Deciding whether an arbitrary propositional sentence is satisfiable is the <strong>SAT problem</strong>, the first problem shown to be NP-complete (Cook, 1971). Naïve truth-table checking takes time proportional to 2<sup>n</sup> for <em>n</em> symbols, but modern SAT solvers based on the DPLL backtracking framework, augmented with unit propagation, clause learning, and good branching heuristics, routinely solve industrial instances with hundreds of thousands of variables. This makes SAT a practical target language: planning, circuit verification, scheduling, and diagnosis problems are often solved by encoding them as propositional sentences and calling a solver.</p>
+
+<p>An <strong>unsatisfiable</strong> sentence, or <em>contradiction</em>, is true in no model at all; <code>P ∧ ¬P</code> is the stock example, and <code>(P ⇒ Q) ∧ P ∧ ¬Q</code> is a slightly less obvious one. The three notions are tightly linked by negation:</p>
+
+<ul>
+  <li>α is valid if and only if <code>¬α</code> is unsatisfiable.</li>
+  <li>α is satisfiable if and only if <code>¬α</code> is not valid.</li>
+</ul>
+
+<p>These equivalences underwrite <strong>proof by refutation</strong>: to show that a knowledge base entails a query, one shows that <code>KB ∧ ¬α</code> is unsatisfiable. Combined with the <em>deduction theorem</em> — <code>KB ⊨ α</code> if and only if <code>(KB ⇒ α)</code> is valid — they let a single satisfiability-testing engine answer every entailment question that can be posed in the logic.</p>
+
+<p><strong>Logical equivalence</strong> is the last of the three properties. Sentences α and β are logically equivalent, written <code>α ≡ β</code>, when they are true in exactly the same set of models: <code>M(α) = M(β)</code>. Equivalently (and this is the usual test), <code>α ≡ β</code> precisely when the biconditional <code>α ⇔ β</code> is valid. Note the distinction in level: <code>⇔</code> is a connective <em>inside</em> the language, producing a sentence that may be true in some models and false in others, whereas <code>≡</code> is a claim <em>about</em> two sentences, asserting that their <code>⇔</code> is a tautology. Because the semantics is truth-functional, equivalents may be substituted for one another inside any larger sentence without changing its meaning — the basis of all algebraic manipulation of formulas.</p>
+
+<p>The following standard equivalences, all verifiable by constructing a truth table and comparing the two final columns row by row, form the working toolkit for rewriting sentences.</p>
+
+<table>
+  <thead>
+    <tr><th>Name</th><th>Equivalence</th><th>Typical use</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Commutativity</td><td><code>(α ∧ β) ≡ (β ∧ α)</code>; <code>(α ∨ β) ≡ (β ∨ α)</code></td><td>Reordering conjuncts and disjuncts freely</td></tr>
+    <tr><td>Associativity</td><td><code>((α ∧ β) ∧ γ) ≡ (α ∧ (β ∧ γ))</code>; similarly for ∨</td><td>Dropping inner parentheses in long chains</td></tr>
+    <tr><td>Double negation</td><td><code>¬(¬α) ≡ α</code></td><td>Cancelling stacked negations</td></tr>
+    <tr><td>Contraposition</td><td><code>(α ⇒ β) ≡ (¬β ⇒ ¬α)</code></td><td>Reasoning backwards from a denied conclusion</td></tr>
+    <tr><td>Implication elimination</td><td><code>(α ⇒ β) ≡ (¬α ∨ β)</code></td><td>First step of CNF conversion</td></tr>
+    <tr><td>Biconditional elimination</td><td><code>(α ⇔ β) ≡ ((α ⇒ β) ∧ (β ⇒ α))</code></td><td>Removing ⇔ before CNF conversion</td></tr>
+    <tr><td>De Morgan (1)</td><td><code>¬(α ∧ β) ≡ (¬α ∨ ¬β)</code></td><td>Pushing negation inward past ∧</td></tr>
+    <tr><td>De Morgan (2)</td><td><code>¬(α ∨ β) ≡ (¬α ∧ ¬β)</code></td><td>Pushing negation inward past ∨</td></tr>
+    <tr><td>Distributivity of ∧ over ∨</td><td><code>(α ∧ (β ∨ γ)) ≡ ((α ∧ β) ∨ (α ∧ γ))</code></td><td>Producing disjunctive normal form</td></tr>
+    <tr><td>Distributivity of ∨ over ∧</td><td><code>(α ∨ (β ∧ γ)) ≡ ((α ∨ β) ∧ (α ∨ γ))</code></td><td>Producing conjunctive normal form</td></tr>
+    <tr><td>Idempotence / absorption</td><td><code>(α ∧ α) ≡ α</code>; <code>(α ∨ (α ∧ β)) ≡ α</code></td><td>Simplifying redundant clauses</td></tr>
+  </tbody>
+</table>
+
+<p>A worked verification of contraposition shows how such claims are established. Build the table for both sides over the four models of {<code>P</code>, <code>Q</code>}:</p>
+
+<table>
+  <thead>
+    <tr><th>P</th><th>Q</th><th>P ⇒ Q</th><th>¬Q</th><th>¬P</th><th>¬Q ⇒ ¬P</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>false</td><td>false</td><td>true</td><td>true</td><td>true</td><td>true</td></tr>
+    <tr><td>false</td><td>true</td><td>true</td><td>false</td><td>true</td><td>true</td></tr>
+    <tr><td>true</td><td>false</td><td>false</td><td>true</td><td>false</td><td>false</td></tr>
+    <tr><td>true</td><td>true</td><td>true</td><td>false</td><td>false</td><td>true</td></tr>
+  </tbody>
+</table>
+
+<p>The third and sixth columns agree in all four rows, so <code>(P ⇒ Q) ≡ (¬Q ⇒ ¬P)</code>. The same method refutes a common error: the <em>converse</em> <code>Q ⇒ P</code> has the column true, false, true, true, which differs from <code>P ⇒ Q</code> in rows two and three, so an implication is <strong>not</strong> equivalent to its converse. Likewise De Morgan's first law can be checked by noting that <code>¬(P ∧ Q)</code> is false only in the final row, and <code>¬P ∨ ¬Q</code> is false only when both disjuncts are false, which is also only the final row.</p>
+
+<p>Putting the pieces together, a typical rewriting exercise uses several equivalences in sequence. To convert <code>¬(P ⇒ (Q ∧ R))</code> into a negation-normal form:</p>
+
+<pre><code>¬(P ⇒ (Q ∧ R))
+≡ ¬(¬P ∨ (Q ∧ R))        implication elimination
+≡ ¬¬P ∧ ¬(Q ∧ R)         De Morgan (2)
+≡ P ∧ (¬Q ∨ ¬R)          double negation, De Morgan (1)</code></pre>
+
+<p>Each step preserves the set of satisfying models, so the final sentence is true in exactly the same worlds as the original — a guarantee that comes directly from the definition of equivalence as identity of <code>M(α)</code>, and ultimately from the truth-functional semantics with which this topic began.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> Only indirectly supported. The topic defines the language in which a knowledge base is written and the notion of a sentence being added to or queried against a set of sentences, but it does not describe the agent architecture or the TELL/ASK control loop itself.</li>
+  <li><strong>MO2:</strong> Directly supported. The treatment of atomic sentences, the five connectives, the BNF grammar, operator precedence, and the worked examples of well-formed versus ungrammatical strings give exactly the apparatus needed to construct and check well-formed propositional sentences.</li>
+  <li><strong>MO3:</strong> Substantially supported at the foundational level. Models, 2<sup>n</sup> enumeration, <code>M(α)</code>, the entailment condition <code>M(KB) ⊆ M(α)</code>, the validity/unsatisfiability duality behind refutation, and the distributive and De Morgan equivalences used in CNF conversion are all established here, although the resolution rule itself is applied in a later topic.</li>
+  <li><strong>MO4:</strong> Not addressed. The topic deliberately stops at atomic, structureless proposition symbols; predicates, functions, and quantifiers belong to first-order logic and are treated elsewhere.</li>
+  <li><strong>MO5:</strong> Not directly addressed. Forward and backward chaining are not discussed, though the notions of literal, clause, and implication introduced here are the prerequisites for defining definite clauses and comparing the two chaining strategies.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The parse-tree diagram and the step-by-step evaluation trace are inside a &lt;code&gt; block within &lt;pre&gt; to preserve alignment, since no other layout tags are permitted. Truth tables use &quot;true&quot;/&quot;false&quot; spelled out rather than T/F for readability in a table cell. Precedence order (&#172;, ∧, ∨, ⇒, ⇔) follows Russell &amp; Norvig; note that some texts give ⇒ and ⇔ equal precedence or treat ⇒ as right-associative — the content flags this and recommends explicit parentheses. The row for &lt;code&gt;(P ⇒ Q ⇒ R)&lt;/code&gt; is marked &quot;ambiguous/ill-formed&quot; because under the fully parenthesised BNF given it is not generated at all, while under the precedence convention it would require an associativity rule the grammar does not supply.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

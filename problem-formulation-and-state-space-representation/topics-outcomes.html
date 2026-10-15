@@ -1,0 +1,205 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Problem Formulation and State Space Representation — Topics &amp; Learning Outcomes</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:880px;margin:0 auto;padding:32px 24px;color:#222;line-height:1.55}
+h1{font-size:1.6rem;border-bottom:2px solid #dcdcdc;padding-bottom:8px}
+h2{font-size:1.25rem;margin-top:30px;color:#1a3c6e;border-bottom:1px solid #ececec;padding-bottom:4px}
+h3{font-size:1.05rem;margin-top:22px;color:#1a3c6e}
+.toc{border:1px solid #c9d4e3;background:#f5f8fc;border-radius:8px;padding:10px 16px;margin:14px 0 6px;display:flex;gap:18px;flex-wrap:wrap}
+.toc a{color:#1a3c6e;font-weight:600;text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.summary{color:#555;font-style:italic;margin:4px 0 10px}
+ul{margin:6px 0 6px 4px}
+li{margin:5px 0}
+.el-body{color:#555}
+.prefix{color:#555;font-style:italic;margin:6px 0 14px}
+.mo{border:1px solid #e2e2e2;border-radius:6px;padding:12px 16px;margin:12px 0}
+.mo .code{font-size:.8rem;color:#595959;text-transform:uppercase;letter-spacing:.04em}
+.mo .statement{font-weight:600;margin:4px 0 8px}
+.meta span{display:inline-block;background:#eef2f8;color:#1a3c6e;border-radius:3px;padding:1px 8px;margin:0 6px 0 0;font-size:.85rem}
+.meta .map{background:#eaf6ec;color:#137333}
+.co{margin:7px 0}
+.co .code{font-weight:600;color:#1a3c6e;margin-right:6px}
+.empty{color:#595959}
+.tm-jump{margin:2px 0 8px;font-size:.92rem}
+.tm-jump a{color:#1a3c6e;font-weight:600}
+ul.tm li{margin:7px 0}
+ul.tm a{color:#1a3c6e;font-weight:600}
+.tm-kind{display:inline-block;background:#eef2f8;color:#1a3c6e;border-radius:3px;padding:1px 8px;margin-left:6px;font-size:.82rem}
+.tm-also{color:#555;font-size:.88rem}
+.tm-back{margin:0 0 4px;font-size:.88rem}
+.tm-back a{color:#1a3c6e}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Problem Formulation and State Space Representation</a></div>
+<h1>Problem Formulation and State Space Representation — Topics &amp; Learning Outcomes</h1>
+<div class="toc"><a href="#topics">📋 Module Topics</a><a href="#outcomes">🎯 Student Learning Outcomes</a><a href="#materials">📚 Materials for Each Topic</a></div>
+
+<h2 id="topics">Module Topics</h2>
+<h3 id="topic-1">1. Why Problem Formulation Matters</h3>
+<div class="summary">Introduces the idea that many real-world tasks can be solved by search once they are precisely described, and explains how a well-chosen formulation determines whether a problem is tractable. Sets the stage for abstraction decisions such as what to include in a state and what to ignore.</div>
+<p class="tm-jump"><a href="#materials-topic-1">Materials for topic 1 (3)</a></p>
+<ul>
+<li><strong>From Real Task to Search Problem</strong> <span class="el-body">— Many everyday and engineering tasks — route planning, puzzle solving, scheduling, robot navigation — can be solved automatically once they are described precisely enough for a search algorithm to operate on them.</span></li>
+<li><strong>The Standard Components of a Formulation</strong> <span class="el-body">— A problem formulation identifies a small set of standard ingredients that together define the space the algorithm will search.</span></li>
+<li><strong>Formulation Determines Tractability</strong> <span class="el-body">— The way a problem is described has a direct effect on how large the search space is and therefore on whether the problem can be solved in practical time and memory.</span></li>
+<li><strong>Abstraction: Choosing What to Ignore</strong> <span class="el-body">— Abstraction is the deliberate removal of detail that does not affect whether a solution can be found or how good it is.</span></li>
+<li><strong>Assumptions Behind the Classical Formulation</strong> <span class="el-body">— The standard search formulation rests on simplifying assumptions about the environment, and these should be checked before applying it.</span></li>
+<li><strong>Evaluating a Formulation Before Searching</strong> <span class="el-body">— Before committing to a formulation, it is worth sanity-checking it against a few practical criteria.</span></li>
+</ul>
+<h3 id="topic-2">2. The Five Components of a Search Problem</h3>
+<div class="summary">Defines the formal elements of a search problem: states and state space, initial state, actions (applicability), transition model (successor function), goal test, and path cost with step costs. Shows how these components together specify a problem completely and unambiguously.</div>
+<p class="tm-jump"><a href="#materials-topic-2">Materials for topic 2 (3)</a></p>
+<ul>
+<li><strong>Why Formal Problem Definition Matters</strong> <span class="el-body">— A search problem must be specified precisely before any algorithm can solve it. The standard formulation uses five components that together define the problem completely and unambiguously.</span></li>
+<li><strong>States and the State Space</strong> <span class="el-body">— A state is an abstract description of the world that keeps only the information relevant to solving the problem. The set of all states reachable from the initial state by any sequence of actions is called the state space.</span></li>
+<li><strong>The Initial State</strong> <span class="el-body">— The initial state is the state in which the agent begins its search. It is the single starting point from which the reachable state space is generated.</span></li>
+<li><strong>Actions and Applicability</strong> <span class="el-body">— Actions are the choices available to the agent. For any state s, ACTIONS(s) returns the finite set of actions that are applicable — that is, legal to execute — in that state.</span></li>
+<li><strong>The Transition Model (Successor Function)</strong> <span class="el-body">— The transition model specifies what each action does. RESULT(s, a) returns the state that results from performing applicable action a in state s.</span></li>
+<li><strong>The Goal Test</strong> <span class="el-body">— The goal test determines whether a given state is a goal state, telling the search when it can stop. It may be defined by an explicit set of states or by an abstract property.</span></li>
+<li><strong>Path Cost and Step Cost</strong> <span class="el-body">— The path cost function assigns a numeric cost to each solution path, allowing solution quality to be compared. It is normally the sum of the individual step costs along the path.</span></li>
+</ul>
+<h3 id="topic-3">3. State Space Representation and Abstraction</h3>
+<div class="summary">Explains how to design a state representation that captures exactly the information needed to decide future actions, and how abstraction removes irrelevant detail. Covers state space size, branching factor, and the distinction between the state space graph and the physical world.</div>
+<p class="tm-jump"><a href="#materials-topic-3">Materials for topic 3 (3)</a></p>
+<ul>
+<li><strong>What a State Must Capture</strong> <span class="el-body">— A state is a snapshot of the world that contains exactly the information needed to decide what to do next. Designing it well is the core modelling decision in problem formulation.</span></li>
+<li><strong>Abstraction: Removing Irrelevant Detail</strong> <span class="el-body">— Abstraction is the process of discarding details of the real world that do not affect the solution. Every state representation is already an abstraction of reality.</span></li>
+<li><strong>The State Space and Its Graph</strong> <span class="el-body">— The state space is the set of all states reachable from the initial state by any sequence of actions. Together with the transition model it forms a directed graph.</span></li>
+<li><strong>Measuring State Space Size</strong> <span class="el-body">— Estimating how many states a formulation produces tells you whether a search approach is feasible. Size grows combinatorially with the number of state variables.</span></li>
+<li><strong>Branching Factor and Depth</strong> <span class="el-body">— The branching factor b is the number of actions available from a typical state, and d is the depth of the shallowest solution. Together they determine how search effort grows.</span></li>
+<li><strong>State Space Graph Versus the Physical World</strong> <span class="el-body">— The state space graph is a mathematical model, not the world itself. Confusing the two leads to formulations that fail when the plan is executed.</span></li>
+</ul>
+<h3 id="topic-4">4. Formulating Classic Example Problems</h3>
+<div class="summary">Applies the formulation framework to worked examples such as the 8-puzzle, vacuum world, 8-queens, and route finding. Compares alternative formulations of the same problem to show how representation choices affect state space size and solvability.</div>
+<p class="tm-jump"><a href="#materials-topic-4">Materials for topic 4 (3)</a></p>
+<ul>
+<li><strong>The 8-Puzzle as a Search Problem</strong> <span class="el-body">— The 8-puzzle consists of eight numbered tiles and one blank in a 3x3 frame, where tiles slide into the blank space. It is a classic benchmark because its formulation is simple yet its state space is large enough to be interesting.</span></li>
+<li><strong>The Vacuum World</strong> <span class="el-body">— The vacuum world uses a small, discrete environment to make state space enumeration concrete. An agent moves between locations and cleans dirt, with the goal of leaving every square clean.</span></li>
+<li><strong>The 8-Queens Problem and Alternative Formulations</strong> <span class="el-body">— The 8-queens problem asks for a placement of eight queens on a chessboard so that no queen attacks another. It is the standard illustration of how two correct formulations of the same problem can differ enormously in difficulty.</span></li>
+<li><strong>Route Finding and Touring Problems</strong> <span class="el-body">— Route finding formulates travel between locations as search over a map, and underpins navigation systems, airline itinerary planners, and network routing. Touring problems extend it by requiring visits to a set of places.</span></li>
+<li><strong>Comparing Formulations: Abstraction and State Space Size</strong> <span class="el-body">— The same real-world task can be cast in many ways, and the choice of representation directly determines how large the state space is and how easily a solution is found. Good formulations abstract away detail that does not affect the solution.</span></li>
+</ul>
+<h3 id="topic-5">5. Search Trees, Nodes, and Expansion</h3>
+<div class="summary">Distinguishes the search tree from the underlying state space graph and defines a node&#39;s state, parent, action, path cost, and depth. Describes expansion, generation of successors, the frontier and explored set, and how repeated states create redundant paths or loops.</div>
+<p class="tm-jump"><a href="#materials-topic-5">Materials for topic 5 (3)</a></p>
+<ul>
+<li><strong>State Space Graph vs. Search Tree</strong> <span class="el-body">— The state space is the underlying graph of all reachable configurations, while the search tree is the structure an algorithm builds as it explores paths from the initial state.</span></li>
+<li><strong>Anatomy of a Search Node</strong> <span class="el-body">— A node is a bookkeeping data structure used by the search algorithm, and it carries more information than the state it represents.</span></li>
+<li><strong>Expansion and Successor Generation</strong> <span class="el-body">— Expanding a node means applying every legal action to its state and generating a child node for each resulting successor state.</span></li>
+<li><strong>Frontier and Explored Set</strong> <span class="el-body">— Search algorithms partition nodes into those waiting to be expanded (the frontier) and those already expanded (the explored set).</span></li>
+<li><strong>Repeated States, Redundant Paths, and Loops</strong> <span class="el-body">— Because many problems allow several routes to the same state, the search tree can contain redundant paths and even infinite loops.</span></li>
+<li><strong>Recovering the Solution Path</strong> <span class="el-body">— Once the goal test succeeds on a node, the actual solution is extracted by following parent pointers back to the root.</span></li>
+</ul>
+<h3 id="topic-6">6. Evaluating Search Algorithms</h3>
+<div class="summary">Introduces the four standard criteria used to compare search strategies: completeness, optimality, time complexity, and space complexity. Explains how complexity is expressed in terms of branching factor, solution depth, and maximum depth, and why memory is often the binding constraint.</div>
+<p class="tm-jump"><a href="#materials-topic-6">Materials for topic 6 (3)</a></p>
+<ul>
+<li><strong>Why We Need Evaluation Criteria</strong> <span class="el-body">— Once a problem is formulated with states, actions, and a goal test, many different search strategies can solve it. Evaluation criteria give us a consistent, strategy-independent way to compare those alternatives.</span></li>
+<li><strong>Completeness</strong> <span class="el-body">— Completeness asks whether the algorithm is guaranteed to find a solution if one exists, and to report failure correctly when none exists. It is a yes/no guarantee about the algorithm, not about a particular run.</span></li>
+<li><strong>Optimality</strong> <span class="el-body">— Optimality asks whether the algorithm always returns a least-cost solution according to the path cost function. A complete algorithm can still be non-optimal if it returns the first solution it happens to find.</span></li>
+<li><strong>Measuring Time and Space Complexity</strong> <span class="el-body">— In search, complexity is measured in terms of the search tree rather than the state graph. Time is counted as the number of nodes generated or expanded, and space as the maximum number of nodes held in memory at once.</span></li>
+<li><strong>Exponential Growth and the Branching Factor</strong> <span class="el-body">— Because each level of the search tree multiplies the number of nodes by roughly the branching factor, costs grow exponentially with depth. This is the central practical obstacle in uninformed search.</span></li>
+<li><strong>Memory as the Binding Constraint</strong> <span class="el-body">— In practice, search algorithms usually exhaust available memory long before they exhaust available time. Space complexity is therefore often the criterion that decides whether a strategy is usable at all.</span></li>
+<li><strong>Applying the Criteria to Strategy Selection</strong> <span class="el-body">— Choosing a search strategy means deciding which criteria matter most for the problem at hand. The right answer depends on the shape of the state space and the requirements of the application.</span></li>
+</ul>
+<h3 id="topic-7">7. Applying the Framework to New Problems</h3>
+<div class="summary">Provides a practical procedure for turning an unstructured, real-world scenario into a formal search problem and validating the resulting formulation. Highlights common formulation errors such as over-rich states, ill-defined goal tests, and inconsistent cost functions.</div>
+<p class="tm-jump"><a href="#materials-topic-7">Materials for topic 7 (3)</a></p>
+<ul>
+<li><strong>A Step-by-Step Formulation Procedure</strong> <span class="el-body">— Turning a messy real-world scenario into a formal search problem follows a repeatable sequence of decisions. Working through the steps in order prevents ad hoc choices that later prove inconsistent.</span></li>
+<li><strong>Choosing the Right Level of Abstraction</strong> <span class="el-body">— Abstraction decides which real-world details appear in the state and which are discarded. A good abstraction keeps the problem solvable while still producing solutions that work in reality.</span></li>
+<li><strong>Validating a Formulation</strong> <span class="el-body">— Before running any search algorithm, the formulation itself should be checked for internal consistency. Simple sanity checks catch most errors cheaply.</span></li>
+<li><strong>Common Error: Over-Rich States</strong> <span class="el-body">— A frequent mistake is packing irrelevant information into the state description. This inflates the state space and makes identical situations look distinct.</span></li>
+<li><strong>Common Error: Ill-Defined Goal Tests</strong> <span class="el-body">— The goal test must be a decidable function of a single state. Vague or external goal conditions break the search machinery.</span></li>
+<li><strong>Common Error: Inconsistent Cost Functions</strong> <span class="el-body">— Path cost must be defined additively over actions and must align with the real objective being optimised. Mixing incompatible units or allowing zero and negative costs undermines optimality guarantees.</span></li>
+</ul>
+<h2 id="outcomes">Student Learning Outcomes</h2>
+<p class="prefix">By the end of this module, students will be able to:</p>
+<div class="mo">
+<div class="code">MO1</div>
+<div class="statement">Define the five standard components of a search problem — state space, initial state, actions, transition model, goal test, and path cost — for a given task description</div>
+<div class="meta"><span>Level: Remember</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO2</div>
+<div class="statement">Explain how abstraction removes irrelevant detail from a state representation while preserving solvability</div>
+<div class="meta"><span>Level: Understand</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO3</div>
+<div class="statement">Formulate classic problems such as the 8-puzzle, vacuum world, 8-queens, and route finding as formal search problems</div>
+<div class="meta"><span>Level: Apply</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO4</div>
+<div class="statement">Differentiate the search tree, including node attributes, frontier, and explored set, from the underlying state space graph</div>
+<div class="meta"><span>Level: Analyze</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<div class="mo">
+<div class="code">MO5</div>
+<div class="statement">Critique a proposed problem formulation against the criteria of completeness, optimality, time complexity, and space complexity, identifying errors such as over-rich states, ill-defined goal tests, or inconsistent cost functions</div>
+<div class="meta"><span>Level: Evaluate</span><span>Type: Cognitive</span><span class="map">Course mapping: —</span></div>
+</div>
+<h3>Course Outcomes (reference)</h3>
+<p class="empty">No course outcomes have been defined.</p>
+<h2 id="materials">Materials for Each Topic</h2>
+<p class="prefix">What has been made for each topic. Materials that cover the whole module are listed on the module page.</p>
+<h3 id="materials-topic-1">1. Why Problem Formulation Matters</h3>
+<p class="tm-back"><a href="#topic-1">↑ Back to topic 1</a></p>
+<ul class="tm">
+<li><a href="content/Problem_Formulation_and_interactive_t1_detail-video.html">Why Problem Formulation Matters — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Problem_Formulation_and_interactive_topics_t1.html">Why Problem Formulation Matters</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Problem_Formulation_and_t1_videos.html">Why Problem Formulation Matters — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-2">2. The Five Components of a Search Problem</h3>
+<p class="tm-back"><a href="#topic-2">↑ Back to topic 2</a></p>
+<ul class="tm">
+<li><a href="content/Problem_Formulation_and_interactive_t2_detail-video.html">The Five Components of a Search Problem — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Problem_Formulation_and_interactive_topics_t2.html">The Five Components of a Search Problem</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Problem_Formulation_and_t2_videos.html">The Five Components of a Search Problem — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-3">3. State Space Representation and Abstraction</h3>
+<p class="tm-back"><a href="#topic-3">↑ Back to topic 3</a></p>
+<ul class="tm">
+<li><a href="content/Problem_Formulation_and_interactive_t3_detail-video.html">State Space Representation and Abstraction — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Problem_Formulation_and_interactive_topics_t3.html">State Space Representation and Abstraction</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Problem_Formulation_and_t3_videos.html">State Space Representation and Abstraction — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-4">4. Formulating Classic Example Problems</h3>
+<p class="tm-back"><a href="#topic-4">↑ Back to topic 4</a></p>
+<ul class="tm">
+<li><a href="content/Problem_Formulation_and_interactive_t4_detail-video.html">Formulating Classic Example Problems — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Problem_Formulation_and_interactive_topics_t4.html">Formulating Classic Example Problems</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Problem_Formulation_and_t4_videos.html">Formulating Classic Example Problems — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-5">5. Search Trees, Nodes, and Expansion</h3>
+<p class="tm-back"><a href="#topic-5">↑ Back to topic 5</a></p>
+<ul class="tm">
+<li><a href="content/Problem_Formulation_and_interactive_t5_detail-video.html">Search Trees, Nodes, and Expansion — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Problem_Formulation_and_interactive_topics_t5.html">Search Trees, Nodes, and Expansion</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Problem_Formulation_and_t5_videos.html">Search Trees, Nodes, and Expansion — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-6">6. Evaluating Search Algorithms</h3>
+<p class="tm-back"><a href="#topic-6">↑ Back to topic 6</a></p>
+<ul class="tm">
+<li><a href="content/Problem_Formulation_and_interactive_t6_detail-video.html">Evaluating Search Algorithms — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Problem_Formulation_and_interactive_topics_t6.html">Evaluating Search Algorithms</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Problem_Formulation_and_t6_videos.html">Evaluating Search Algorithms — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+<h3 id="materials-topic-7">7. Applying the Framework to New Problems</h3>
+<p class="tm-back"><a href="#topic-7">↑ Back to topic 7</a></p>
+<ul class="tm">
+<li><a href="content/Problem_Formulation_and_interactive_t7_detail-video.html">Applying the Framework to New Problems — Detail with Video</a> <span class="tm-kind">Topic Detail with Video · Web page</span></li>
+<li><a href="content/Problem_Formulation_and_interactive_topics_t7.html">Applying the Framework to New Problems</a> <span class="tm-kind">Topic Detail · Web page</span></li>
+<li><a href="content/Problem_Formulation_and_t7_videos.html">Applying the Framework to New Problems — Videos</a> <span class="tm-kind">Topic Videos · Web page</span></li>
+</ul>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

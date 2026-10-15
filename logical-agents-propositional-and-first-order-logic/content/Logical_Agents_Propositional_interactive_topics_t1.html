@@ -1,0 +1,199 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Knowledge-Based Agents and Knowledge Bases</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Logical Agents: Propositional and First-Order Logic</a></div>
+  <header>
+    <h1>Knowledge-Based Agents and Knowledge Bases</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Knowledge-Based Agents and Knowledge Bases</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Most of the agent designs studied before the introduction of logic are, in a sense, <em>opaque</em>. A reflex agent carries its competence inside a table or a nest of condition–action rules; a search agent carries it inside a successor function and a heuristic. In each case the designer knows what the agent will do, but the agent itself has no explicit, inspectable account of the world it inhabits. A <strong>knowledge-based agent</strong> takes the opposite stance: the world model is written down explicitly, in a formal language, as a collection of statements that the agent can examine, add to, and reason over. This single architectural decision — separating <em>what is known</em> from <em>what is done with it</em> — is the foundation of logical AI, and it underpins everything from expert systems and database query engines to modern verification tools and hybrid neuro-symbolic systems.</p>
+
+<p>The central component of such an agent is the <strong>knowledge base</strong> (usually abbreviated <code>KB</code>). A knowledge base is a set of <strong>sentences</strong>, each expressed in a <strong>knowledge representation language</strong> such as propositional logic or first-order logic. The word "sentence" here is a technical term: it does not mean an English sentence, but a syntactically well-formed expression of the formal language. Crucially, each sentence is an <strong>assertion</strong> — a claim about how the world is, taken by the agent to be true. The sentence <code>Wall(1,1)</code> is not a label, a variable name, or a data record; it is a claim that there is a wall at location (1,1), and the agent's subsequent reasoning will proceed on the assumption that this claim holds.</p>
+
+<p>Where do these assertions come from? Broadly, from two sources. Some are supplied <strong>in advance by the designer</strong> as <em>background knowledge</em>: the physics of the domain, the rules of the game, definitions of terms, constraints that always hold. In a Wumpus World agent, a background axiom might state that a square is breezy exactly when an adjacent square contains a pit:</p>
+
+<pre><code>B(1,1) &lt;=&gt; (P(1,2) OR P(2,1))
+B(2,1) &lt;=&gt; (P(1,1) OR P(2,2) OR P(3,1))</code></pre>
+
+<p>Other sentences are <strong>acquired through perception</strong> at run time. When the agent stands in square (1,1) and senses no breeze and no stench, it records:</p>
+
+<pre><code>NOT B(1,1)
+NOT S(1,1)</code></pre>
+
+<p>Neither kind of sentence, by itself, tells the agent what to do. What makes the architecture powerful is the third ingredient: an <strong>inference mechanism</strong> that derives new sentences that follow logically from those already stored. From the background axiom and the percept above, the agent can derive <code>NOT P(1,2)</code> and <code>NOT P(2,1)</code> — facts it never perceived and was never told directly, but which are nonetheless guaranteed true if the stored sentences are true. This is the decisive advantage: <strong>the same reasoning machinery serves many tasks and environments</strong>. A resolution theorem prover does not know or care whether the propositions concern pits and wumpuses, circuit faults, medical symptoms, or airline schedules. Change the knowledge base and the agent changes domain; the inference engine is untouched. Compare this with a reflex agent, whose every competence must be hand-coded afresh for each new environment.</p>
+
+<p><strong>The TELL and ASK interface.</strong> Because the knowledge base is a data structure with logical meaning, it must not be manipulated carelessly. Knowledge-based agents therefore interact with the KB through exactly two operations, which together form an abstract interface that hides the KB's internal representation:</p>
+
+<ul>
+<li><strong>TELL(KB, &alpha;)</strong> — add the sentence &alpha; to the knowledge base. This is how percepts enter the agent's world model, and also how conclusions the agent has derived, or commitments it has made (such as "I executed <em>Forward</em> at time 3"), are recorded for future use.</li>
+<li><strong>ASK(KB, &alpha;)</strong> — query the knowledge base. The answer must be one that <em>follows</em> from what the KB contains.</li>
+</ul>
+
+<p>The subtlety — and the whole point — lies in the word "follows." <code>ASK</code> is not a lookup operation and must not be confused with retrieving a record from a database table. Consider a knowledge base containing only:</p>
+
+<pre><code>Breezy(1,1) =&gt; (Pit(1,2) OR Pit(2,1))
+Breezy(1,1)
+NOT Pit(1,2)</code></pre>
+
+<p>The sentence <code>Pit(2,1)</code> appears nowhere in this KB, yet <code>ASK(KB, Pit(2,1))</code> must return <em>true</em>, because <code>Pit(2,1)</code> is <strong>entailed</strong> by the stored sentences: in every state of the world in which all three stored sentences are true, <code>Pit(2,1)</code> is also true. Entailment, written <code>KB |= &alpha;</code>, is the formal relation that governs what counts as a correct answer. The design requirement is therefore stated as a guarantee: <strong>every answer returned by ASK must be entailed by the knowledge base</strong>. This is the property of <em>soundness</em>, and it is what prevents a logical agent from inventing unsupported claims. It cannot hallucinate a safe square, because no inference rule it possesses can produce a conclusion that the premises do not support.</p>
+
+<p>A consequence that often surprises newcomers is that <strong>both operations may trigger inference</strong>. ASK obviously may: computing an entailed answer can require an arbitrarily long chain of deductions. But TELL may also trigger work. Many implementations perform <em>forward chaining</em> on assertion, immediately computing and storing the consequences of a new fact so that later queries are fast. Others normalise the incoming sentence (for example, converting it to conjunctive normal form) or check it for consistency with what is already believed. The interface deliberately does not say which strategy is used — that is a matter for the implementation.</p>
+
+<p><strong>The agent control loop.</strong> With TELL and ASK in place, the behaviour of a generic knowledge-based agent can be written in a handful of lines. The agent maintains a persistent knowledge base and a persistent counter <code>t</code> for the current time step:</p>
+
+<pre><code>function KB-AGENT(percept) returns an action
+    persistent: KB, a knowledge base
+                t, a counter, initially 0, indicating time
+
+    TELL(KB, MAKE-PERCEPT-SENTENCE(percept, t))
+    action &lt;- ASK(KB, MAKE-ACTION-QUERY(t))
+    TELL(KB, MAKE-ACTION-SENTENCE(action, t))
+    t &lt;- t + 1
+    return action</code></pre>
+
+<p>Each line repays close reading.</p>
+
+<ul>
+<li><strong>TELL the percept.</strong> <code>MAKE-PERCEPT-SENTENCE</code> converts the raw percept into a logical sentence that also records <em>when</em> it was received. A Wumpus percept such as <code>[Stench, None, None, None, None]</code> at time 4 becomes something like <code>Stench(4) AND NOT Breeze(4) AND NOT Glitter(4)</code>. The time stamp matters enormously: without it the agent could not distinguish "there was a breeze here, earlier" from "there is a breeze now," and could not reason about change at all.</li>
+<li><strong>ASK for an action.</strong> <code>MAKE-ACTION-QUERY</code> builds a query meaning roughly "which action should be performed at time <em>t</em>?" — for instance <code>ShouldDo(a, 4)</code>, whose answer binds <code>a</code> to a specific action. The KB must contain enough knowledge — about the environment, about goals, about what counts as a good move — for a unique or at least a preferred action to be entailed.</li>
+<li><strong>TELL that the action was taken.</strong> This step is easy to overlook but essential. The agent's own actions change the world, and the agent must model those changes. Recording <code>Did(Forward, 4)</code> allows the KB, together with axioms describing the effects of actions, to infer the agent's new location at time 5. Without this step the agent would lose track of itself.</li>
+<li><strong>Return the action and increment the clock.</strong> The action is dispatched to the actuators and the time counter advances, readying the agent for the next cycle.</li>
+</ul>
+
+<p>Observe what this pseudocode does <em>not</em> contain: any hint of how answers are computed. <strong>The details of inference are hidden inside ASK.</strong> The KB might be interrogated by enumerating models, by resolution refutation, by forward or backward chaining over definite clauses, or by a compiled decision diagram. The control loop is identical in every case. This encapsulation is precisely what lets us analyse the agent's competence separately from its performance.</p>
+
+<p><strong>Knowledge level versus implementation level.</strong> That separation is formalised in a distinction introduced by Allen Newell: the difference between describing an agent at the <strong>knowledge level</strong> and at the <strong>implementation level</strong>.</p>
+
+<p>At the <strong>knowledge level</strong> we specify only <em>what the agent knows</em> and <em>what its goals are</em>. We say nothing about data structures, algorithms, or hardware. A knowledge-level description of a taxi agent might be: "it knows that the Golden Gate Bridge links San Francisco to Marin County, and its goal is to reach Marin County." From this alone we can predict its behaviour, using what Newell called the <strong>principle of rationality</strong>: assume the agent will select actions that its knowledge entails will achieve its goals. We predict that it drives across the bridge — without knowing a single thing about how the agent is built. This is a genuinely predictive abstraction, analogous to predicting a chess program's move from its evaluation of the position rather than from its machine code.</p>
+
+<p>At the <strong>implementation level</strong> we specify the concrete realisation: the syntax of the representation language, the data structures that hold sentences (lists, hash-indexed clause sets, binary decision diagrams), and the inference algorithms applied to them (model enumeration, DPLL, resolution, chaining). Here questions of time and space complexity, indexing strategy, and memory layout become central.</p>
+
+<p>The key observation is that <strong>many different implementations realise the same knowledge-level description</strong>. Two agents may be indistinguishable in what they know and therefore in what they will do, while one stores its knowledge as CNF clauses and the other as a set of Horn rules with a forward-chaining engine; one may answer in microseconds and the other in minutes.</p>
+
+<table>
+<thead>
+<tr><th>Aspect</th><th>Knowledge level</th><th>Implementation level</th></tr>
+</thead>
+<tbody>
+<tr><td>What is specified</td><td>What the agent knows; what it wants</td><td>Data structures and algorithms</td></tr>
+<tr><td>Basis of prediction</td><td>Principle of rationality: it acts on what its knowledge entails</td><td>Trace of the program's execution</td></tr>
+<tr><td>Typical vocabulary</td><td>Believes, knows, goal, entails</td><td>Clause list, index, unification, resolution step</td></tr>
+<tr><td>Primary concern</td><td>Correctness and competence</td><td>Efficiency and resource use</td></tr>
+<tr><td>Relationship</td><td>One description</td><td>Many possible realisations of it</td></tr>
+</tbody>
+</table>
+
+<p>This separation has a practical payoff: <strong>designers can reason about correctness independently of efficiency</strong>. One can first establish that a knowledge base correctly and completely captures the domain — that the right conclusions are entailed — and only afterwards worry about making ASK fast. If a faster inference engine is substituted later, the agent's <em>competence</em> is unchanged, because competence was fixed at the knowledge level. Conversely, if the agent behaves wrongly, the fault can be localised: either the knowledge base is incorrect or incomplete (a knowledge-level bug) or the inference procedure is unsound or too slow (an implementation-level bug). In a monolithic procedural program these two kinds of error are tangled together.</p>
+
+<p><strong>Declarative versus procedural approaches.</strong> How does knowledge get into the agent in the first place? Two philosophies compete.</p>
+
+<p>In the <strong>declarative approach</strong>, the designer starts with an empty knowledge base and TELLs the agent sentences one at a time until the agent knows enough to operate in its environment. The designer states <em>facts about the world</em>; the agent works out <em>what to do</em>. To build a Wumpus agent declaratively, one asserts the rules relating breezes to pits, stenches to the wumpus, the geometry of the grid, the consequences of moving, and a characterisation of a desirable action — and then leaves the inference engine to connect them.</p>
+
+<p>In the <strong>procedural approach</strong>, desired behaviours are compiled directly into program code. Rather than telling the agent that breezes indicate adjacent pits, the designer writes a routine: <code>if breeze_detected then mark_all_neighbours_unsafe()</code>. The knowledge is still present, but it is <em>implicit</em>, dissolved into control flow. It cannot be inspected as knowledge, only read as code.</p>
+
+<table>
+<thead>
+<tr><th>Criterion</th><th>Declarative</th><th>Procedural</th></tr>
+</thead>
+<tbody>
+<tr><td>How knowledge enters</td><td>TELL sentences to the KB</td><td>Hand-code behaviours into the program</td></tr>
+<tr><td>Form of knowledge</td><td>Explicit, inspectable sentences</td><td>Implicit in control flow</td></tr>
+<tr><td>Adding new information</td><td>Add a sentence; machinery unchanged</td><td>Edit and re-verify program logic</td></tr>
+<tr><td>Reuse across tasks</td><td>High — same facts serve many goals</td><td>Low — routines are written for one purpose</td></tr>
+<tr><td>Debugging</td><td>Trace inference; examine the sentence at fault</td><td>Trace execution; isolate the faulty branch</td></tr>
+<tr><td>Typical efficiency</td><td>Lower (general inference can be costly)</td><td>Higher (behaviour is precomputed)</td></tr>
+</tbody>
+</table>
+
+<p>The declarative approach's advantages follow from the explicitness of its knowledge. Because the knowledge is <strong>easy to inspect and debug</strong>, an incorrect behaviour can be traced to a specific false or missing sentence, which is then corrected in place. Because it is <strong>easy to extend</strong>, new information requires only a TELL. Suppose we discover that our Wumpus cave contains quicksand that produces a squelching sound. In a declarative agent we add sentences relating <code>Squelch</code> to <code>Quicksand</code> and asserting that quicksand squares are unsafe; the inference engine immediately begins avoiding them, because <em>the reasoning machinery was never written in terms of pits in the first place</em>. In a procedural agent, every routine that computes safety must be found and rewritten, with the attendant risk of missing one. And because the knowledge is <strong>reusable</strong>, the very same sentences that support navigation also support answering "where is the gold likely to be?" or "which square have I not yet ruled out?"</p>
+
+<p>Taken to its conclusion, the declarative stance permits an agent that learns. A <strong>fully declarative agent can be dropped into a previously unknown environment</strong> with little more than a general learning capability and an inference engine, and can build up its own knowledge base by TELLing itself sentences derived from its observations. A general-purpose inference procedure applied to a learned theory yields competence that the designer never explicitly supplied — the agent becomes, in a limited but real sense, a general-purpose system rather than a special-purpose one.</p>
+
+<p><strong>Why declarative representation supports intelligence.</strong> It is worth drawing the threads together and asking why this architecture is associated with <em>intelligent</em> behaviour rather than merely with tidy software engineering. Several properties are characteristic of intelligence and fall out naturally from declarative representation.</p>
+
+<ul>
+<li><strong>Novel situations are handled by recombination.</strong> A procedural agent can respond only to situations its designer anticipated. A declarative agent possesses sentences that can be combined in exponentially many ways. A Wumpus agent told only the local rules linking breezes, stenches and neighbouring squares can nevertheless solve a configuration of pits and walls that neither it nor its designer has ever encountered, because the deduction required is assembled on the fly from general facts. The number of situations a rule base can address vastly exceeds the number of rules it contains.</li>
+<li><strong>Partial information can be represented and reasoned about.</strong> This is perhaps the deepest advantage, and it is the one that distinguishes logic from a simple state array. A conventional data structure must record that square (2,2) either has a pit or does not. A logical KB can say precisely what the agent knows and no more: <code>Pit(2,1) OR Pit(1,2)</code> asserts that at least one of two squares is dangerous without committing to which. Disjunctions, negations, implications and (in first-order logic) existential quantifiers all let the agent hold incomplete knowledge in a usable form, so that later percepts can be combined with it to sharpen the conclusion. Learning that <code>NOT Pit(1,2)</code> immediately yields <code>Pit(2,1)</code> — information that would simply have been discarded by a representation unable to express uncertainty of this kind.</li>
+<li><strong>Knowledge acquired for one purpose serves unanticipated goals.</strong> Because sentences state facts about the world rather than instructions for achieving a particular objective, they are goal-neutral. A map of a building stored declaratively supports route planning, evacuation analysis, and the question "which rooms have no windows?" alike. Procedural knowledge compiled for route planning supports only route planning.</li>
+<li><strong>Explanations can be produced by tracing inference.</strong> Because each conclusion is derived from identifiable premises by identifiable inference steps, the agent can answer "why?" — "I will not enter (1,2) because I perceived a breeze at (1,1), and the rule linking breezes to adjacent pits leaves (1,2) unproven safe." This transparency is a prerequisite for trust, for auditing, and for effective debugging, and it is exactly what opaque, subsymbolic systems struggle to provide.</li>
+<li><strong>Autonomy grows over time.</strong> An agent whose knowledge is explicit can TELL <em>itself</em> new sentences as it learns, progressively reducing its dependence on the designer's initial theory. Its competence is no longer bounded by what was anticipated at design time. An agent that begins with general background knowledge and accumulates environment-specific sentences through experience becomes increasingly independent — which is one reasonable operational definition of autonomy.</li>
+</ul>
+
+<p>None of this makes declarative representation free. General inference is computationally expensive — propositional entailment is co-NP-complete, and first-order entailment is only semi-decidable — and much of the engineering of logical agents is devoted to recovering efficiency through restricted representations such as Horn clauses, or through indexing and compilation. But the architecture draws the line in a principled place: knowledge is stated once, declaratively, and the cost of using it is an implementation-level concern that can be attacked separately, without disturbing what the agent knows.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+<li><strong>MO1:</strong> This topic directly and fully supports MO1: it describes the knowledge-based agent architecture, the role of the knowledge base as a set of asserted sentences, the TELL/ASK interface and its entailment guarantee, and the four-step control loop that drives the agent.</li>
+<li><strong>MO2:</strong> Only indirectly supported. The topic establishes that knowledge bases contain well-formed sentences in a formal representation language and uses propositional connectives in its examples, but it does not present the BNF grammar or the rules for constructing sentences.</li>
+<li><strong>MO3:</strong> Partially supported. The topic introduces entailment as the correctness criterion for ASK and notes that model checking, conversion to CNF and resolution are alternative implementations of inference, but it does not teach the procedures themselves.</li>
+<li><strong>MO4:</strong> Not addressed in detail. The topic motivates expressive representation of partial and quantified information as a reason for preferring declarative knowledge, but it does not cover first-order predicates, functions, quantifiers, or translation from natural language.</li>
+<li><strong>MO5:</strong> Partially supported. Forward and backward chaining are identified as alternative inference strategies hidden behind TELL and ASK, with the observation that forward chaining may be performed on assertion, but the topic does not compare them in depth.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Running example throughout is the Wumpus World, chosen because it is the standard vehicle in Russell &amp;amp; Norvig Ch. 7 and makes the entailment-vs-lookup distinction concrete. The knowledge-level/implementation-level material follows Newell&#39;s 1982 &quot;The Knowledge Level&quot; and his principle of rationality. The KB-AGENT pseudocode matches the standard textbook formulation so students can map it onto their reading. Two comparison tables are included (knowledge vs implementation level; declarative vs procedural) as requested by the format rules for tabular content.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

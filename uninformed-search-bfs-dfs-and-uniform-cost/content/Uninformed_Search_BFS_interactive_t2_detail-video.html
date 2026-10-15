@@ -1,0 +1,319 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Breadth-First Search</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Uninformed Search: BFS, DFS, and Uniform Cost</a></div>
+  <header>
+    <h1>Breadth-First Search</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Breadth-First Search</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>Breadth-first search (BFS) is the canonical uninformed strategy: it explores a state space in order of increasing depth, examining every node that is one step from the start before any node that is two steps away, and so on. It needs no knowledge of the goal's location, no heuristic estimate, and no information about which branch "looks promising" — only the ability to generate the successors of a state. The entire behaviour of BFS follows from a single design decision: the frontier is a <strong>first-in, first-out (FIFO) queue</strong>. Everything else — the level-by-level sweep, the guarantee of finding a shallowest goal, the crippling memory appetite — is a consequence of that one choice. This topic develops BFS from its data structures through to its complexity, with concrete traces on a small graph and on the 8-puzzle.</p>
+
+<p><strong>BFS and the FIFO frontier.</strong> The frontier (sometimes called the <em>open list</em>) is the collection of nodes that have been generated but not yet expanded. BFS keeps this collection in a queue: newly generated successors are <em>appended to the back</em>, while the node chosen for expansion is always <em>removed from the front</em>. Because a node's children are necessarily one level deeper than the node itself, and because the parent entered the queue before any node of its own depth that was generated later, the queue is always sorted by depth. Concretely, every node at depth <code>d</code> is enqueued before any node at depth <code>d+1</code> can be created, so the queue at any instant contains at most two adjacent depth levels: the tail of level <code>d</code> followed by the head of level <code>d+1</code>. The search therefore sweeps the tree level by level, and the point in the queue where depth changes is the "level boundary".</p>
+
+<p>A node in a search algorithm is not the same thing as a state. A <em>state</em> is a configuration of the world (a city, a puzzle board); a <em>node</em> is a bookkeeping record in the search tree. The standard node record carries four fields:</p>
+
+<ul>
+  <li><strong>state</strong> — the world configuration this node represents;</li>
+  <li><strong>parent</strong> — a pointer to the node from which this one was generated;</li>
+  <li><strong>action</strong> — the action applied to the parent to produce this node;</li>
+  <li><strong>path-cost</strong> (often written <code>g</code>) — the cost of the path from the root to this node; for BFS on unit-cost edges this is simply the depth.</li>
+</ul>
+
+<p>The parent pointer is what makes a solution recoverable. BFS does not store paths in the queue (that would be wasteful, since prefixes are shared); it stores single nodes and reconstructs the path only once, at the end, by walking parent pointers from the goal node back to the root and reversing the resulting list. The action fields along that chain give the plan; the path-cost field of the goal node gives the solution cost.</p>
+
+<pre><code>class Node:
+    def __init__(self, state, parent=None, action=None, path_cost=0):
+        self.state     = state
+        self.parent    = parent
+        self.action    = action
+        self.path_cost = path_cost
+
+def solution(node):
+    actions, states = [], []
+    while node.parent is not None:
+        actions.append(node.action)
+        states.append(node.state)
+        node = node.parent
+    states.append(node.state)
+    actions.reverse(); states.reverse()
+    return actions, states</code></pre>
+
+<p>Alongside the frontier sits the <strong>explored set</strong> (closed list): a set of states that have already been expanded. Its job is to stop the search from re-expanding a state it has already dealt with, which on a graph with cycles would otherwise cause infinite looping or combinatorial blow-up. In addition, a practical implementation keeps a <em>membership structure over the states currently on the frontier</em> — a hash set mirroring the queue's contents — because testing "is this state already queued?" by scanning a queue is <code>O(n)</code> and would dominate the running time. With a hash set the test is <code>O(1)</code>.</p>
+
+<pre><code>def breadth_first_search(problem):
+    node = Node(problem.initial)
+    if problem.goal_test(node.state):          # trivial case
+        return solution(node)
+    frontier     = deque([node])               # FIFO queue
+    frontier_set = {node.state}                # O(1) membership mirror
+    explored     = set()
+
+    while frontier:
+        node = frontier.popleft()              # expand from the FRONT
+        frontier_set.discard(node.state)
+        explored.add(node.state)
+        for action in problem.actions(node.state):
+            child_state = problem.result(node.state, action)
+            if child_state in explored or child_state in frontier_set:
+                continue                       # duplicate: discard
+            child = Node(child_state, node, action,
+                         node.path_cost + problem.step_cost(node.state, action))
+            if problem.goal_test(child_state): # goal test at GENERATION
+                return solution(child)
+            frontier.append(child)             # append to the BACK
+            frontier_set.add(child_state)
+    return None                                # frontier empty: failure</code></pre>
+
+<p>Note the cost profile of the data structures. <code>popleft</code> and <code>append</code> on a doubly-linked deque are <code>O(1)</code>; hash-set insertion and lookup are <code>O(1)</code> expected. The queue machinery therefore never dominates: BFS's running time is proportional to the number of nodes it generates, multiplied by the cost of generating successors and hashing states. If one carelessly uses a Python list with <code>pop(0)</code>, each dequeue becomes <code>O(n)</code> and the whole algorithm degrades to quadratic in the number of nodes — a classic implementation bug that is invisible on toy graphs and fatal on real ones.</p>
+
+<p><strong>Tracing BFS on a simple graph.</strong> Traces are the fastest way to internalise the level-by-level sweep. Consider the following undirected graph with start <code>A</code> and goal <code>G</code>; successors are always generated in alphabetical order so the trace is reproducible.</p>
+
+<table>
+  <thead>
+    <tr><th>State</th><th>Neighbours (generated in this order)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>A</td><td>B, C</td></tr>
+    <tr><td>B</td><td>A, D, E</td></tr>
+    <tr><td>C</td><td>A, E, F</td></tr>
+    <tr><td>D</td><td>B</td></tr>
+    <tr><td>E</td><td>B, C, G</td></tr>
+    <tr><td>F</td><td>C, G</td></tr>
+    <tr><td>G</td><td>E, F</td></tr>
+  </tbody>
+</table>
+
+<p>We begin with the initial state in the queue and the explored set empty. Each iteration dequeues the front node, adds its state to the explored set, generates its successors in order, discards duplicates, goal-tests each surviving child as it is generated, and appends the rest to the back. The frontier is written as an ordered list, front on the left.</p>
+
+<table>
+  <thead>
+    <tr><th>Step</th><th>Expanded</th><th>Children generated</th><th>Action taken on each child</th><th>Frontier after step (front → back)</th><th>Explored set</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>0</td><td>—</td><td>—</td><td>initialise</td><td>[A]</td><td>{ }</td></tr>
+    <tr><td>1</td><td>A</td><td>B, C</td><td>both new, enqueued</td><td>[B, C]</td><td>{A}</td></tr>
+    <tr><td>2</td><td>B</td><td>A, D, E</td><td>A explored → discard; D, E enqueued</td><td>[C, D, E]</td><td>{A, B}</td></tr>
+    <tr><td>3</td><td>C</td><td>A, E, F</td><td>A explored → discard; E already on frontier → discard; F enqueued</td><td>[D, E, F]</td><td>{A, B, C}</td></tr>
+    <tr><td>4</td><td>D</td><td>B</td><td>B explored → discard</td><td>[E, F]</td><td>{A, B, C, D}</td></tr>
+    <tr><td>5</td><td>E</td><td>B, C, G</td><td>B, C explored → discard; <strong>G generated and goal-tested → success</strong></td><td>[F] (search halts)</td><td>{A, B, C, D, E}</td></tr>
+  </tbody>
+</table>
+
+<p>Reading the "frontier after step" column downwards makes the level boundaries visible. After step 1 the queue holds exactly level 1 (<code>B, C</code>). After step 3 it holds the remainder of level 1 (none) plus all of level 2 (<code>D, E, F</code>). The queue is never out of depth order. The expansion order <code>A, B, C, D, E</code> is precisely the level order of the graph:</p>
+
+<table>
+  <thead>
+    <tr><th>Depth</th><th>States first reached at this depth</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>0</td><td>A</td></tr>
+    <tr><td>1</td><td>B, C</td></tr>
+    <tr><td>2</td><td>D, E, F</td></tr>
+    <tr><td>3</td><td>G</td></tr>
+  </tbody>
+</table>
+
+<p>Finally, the path is recovered by following parent pointers from the goal node: <code>G → E → B → A</code>, reversed to give <code>A → B → E → G</code>, three steps. Note that <code>A → C → F → G</code> is an equally short alternative; BFS returns the one whose goal node was generated first, which is determined entirely by the successor ordering. BFS guarantees <em>a</em> shallowest solution, not a unique one.</p>
+
+<p><strong>Goal-test timing: generation versus expansion.</strong> There are two moments at which an algorithm can ask "is this a goal?": when a node is <em>generated</em> (just after it is created as a child) or when it is <em>selected for expansion</em> (just after it is removed from the frontier). BFS conventionally tests at generation, as in the pseudocode above, and the difference matters.</p>
+
+<ul>
+  <li><strong>Testing at generation</strong> lets BFS stop the instant the first goal appears in a successor list. In the trace above, <code>G</code> was recognised during the expansion of <code>E</code> and the search stopped with <code>F</code> still unexpanded.</li>
+  <li><strong>Testing at expansion</strong> would push <code>G</code> onto the queue behind <code>F</code>, expand <code>F</code> (generating nothing new), and only then dequeue <code>G</code> and report success. On a small graph this is a trifle; in general it forces BFS to generate the <em>entire</em> level <code>d+1</code> before the goal at depth <code>d</code> is announced — roughly <code>b</code> times more nodes generated and, worse, <code>b</code> times more memory consumed. The time bound rises from <code>O(b^d)</code> to <code>O(b^(d+1))</code>.</li>
+</ul>
+
+<p>The early test is <em>safe for BFS</em> because all nodes at a given depth are equally shallow: if a goal is generated at depth <code>d</code>, no goal can exist at depth less than <code>d</code>, because BFS would have generated every node at every shallower depth already. The shallowest goal is the cheapest goal only when depth and cost agree — that is, when every step costs the same (or, more generally, when path cost is a non-decreasing function of depth).</p>
+
+<p>If step costs vary, testing at generation can be badly wrong. Imagine <code>S → G</code> as a single edge of cost 100 and <code>S → X → G</code> as two edges of cost 1 each. BFS generates <code>G</code> at depth 1, tests it, and returns a path of cost 100, having never looked at the cost-2 alternative at depth 2. This is exactly why <strong>uniform-cost search abandons the generation-time test</strong>: it orders the frontier by <code>g</code> and only declares success when a goal node is <em>selected for expansion</em>, at which point no cheaper path to any goal can remain on the frontier. The timing of the goal test is thus not a micro-optimisation but a correctness condition tied to the cost model.</p>
+
+<p><strong>Duplicate detection and repeated states.</strong> Real state spaces are graphs, not trees: many different action sequences lead to the same state. Without duplicate detection, BFS on the tiny graph above would generate <code>A</code> as a child of <code>B</code>, then <code>B</code> again as a child of that <code>A</code>, and so on forever, exploring an infinite tree over a seven-state world. The fix is the pair of membership tests in the pseudocode:</p>
+
+<ul>
+  <li><strong>Discard a child whose state is in the explored set.</strong> That state has already been expanded, so every path through it has already been considered.</li>
+  <li><strong>Discard a child whose state is already on the frontier.</strong> The queued copy was generated no later than this one, hence at depth no greater, so the new copy cannot improve on it.</li>
+</ul>
+
+<p>The second rule deserves emphasis because it is specific to BFS's ordering guarantee: <em>the first time BFS reaches a state, it has reached it by a path with the fewest possible steps</em>. (Proof sketch: suppose a state <code>s</code> is first generated at depth <code>k</code> but a <code>k'</code>-step path with <code>k' &lt; k</code> exists. Every node at depth <code>k'-1</code> is expanded before any node at depth <code>k-1</code>, so the predecessor of <code>s</code> on the shorter path would have generated <code>s</code> earlier — contradiction.) Consequently later duplicates can be thrown away without storing or comparing costs. In uniform-cost search this is not true, and a cheaper later path to a frontier state must trigger a <em>decrease-key</em> replacement rather than a discard.</p>
+
+<p>Efficient duplicate detection requires a <strong>canonical representation</strong> of each state that can be hashed. The representation must be such that two states are equal as world configurations exactly when their representations are equal. For the 8-puzzle, a tuple or string of the nine cell contents in row-major order works perfectly:</p>
+
+<pre><code>board  = ((1, 2, 3),
+          (8, 0, 4),            # 0 denotes the blank
+          (7, 6, 5))
+key    = "123804765"            # canonical string, hashable, O(1) to compare
+explored.add(key)</code></pre>
+
+<p>Mutable containers (Python lists, 2-D arrays) are not hashable and must be converted; and if a state has symmetries or an arbitrary internal ordering — a <em>set</em> of items, say — the canonical form must sort or normalise it, or logically identical states will hash to different keys and duplicate detection will silently fail.</p>
+
+<p>The payoff is a change in the asymptotics of the problem itself. Without duplicate detection the search tree has as many nodes as there are <em>paths</em>, which is exponential in depth even for a tiny graph. With it, no state is ever expanded twice, so the number of expansions is bounded by the number of <em>distinct reachable states</em>. For a finite state space such as the 8-puzzle, this converts an unbounded search into one that provably terminates after at most 181,440 expansions. The price is memory for the explored set — which, for BFS, is memory we were going to spend on the frontier anyway.</p>
+
+<p><strong>BFS on the 8-puzzle.</strong> The 8-puzzle is a 3×3 frame holding eight numbered tiles and one blank; a move slides a tile adjacent to the blank into it, which is most easily modelled as moving the blank Up, Down, Left or Right. The branching factor depends on where the blank sits:</p>
+
+<table>
+  <thead>
+    <tr><th>Blank position</th><th>Number of such positions</th><th>Legal moves</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Corner</td><td>4</td><td>2</td></tr>
+    <tr><td>Edge (middle of a side)</td><td>4</td><td>3</td></tr>
+    <tr><td>Centre</td><td>1</td><td>4</td></tr>
+  </tbody>
+</table>
+
+<p>Averaged over blank positions the branching factor is <code>(4·2 + 4·3 + 1·4)/9 ≈ 2.67</code>, and once the move that simply undoes the previous one is discarded by duplicate detection, the <em>effective</em> branching factor is often quoted as about 1.7–3 depending on the convention used. The state space contains <code>9! = 362,880</code> arrangements, which split into two parity classes of 181,440 states each; only one class is reachable from any given board, so half of all randomly generated boards are unsolvable from a given goal. The hardest solvable instances require 31 moves.</p>
+
+<p>Running BFS from, say,</p>
+
+<pre><code>start            goal
+1 2 3            1 2 3
+8 0 4     →      8 0 4      (already solved: depth 0)
+7 6 5            7 6 5
+
+start            goal
+1 2 3            1 2 3
+0 8 4     →      8 0 4      (one move: slide 8 left → depth 1)
+7 6 5            7 6 5</code></pre>
+
+<p>the algorithm first expands the root, generating all boards one move away; then it expands each of those, generating all boards two moves away that have not been seen; and so on. Every distinct board reachable in <code>k</code> moves is generated before any board requiring <code>k+1</code> moves. Because every slide costs exactly 1, the depth of the first goal generated <em>is</em> the minimum number of moves, so BFS returns a provably optimal solution — this is the unit-cost case in which "shallowest" and "cheapest" coincide.</p>
+
+<p>What stops you is memory, not time. The number of distinct states at depth <code>d</code> grows roughly as <code>2.13^d</code> for the 8-puzzle, so a 20-move solution involves hundreds of thousands of generated nodes and a frontier holding tens of thousands of boards simultaneously; a complete BFS of the whole space holds up to roughly 24,000 boards on the frontier at the deepest levels and 181,440 in the explored set. That is comfortable on a modern machine. Scale the puzzle to 4×4 (the 15-puzzle) and the reachable space is about <code>1.3 × 10^13</code> states with solutions up to 80 moves: BFS cannot store a frontier of that size under any realistic memory budget, which is the practical motivation for iterative-deepening and heuristic search.</p>
+
+<p><strong>Completeness, optimality, and complexity.</strong> Let <code>b</code> be the maximum branching factor, <code>d</code> the depth of the shallowest goal, and <code>m</code> the maximum depth of the state space.</p>
+
+<ul>
+  <li><strong>Completeness — yes.</strong> If a solution exists at some finite depth <code>d</code> and <code>b</code> is finite, BFS will find it. The argument is simply that BFS generates all nodes at depth 0, then all at depth 1, and so on; each level is finite (at most <code>b^k</code> nodes, and with duplicate detection at most the number of distinct states), so level <code>d</code> is reached after finitely many steps. BFS is complete even in infinite state spaces, provided the branching factor is finite — a property that depth-first search conspicuously lacks, since DFS can plunge down an infinite branch and never return. If the state space is infinite and no solution exists, BFS does not terminate, but no algorithm can do better in that case.</li>
+  <li><strong>Optimality — conditionally.</strong> BFS returns a <em>shallowest</em> goal node. That is a <em>least-cost</em> goal only if path cost is a non-decreasing function of depth — which holds automatically when every step costs the same. With unequal step costs BFS is not optimal, as the <code>S → G</code> (cost 100) versus <code>S → X → G</code> (cost 2) example showed. For such problems, uniform-cost search — BFS's generalisation with a priority queue ordered by <code>g</code>, a goal test at expansion, and decrease-key on improved frontier paths — must be used instead.</li>
+  <li><strong>Time complexity — <code>O(b^d)</code>.</strong> With the goal test applied at generation, BFS expands the <code>1 + b + b² + … + b^(d-1)</code> nodes above depth <code>d</code> and generates at most <code>b^d</code> nodes at depth <code>d</code> before stopping, giving <code>O(b^d)</code> nodes generated. Deferring the test to expansion adds a full extra level and raises the bound to <code>O(b^(d+1))</code>. On a graph with duplicate detection the bound is further capped by <code>|S|</code>, the number of distinct reachable states, so the true complexity is <code>O(min(b^d, |S|))</code> — or, in graph terms, <code>O(|V| + |E|)</code> for a full traversal.</li>
+  <li><strong>Space complexity — <code>O(b^d)</code>.</strong> Every generated node must be retained: the explored set holds <code>O(b^(d-1))</code> states and the frontier alone holds <code>O(b^d)</code> nodes at the deepest level. Unlike depth-first search, whose frontier is only <code>O(bm)</code>, BFS keeps an entire level in memory simultaneously.</li>
+</ul>
+
+<p>The following table makes the growth concrete for <code>b = 10</code>, assuming one million nodes generated per second and 100 bytes per node. The point is not the exact figures (which improve with faster hardware) but the ratio between the time column and the memory column.</p>
+
+<table>
+  <thead>
+    <tr><th>Depth <code>d</code></th><th>Nodes generated</th><th>Time</th><th>Memory</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>2</td><td>110</td><td>&lt; 1 ms</td><td>11 KB</td></tr>
+    <tr><td>4</td><td>11,110</td><td>11 ms</td><td>1 MB</td></tr>
+    <tr><td>6</td><td>10<sup></sup>6 (about 1.1 million)</td><td>1.1 s</td><td>111 MB</td></tr>
+    <tr><td>8</td><td>about 1.1 × 10^8</td><td>2 minutes</td><td>11 GB</td></tr>
+    <tr><td>10</td><td>about 1.1 × 10^10</td><td>3 hours</td><td>1 TB</td></tr>
+    <tr><td>12</td><td>about 1.1 × 10^12</td><td>13 days</td><td>111 TB</td></tr>
+  </tbody>
+</table>
+
+<p>Read across the rows and the lesson is unmistakable: <strong>memory, not time, is what kills BFS</strong>. At depth 8 a two-minute wait is entirely tolerable, but 11 GB of resident nodes already exceeds the comfortable working set of a typical machine; at depth 10 the three-hour runtime is survivable for an overnight job while the terabyte of frontier is not survivable at all. Exponential space exhausts RAM long before an exponential time bound becomes intolerable, and once the operating system starts paging the frontier to disk the constant factors explode and the time estimate ceases to be meaningful either. This asymmetry is the single most important practical fact about BFS, and it is the direct motivation for iterative-deepening search, which recovers BFS's completeness and unit-cost optimality at <code>O(bd)</code> space by paying a modest constant factor in repeated work.</p>
+
+<p>A compact summary of the trade-offs:</p>
+
+<table>
+  <thead>
+    <tr><th>Property</th><th>BFS</th><th>Condition / remark</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Complete</td><td>Yes</td><td>requires finite <code>b</code>; solution at finite depth</td></tr>
+    <tr><td>Optimal</td><td>Yes</td><td>only if step costs are equal (or cost non-decreasing with depth)</td></tr>
+    <tr><td>Time</td><td><code>O(b^d)</code></td><td><code>O(b^(d+1))</code> if the goal test is deferred to expansion</td></tr>
+    <tr><td>Space</td><td><code>O(b^d)</code></td><td>frontier dominates; the binding constraint in practice</td></tr>
+    <tr><td>Frontier structure</td><td>FIFO queue</td><td><code>O(1)</code> enqueue/dequeue plus an <code>O(1)</code> hash-set mirror</td></tr>
+    <tr><td>Goal test</td><td>at generation</td><td>safe only under equal step costs</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Alignment with Learning Outcomes.</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Supported indirectly: the topic assumes and exercises the five-part specification (initial state, actions, transition model, goal test, path cost) through the <code>problem.initial</code>, <code>problem.actions</code>, <code>problem.result</code>, <code>problem.goal_test</code> and <code>problem.step_cost</code> interface and the 8-puzzle formulation, but it does not itself teach how to formulate a new problem.</li>
+  <li><strong>MO2</strong> — Directly supported: the worked trace tables record the expansion order and the ordered frontier contents after every expansion on a small state-space graph, which is exactly the BFS half of this outcome.</li>
+  <li><strong>MO3</strong> — Directly supported: the topic gives complete pseudocode for a BFS solver with a FIFO queue frontier, an explored set, a hash-set frontier mirror, and parent-pointer path reconstruction via the <code>solution</code> routine.</li>
+  <li><strong>MO4</strong> — Partially supported: it establishes BFS's completeness, conditional optimality, and <code>O(b^d)</code> time and space, and contrasts these with DFS's <code>O(bm)</code> space and uniform-cost search's cost ordering, providing the BFS column of the comparison table to be completed in later topics.</li>
+  <li><strong>MO5</strong> — Partially supported: the discussion of equal versus unequal step costs, the memory-versus-time table, and the 15-puzzle scaling example give concrete criteria for when BFS is or is not the right choice for a given edge-cost model, solution depth, and memory budget.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>The depth-growth figures for the 8-puzzle (effective branching factor ≈ 2.13 for unique states, 181,440 reachable states, 31-move worst case) and the 15-puzzle figures (≈1.3 × 10^13 states, 80-move worst case) are standard published values; instructors may wish to have students verify the 181,440 figure via a full BFS of the space as a lab exercise. The time/memory table uses the conventional Russell &amp; Norvig style assumptions (10^6 nodes/second, 100 bytes/node) — update the constants if students are benchmarking on their own hardware, but keep the comparison between columns intact, since that contrast is the pedagogical point. The decrease-key behaviour of uniform-cost search is mentioned only as a contrast and should be developed fully in the UCS topic.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Breadth-first search (BFS) is the first systematic search strategy we study in detail. The idea is simple: keep a frontier of nodes waiting to be expanded, and always expand the shallowest one first. A FIFO queue gives you exactly that behavior, so BFS sweeps the state space level by level — all nodes at depth 0, then depth 1, then depth 2, and so on. Paired with an explored set (sometimes called a closed list) and parent pointers, BFS turns into a practical solver that can reconstruct the path it found.</p>
+<p>This topic matters because BFS sets the baseline for everything that follows. It is complete whenever the branching factor is finite, and it is optimal when every edge has the same cost — but it pays for those guarantees with O(b^d) time and, more painfully, O(b^d) memory, since the whole frontier must be stored. Those properties are what we later compare against DFS, depth-limited search, iterative deepening, and uniform-cost search. We also look at two details that are easy to get wrong: testing the goal when a node is generated rather than when it is expanded (which saves a whole level of work), and detecting duplicate states so repeated states do not blow up the search.</p>
+<p>While watching the videos below, focus on three things. First, watch the queue: what is added, what comes off the front, and in what order nodes are visited. Second, notice how each presenter marks nodes as visited or discovered — that is the duplicate detection mechanism, and the exact moment it happens changes how much work BFS does. Third, keep the 8-puzzle in mind: the graph examples are small, but the same loop runs over puzzle states, where the branching factor and depth decide whether BFS is feasible at all. Note that these videos present BFS from an algorithms and data-structures perspective; the AI-specific framing (five-part problem specification, goal-test timing, and the completeness/optimality analysis) comes from the course material and lectures.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Breadth-first search in 4 minutes</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/HZ5YTanv5QE?cc_load_policy=1&amp;rel=0" title="Video: Breadth-first search in 4 minutes (Michael Sambol)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Michael Sambol</strong> · 3:59 · 608,315 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=HZ5YTanv5QE" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A compact, four-minute walkthrough of the breadth-first search algorithm, covering the core queue-driven loop and a visual traversal of a graph. The description links to a Python implementation on GitHub, so you can read the code alongside the explanation.</p>
+<h3>Why this video</h3>
+<p>Michael Sambol's algorithm shorts are a widely used, accurate reference, and the brevity makes this ideal for a first pass or a quick review of the FIFO frontier and visit order before you attempt a hand trace.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Breadth First Search Explained and Implemented in Java | BFS | Graph Traversal &amp; Theory | Geekific</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/9Oev6UgLhiI?cc_load_policy=1&amp;rel=0" title="Video: Breadth First Search Explained and Implemented in Java | BFS | Graph Traversal &amp; Theory | Geekific (Geekific)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Geekific</strong> · 6:22 · 73,343 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=9Oev6UgLhiI" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>An explanation of BFS as a graph traversal followed by an implementation in Java, covering the theory and then the actual queue and visited-set code. Expect discussion of how nodes are marked as discovered and enqueued, and how the traversal proceeds level by level.</p>
+<h3>Why this video</h3>
+<p>The pairing of theory with working code supports the implementation side of this topic, especially the explored set used for duplicate detection and the queue structure that defines BFS.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: Breadth First Search (BFS) Algorithm | Graph Traversal &amp; Grid Patterns</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/6T90pTJ03YY?cc_load_policy=1&amp;rel=0" title="Video: Breadth First Search (BFS) Algorithm | Graph Traversal &amp; Grid Patterns (Profound Academy)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Profound Academy</strong> · 16:48 · 8,813 views · 1y ago · captions — <a href="https://www.youtube.com/watch?v=6T90pTJ03YY" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A longer treatment of BFS in Python that goes beyond plain traversal into shortest-path calculation and grid or matrix problems. The extra length allows for slower, more detailed development of the algorithm and several worked patterns.</p>
+<h3>Why this video</h3>
+<p>The shortest-path and grid material connects directly to why BFS is optimal on unit-cost problems, and the grid examples are a useful bridge to puzzle-style state spaces like the 8-puzzle.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Together these videos give you the mechanics you need for MO2 and MO3: each one shows the FIFO frontier in action, the visited or explored set that handles repeated states, and the enqueue/dequeue order that determines expansion sequence, with two of them providing concrete code in Java and Python that you can adapt to a solver with parent-pointer path reconstruction. The shortest-path framing in the Profound Academy video reinforces the unit-cost optimality claim that MO4 asks you to compare across strategies, and the explicit queue handling across all three reinforces the memory cost that drives the trade-off analysis in MO4 and MO5. The course-specific pieces — formulating problems with the five-part specification (MO1), goal-test timing at generation versus expansion, and the formal O(b^d) argument — are developed in the lecture material, so use the videos to build fluency with the algorithm itself and bring that fluency to the analytical work.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

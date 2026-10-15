@@ -1,0 +1,350 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fitness Functions and Evaluation</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Genetic Algorithms and Evolutionary Search</a></div>
+  <header>
+    <h1>Fitness Functions and Evaluation</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Fitness Functions and Evaluation</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>The fitness function is the only part of a genetic algorithm that knows anything about the problem being solved. Selection, crossover and mutation are generic machinery; they shuffle and perturb strings of symbols without any understanding of what those symbols mean. All of the problem knowledge — the objectives, the constraints, the trade-offs, the definition of "better" — enters the algorithm through a single interface: a function that takes a chromosome and returns a number. Because of this, the quality of a GA's results is bounded far more tightly by the quality of its fitness function than by any parameter setting. A beautifully tuned algorithm with a badly shaped fitness function will reliably and efficiently converge on something useless. This topic examines how fitness is computed, how to shape it so that it actually guides search, how to handle constraints and multiple objectives, what to do when evaluation is noisy, and how to validate the function before trusting its output.</p>
+
+<p><strong>The Role of the Fitness Function</strong></p>
+
+<p>Evaluation is a two-step process: <em>decoding</em> followed by <em>scoring</em>. The chromosome is the genotype — the internal encoding the operators manipulate. It is rarely a direct description of a solution. A bitstring <code>1011001</code> might decode to the real number 3.47; a permutation <code>[4,1,3,2,5]</code> might decode to a route visiting cities in that order; an integer vector might decode to a machine assignment for each job in a schedule. Decoding builds the phenotype, the actual candidate solution in the problem domain. Scoring then measures that phenotype against the objectives: total route length, makespan, classification accuracy, portfolio return. Keeping these two steps conceptually separate pays off, because changing representation (say from binary to real-valued) should only require changing the decoder, not the scoring logic.</p>
+
+<p>A worked example makes the separation concrete. Suppose we are solving a 0/1 knapsack problem with capacity 15 and the following items:</p>
+
+<table>
+<thead>
+<tr><th>Item</th><th>Weight</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td>A</td><td>6</td><td>12</td></tr>
+<tr><td>B</td><td>5</td><td>9</td></tr>
+<tr><td>C</td><td>4</td><td>7</td></tr>
+<tr><td>D</td><td>8</td><td>14</td></tr>
+<tr><td>E</td><td>3</td><td>5</td></tr>
+</tbody>
+</table>
+
+<p>A chromosome is a 5-bit string, one bit per item. Decoding <code>10101</code> gives the item set {A, C, E}; scoring gives weight 13 (feasible) and value 24. Decoding <code>11011</code> gives {A, B, D, E} with weight 22 — over capacity — and here the fitness function must still return something sensible rather than crashing or returning an undefined value.</p>
+
+<p>That last point generalises into a hard requirement: <strong>the fitness function must be total over the search space the operators can reach</strong>. Crossover and mutation are blind; they will produce chromosomes that encode duplicate cities, negative durations, empty solutions, all-zero bitstrings, parameter values outside the intended range, and tree expressions that divide by zero. Every one of these must yield a number. If the function throws an exception on an edge case, the run dies mid-experiment, often after hours. If it returns <code>NaN</code> or infinity, comparison operators behave unpredictably and selection silently breaks — roulette wheel selection with a single infinite fitness will pick the same individual forever. Defensive practice is to clamp outputs to a finite range, handle protected division (return 1 for <code>x/0</code> in genetic programming), and give degenerate individuals a very poor but finite score. Writing a handful of deliberately malformed chromosomes as unit tests for the evaluator is cheap insurance.</p>
+
+<p>Efficiency matters more here than anywhere else in the algorithm. Consider a modest run: population 200, 500 generations, 10 independent repetitions for statistical confidence. That is one million evaluations. If each evaluation takes 10 milliseconds, the run takes under three hours; if it takes one second, it takes eleven and a half days. Meanwhile, the combined cost of all the selection, crossover and mutation operations is usually under 5% of total runtime. Optimising the evaluator is therefore almost always the correct target for performance work.</p>
+
+<p>Several techniques reduce evaluation cost:</p>
+
+<ul>
+<li><strong>Caching (memoisation).</strong> Store evaluated chromosomes in a hash map keyed by the genotype. In later generations, when the population has converged and many individuals are duplicates, cache hit rates of 40–70% are common, effectively halving runtime for free. The cache also gives a useful free diagnostic: the ratio of unique genotypes to population size is a direct measure of diversity.</li>
+<li><strong>Incremental (delta) evaluation.</strong> If a mutation changes only a small part of the solution, recompute only the affected contribution. In a TSP tour, a 2-opt move that reverses a segment changes exactly two edges; the new tour length is <code>old_length - d(a,b) - d(c,d) + d(a,c) + d(b,d)</code>, an O(1) update instead of an O(n) re-sum. For a 1000-city instance that is a thousandfold saving per mutated individual. Incremental evaluation requires the operators and the evaluator to cooperate, which breaks the clean separation above, so it is worth doing only when profiling shows it matters.</li>
+<li><strong>Surrogate models (fitness approximation).</strong> When true evaluation involves a finite-element simulation, a CFD run, or training a neural network, each evaluation may take minutes or hours. A surrogate — a regression model such as a Gaussian process, radial basis function network, or gradient-boosted tree — is trained on the evaluations performed so far and used to screen candidates cheaply. Only the most promising individuals, or a fixed fraction per generation, are sent for true evaluation, and those results are fed back to retrain the surrogate. The risk is that the GA learns to exploit errors in the surrogate, converging on a region the model wrongly rates highly; periodic true evaluation of the apparent best individuals guards against this.</li>
+<li><strong>Parallel evaluation.</strong> Fitness evaluations within a generation are independent, making them embarrassingly parallel. A population of 200 on 8 cores gives close to an 8× speedup with minimal engineering effort.</li>
+<li><strong>Early termination.</strong> If a candidate's partial score already guarantees it will rank below any plausible survivor, stop evaluating it. In a simulation-based evaluation, abort runs that have already accumulated disqualifying failures.</li>
+</ul>
+
+<p>Finally, fitness values are fundamentally <em>ordinal and relative</em>, not absolute statements of correctness. Selection operators care about which individual is better than which, and (for proportional selection) by how much relative to the population. A fitness of 0.83 means nothing on its own; it means something only in comparison to the 0.79 and 0.91 of its competitors. This has practical consequences. There is no need to normalise fitness to [0,1] for its own sake. It is legitimate for fitness to be an arbitrary positive number, as long as comparisons are meaningful and consistent throughout the run. Conversely, a fitness function whose values depend on something that changes across generations — a random test subset, a time-dependent constant, an adaptive penalty coefficient — makes comparisons between generations invalid, and elitism in particular must be handled carefully in that situation (see the discussion of noisy fitness below).</p>
+
+<p><strong>Designing a Discriminating Fitness Landscape</strong></p>
+
+<p>The fitness function does not merely rank solutions; it defines a <em>landscape</em> over the search space, and the shape of that landscape determines whether a GA can navigate it. The single most common design failure is <strong>all-or-nothing fitness</strong>: 1 if the solution is correct, 0 otherwise. Imagine evolving a 30-bit string to match a hidden target, scored as "1 if all bits match, else 0". The landscape is a flat plain with a single invisible spike. Selection has nothing to prefer, so the GA degenerates into random sampling of a space of 2³⁰ ≈ 10⁹ points. Replace the score with "number of matching bits" and the same problem becomes trivial — a gradient now exists everywhere, each generation accumulates correct bits, and the target is typically found in a few hundred generations with a modest population.</p>
+
+<p>The design principle is therefore to <strong>reward partial progress</strong>. Concrete illustrations:</p>
+
+<ul>
+<li><em>Timetabling.</em> Instead of "valid timetable = 1, invalid = 0", count violations: number of double-booked rooms, number of lecturer clashes, number of oversubscribed rooms. Fitness becomes a graded measure that distinguishes a timetable with 3 clashes from one with 40, and crossover can combine the clash-free portions of two parents.</li>
+<li><em>Symbolic regression.</em> Instead of "expression exactly reproduces the data", use negative mean squared error over the training points. Near-misses are rewarded in proportion to how near they are.</li>
+<li><em>Robot control.</em> Instead of "reached the goal", reward distance travelled toward the goal, time survived, or fraction of the course completed. This "behavioural shaping" is what lets evolution bootstrap complex behaviour from random initial controllers.</li>
+<li><em>Game playing.</em> Instead of win/loss, incorporate material advantage, board position score, or number of moves survived, so that a strategy that loses on move 60 ranks above one that loses on move 8.</li>
+</ul>
+
+<p>Shaping fitness is not risk-free, which brings us to <strong>deception</strong>. A landscape is deceptive when the gradient — the direction in which fitness improves locally — leads systematically away from the global optimum. The classic textbook case is the minimal deceptive problem and, more vividly, a "trap function" on bitstrings: fitness equals the number of ones, <em>except</em> that the all-zeros string scores higher than everything, including the all-ones string. Every local improvement step adds a one, marching the population straight to the all-ones deceptive attractor and away from the true optimum. Real problems exhibit softer versions of this. In a vehicle routing problem, penalising route length alone may push every vehicle toward short local loops that make a globally efficient assignment unreachable. In a neural controller, rewarding forward distance may produce a robot that falls forward rather than one that learns to walk. Deception cannot be eliminated in general — no fitness function is universally well-behaved — but it can be mitigated by using representations where building blocks that work well together are encoded close to one another, by maintaining diversity so the population explores several basins at once, by multi-objective formulations that do not collapse conflicting signals into one scalar, and by novelty or diversity rewards that explicitly value exploring unvisited regions.</p>
+
+<p><strong>Plateaus and neutral regions</strong> are the complementary pathology. A plateau is a large connected region of equal fitness. Selection is blind within it: all individuals look equally good, so selective pressure drops to zero and the population drifts randomly until some individual happens to step off the edge onto higher ground. Plateaus arise naturally from integer-valued fitness — "number of constraint violations" takes few distinct values once the population is good, so late in the run most individuals score 2 or 1 and are indistinguishable. Remedies include adding a secondary, finer-grained term as a tie-breaker (for example, total violation magnitude in addition to violation count, or a small bonus for shorter programs in genetic programming), weighting different violation types by severity so that counts rarely collide, or introducing a continuous component such as slack from a constraint boundary. Note that a small amount of neutrality is not always harmful: neutral drift can let a population cross a valley in genotype space without a fitness cost, and some evolutionary theories argue this aids escape from local optima. The problem is large neutrality that consumes the whole run.</p>
+
+<p>Before launching an expensive run, <strong>hand-score a small set of solutions</strong>. Construct by hand: an obviously excellent solution, an obviously terrible one, a mediocre one, a boundary case (exactly at the constraint limit), and a pathological one (empty, all-identical, maximally violating). Compute fitness for each by hand or by calling the evaluator directly, and ask whether the ordering matches your intuition and whether the <em>gaps</em> are sensible. A typical discovery at this stage is that a penalty term swamps the objective, so that a feasible solution with poor objective value outranks every near-feasible excellent one — or the reverse. Another is that two visibly different solutions receive identical scores, revealing a plateau. Fixing these on paper costs minutes; discovering them after a 10-hour batch of runs costs a day.</p>
+
+<p><strong>Fitness Scaling and Selective Pressure</strong></p>
+
+<p>Selective pressure is the degree to which better individuals out-reproduce worse ones. Fitness-proportional (roulette wheel) selection makes an individual's expected number of offspring equal to <code>f_i / f̄</code>, its fitness divided by the population mean. This couples pressure directly to the raw numeric spread of fitness values, and that spread changes dramatically over the course of a run — producing two opposite failure modes.</p>
+
+<p><em>Early premature convergence.</em> In generation 1 the population is random, and occasionally one individual is far better than the rest. Consider a population of 100 where 99 individuals score around 10 and one scores 400. The mean is about 13.9, so the super-individual expects 400/13.9 ≈ 29 offspring in a single generation, and its descendants dominate within three or four generations. Diversity collapses, crossover between near-identical parents produces no new material, and the run stalls at a local optimum that was merely the best lucky draw in the initial sample.</p>
+
+<p><em>Late stagnation.</em> By generation 300 the population has converged and fitness values are, say, 998.2, 998.5, 998.9, 999.1. The ratio of best to average is 1.0004, so every individual gets essentially one offspring. Selection has become effectively random and the search drifts rather than refines. This is the "loss of discrimination" problem, and it is exactly when fine-grained exploitation is most needed.</p>
+
+<p>Scaling transforms raw fitness into selection fitness to control this. The main schemes:</p>
+
+<ul>
+<li><strong>Linear scaling.</strong> Apply <code>f' = a·f + b</code> with <em>a</em> and <em>b</em> chosen each generation so that the scaled average equals the raw average (<code>f̄' = f̄</code>, preserving expected reproduction for average individuals) and the scaled best equals <code>C·f̄</code>, where <em>C</em> is a target best-to-average ratio, typically 1.2 to 2.0. This directly bounds the super-individual's advantage. Worked example with raw values {10, 10, 10, 400}, f̄ = 107.5, and C = 2: we need <code>f'_max = 215</code> and <code>f̄' = 107.5</code>. Solving <code>a·400 + b = 215</code> and <code>a·107.5 + b = 107.5</code> gives a ≈ 0.3675, b ≈ 68.0. The super-individual now expects 2 offspring instead of 29. The practical wrinkle is that linear scaling can produce negative scaled values for very poor individuals when the spread is wide; the standard fix is to detect this and instead map the minimum to zero, accepting a lower effective C for that generation.</li>
+<li><strong>Sigma truncation.</strong> Compute <code>f' = max(0, f − (f̄ − c·σ))</code> where σ is the population standard deviation and c is typically 2. Individuals more than c standard deviations below the mean get zero selection fitness and are eliminated; the rest are shifted. This handles outliers in both directions more gracefully than raw linear scaling and avoids negative values by construction. It is particularly useful when the objective can take negative values, which breaks naive roulette wheel selection.</li>
+<li><strong>Power-law scaling.</strong> Use <code>f' = f^k</code>. With k &gt; 1 the pressure is amplified, which is the remedy for the late-run compressed-range problem: raising 998.2 and 999.1 to a high power exaggerates the small difference. With k &lt; 1 pressure is reduced. Some implementations vary k over the run (low early for exploration, high late for exploitation), which is a crude but effective form of annealed selective pressure. The weakness is that a good value of k is problem-dependent and sensitive to the absolute magnitude of fitness values.</li>
+<li><strong>Rank-based fitness.</strong> Sort the population and assign selection fitness from rank alone, discarding raw magnitudes. With linear ranking, the best individual receives an expected <em>s</em> offspring and the worst <code>2 − s</code>, where s ∈ (1, 2]; the common choice s = 1.5 to 2.0. Because the assignment depends only on ordering, selective pressure is constant throughout the run, immune both to the generation-1 super-individual and to the generation-300 compression. Exponential ranking (fitness proportional to <code>q(1−q)^rank</code>) gives a sharper profile. The cost is loss of magnitude information: an individual that is ten times better than the runner-up gets treated the same as one that is marginally better, which can slow exploitation of a genuine breakthrough. Sorting also costs O(n log n) per generation, negligible in practice.</li>
+</ul>
+
+<p>The table below compares expected offspring under different schemes for a population of four with raw fitnesses 400, 10, 10, 10:</p>
+
+<table>
+<thead>
+<tr><th>Scheme</th><th>Best individual</th><th>Others (each)</th><th>Comment</th></tr>
+</thead>
+<tbody>
+<tr><td>Raw proportional</td><td>3.72</td><td>0.09</td><td>Others nearly extinct in one generation</td></tr>
+<tr><td>Linear scaling, C = 2</td><td>2.00</td><td>0.67</td><td>Advantage capped, diversity retained</td></tr>
+<tr><td>Linear rank, s = 2</td><td>2.00</td><td>0.67 average</td><td>Ignores magnitude entirely</td></tr>
+<tr><td>Tournament, k = 2</td><td>1.75</td><td>0.75 average</td><td>Implicit ranking, no scaling needed</td></tr>
+</tbody>
+</table>
+
+<p>Note the final row: <strong>tournament selection</strong> is itself rank-based in effect, since it only compares individuals pairwise, and therefore requires no scaling at all. This is a large part of why tournament selection has displaced roulette wheel selection as the default in practice — scaling is an extra mechanism that exists mainly to repair a weakness of proportional selection.</p>
+
+<p>A separate but essential mechanical point: <strong>minimisation must be converted to maximisation</strong>. Most selection operators assume larger is better, and roulette wheel selection additionally requires non-negative values. If the raw objective is a cost to be minimised (makespan, tour length, error), the standard conversions are:</p>
+
+<ul>
+<li><code>f = C_max − cost</code>, where <code>C_max</code> is a constant at least as large as any cost encountered — for instance the worst cost in the current population, or a fixed generous upper bound. Using the population maximum makes the mapping generation-dependent, which is fine for selection but means fitness values are not comparable across generations; always log the raw cost as well.</li>
+<li><code>f = 1 / (1 + cost)</code>, which is always positive and bounded, but compresses differences among good solutions non-uniformly (costs of 1 and 2 map to 0.5 and 0.333, a big gap; costs of 100 and 101 map to values differing by 0.0001, almost no gap). This is convenient but introduces a hidden, cost-magnitude-dependent change in selective pressure.</li>
+<li>Simple negation, <code>f = −cost</code>, which is perfectly acceptable for rank-based or tournament selection and avoids all distortion. This is the cleanest option when proportional selection is not being used.</li>
+</ul>
+
+<p><strong>Constraint Handling: Penalties and Repair</strong></p>
+
+<p>Most real optimisation problems are constrained: knapsacks have capacities, schedules have precedence relations and resource limits, designs have stress and cost limits, routes have time windows. The genetic operators know nothing about these constraints, so crossing two feasible parents routinely yields infeasible children. There are four broad families of response.</p>
+
+<p><em>1. Penalty functions.</em> Evaluate the solution normally, then subtract a cost reflecting constraint violation. The general form for a minimisation problem is:</p>
+
+<pre><code>fitness(x) = objective(x) + Σ_j  w_j · violation_j(x)^β</code></pre>
+
+<p>where <code>violation_j</code> measures the <em>amount</em> by which constraint <em>j</em> is breached (not merely whether it is breached), <code>w_j</code> is a weight, and β is commonly 1 or 2. Measuring degree rather than occurrence is crucial: it restores the gradient discussed earlier, so that a solution exceeding capacity by 1 unit is clearly preferred to one exceeding it by 40, and the population can slide toward feasibility rather than jumping blindly.</p>
+
+<p>Returning to the knapsack example with capacity 15, suppose the penalty is <code>w · max(0, weight − 15)</code> with the objective being value to maximise, so fitness = value − penalty:</p>
+
+<table>
+<thead>
+<tr><th>Chromosome</th><th>Items</th><th>Weight</th><th>Value</th><th>Excess</th><th>Fitness (w = 1)</th><th>Fitness (w = 10)</th></tr>
+</thead>
+<tbody>
+<tr><td>10101</td><td>A, C, E</td><td>13</td><td>24</td><td>0</td><td>24</td><td>24</td></tr>
+<tr><td>11001</td><td>A, B, E</td><td>14</td><td>26</td><td>0</td><td>26</td><td>26</td></tr>
+<tr><td>11100</td><td>A, B, C</td><td>15</td><td>28</td><td>0</td><td>28</td><td>28</td></tr>
+<tr><td>11101</td><td>A, B, C, E</td><td>18</td><td>33</td><td>3</td><td>30</td><td>3</td></tr>
+<tr><td>11111</td><td>all</td><td>26</td><td>47</td><td>11</td><td>36</td><td>-63</td></tr>
+</tbody>
+</table>
+
+<p>This table shows the whole tension in a single picture. With w = 1 the penalty is <strong>too mild</strong>: the all-items chromosome scores highest, so the population will converge on grossly infeasible solutions and never produce a usable answer. With w = 10 feasible solutions win, but the near-feasible 11101 — which is only one bit-flip away from the optimum 11100 and carries the useful genetic material of the three best items — is crushed to a fitness of 3, below every feasible solution including poor ones. If the weight were raised to 20, near-feasible individuals would be driven out of the population entirely, and the search would be confined to the strict interior of the feasible region. In many constrained problems the optimum lies <em>on</em> the constraint boundary, so a population that never approaches the boundary from outside loses a valuable approach route. This is the central dilemma of penalty design: too harsh and you discard useful genetic material near the boundary, effectively reducing the method to a death penalty; too mild and infeasible solutions dominate because violating a constraint is a cheap way to buy objective value.</p>
+
+<p>Three strategies manage that dilemma:</p>
+
+<ul>
+<li><strong>Static penalties</strong> fix <code>w_j</code> for the whole run. Simple and reproducible, but the right value depends on the instance, and a weight tuned for one problem size is usually wrong for another. A useful heuristic is to scale weights so that the maximum plausible penalty is of the same order as the range of the objective — compute the objective spread in a random sample, compute the violation spread, and set <em>w</em> as the ratio. A second heuristic is the "minimum penalty rule": the penalty should be just large enough that repairing a violation is always worth more than the objective gain that the violation buys.</li>
+<li><strong>Dynamic penalties</strong> increase <em>w</em> as a function of generation number, for example <code>w(t) = (c·t)^α</code>. Early in the run the penalty is weak, so the population can roam freely across the feasible boundary and exchange material with infeasible regions; late in the run the penalty is severe, forcing convergence into the feasible region. This mirrors the exploration-then-exploitation arc of the algorithm as a whole, and is often markedly more effective than any single static weight.</li>
+<li><strong>Adaptive penalties</strong> adjust <em>w</em> based on feedback from the search itself. A common rule monitors the proportion of feasible individuals over the last <em>k</em> generations: if all of the best individuals have been feasible, decrease <em>w</em> (the search is being over-constrained and should be allowed to explore the boundary); if none have been feasible, increase <em>w</em>; otherwise leave it unchanged. This keeps the population straddling the boundary, which is empirically where good solutions to tightly constrained problems are found. The price is that fitness values are no longer comparable across generations, so elitism must compare re-evaluated scores and reporting must use the raw objective.</li>
+</ul>
+
+<p><em>2. Repair operators.</em> Rather than punishing an infeasible chromosome, transform it into a feasible one. For the knapsack, a repair routine removes items in increasing order of value-to-weight ratio until the capacity constraint holds: chromosome <code>11111</code> (weight 26) loses D (ratio 1.75), then C (1.75), then B (1.80), yielding <code>10001</code> = {A, E}, weight 9, value 17 — feasible, and derived greedily from the original. For a timetable, a repair pass moves clashing events to the nearest free slot. For a permutation produced by a crossover that duplicated cities, a repair pass replaces duplicates with the missing ones.</p>
+
+<p>An important design choice is <strong>Lamarckian versus Baldwinian repair</strong>. In the Lamarckian approach the repaired chromosome replaces the original in the population, so the repair is inherited. In the Baldwinian approach the repaired version is used only to compute fitness, while the original (infeasible) chromosome stays in the population and is passed to the operators. Lamarckian repair converges faster but can reduce diversity sharply, because many distinct infeasible genotypes collapse onto the same repaired phenotype. Baldwinian repair preserves the genotypic variety, at the cost of slower progress. A common compromise is to write back the repaired chromosome with some probability (say 0.1–0.3). A further caution: deterministic greedy repair introduces a strong bias — in the knapsack example, low-ratio items are systematically evicted, so solutions that require an unusual combination may be unreachable. Randomised repair (remove random items until feasible) avoids the bias but loses the quality boost.</p>
+
+<p><em>3. Decoders and specialised encodings.</em> The most elegant answer is to make infeasibility impossible to represent. A decoder interprets any chromosome as instructions for constructing a feasible solution, so every point in the genotype space maps to a valid phenotype. For the knapsack, a chromosome can be a permutation of items; the decoder walks the permutation adding each item if it fits and skipping it otherwise. Every permutation yields a feasible packing, the search space is closed under all permutation operators, and no penalty or repair is needed. Similarly, a permutation representation for the TSP makes "visit every city exactly once" structurally guaranteed, and a random-key representation (real values sorted to produce an ordering) permits standard real-valued operators while preserving feasibility. For job-shop scheduling, an operation-based encoding where each job index appears exactly as many times as it has operations guarantees that any decode respects precedence. The trade-offs are that the decoder adds computational cost to every evaluation, that the genotype-to-phenotype mapping is many-to-one (several chromosomes decode to the same solution, which enlarges the effective search space and creates neutrality), and that the mapping can distort the landscape so that a small genotype change produces a large phenotype change, weakening the locality that crossover relies on. Specialised encodings handle only the constraints they were designed for; a capacity constraint handled by a decoder still leaves time-window constraints to a penalty, so hybrid schemes are common.</p>
+
+<p><em>4. Death penalty.</em> Assign zero (or worst-possible) fitness to any infeasible individual, or discard it and regenerate. This is the simplest method and is defensible when feasible solutions are easy to find and the feasible region occupies a substantial fraction of the space. It fails badly when feasibility is rare: in a tightly constrained scheduling problem, 99% of random chromosomes may be infeasible, so 99% of evaluations are spent producing identical zero scores. The population carries no gradient information toward feasibility, offspring of two feasible parents are usually killed, and the search effectively becomes random restart. The death penalty also throws away the near-boundary individuals that are most informative. As a diagnostic, log the proportion of infeasible individuals per generation; if it stays above roughly 50% with a death penalty, switch to a graded penalty, repair, or a decoder.</p>
+
+<p>The table summarises the four families:</p>
+
+<table>
+<thead>
+<tr><th>Method</th><th>Keeps infeasible individuals?</th><th>Main strength</th><th>Main weakness</th><th>Best suited to</th></tr>
+</thead>
+<tbody>
+<tr><td>Graded penalty</td><td>Yes, with reduced fitness</td><td>General, easy to add to any problem</td><td>Weight tuning is delicate and instance-dependent</td><td>Problems with measurable violation degree</td></tr>
+<tr><td>Dynamic/adaptive penalty</td><td>Yes, pressure varies</td><td>Keeps search on the boundary; less tuning</td><td>Fitness not comparable across generations</td><td>Tight constraints, optimum on boundary</td></tr>
+<tr><td>Repair</td><td>Converted to feasible</td><td>Every evaluation yields a usable solution</td><td>Introduces bias; may reduce diversity</td><td>When a cheap greedy fix exists</td></tr>
+<tr><td>Decoder / special encoding</td><td>Infeasible unreachable</td><td>No wasted evaluations, no tuning</td><td>Many-to-one mapping; custom operators needed</td><td>Permutation and resource-allocation problems</td></tr>
+<tr><td>Death penalty</td><td>No</td><td>Trivial to implement</td><td>Wastes evaluations; no gradient to feasibility</td><td>Large feasible regions only</td></tr>
+</tbody>
+</table>
+
+<p><strong>Multi-Objective Fitness Evaluation</strong></p>
+
+<p>Real problems rarely have a single objective. A delivery schedule should minimise cost <em>and</em> minimise lateness <em>and</em> balance driver workload. A structural design should minimise mass and maximise stiffness. These objectives conflict: improving one degrades another, and there is no single "best" solution, only a set of best compromises.</p>
+
+<p><em>Weighted-sum aggregation</em> is the simplest response: collapse the objectives into one scalar, <code>f = w₁·f₁ + w₂·f₂ + … + wₘ·fₘ</code>, and run an ordinary single-objective GA. It is easy, fast, and compatible with every standard operator. Its difficulties are substantial, though. First, the weights encode a value judgement that must come from the problem owner; choosing w₁ = w₂ = 1 is not "neutral", it is a specific and usually arbitrary trade-off claim. Second, and more subtly, a weighted sum can only find solutions on the convex portion of the trade-off surface; points in a concave region are never optimal for any weight vector, so entire families of sensible compromises become invisible. Third, running the GA once gives one solution; exploring the trade-off requires re-running with many weight vectors.</p>
+
+<p><strong>Normalisation</strong> is mandatory whenever objectives have different units or magnitudes. Suppose cost is measured in pounds (range 50,000–90,000) and lateness in hours (range 0–40). With equal weights, a £1,000 cost change outweighs the entire lateness range; the second objective is decorative. The standard fix is min–max normalisation to [0,1] using estimated or observed bounds:</p>
+
+<pre><code>f_norm = (f - f_min) / (f_max - f_min)</code></pre>
+
+<p>applied to each objective before weighting, with minimised objectives first converted (<code>1 - f_norm</code>) so larger is always better. Bounds may be taken from domain knowledge, from a preliminary random sample, or from the current population (the latter makes fitness generation-dependent again). A worked comparison: candidate A costs £60,000 with 30 hours lateness; candidate B costs £75,000 with 5 hours lateness. Un-normalised with equal weights and minimisation, A scores 60,030 and B scores 75,005, so A wins by a landslide driven entirely by units. Normalised, A scores 0.25 + 0.75 = 1.00 and B scores 0.625 + 0.125 = 0.75, so B wins — a result that actually reflects a balanced trade-off.</p>
+
+<p><em>Pareto-based approaches</em> avoid collapsing the objectives at all. Solution <em>a</em> <strong>dominates</strong> solution <em>b</em> if <em>a</em> is at least as good as <em>b</em> on every objective and strictly better on at least one. Solutions that nobody dominates form the <strong>non-dominated set</strong>, and the true such set is the <strong>Pareto front</strong>. Consider five schedules, both objectives minimised:</p>
+
+<table>
+<thead>
+<tr><th>Solution</th><th>Cost (£k)</th><th>Lateness (h)</th><th>Dominated by</th><th>Non-dominated?</th></tr>
+</thead>
+<tbody>
+<tr><td>P</td><td>60</td><td>30</td><td>—</td><td>Yes</td></tr>
+<tr><td>Q</td><td>75</td><td>5</td><td>—</td><td>Yes</td></tr>
+<tr><td>R</td><td>68</td><td>14</td><td>—</td><td>Yes</td></tr>
+<tr><td>S</td><td>80</td><td>22</td><td>R, Q</td><td>No</td></tr>
+<tr><td>T</td><td>62</td><td>35</td><td>P</td><td>No</td></tr>
+</tbody>
+</table>
+
+<p>P, Q and R represent genuinely different compromises and none is objectively better than the others; S and T are simply worse than something else and can be discarded. A Pareto-based GA uses dominance to assign fitness — for example by <em>non-dominated sorting</em>, where the non-dominated individuals form front 1, removing them and recomputing gives front 2, and so on, with front index acting as the primary rank.</p>
+
+<p><strong>NSGA-II</strong> is the canonical algorithm of this kind. Each generation it combines parents and offspring, sorts them into fronts, and fills the next population front by front. When a front does not fit entirely, it selects within that front using <strong>crowding distance</strong>: for each objective, solutions are sorted and each one is assigned the normalised gap between its two neighbours, summed across objectives; boundary solutions get infinite distance. Individuals in sparse regions have large crowding distance and are preferred, which spreads the population evenly along the front instead of letting it bunch in one attractive region. The selection comparison operator is therefore lexicographic: lower front rank wins; ties broken by larger crowding distance. Related mechanisms include fitness sharing (reducing an individual's fitness in proportion to how many neighbours lie within a niche radius σ_share) and, in SPEA2, nearest-neighbour density estimates. Newer algorithms such as MOEA/D decompose the problem into many scalarised subproblems solved cooperatively, and NSGA-III uses reference points to maintain spread when there are four or more objectives, where crowding distance becomes unreliable.</p>
+
+<p><em>Lexicographic ordering</em> suits problems where the objectives have a strict, agreed priority. Optimise objective 1 alone; among solutions tied (or within a tolerance ε) on objective 1, optimise objective 2; and so on. In an exam timetable, hard constraint violations might be objective 1, student travel burden objective 2, and room utilisation objective 3 — no amount of improved room utilisation should ever justify one extra clash. Implementation in a GA is easy with tournament selection: compare two individuals on objective 1, and only if they are equal (or within tolerance) move to objective 2. The risk is that strict lexicographic comparison creates plateaus and effectively ignores lower-priority objectives once the top one becomes finely discriminating; the ε-tolerance variant mitigates this.</p>
+
+<p>A crucial practical point about Pareto methods: <strong>the output is a set, not a single answer</strong>. A run of NSGA-II on the schedule problem might return forty non-dominated schedules spanning £58k/40h to £82k/2h. The algorithm deliberately does not choose between them, because that choice depends on preferences it was never given. The decision-maker then inspects the front — often as a plotted trade-off curve — and selects, perhaps noticing a "knee" where a small additional cost buys a disproportionate lateness reduction. This is a strength, not an omission: it defers the value judgement until after the trade-offs are known, rather than requiring the weights to be guessed in advance.</p>
+
+<p><strong>Noisy and Uncertain Fitness</strong></p>
+
+<p>Many evaluations are stochastic. A schedule evaluated against simulated demand, a trading strategy tested on a random sample of market days, a robot controller assessed in a simulator with random initial conditions, or a classifier scored on a random data subsample — all return a different number each time they are called on the same chromosome. The measured fitness is then <code>f̂(x) = f(x) + ε</code>. Noise is dangerous in a GA for a specific reason: selection systematically favours individuals whose noise term happened to be positive. A mediocre individual with a lucky draw displaces a genuinely better individual with an unlucky one, and because elitism preserves high measured scores, lucky mediocrities can occupy the elite slots indefinitely while their true quality is never re-tested.</p>
+
+<p>Mitigations, roughly in order of cost:</p>
+
+<ul>
+<li><strong>Averaging multiple samples.</strong> Evaluate each individual <em>n</em> times and use the mean. The standard error falls as σ/√n, so cutting noise in half requires four times the evaluations and cutting it to a tenth requires a hundred times. This quadratic cost means naive averaging is affordable only for small <em>n</em>; with a fixed evaluation budget there is a direct trade-off between evaluating more individuals and evaluating each one more accurately. Empirically, a modest n (3–5) combined with a larger population usually beats a large n with a small population.</li>
+<li><strong>Adaptive / sequential sampling.</strong> Spend evaluations where they change decisions. Give every individual one or two samples, then allocate extra samples only to individuals whose confidence intervals overlap with those of their competitors, or only to the top candidates competing for elite status. If an individual is clearly poor after two samples, no further evaluation can change its fate, so stop. Techniques such as racing and optimal computing budget allocation formalise this, and simple versions (resample only the current top 10%) capture most of the benefit for a few lines of code.</li>
+<li><strong>Larger populations.</strong> A GA averages implicitly. Noise affects individual selection events, but with a large population the many similar individuals that share a successful building block collectively carry a more reliable signal than any one of them; errors in individual comparisons partially cancel. Increasing population size is often a more efficient use of a fixed budget than increasing resampling, and it also preserves the diversity that noise tends to erode.</li>
+<li><strong>Re-evaluating elites.</strong> If the elite individual's stored score was an overestimate, keeping that stale score lets it dominate forever. Re-evaluating elites each generation (and either replacing the stored value or updating a running average over all samples ever taken of that genotype) causes inflated scores to regress toward the truth within a few generations. Maintaining a running mean plus sample count per genotype is a cheap and very effective implementation. A side effect to accept: the reported "best fitness" curve will no longer be monotonically increasing, which is correct behaviour under noise rather than a bug.</li>
+<li><strong>Deliberate perturbation for robust design.</strong> Sometimes noise is not an obstacle but the point. If the manufactured version of a design will differ slightly from the specification, or the schedule will face unexpected machine breakdowns, then a brittle optimum that collapses under small perturbation is worthless. Evaluating each individual under several randomly perturbed conditions and scoring by mean performance — or by a risk-averse statistic such as the worst case, the 10th percentile, or <code>mean − λ·standard deviation</code> — explicitly selects for solutions whose quality is insensitive to variation. This typically trades a few percent of nominal performance for a large gain in reliability, and the choice of statistic encodes how risk-averse the decision-maker is.</li>
+</ul>
+
+<p><strong>Validating and Tuning the Fitness Function</strong></p>
+
+<p>A GA will optimise exactly what you measure, which is frequently not what you meant. Validation is therefore a necessary stage, not an optional refinement.</p>
+
+<p><em>Inspect the best individuals.</em> After a short exploratory run, decode the top few chromosomes and examine the actual solutions, not just their scores. This is how specification bugs are caught, and the literature on "reward hacking" is full of examples: a scheduler that achieves zero lateness by assigning no jobs; a route optimiser that drives through a lake because the distance matrix was Euclidean; a controller that exploits a simulator's physics to gain energy from a collision; a classifier that scores perfectly by predicting the majority class because the metric was raw accuracy on imbalanced data. In every case the fitness function was computed correctly and the GA did its job faultlessly — the specification was wrong. Only inspection reveals this.</p>
+
+<p><em>Plot best, average and worst fitness per generation.</em> These three curves diagnose most pathologies:</p>
+
+<table>
+<thead>
+<tr><th>Pattern observed</th><th>Likely cause</th><th>Remedy</th></tr>
+</thead>
+<tbody>
+<tr><td>Average rises to meet best within a few generations, then all curves flatten</td><td>Premature convergence from excessive selective pressure</td><td>Scaling, rank or lower-k tournament selection, higher mutation, larger population</td></tr>
+<tr><td>Best improves but average stays far below and erratic</td><td>Pressure too low, or mutation too destructive</td><td>Increase pressure; reduce mutation rate; check crossover is producing viable offspring</td></tr>
+<tr><td>All curves flat from generation 1</td><td>All-or-nothing fitness or a vast plateau</td><td>Add graded partial-credit terms and tie-breakers</td></tr>
+<tr><td>Best fitness decreases at some generations</td><td>No elitism, or noisy evaluation with re-evaluated elites</td><td>Add elitism; if noise, this is expected — track running means</td></tr>
+<tr><td>Steady improvement then sudden plateau at a suspiciously round value</td><td>Fitness clipped or dominated by a saturated penalty term</td><td>Inspect component values separately for the best individual</td></tr>
+</tbody>
+</table>
+
+<p>Logging the <em>components</em> of fitness separately — raw objective, each penalty term, each sub-objective — is far more informative than logging the aggregate alone, and costs nothing.</p>
+
+<p><em>Compare against baselines.</em> Two baselines are indispensable. The first is <strong>random search</strong> given the same number of evaluations: generate N random chromosomes, evaluate, keep the best. If the GA cannot beat this, the algorithm is contributing nothing and the landscape, the representation or the operators are broken. The second is a <strong>simple domain heuristic</strong> — greedy value-to-weight packing for the knapsack, nearest-neighbour plus 2-opt for the TSP, earliest-due-date dispatching for a schedule. A GA that fails to beat a five-line greedy rule is not worth its complexity. Both baselines should be reported with the GA results, and all should be compared over multiple independent runs with means, standard deviations and ideally a statistical test, since a single run tells you little about an inherently stochastic method.</p>
+
+<p><em>Separate internal fitness from the reported objective.</em> The number used to drive selection may include penalties, scaling, normalisation and multi-objective weights; the number reported to a stakeholder must be the actual, meaningful quantity — the true makespan in hours, the true cost in pounds, together with a statement of whether the solution is feasible. Mixing these is a common and embarrassing error: reporting "fitness 0.87" says nothing, and reporting a penalised score as if it were a cost understates the solution's quality or hides an infeasibility. A clean implementation returns a small record from the evaluator, for example:</p>
+
+<pre><code>Evaluation {
+  objective:   28.0     # true value, reported to the user
+  violations:  [0, 2]   # per-constraint violation magnitudes
+  feasible:    false
+  fitness:     8.0      # internal, used only for selection
+}</code></pre>
+
+<p>Keeping these fields distinct also makes caching, logging and post-run analysis straightforward, because the raw objective remains available no matter how the internal fitness is later rescaled.</p>
+
+<p><em>Change one thing at a time.</em> Fitness functions accumulate parameters quickly: a penalty weight per constraint, a scaling constant, a set of objective weights, a sampling count. These interact, so simultaneous changes make attribution impossible — if you double the penalty weight and switch to rank selection at the same time and results improve, you have learned nothing about either. Disciplined tuning means fixing a random-seed set, varying one parameter across a small sweep of values, running several repetitions per value, and recording the mean and spread of final objective values before moving to the next parameter. Keep a short experiment log with the parameter set, the seeds, and the outcome. When several parameters genuinely must be explored together, use a structured design (a small grid, Latin hypercube sampling, or an automated tuner such as irace or SMAC) rather than ad hoc fiddling, and always validate the chosen configuration on problem instances that were not used for tuning, otherwise the parameters are simply overfitted to one instance.</p>
+
+<p>Taken together, these practices turn the fitness function from an afterthought into the engineering centrepiece of the algorithm. Decode cleanly, score every reachable individual, grade partial progress, control selective pressure by scaling or rank, handle constraints in a way that keeps the boundary accessible, be explicit about multiple objectives, respect noise, and validate against both intuition and baselines. A GA built on a fitness function designed this way will usually work with default parameters; one built on a poorly designed fitness function will not work with any.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+<li><strong>MO1:</strong> Supported in part. The topic develops the evaluation stage of the generational cycle in depth — decoding, scoring, caching, re-evaluation of elites — and situates it relative to selection, crossover and mutation, but it does not itself teach the mechanics of those other stages.</li>
+<li><strong>MO2:</strong> Supported indirectly. The discussion of decoding, decoder-based constraint handling and specialised encodings (permutation and random-key representations for knapsack, TSP and job-shop problems) shows how representation choice interacts with evaluation, though representation selection is not the topic's main focus.</li>
+<li><strong>MO3:</strong> Directly and fully supported. The topic is built around constructing a graded, discriminating fitness signal and handling constraints through static, dynamic and adaptive penalties, repair operators, decoders and the death penalty, including worked knapsack examples of weight tuning.</li>
+<li><strong>MO4:</strong> Strongly supported. Fitness scaling (linear, sigma truncation, power-law) and rank-based fitness are compared explicitly in terms of the selective pressure they generate, with expected-offspring calculations contrasting proportional, scaled, rank and tournament selection.</li>
+<li><strong>MO5:</strong> Strongly supported. The validation section covers repeated independent runs, best/average/worst fitness plots, diversity diagnostics such as cache-based genotype uniqueness and premature convergence signatures, and comparison against random search and heuristic baselines on scheduling and combinatorial problems.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Worked numeric examples (knapsack penalties, linear scaling coefficients, normalised multi-objective comparison, Pareto dominance table) are self-consistent and can be reused directly as tutorial exercises or assessment items. The linear scaling example uses a = (C−1)·f̄ / (f_max − f̄) and b = f̄ − a·f̄, the standard Goldberg formulation. Expected-offspring figures in the selection comparison table assume a population of four and are rounded; tournament figures assume binary tournament with replacement. Suggested practical extension: ask students to implement the knapsack evaluator with each of the five constraint-handling methods and compare feasibility rates and final values over 30 runs.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>A genetic algorithm has no understanding of the problem you are solving — all it knows is the number your fitness function returns. That single number decides which individuals survive, which get to reproduce, and therefore where the search goes next. Designing it well is the difference between a GA that converges on a genuinely good solution and one that wanders, stalls, or cheerfully optimises the wrong thing.</p>
+<p>This topic works through what a fitness function must do: give a graded signal (not just pass/fail) so the algorithm can tell a near-miss from a disaster, shape a landscape that rewards partial progress, and control selective pressure through scaling so the population neither converges prematurely nor drifts aimlessly. It also covers the practical complications you meet in real problems — infeasible solutions handled by penalty terms or repair operators, several competing objectives that must be weighted or traded off, fitness values corrupted by noise or sampling, and the need to validate and tune your evaluation before trusting its results.</p>
+<p>The videos below come from a channel focused on metaheuristic optimisation, where fitness evaluation plays exactly the same role it does in GAs. While watching, keep asking: what exactly is being measured, how is a candidate solution turned into a number, and how would that number change if the solution improved slightly? Those questions are the core of fitness function design, and they transfer directly to the GAs in this module.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: What is Fitness Value in Optimization? || Metaheuristic Optimization Algorithms || ~xRay Pixy</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/ushRVzYKkSA?cc_load_policy=1&amp;rel=0" title="Video: What is Fitness Value in Optimization? || Metaheuristic Optimization Algorithms || ~xRay Pixy (Ritika xRay Pixy)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Ritika xRay Pixy</strong> · 13:45 · 1,912 views · 2y ago · captions — <a href="https://www.youtube.com/watch?v=ushRVzYKkSA" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>This video introduces the concept of a fitness value in optimisation algorithms — what it represents, how it relates to the objective function, and how it is used to rank candidate solutions. Based on its chapter structure, it works through the idea from an introductory definition toward worked illustration. It is pitched at learners meeting metaheuristic optimisation for the first time.</p>
+<h3>Why this video</h3>
+<p>It directly addresses the first and most important subtopic, the role of the fitness function, and does so in a short, self-contained explanation that makes the distinction between a solution, its objective value, and its fitness clear before you tackle scaling or constraints.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>Video 2: Learn Metaheuristic Optimization Algorithm Basic Fundamentals ~xRay Pixy🌿🐦🌞</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/PZ1kjwZ_pl4?cc_load_policy=1&amp;rel=0" title="Video: Learn Metaheuristic Optimization Algorithm Basic Fundamentals ~xRay Pixy🌿🐦🌞 (Ritika xRay Pixy)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Ritika xRay Pixy</strong> · 11:39 · 14,397 views · 5y ago · captions — <a href="https://www.youtube.com/watch?v=PZ1kjwZ_pl4" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A fundamentals video on metaheuristic optimisation algorithms, covering the vocabulary and general structure shared by population-based search methods. Expect coverage of candidate solutions, search spaces, objective functions, and the iterative improvement loop in which evaluation sits. It is the most-viewed of the three and serves as background framing.</p>
+<h3>Why this video</h3>
+<p>Fitness functions only make sense inside the search loop that consumes them, so this video supplies the surrounding context — search space, objective, iteration — that lets you reason about selective pressure and convergence rather than treating fitness as an isolated formula.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>Video 3: Fitness Values Calculation in Metaheuristics | Krill Herd Optimization | ~xRay Pixy</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/o_g_6XwpiBM?cc_load_policy=1&amp;rel=0" title="Video: Fitness Values Calculation in Metaheuristics | Krill Herd Optimization | ~xRay Pixy (Ritika xRay Pixy)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Ritika xRay Pixy</strong> · 6:17 · 1,096 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=o_g_6XwpiBM" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A short, practical walkthrough of calculating objective function values for a metaheuristic algorithm, illustrated with Krill Herd Optimization. It focuses on the mechanics: taking a candidate solution vector, applying the objective function, and obtaining the numeric values used to compare individuals. The brevity keeps the attention on the calculation itself.</p>
+<h3>Why this video</h3>
+<p>It makes the evaluation step concrete rather than abstract, which is exactly what you need before designing your own fitness function and deciding how to fold in penalty terms or multiple objectives.</p></div></details><details class="slide-card" id="video-part5"><summary class="slide-header"><span class="slide-num">6</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos concentrate on MO3: they establish what a fitness function is, how a candidate solution is converted into a comparable numeric score, and why that score must be graded rather than binary — the foundation for adding penalty terms or repair to handle constraints. The fundamentals video also supports MO1 by situating evaluation within the wider iterative search loop that selection, crossover, and mutation complete, and it gives background useful for MO4 and MO5, since selective pressure and convergence behaviour are both consequences of how fitness is computed and scaled. The videos do not address chromosome representation (MO2) or formal multi-objective and noisy-fitness methods in depth, so use the module readings and lecture material to cover those subtopics.</p></div></details><details class="slide-card" id="video-part6"><summary class="slide-header"><span class="slide-num">7</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

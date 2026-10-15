@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bidirectional Search</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Depth-Limited, Iterative Deepening, and Bidirectional Search</a></div>
+<h1>Bidirectional Search</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: AI | Uninformed Algorithms | Simple Python Tutorial</a>
+<a href="#sec3">Video 2: Breadth-first search in 4 minutes</a>
+<a href="#sec4">How These Videos Support the Learning Outcomes</a>
+<a href="#sec5">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>Bidirectional search runs two searches at once: one forward from the initial state and one backward from the goal state. Each search builds its own frontier, and the algorithm stops when the two frontiers touch — that is, when some state has been reached from both directions. The solution is then assembled by joining the forward path to the reversed backward path.</p>
+<p>The reason this matters is complexity. A single breadth-first search to depth d expands on the order of b^d nodes, but two searches that each only need to reach depth d/2 expand roughly 2b^(d/2) nodes, which is dramatically smaller for large d. That saving is why bidirectional search appears alongside depth-limited and iterative deepening search as one of the classic uninformed strategies in this module.</p>
+<p>The saving is not free. You must be able to generate predecessors of a state (not just successors), you need an explicit and small set of goal states to search backward from, and you need an efficient membership test — usually a hash table — to check whether a newly generated node already sits on the other frontier. You also must decide which strategy each half uses; breadth-first on both halves is the standard choice because it preserves the shallow-meeting property that makes the solution optimal. The two videos below do not teach bidirectional search directly, so use them to solidify the machinery it is built from: the frontier, the explored set, and breadth-first expansion. While watching, ask yourself what would change if a second frontier were growing toward the first.</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: AI | Uninformed Algorithms | Simple Python Tutorial</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/I7Lvc021OCQ?cc_load_policy=1&amp;rel=0" title="Video: AI | Uninformed Algorithms | Simple Python Tutorial (Dr Codie)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Dr Codie</strong> · 13:17 · 401 views · 3y ago · captions — <a href="https://www.youtube.com/watch?v=I7Lvc021OCQ" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A tutorial overview of the uninformed (blind) search algorithms used in AI, presented with simple worked examples and Python-style code. As the first of a two-part series, it is likely to walk through the family of strategies — breadth-first, depth-first and their depth-bounded variants — and compare how each one expands nodes and manages its frontier.</p>
+<h3>Why this video</h3>
+<p>Bidirectional search is defined in terms of the other uninformed strategies, so a side-by-side tour of that family gives you the vocabulary (frontier, expansion order, completeness, complexity) needed to reason about what happens when two such searches run toward each other, and to choose a strategy for each half.</p>
+</section>
+<section class="item" id="sec3">
+<h2>Video 2: Breadth-first search in 4 minutes</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/HZ5YTanv5QE?cc_load_policy=1&amp;rel=0" title="Video: Breadth-first search in 4 minutes (Michael Sambol)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Michael Sambol</strong> · 3:59 · 608,315 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=HZ5YTanv5QE" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A compact, four-minute explanation of breadth-first search from Michael Sambol&#39;s well-known algorithms series, with accompanying Python code linked in the description. It covers how BFS uses a queue to expand nodes level by level and how visited nodes are tracked so they are not re-expanded.</p>
+<h3>Why this video</h3>
+<p>Breadth-first search is the usual choice for both halves of a bidirectional search, and this video makes the level-by-level frontier growth and the visited-set membership test concrete — exactly the mechanisms you extend when testing two frontiers for intersection.</p>
+</section>
+<section class="item" id="sec4">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>Neither video names bidirectional search, so treat them as foundation rather than coverage. The breadth-first video makes the frontier and visited-set machinery explicit, which is what you extend to implement efficient frontier intersection testing and to justify why two breadth-first halves meet near depth d/2 (MO4). The broader uninformed-algorithms tutorial places depth-limited, depth-first and breadth-first search in one comparison, supporting the tracing and complexity reasoning in MO1–MO3 and giving you the completeness, optimality, time and space criteria needed to recommend a strategy in MO5. For the bidirectional-specific requirements — predecessor generation and explicit, few goal states — rely on the module readings and lecture notes rather than these videos.</p>
+</section>
+<section class="item" id="sec5">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 14, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

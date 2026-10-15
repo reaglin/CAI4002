@@ -1,0 +1,1646 @@
+{
+  "ModuleFolderName": "Constraint_Propagation_Forwa",
+  "CourseName": "CAI4002 - Intro to AI",
+  "GeneratedDate": "2026-10-14T20:09:17.2259473-04:00",
+  "ModifiedDate": "2026-10-14T20:12:32.6325346-04:00",
+  "Outcomes": [],
+  "Topics": [
+    {
+      "Id": "1e6ef58d-7ddc-4949-9424-59aee1e47cb7",
+      "Title": "Foundations of Constraint Propagation and Inference",
+      "Summary": "Introduces constraint satisfaction problems and the role of inference in reducing search effort by pruning variable domains. Establishes core concepts such as consistency, domain reduction, and how propagation interleaves with backtracking search.",
+      "SortOrder": 0,
+      "CreatedDate": "2026-10-14T20:09:17.2259473-04:00",
+      "ModifiedDate": "2026-10-14T20:09:17.2259473-04:00",
+      "Elements": [
+        {
+          "Id": "ee1739b0-37f5-4da6-ac7e-b979fa82edf5",
+          "TopicId": "1e6ef58d-7ddc-4949-9424-59aee1e47cb7",
+          "Title": "What Is a Constraint Satisfaction Problem?",
+          "BodyText": "A constraint satisfaction problem (CSP) is defined by variables, domains of possible values, and constraints that restrict allowable combinations. This representation exposes problem structure that generic search cannot see.",
+          "Notes": "Classic examples include map colouring, Sudoku, n-queens, cryptarithmetic puzzles, and timetabling or scheduling problems.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:09:39.9455259-04:00",
+          "ModifiedDate": "2026-10-14T20:09:39.9455259-04:00",
+          "Items": [
+            {
+              "Id": "810d82b5-1463-460a-a638-68d3e8de4532",
+              "Text": "A CSP is the triple (X, D, C): variables X, a domain D_i of candidate values for each variable, and constraints C over subsets of variables.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "200080f6-4818-49af-a140-b3cde1dda2ac",
+              "Text": "A solution is a complete assignment that satisfies every constraint simultaneously.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "38cd0f7b-6097-49ea-8847-02335685f1ba",
+              "Text": "Constraints may be unary (one variable), binary (two variables), or higher-order/global such as AllDifferent.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "67f81464-9fb7-4de1-bc3d-1511090d9fd2",
+              "Text": "Because states are factored into variables and values, a solver can reason about why a partial assignment fails rather than only that it failed.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "61d0114a-0efd-4bfe-ab7c-eb1ee90d3126",
+              "Text": "Most propagation algorithms assume binary constraints; higher-order constraints can be converted to binary form or handled by specialised propagators.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "38c91cff-b62c-4731-af7c-5007d5da32b2",
+          "TopicId": "1e6ef58d-7ddc-4949-9424-59aee1e47cb7",
+          "Title": "Inference Versus Search",
+          "BodyText": "Solvers can make progress in two complementary ways: by guessing a value for a variable (search) or by deducing values that cannot possibly appear in any solution (inference). Constraint propagation is the systematic application of inference.",
+          "Notes": "The trade-off is between time spent reasoning and time spent exploring; strong inference costs more per node but visits fewer nodes.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:09:39.9455259-04:00",
+          "ModifiedDate": "2026-10-14T20:09:39.9455259-04:00",
+          "Items": [
+            {
+              "Id": "6528f1e8-1944-449d-923e-6e21683db73e",
+              "Text": "Search explores the assignment tree by committing to choices and backtracking when a constraint is violated.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "381b2b61-6b5e-4602-a970-68fd387b8f28",
+              "Text": "Inference prunes values from domains without committing to any assignment, shrinking the tree before it is explored.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3817afe0-90c3-4ded-97c6-dcfe0ff13934",
+              "Text": "Propagation is the repeated application of local inference until no further deductions can be made (a fixed point).",
+              "SortOrder": 2
+            },
+            {
+              "Id": "0cea8444-5d41-4cfb-a1f5-f4be31114745",
+              "Text": "Pure search with no inference is chronological backtracking, which repeatedly rediscovers the same conflicts.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b1552f53-e2f9-4e4f-a212-ac88520336d9",
+              "Text": "Pure inference rarely solves a CSP alone, so practical solvers interleave the two.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "b7281142-ad3b-4fb8-8d94-c725b5dbd083",
+          "TopicId": "1e6ef58d-7ddc-4949-9424-59aee1e47cb7",
+          "Title": "Local Consistency and Domain Reduction",
+          "BodyText": "Consistency conditions are local guarantees about variables and constraints that can be enforced cheaply. Enforcing them removes values from domains, which is the mechanism by which propagation reduces search effort.",
+          "Notes": "Stronger consistency levels (path consistency, k-consistency) prune more but cost substantially more to enforce.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:09:39.9455259-04:00",
+          "ModifiedDate": "2026-10-14T20:09:39.9455259-04:00",
+          "Items": [
+            {
+              "Id": "20657f14-820c-4815-b761-2eb27be32c08",
+              "Text": "Node consistency: every value in a variable\u0027s domain satisfies that variable\u0027s unary constraints.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "4cdf22db-e728-4460-921c-9e3e665a9bdf",
+              "Text": "Arc consistency: for every value of X there exists at least one supporting value of Y satisfying the constraint between them.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "17ee5f04-0da8-456d-869a-74e38635bd9e",
+              "Text": "Domain reduction is monotonic during propagation \u2014 values are only removed, never added back until backtracking undoes them.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "4551a384-9d3a-490c-a17f-dd84774362ff",
+              "Text": "Removing a value from one domain can destroy support elsewhere, so deletions cascade through connected constraints.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "8bf21d1f-75fc-4b60-98ec-ffbf6da50878",
+              "Text": "An empty domain proves the current partial assignment cannot be extended to a solution.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "337b1e51-5625-4709-a43d-168fceef7b3a",
+          "TopicId": "1e6ef58d-7ddc-4949-9424-59aee1e47cb7",
+          "Title": "Interleaving Propagation with Backtracking Search",
+          "BodyText": "Modern CSP solvers embed propagation inside the backtracking loop, running inference after every assignment. This turns blind enumeration into a guided, failure-aware process.",
+          "Notes": "This pattern underlies forward checking and maintaining arc consistency (MAC), covered later in the module.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:09:39.9455259-04:00",
+          "ModifiedDate": "2026-10-14T20:09:39.9455259-04:00",
+          "Items": [
+            {
+              "Id": "ea8cb899-cdca-44ec-bc19-dea3bf2b2c7c",
+              "Text": "After assigning a variable, the solver propagates the consequences to neighbouring domains before recursing deeper.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "5046b739-9658-437b-9a36-99431e7032bb",
+              "Text": "If any domain becomes empty, the branch fails immediately and the solver backtracks without further exploration.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7f18e26e-d33f-43f2-ac82-4aef53057280",
+              "Text": "Domain changes must be recorded (trailed) so they can be undone exactly when the solver backtracks.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b3aac3e9-8801-4bd0-948e-0eb9c441538f",
+              "Text": "Early detection of failure is the main source of speed-up, since it avoids expanding doomed subtrees.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b4ad84d5-ba69-4b72-970c-e06cbba968c6",
+              "Text": "The amount of propagation performed per node is a tunable design decision balancing overhead against pruning power.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "aaa50f13-148c-4c7a-b260-0879c21c96eb",
+          "TopicId": "1e6ef58d-7ddc-4949-9424-59aee1e47cb7",
+          "Title": "Heuristics That Exploit Reduced Domains",
+          "BodyText": "Propagation does more than prune: the resulting domain sizes supply information that ordering heuristics use to choose what to assign next. Inference and heuristics reinforce each other.",
+          "Notes": "These heuristics are cheap to compute once propagation already maintains current domain sizes.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:09:39.9455259-04:00",
+          "ModifiedDate": "2026-10-14T20:09:39.9455259-04:00",
+          "Items": [
+            {
+              "Id": "9a3bd815-e6fe-4f84-b7e1-4064bcfdc4df",
+              "Text": "Minimum Remaining Values (MRV) selects the variable with the smallest current domain, failing fast when failure is inevitable.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f0b46ff0-9426-4f2c-96bc-ac9b56fd0eb8",
+              "Text": "The degree heuristic breaks MRV ties by choosing the variable involved in the most constraints on unassigned variables.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ef74d59b-612c-42e9-bae0-052104e6cf96",
+              "Text": "Least Constraining Value orders value choices to leave the maximum flexibility for neighbouring variables.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "440143b9-2bc1-48ae-bdea-25e1d056990b",
+              "Text": "Without propagation these heuristics have little information to work with, since domains never shrink.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "019ee00e-905d-43ea-b014-288d8fac963d",
+              "Text": "Good ordering plus strong propagation can reduce exponential search to near-linear behaviour on many structured problems.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "3345f4b1-c2f4-4c88-9641-bf63c2587da0",
+      "Title": "Forward Checking",
+      "Summary": "Explains how forward checking removes inconsistent values from the domains of unassigned neighbours after each assignment and detects failure early. Demonstrates the algorithm step by step on example CSPs and compares its cost and pruning power against plain backtracking.",
+      "SortOrder": 1,
+      "CreatedDate": "2026-10-14T20:09:17.2259473-04:00",
+      "ModifiedDate": "2026-10-14T20:09:17.2259473-04:00",
+      "Elements": [
+        {
+          "Id": "34ad0e38-4f98-4143-8aee-3a9d6ee0b793",
+          "TopicId": "3345f4b1-c2f4-4c88-9641-bf63c2587da0",
+          "Title": "What Forward Checking Does",
+          "BodyText": "Forward checking is a simple form of constraint propagation that is applied immediately after each variable assignment during backtracking search. It looks ahead at the unassigned neighbours of the newly assigned variable and deletes any domain values that conflict with that assignment.",
+          "Notes": "Forward checking turns a \u0027generate-and-test\u0027 backtracking search into a \u0027look-ahead\u0027 search: instead of discovering conflicts only when a bad variable is reached, conflicts are propagated to the future variables as soon as the cause appears.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:10:09.8064327-04:00",
+          "ModifiedDate": "2026-10-14T20:10:09.8064327-04:00",
+          "Items": [
+            {
+              "Id": "7b5189ea-c782-4030-b769-31f5c572fd65",
+              "Text": "It operates only on variables that share a constraint with the variable just assigned, not on the whole problem.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "528d0247-9863-43b7-863b-78cd54570a65",
+              "Text": "Deleted values are recorded so they can be restored when the search backtracks over that assignment.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "91986e8d-d4fc-476b-aaf8-30d215238ac8",
+              "Text": "It maintains the invariant that every remaining value of a future variable is consistent with all current assignments.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "59ce90ab-dc61-4ce6-a59a-9bfb0001764b",
+              "Text": "It performs inference one level deep \u2014 it never propagates the consequences of one deletion onto a third variable.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "06fec685-44e8-44e8-88f2-c3d47d97259e",
+              "Text": "It requires no change to the overall backtracking framework, only an extra pruning step at each assignment.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "f2d07ce2-aae2-4316-8411-a46c865db195",
+          "TopicId": "3345f4b1-c2f4-4c88-9641-bf63c2587da0",
+          "Title": "The Forward Checking Algorithm Step by Step",
+          "BodyText": "Forward checking is inserted into backtracking search as an inference call made whenever a value is assigned to a variable. The algorithm follows a fixed sequence of prune, test and restore operations.",
+          "Notes": "Pseudocode sketch: assign X = v; for each unassigned Y with constraint C(X,Y): for each w in D(Y): if not C(v,w) then remove w from D(Y) and record removal; if D(Y) is empty return failure; recurse; on return, undo all recorded removals.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:10:09.8064327-04:00",
+          "ModifiedDate": "2026-10-14T20:10:09.8064327-04:00",
+          "Items": [
+            {
+              "Id": "7808d4a1-2284-46a1-b78a-6778e5098f45",
+              "Text": "Step 1: choose an unassigned variable X and a value v from its current domain and assign X = v.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "fffc6c89-6803-4075-b450-ab1bf221974d",
+              "Text": "Step 2: for each unassigned variable Y connected to X by a constraint, remove from D(Y) every value inconsistent with X = v.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f882986c-5af1-492d-bf6e-43f579e309d8",
+              "Text": "Step 3: if any D(Y) becomes empty, abandon the current value v immediately and try the next value for X.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9cc8f8e0-84d9-4216-96ca-8ef9a9baefb8",
+              "Text": "Step 4: if all domains remain non-empty, recurse to assign the next variable.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "bce28532-a561-4613-bf63-846daffccc71",
+              "Text": "Step 5: when backtracking out of X = v, restore every value that was pruned by this assignment.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "caad63b2-cfec-485e-bb42-002f4235ff93",
+          "TopicId": "3345f4b1-c2f4-4c88-9641-bf63c2587da0",
+          "Title": "Worked Example: Map Colouring",
+          "BodyText": "The Australia map-colouring CSP with colours {red, green, blue} shows the pruning effect clearly. Each assignment shrinks the domains of the adjacent regions.",
+          "Notes": "Variables: WA, NT, SA, Q, NSW, V, T; constraint: adjacent regions must differ in colour.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:10:09.8064327-04:00",
+          "ModifiedDate": "2026-10-14T20:10:09.8064327-04:00",
+          "Items": [
+            {
+              "Id": "cd837e69-66fd-4f24-b89e-4c0b9e93ce85",
+              "Text": "Assign WA = red: forward checking removes red from the domains of its neighbours NT and SA, leaving {green, blue} for each.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "7acf7467-ff03-4035-b6e7-bb5e6497ca8a",
+              "Text": "Assign Q = green: green is removed from NT, SA and NSW, leaving NT = {blue}, SA = {blue}, NSW = {red, blue}.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4b901a5f-41b9-46c2-a619-e17704df586c",
+              "Text": "Assign V = blue: blue is removed from SA and NSW, so SA becomes empty and failure is detected immediately.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "be9b22d7-797d-47b1-bbfe-3f4ed3542b6b",
+              "Text": "Plain backtracking would have assigned values to SA only much later, wasting work on doomed branches.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "3961d965-4fdf-41a3-8311-630e63ed7c48",
+              "Text": "Restoring the pruned values on backtrack returns the domains exactly to their pre-assignment state.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "2330f1c9-116a-4c59-8698-8e2bc637d0b2",
+          "TopicId": "3345f4b1-c2f4-4c88-9641-bf63c2587da0",
+          "Title": "Early Failure Detection and Interaction with Heuristics",
+          "BodyText": "The main benefit of forward checking is that a dead end is recognised as soon as some future variable loses all its values, rather than when that variable is eventually reached. The reduced domains it maintains also feed directly into variable- and value-ordering heuristics.",
+          "Notes": "Minimum Remaining Values (MRV) is often described as the natural partner of forward checking because forward checking supplies the live domain sizes it needs.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:10:09.8064327-04:00",
+          "ModifiedDate": "2026-10-14T20:10:09.8064327-04:00",
+          "Items": [
+            {
+              "Id": "22813a76-1733-427b-9c71-1a92d01b56c7",
+              "Text": "An empty domain is a proof that the current partial assignment cannot be extended to a solution.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "31406590-baa2-437f-abc6-0c03c5fedc6b",
+              "Text": "Domain sizes maintained by forward checking let the MRV heuristic pick the most constrained variable next.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "01fcd2cc-58c9-4614-af69-960a0519eef1",
+              "Text": "The degree heuristic can break MRV ties by counting constraints on remaining unassigned variables.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "27d65f9b-f053-4646-accc-458535e6b4fd",
+              "Text": "Least-constraining-value ordering can use the pruning counts produced during forward checking.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "667cbc68-9249-43e5-a87f-d6ad592a113b",
+              "Text": "Together, forward checking plus MRV typically reduces the number of search nodes by orders of magnitude on map-colouring and n-queens problems.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "416762f8-af3e-4d7d-9934-3b52f88bbb32",
+          "TopicId": "3345f4b1-c2f4-4c88-9641-bf63c2587da0",
+          "Title": "Cost Versus Pruning Power",
+          "BodyText": "Forward checking adds overhead at every assignment but usually pays for itself by eliminating large subtrees. The trade-off is between the time spent pruning and the time saved in avoided search.",
+          "Notes": "Empirically, on problems such as n-queens and random binary CSPs, forward checking with MRV solves instances that plain backtracking cannot finish in reasonable time.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:10:09.8064327-04:00",
+          "ModifiedDate": "2026-10-14T20:10:09.8064327-04:00",
+          "Items": [
+            {
+              "Id": "b2861848-0641-48ea-b7c7-5ed2f9b283a5",
+              "Text": "The cost of one forward-checking step is O(d) per neighbouring variable, where d is the domain size, giving O(n\u00B7d) per assignment in the worst case.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "bf39055e-25a9-4750-905c-5bd14d418415",
+              "Text": "Plain backtracking expands many nodes that forward checking prunes before they are ever created.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7d1a8eb7-34fd-41f7-818b-488fc211e426",
+              "Text": "Extra bookkeeping is needed to record and undo deletions, which costs memory proportional to the number of pruned values.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e9b40a76-b677-4d82-b9d6-29026e2d5424",
+              "Text": "On loosely constrained problems the pruning may be small and the overhead noticeable; on tightly constrained problems the savings are large.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "d5687fff-5f5d-4440-b3e9-7af5bbc56b20",
+              "Text": "Forward checking never explores more nodes than chronological backtracking with the same ordering, so it is generally the preferred default.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "25de02ea-639a-49a5-a223-b373d7645ce6",
+          "TopicId": "3345f4b1-c2f4-4c88-9641-bf63c2587da0",
+          "Title": "Limitations of Forward Checking",
+          "BodyText": "Forward checking only checks constraints between the current variable and its immediate neighbours, so it misses conflicts that lie further ahead. This incompleteness motivates stronger propagation such as arc consistency.",
+          "Notes": "Classic illustration: after WA = red and Q = green, NT and SA both have the single domain {blue}, which is clearly inconsistent, yet forward checking will not notice until one of them is assigned.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:10:09.8064327-04:00",
+          "ModifiedDate": "2026-10-14T20:10:09.8064327-04:00",
+          "Items": [
+            {
+              "Id": "82c08e8f-af06-410d-82e5-08a1fa879991",
+              "Text": "It does not propagate deletions: shrinking D(Y) never triggers re-examination of Y\u0027s other neighbours.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "152082f3-993d-4ec5-9b6b-cf4c2eb1f195",
+              "Text": "Two future variables can be left with incompatible domains without any domain becoming empty.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a6560f1b-9471-4d44-908b-a8688d7fafc8",
+              "Text": "It cannot detect all inconsistencies among the unassigned variables, so some doomed branches are still explored.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "6256c2b0-9019-43e8-b6e9-85b2e1fe8cdc",
+              "Text": "Running arc consistency after each assignment (Maintaining Arc Consistency, MAC) strengthens the inference at higher cost.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "d0658b20-4373-4ae1-89ba-01822baf7df4",
+              "Text": "Forward checking is best seen as the weakest useful member of a family of look-ahead techniques that includes AC-3 and MAC.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "6f7bd520-de7b-4693-8641-aafbb8e1648a",
+      "Title": "Arc Consistency and the AC-3 Algorithm",
+      "Summary": "Defines arc consistency and walks through the AC-3 algorithm, including its queue of arcs, revise step, and termination conditions. Covers complexity analysis and the relationship between AC-3, forward checking, and stronger consistency levels such as path and k-consistency.",
+      "SortOrder": 2,
+      "CreatedDate": "2026-10-14T20:09:17.2259473-04:00",
+      "ModifiedDate": "2026-10-14T20:09:17.2259473-04:00",
+      "Elements": [
+        {
+          "Id": "48cb5f60-0f6d-4ab8-9c2a-715ee9f7e832",
+          "TopicId": "6f7bd520-de7b-4693-8641-aafbb8e1648a",
+          "Title": "Defining Arc Consistency",
+          "BodyText": "Arc consistency is a local consistency property that strengthens the pruning power of a CSP solver beyond simple forward checking. It is defined over directed arcs between pairs of variables that share a binary constraint.",
+          "Notes": "An arc (X, Y) is directional: making (X, Y) consistent says nothing about (Y, X), so both directions must be processed.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:10:39.4674208-04:00",
+          "ModifiedDate": "2026-10-14T20:10:39.4674208-04:00",
+          "Items": [
+            {
+              "Id": "de461cce-a171-4ecd-81f8-4d404a497468",
+              "Text": "An arc (X, Y) is arc consistent if for every value x in the domain of X there exists some value y in the domain of Y that satisfies the constraint between X and Y.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "8e352695-ee10-4b22-afb2-283826de253a",
+              "Text": "A CSP is arc consistent when every arc in both directions is arc consistent.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8d4df520-cf1d-4aab-be21-4f1056da922e",
+              "Text": "Values in X\u0027s domain with no supporting value in Y are unsupported and can be safely deleted without losing any solution.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c66d5532-9fd4-4f5d-8b8c-ab452279fb93",
+              "Text": "Arc consistency is a form of inference: it prunes domains rather than assigning variables.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "351f79b5-2b70-4775-a4c8-b6cf7090b130",
+              "Text": "For non-binary constraints, generalized arc consistency (GAC) extends the same idea to constraints of any arity.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "6aedc89d-0025-4678-90ad-0ac109ade60c",
+          "TopicId": "6f7bd520-de7b-4693-8641-aafbb8e1648a",
+          "Title": "The REVISE Step",
+          "BodyText": "REVISE is the core subroutine of arc consistency algorithms; it enforces consistency for a single directed arc. It returns whether any value was removed so the algorithm knows when to propagate further.",
+          "Notes": "Example: X in {1,2,3}, Y in {1,2}, constraint X \u003C Y. REVISE(X, Y) removes 2 and 3 from X\u0027s domain, leaving {1}, and returns true.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:10:39.4674208-04:00",
+          "ModifiedDate": "2026-10-14T20:10:39.4674208-04:00",
+          "Items": [
+            {
+              "Id": "a6ef4ac4-9f37-481d-a598-951e0c659e1f",
+              "Text": "REVISE(X, Y) scans each value x in D(X) and checks whether any y in D(Y) satisfies the constraint.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "ee177c4a-fa21-401a-967d-120fca79d823",
+              "Text": "If no supporting y exists, x is deleted from D(X) and the routine records that a revision occurred.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4d7bb49e-a01a-4370-9f8a-f656a0b18233",
+              "Text": "A return value of true signals that X\u0027s domain shrank, so neighbours of X may now need rechecking.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "6359a091-b27f-46a0-bfb3-a4dfa4cefef5",
+              "Text": "A return value of false means the arc was already consistent and no further propagation is triggered by it.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "03f6a51b-6d37-4062-bae2-1fbf61906d3f",
+              "Text": "Naive REVISE costs O(d\u00B2) time for domains of size d, since each value of X may be tested against each value of Y.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "b4f48c0d-23fe-4713-b72a-d1d84ce6dcff",
+          "TopicId": "6f7bd520-de7b-4693-8641-aafbb8e1648a",
+          "Title": "The AC-3 Algorithm and Its Queue of Arcs",
+          "BodyText": "AC-3 enforces arc consistency across the whole CSP by maintaining a worklist (queue) of arcs that still need checking. It repeatedly revises arcs and re-adds affected neighbours until no further change is possible.",
+          "Notes": "AC-3 can be run once as preprocessing before search, or maintained during search (the MAC strategy) after each assignment.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:10:39.4674208-04:00",
+          "ModifiedDate": "2026-10-14T20:10:39.4674208-04:00",
+          "Items": [
+            {
+              "Id": "9d87197d-0a88-4e66-9761-b4ae5e174291",
+              "Text": "Initialize the queue with every arc (Xi, Xj) for each binary constraint, in both directions.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "64853deb-c44e-424a-8733-ce5a48d8ec27",
+              "Text": "Pop an arc (X, Y) from the queue and call REVISE(X, Y).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "e66181fc-d6f1-4ffc-9865-480d1590c7eb",
+              "Text": "If REVISE removed values, add every arc (Z, X) back to the queue for each neighbour Z of X other than Y.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "31d08333-3331-4ec0-a446-784187e4613c",
+              "Text": "Neighbours must be rechecked because their earlier support in D(X) may have just been deleted.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "9bde2029-e0ff-48ae-ae33-4acdd321d1ef",
+              "Text": "The algorithm loops until the queue is empty, at which point the network is arc consistent.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "de8fb26d-36ae-4ea6-b2ca-4fe9a6cd037b",
+          "TopicId": "6f7bd520-de7b-4693-8641-aafbb8e1648a",
+          "Title": "Termination Conditions and Outcomes",
+          "BodyText": "AC-3 halts in one of two ways, and each outcome tells the search algorithm something useful. Understanding these outcomes determines how AC-3 is integrated into backtracking search.",
+          "Notes": "AC-3 is sound (never removes a value that appears in a solution) but incomplete (an arc-consistent CSP may still have no solution).",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:10:39.4674208-04:00",
+          "ModifiedDate": "2026-10-14T20:10:39.4674208-04:00",
+          "Items": [
+            {
+              "Id": "9471f195-2a35-4bd9-9af7-895cd8b7e7ea",
+              "Text": "Failure: if any domain becomes empty, the current partial assignment cannot be extended and the search must backtrack immediately.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d84b77b0-3faf-432a-a2d3-d72f87552b52",
+              "Text": "Success: the queue empties with all domains non-empty, yielding a pruned but still arc-consistent network.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c1bf690c-5788-46ce-afb9-080c512cce34",
+              "Text": "If every domain is reduced to a single value, a solution has been found directly by inference.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "6be5ff7a-f66d-41a2-8ffc-5715fb214267",
+              "Text": "Otherwise the reduced domains are passed back to search, which continues assigning variables over smaller domains.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "9b98fcb6-229d-47c7-b364-11a753ed2ee4",
+              "Text": "Termination is guaranteed because every iteration either removes a value from a finite domain or shrinks the queue.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "e925ddd9-cbb0-48ee-947f-0c8f8721d478",
+          "TopicId": "6f7bd520-de7b-4693-8641-aafbb8e1648a",
+          "Title": "Complexity Analysis of AC-3",
+          "BodyText": "AC-3\u0027s running time is bounded by how many times each arc can be re-inserted into the queue and the cost of each revision. The analysis assumes a CSP with c binary constraints and domains of size at most d.",
+          "Notes": "AC-4 achieves the optimal O(cd\u00B2) bound by tracking support counts, but has higher constant factors and memory overhead, so AC-3 is more common in practice.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:10:39.4674208-04:00",
+          "ModifiedDate": "2026-10-14T20:10:39.4674208-04:00",
+          "Items": [
+            {
+              "Id": "de0129ff-13f4-471c-be64-9b41384f223c",
+              "Text": "Each arc can be inserted into the queue at most d times, since each insertion follows the deletion of a value from a domain.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "10d9b5ff-1497-484e-b09b-661a645edaa5",
+              "Text": "Each REVISE call costs O(d\u00B2), giving a worst-case total of O(cd\u00B3) time for AC-3.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c0f70079-71a5-4b91-ac79-f7d5235c50ac",
+              "Text": "Space complexity is O(c) for the queue plus the storage of the domains themselves.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "897103a0-a88f-4c75-83d5-733a1a0a91e4",
+              "Text": "With n variables, c is at most n\u00B2, so the bound can also be written as O(n\u00B2d\u00B3).",
+              "SortOrder": 3
+            },
+            {
+              "Id": "abd6ef30-e68a-49a2-a0bf-cd14797285b2",
+              "Text": "In practice AC-3 runs far faster than the worst case because most arcs are revised only once or twice.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "8a3b27fe-8d6f-4fb4-8c64-65ecfe3b7254",
+          "TopicId": "6f7bd520-de7b-4693-8641-aafbb8e1648a",
+          "Title": "AC-3 Versus Forward Checking",
+          "BodyText": "Forward checking can be viewed as a restricted, one-step version of arc consistency. Comparing the two clarifies the trade-off between inference strength and per-node cost.",
+          "Notes": "Maintaining Arc Consistency (MAC) runs AC-3 after every assignment, starting the queue with only the arcs pointing into the newly assigned variable.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:10:39.4674208-04:00",
+          "ModifiedDate": "2026-10-14T20:10:39.4674208-04:00",
+          "Items": [
+            {
+              "Id": "6d076622-5779-4727-a331-fa2f799e5237",
+              "Text": "Forward checking only makes arcs (X, Y) consistent where Y is the variable just assigned \u2014 it performs a single round of revision with no propagation.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "8878d6f7-9f2c-4065-81d7-ffed19c549e7",
+              "Text": "AC-3 cascades deletions: shrinking one domain triggers rechecking of all neighbouring arcs.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "fe8431ee-83e2-4c47-9019-675cfb9c5e6b",
+              "Text": "AC-3 therefore detects failures earlier, including inconsistencies that forward checking cannot see.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "8b395c0e-f3e8-4ec9-a249-c03008244572",
+              "Text": "The extra pruning costs more time per search node, so AC-3 pays off most on tightly constrained problems.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6e8ab1bb-3951-4014-bb73-c826ae7523ca",
+              "Text": "On loosely constrained problems, forward checking\u0027s lower overhead can make it the faster overall choice.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "5ab03ab1-34c3-470c-aa47-9d4ab8ec5e16",
+          "TopicId": "6f7bd520-de7b-4693-8641-aafbb8e1648a",
+          "Title": "Stronger Consistency: Path and k-Consistency",
+          "BodyText": "Arc consistency considers only pairs of variables, so some inconsistencies survive it. Higher levels of consistency examine larger subsets of variables at greater computational cost.",
+          "Notes": "Strong k-consistency means the network is j-consistent for all j up to k; a strongly n-consistent CSP can be solved backtrack-free.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T20:10:39.4674208-04:00",
+          "ModifiedDate": "2026-10-14T20:10:39.4674208-04:00",
+          "Items": [
+            {
+              "Id": "1bd2ff1b-8aef-433a-bc6b-321341c8435a",
+              "Text": "Path consistency (3-consistency) requires that any consistent assignment to two variables can be extended to a third variable on the path between them.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f97bc332-cdae-4276-bd4f-4a69e9c4f6b0",
+              "Text": "k-consistency generalizes this: any consistent assignment to k\u22121 variables can be extended to any k-th variable.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d1fc52e5-2549-4da4-afa5-bcc84ac2318a",
+              "Text": "1-consistency is node consistency (unary constraints), and 2-consistency is arc consistency.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "289a31e6-9446-4d19-9e84-ae3ae9026e15",
+              "Text": "Enforcing higher k-consistency costs time exponential in k, so levels above arc consistency are rarely worth it in practice.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "bd0ff276-785b-4ef2-bfff-49740bb0d280",
+              "Text": "Special-purpose propagators, such as those for the Alldiff global constraint, often give stronger pruning more cheaply than generic k-consistency.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "5dd55280-d0b8-4e44-a88f-52bba28e8d38",
+      "Title": "Integrating Propagation with Search and Heuristics",
+      "Summary": "Shows how maintaining arc consistency (MAC) during backtracking combines with ordering heuristics like minimum remaining values, degree, and least constraining value. Addresses backjumping, conflict-directed strategies, and practical trade-offs between inference cost and search savings.",
+      "SortOrder": 3,
+      "CreatedDate": "2026-10-14T20:09:17.2259473-04:00",
+      "ModifiedDate": "2026-10-14T20:09:17.2259473-04:00",
+      "Elements": [
+        {
+          "Id": "64e8cd40-25c6-481c-8fd5-1f11be764875",
+          "TopicId": "5dd55280-d0b8-4e44-a88f-52bba28e8d38",
+          "Title": "Maintaining Arc Consistency (MAC) During Search",
+          "BodyText": "MAC interleaves the AC-3 algorithm with backtracking search, enforcing arc consistency after every variable assignment rather than only checking neighbours once.",
+          "Notes": "MAC is typically implemented by seeding the AC-3 queue only with arcs (Xj, Xi) pointing at the just-assigned variable Xi, rather than re-running full arc consistency from scratch.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:11:05.9647187-04:00",
+          "ModifiedDate": "2026-10-14T20:11:05.9647187-04:00",
+          "Items": [
+            {
+              "Id": "182ec7f1-a3b5-457f-9ca0-60fdd08dfdc1",
+              "Text": "After assigning a value, the domain of that variable is reduced to the single chosen value and propagation cascades outward.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "2c24277d-57c4-4984-a5a1-950e2894947f",
+              "Text": "Unlike forward checking, MAC continues propagating through unassigned-to-unassigned arcs, detecting failures several steps earlier.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "e42c5c68-304b-4d4c-99ba-2b749ef56212",
+              "Text": "If any domain becomes empty during propagation, the branch fails immediately and search backtracks.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "0e7bdd3d-b243-4f53-b6fe-34e8b0a7468c",
+              "Text": "Domain reductions must be recorded on a trail so they can be undone cleanly when backtracking.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "7a1fd896-06e5-4ead-bd8d-13dc3ccc0b6d",
+              "Text": "MAC is the default inference strategy in most modern CSP and SAT-style solvers because of its strong pruning power.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "c5b94db6-9f2b-4b0b-8e64-31a2b8408517",
+          "TopicId": "5dd55280-d0b8-4e44-a88f-52bba28e8d38",
+          "Title": "Variable Ordering: Minimum Remaining Values and Degree",
+          "BodyText": "Which variable to assign next has a dramatic effect on search size, and propagation supplies exactly the information these heuristics need.",
+          "Notes": "MRV is sometimes called \u0027most constrained variable\u0027 or \u0027fail-first\u0027 ordering.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:11:05.9647187-04:00",
+          "ModifiedDate": "2026-10-14T20:11:05.9647187-04:00",
+          "Items": [
+            {
+              "Id": "6549d52c-624a-4167-8717-89a735e5fb82",
+              "Text": "Minimum remaining values (MRV) selects the variable with the fewest legal values left in its domain.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "1b2ffdec-c9c1-4ce9-af02-ab9be776a780",
+              "Text": "MRV embodies the fail-first principle: detecting a dead end sooner prunes a larger subtree.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c56771d8-1e67-453f-a62f-ac359928c345",
+              "Text": "MRV only works well when propagation keeps domains up to date, so it pairs naturally with forward checking or MAC.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e8969a7e-1bb8-44db-a8ed-24d6000ceaac",
+              "Text": "The degree heuristic breaks MRV ties by choosing the variable involved in the most constraints with unassigned variables.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "8949f3fb-43db-42ae-8a2c-cf7f8e9b9035",
+              "Text": "Degree ordering reduces future branching factor and is also useful as a standalone heuristic for the first assignment.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "aba74cd8-6e51-47ac-a717-569261da1186",
+          "TopicId": "5dd55280-d0b8-4e44-a88f-52bba28e8d38",
+          "Title": "Value Ordering: Least Constraining Value",
+          "BodyText": "Once a variable is chosen, the order in which its values are tried determines how quickly a solution is found on satisfiable problems.",
+          "Notes": "Value ordering matters little when proving unsatisfiability, since every value must be refuted regardless of order.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:11:05.9647187-04:00",
+          "ModifiedDate": "2026-10-14T20:11:05.9647187-04:00",
+          "Items": [
+            {
+              "Id": "0c886ade-b9a3-45e5-a320-7bbea402e08e",
+              "Text": "The least constraining value (LCV) heuristic prefers the value that rules out the fewest options for neighbouring variables.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "8ee7f0b7-a7b5-4ddf-8e23-d8f766ebf88b",
+              "Text": "LCV is computed by tentatively assigning each value, propagating, and counting remaining domain values across neighbours.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "eb9aa2c2-c610-44b4-b228-d6aac8bb80b0",
+              "Text": "It follows a succeed-first logic, aiming to keep the search space as flexible as possible.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "d9e97fe1-fff4-4cd6-8b86-55203868d2c4",
+              "Text": "Computing LCV costs extra propagation work per value, so it pays off mainly on hard instances with expensive backtracking.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "026f2e34-3d9c-4ac4-8d48-fcf6e2133941",
+              "Text": "Combining MRV for variables with LCV for values is a standard, well-tested configuration.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "c3d53fcc-fea1-4f9e-9b0c-3d0bf095722c",
+          "TopicId": "5dd55280-d0b8-4e44-a88f-52bba28e8d38",
+          "Title": "Backjumping and Conflict-Directed Strategies",
+          "BodyText": "Chronological backtracking undoes the most recent assignment even when it had nothing to do with the failure; conflict-directed methods jump back to the real culprit.",
+          "Notes": "Conflict-directed backjumping (CBJ) generalises simple backjumping by accumulating conflict sets as it unwinds the search tree.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:11:05.9647187-04:00",
+          "ModifiedDate": "2026-10-14T20:11:05.9647187-04:00",
+          "Items": [
+            {
+              "Id": "7036f78b-0569-44f0-b073-d3ec5dda510d",
+              "Text": "Backjumping maintains a conflict set for each variable: the earlier assignments that eliminated its values.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "574fd49f-2277-4ad6-b148-7462134b123f",
+              "Text": "On failure, search jumps directly to the deepest variable in the conflict set, skipping irrelevant intermediate levels.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7f0d9342-0a76-4275-aa59-631981f0d32c",
+              "Text": "Conflict-directed backjumping propagates conflict sets upward so that whole regions of the tree are bypassed.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "7ec8e3d5-3218-4145-871e-faf474b1fc1d",
+              "Text": "No-good learning records the offending combination of assignments so the same conflict is never re-explored.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "027684ae-6713-4a0e-b529-6c2525b96bc9",
+              "Text": "Because MAC already prunes many of these dead ends in advance, its benefit partly overlaps with backjumping.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "e44afaa1-3928-48fb-ab78-78b034a3a72e",
+          "TopicId": "5dd55280-d0b8-4e44-a88f-52bba28e8d38",
+          "Title": "Trade-offs Between Inference Cost and Search Savings",
+          "BodyText": "Stronger propagation prunes more nodes but costs more time per node, so the best configuration depends on problem structure and constraint tightness.",
+          "Notes": "A useful diagnostic is to measure both nodes explored and wall-clock time; a technique that cuts nodes tenfold but costs twenty times more per node is a net loss.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:11:05.9647187-04:00",
+          "ModifiedDate": "2026-10-14T20:11:05.9647187-04:00",
+          "Items": [
+            {
+              "Id": "2d1d65ae-4809-46d6-96ed-613d29c392d1",
+              "Text": "Forward checking is cheap and effective on loosely constrained problems with large domains.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "68ddcb20-8deb-4478-a901-cd18e432c846",
+              "Text": "MAC dominates on tightly constrained problems where early failure detection saves exponential work.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "99e7ee9a-2505-42b2-b4f4-5aa3e6654571",
+              "Text": "Higher levels of consistency such as path consistency are rarely worth the overhead in practice.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "ea84e0d9-9c7a-4f7b-9c91-7f9190867652",
+              "Text": "Incremental propagation and efficient trail-based undo are essential to keep per-node cost low.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "244a13eb-6c96-42bc-bb79-65ff0d40c8a3",
+              "Text": "Empirical benchmarking on representative instances is the only reliable way to choose a configuration.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "52cd7f8c-37bc-4e8b-bbca-1fe7fd128a3d",
+          "TopicId": "5dd55280-d0b8-4e44-a88f-52bba28e8d38",
+          "Title": "Assembling a Complete CSP Solver",
+          "BodyText": "A practical solver combines backtracking search, a propagation engine, and ordering heuristics into a single configurable pipeline.",
+          "Notes": "This architecture underpins the implementation project, where the same solver is tested on map colouring, Sudoku, and n-queens.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:11:05.9647187-04:00",
+          "ModifiedDate": "2026-10-14T20:11:05.9647187-04:00",
+          "Items": [
+            {
+              "Id": "097d6130-3788-406d-bfe7-a6216453a119",
+              "Text": "The core loop selects a variable, orders its values, assigns, propagates, and recurses or backtracks.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c01701be-0771-485f-8b12-baa9aa882948",
+              "Text": "Propagation strength and heuristic choice should be pluggable options so configurations can be compared.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "0323442c-d6f7-4bc2-b6bb-64377c108133",
+              "Text": "State restoration on backtracking must undo exactly the prunings made since the assignment.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "adb30e92-15f1-4f65-84f9-e691adbe3ceb",
+              "Text": "Instrumentation counters for nodes visited, constraint checks, and propagation calls make trade-offs measurable.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "0d1c1f87-1f52-4ab4-95f9-2b90ebe0a09f",
+              "Text": "Local search methods such as min-conflicts offer a complementary fallback for very large, loosely constrained instances.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "c469af5d-0ebb-47cb-bd9f-11b31bed5686",
+      "Title": "Exploiting Problem Structure",
+      "Summary": "Examines how constraint graph structure can be leveraged through independent subproblems, tree-structured CSPs, cutset conditioning, and tree decomposition. Highlights the complexity gains achievable when problems exhibit favourable topology.",
+      "SortOrder": 4,
+      "CreatedDate": "2026-10-14T20:09:17.2259473-04:00",
+      "ModifiedDate": "2026-10-14T20:09:17.2259473-04:00",
+      "Elements": [
+        {
+          "Id": "9a865b24-b5ba-4ab8-bd12-1f1b9186694b",
+          "TopicId": "c469af5d-0ebb-47cb-bd9f-11b31bed5686",
+          "Title": "Independent Subproblems and Connected Components",
+          "BodyText": "Many constraint graphs are not fully connected; they decompose into separate components that share no constraints. Each component can be solved entirely independently and the solutions combined.",
+          "Notes": "Example: an Australia map-colouring problem where Tasmania is disconnected from the mainland \u2014 colouring Tasmania is a wholly separate CSP.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:11:26.6214811-04:00",
+          "ModifiedDate": "2026-10-14T20:11:26.6214811-04:00",
+          "Items": [
+            {
+              "Id": "e47eb80b-ea0c-49c0-8596-15564ffeae12",
+              "Text": "Identify connected components of the constraint graph using a simple graph traversal such as depth-first search.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6d785427-1975-46a6-a744-15f502a8e452",
+              "Text": "If a CSP with n variables splits into components of at most c variables each, worst-case cost falls from O(d^n) to O((n/c) \u00B7 d^c).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "6c78486c-5c26-48c4-a89e-8b993d429aaa",
+              "Text": "The overall solution is the union of the assignments found for each component.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b1cef966-5329-41e0-9507-d3b6661d051a",
+              "Text": "This decomposition is cheap to detect and should be applied before any expensive search.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "1220a3f7-3476-401c-9e1b-fd922baa3b4c",
+          "TopicId": "c469af5d-0ebb-47cb-bd9f-11b31bed5686",
+          "Title": "Tree-Structured CSPs Solved in Linear Time",
+          "BodyText": "When the constraint graph is a tree (no cycles), the CSP can be solved without backtracking in time linear in the number of variables. This is the most dramatic structural payoff available.",
+          "Notes": "Complexity is O(n\u00B7d\u00B2) compared with O(d^n) for general CSPs.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:11:26.6214811-04:00",
+          "ModifiedDate": "2026-10-14T20:11:26.6214811-04:00",
+          "Items": [
+            {
+              "Id": "b731e5d6-0012-41df-a832-e5d74dc753a1",
+              "Text": "Choose a root variable and order the remaining variables so every node appears after its parent (topological order).",
+              "SortOrder": 0
+            },
+            {
+              "Id": "15be82d6-ad41-49ae-bf54-8063fba406c2",
+              "Text": "Run directional arc consistency backwards: for j from n down to 2, make the arc from the parent of Xj to Xj consistent.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "59929372-8c92-43c0-af16-8692dd8c1b6b",
+              "Text": "Then assign values forwards from the root; every variable is guaranteed a consistent value with its parent, so no backtracking occurs.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "12cf6077-ff47-4dce-87d2-f9934bea42f4",
+              "Text": "If any domain becomes empty during the backward pass, the tree CSP has no solution.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "9dca81d8-7098-4d6f-a047-7dee4e50e8e6",
+          "TopicId": "c469af5d-0ebb-47cb-bd9f-11b31bed5686",
+          "Title": "Cutset Conditioning",
+          "BodyText": "Most real constraint graphs contain cycles, but removing a small set of variables can leave a tree. Cutset conditioning instantiates that cycle cutset and solves the remaining tree efficiently.",
+          "Notes": "Finding the minimum cycle cutset is NP-hard, but good approximation heuristics exist.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:11:26.6214811-04:00",
+          "ModifiedDate": "2026-10-14T20:11:26.6214811-04:00",
+          "Items": [
+            {
+              "Id": "28194823-43a0-4d6e-9711-7b3f4c6dab6e",
+              "Text": "Find a subset S of variables whose removal makes the constraint graph a tree \u2014 the cycle cutset.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f0ac2d63-33db-4c14-b5c0-fd0a7640acc0",
+              "Text": "Enumerate each consistent assignment to S, removing those values from the domains of the remaining variables.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "26729cf7-170c-4cb0-ac24-94907dd307f3",
+              "Text": "Solve the resulting tree-structured CSP in linear time; if it succeeds, combine with the cutset assignment for a full solution.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "46f9a2e4-ba81-4268-ab1c-9a72215069b7",
+              "Text": "Total cost is O(d^c \u00B7 (n \u2212 c) \u00B7 d\u00B2), which is efficient only when the cutset size c is small.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "04be628e-9d9a-43f9-a89b-2822a53a7d3c",
+          "TopicId": "c469af5d-0ebb-47cb-bd9f-11b31bed5686",
+          "Title": "Tree Decomposition",
+          "BodyText": "Tree decomposition transforms a constraint graph into a tree of overlapping clusters of variables, each solved as a mini-CSP. The tree of clusters is then solved with the linear-time tree algorithm.",
+          "Notes": "The subproblems act as mega-variables whose domains are the sets of solutions to each cluster.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:11:26.6214811-04:00",
+          "ModifiedDate": "2026-10-14T20:11:26.6214811-04:00",
+          "Items": [
+            {
+              "Id": "52a92f6f-a81f-4a65-aeaa-778c20f82b6b",
+              "Text": "Every variable must appear in at least one cluster, and every constraint\u0027s variables must appear together in some cluster.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "be3852d5-200b-4efe-9225-d43286ae0554",
+              "Text": "If a variable appears in two clusters, it must appear in every cluster on the path between them (the connectedness condition).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "b538d249-7a7d-4bab-83f9-4d63fa2cb5d5",
+              "Text": "Solve each cluster independently, then enforce consistency between adjacent clusters on their shared variables.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "016abad0-64d4-4906-bf24-e9c7ea69137e",
+              "Text": "Complexity is O(n \u00B7 d^(w\u002B1)) where w is the tree width \u2014 the size of the largest cluster minus one.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "7bc0a51e-dcfa-45cc-9c65-7fbf2529ca1b",
+          "TopicId": "c469af5d-0ebb-47cb-bd9f-11b31bed5686",
+          "Title": "Tree Width and the Limits of Structural Methods",
+          "BodyText": "The practical value of structural decomposition is governed by the tree width of the constraint graph. Low tree width means tractability; high tree width means structure offers little help.",
+          "Notes": "Finding the decomposition of minimum tree width is itself NP-hard, so heuristics such as min-fill ordering are used in practice.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:11:26.6214811-04:00",
+          "ModifiedDate": "2026-10-14T20:11:26.6214811-04:00",
+          "Items": [
+            {
+              "Id": "cc347094-2fbe-4690-a99b-246b51c17d75",
+              "Text": "A graph is a tree exactly when its tree width is 1.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6d03a828-7937-471d-99c4-3eb1dc2d738a",
+              "Text": "Problems with bounded tree width are solvable in polynomial time.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4e19ee79-29eb-4a69-8079-48bf93585024",
+              "Text": "Densely connected problems such as random SAT instances have high tree width and resist decomposition.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "26e42b7b-6db4-45bc-8c53-2956632d437f",
+              "Text": "In such cases, fall back on general search with inference (forward checking, AC-3) or on local search.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "b5f37aac-3d47-4852-a490-197b9b6cb9b4",
+          "TopicId": "c469af5d-0ebb-47cb-bd9f-11b31bed5686",
+          "Title": "Value-Level Structure and Symmetry Breaking",
+          "BodyText": "Structure can also exist in the values rather than the graph, most commonly as interchangeable values or symmetric solutions. Exploiting it removes redundant branches from the search tree.",
+          "Notes": "Example: in map colouring with three colours, any solution yields 3! = 6 equivalent relabelled solutions.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:11:26.6214811-04:00",
+          "ModifiedDate": "2026-10-14T20:11:26.6214811-04:00",
+          "Items": [
+            {
+              "Id": "11303ba2-cb2c-46cb-8dc5-8b13e3a5eb00",
+              "Text": "Symmetry-breaking constraints impose an arbitrary ordering, for example requiring that the first region takes the lowest-indexed colour.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6ec16722-3a4a-4a64-8138-13755196026b",
+              "Text": "This can reduce the search space by a factor equal to the size of the symmetry group.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c8fbe406-2c35-463a-b1d5-11d5994a4b7a",
+              "Text": "Value interchangeability lets the solver treat a group of equivalent values as a single representative.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "6625a38d-91c1-4a87-8e4f-78b91dc7ca35",
+              "Text": "Symmetry breaking must be sound \u2014 it must never eliminate all solutions of an equivalence class.",
+              "SortOrder": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "5f58967d-faf3-4450-a957-6ee94570e95b",
+      "Title": "Local Search for CSPs",
+      "Summary": "Introduces complete-state formulations and iterative repair methods, focusing on the min-conflicts heuristic and techniques for escaping local minima. Discusses when local search outperforms systematic search, including large-scale scheduling and n-queens style problems.",
+      "SortOrder": 5,
+      "CreatedDate": "2026-10-14T20:09:17.2259473-04:00",
+      "ModifiedDate": "2026-10-14T20:09:17.2259473-04:00",
+      "Elements": [
+        {
+          "Id": "37c71da3-92c6-419c-a8b0-92b43d5e1342",
+          "TopicId": "5f58967d-faf3-4450-a957-6ee94570e95b",
+          "Title": "Complete-State Formulation",
+          "BodyText": "Local search for CSPs begins with a complete assignment of values to all variables, which may violate constraints, and then repairs it iteratively. This contrasts with backtracking search, which extends partial, consistent assignments one variable at a time.",
+          "Notes": "Example: for 8-queens, start with one queen placed in every column (possibly attacking each other) rather than placing queens one column at a time.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:11:50.6725204-04:00",
+          "ModifiedDate": "2026-10-14T20:11:50.6725204-04:00",
+          "Items": [
+            {
+              "Id": "796ca097-fbe8-4f49-880f-f29f5fb18624",
+              "Text": "Every variable has a value at all times, so any state is a candidate solution once conflicts reach zero.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "ad8f605b-82f2-42e7-8f3c-d019726f2da7",
+              "Text": "The search space is the set of complete assignments, explored by changing one variable\u0027s value at a time.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "152105e5-2213-4675-83e3-95ef12c6f959",
+              "Text": "The objective function is typically the number of violated constraints, which the search tries to drive to zero.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "218801f9-1964-4284-9fbe-8c2fedb1a407",
+              "Text": "No backtracking stack is needed, so memory use is constant regardless of how long the search runs.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "10703ab9-3f98-4598-b8d9-ef09614897df",
+              "Text": "Initial states can be random or generated by a greedy heuristic that minimizes conflicts column by column.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "3b2c542f-d0a3-4eeb-b723-de94d5318494",
+          "TopicId": "5f58967d-faf3-4450-a957-6ee94570e95b",
+          "Title": "The Min-Conflicts Heuristic",
+          "BodyText": "Min-conflicts is the dominant variable-value selection rule for CSP local search: pick a variable that is currently in conflict, and reassign it to the value that violates the fewest constraints. Ties are broken randomly to avoid deterministic cycling.",
+          "Notes": "Min-conflicts solves the million-queens problem in roughly 50 steps on average, and random 8-queens instances almost instantly.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:11:50.6725204-04:00",
+          "ModifiedDate": "2026-10-14T20:11:50.6725204-04:00",
+          "Items": [
+            {
+              "Id": "9b8a8453-cc2b-4c62-b4c4-c5ff274968dd",
+              "Text": "Each iteration selects a conflicted variable, often uniformly at random among those involved in violations.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b7cb7f2c-d1ba-42a3-99d7-f513b8aa3cde",
+              "Text": "For the chosen variable, evaluate every value in its domain and count resulting constraint violations.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "cd0f81bc-de50-45f4-bc35-d1d396f8a9e3",
+              "Text": "Assign the value with the minimum conflict count, breaking ties randomly.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "2a9a2d75-1ca2-49f5-9aa8-92396a4b9a5b",
+              "Text": "The conflict count can be computed incrementally, making each step cheap even for large problems.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "20532dc5-fb32-4b65-aa60-34032c6b70f3",
+              "Text": "Runtime is often roughly independent of problem size for under-constrained problems like n-queens.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "07894aa4-59b1-4fab-907a-3f4c50ab878d",
+          "TopicId": "5f58967d-faf3-4450-a957-6ee94570e95b",
+          "Title": "Escaping Local Minima and Plateaus",
+          "BodyText": "Pure min-conflicts hill climbing can stall in local minima where no single change reduces conflicts, or wander on plateaus where many moves are equally good. Several randomization and memory techniques restore progress.",
+          "Notes": "Plateau moves (sideways steps) are essential in many CSPs because large flat regions separate improving moves.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:11:50.6725204-04:00",
+          "ModifiedDate": "2026-10-14T20:11:50.6725204-04:00",
+          "Items": [
+            {
+              "Id": "d6b92991-0de0-45b8-a44d-e22d4c31a881",
+              "Text": "Random restarts abandon the current state and begin again from a fresh complete assignment.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "45d3a010-1786-41e2-a667-cda7d37d8295",
+              "Text": "Random walk takes a random move with small probability p and a min-conflicts move otherwise.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "bf25ad0f-4ba8-4910-909f-fa2011730371",
+              "Text": "Simulated annealing accepts worsening moves with a probability that decreases over time.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "4cc93cd6-9d76-4329-8157-bbeee8f2a8ad",
+              "Text": "Tabu search forbids recently assigned variable-value pairs for a fixed number of iterations to prevent cycling.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "2ea571c4-1505-4973-a93e-9a8849a26530",
+              "Text": "Constraint weighting raises the weight of constraints that remain violated, reshaping the landscape to escape minima.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "23934145-f964-43a9-8e0a-27f3dec8282a",
+          "TopicId": "5f58967d-faf3-4450-a957-6ee94570e95b",
+          "Title": "When Local Search Outperforms Systematic Search",
+          "BodyText": "Local search excels on large, loosely constrained problems and on instances where solutions are densely distributed, but it offers no completeness guarantee. Knowing the trade-offs guides algorithm selection.",
+          "Notes": "The critical ratio of constraints to variables determines problem hardness; local search degrades sharply near the phase transition.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:11:50.6725204-04:00",
+          "ModifiedDate": "2026-10-14T20:11:50.6725204-04:00",
+          "Items": [
+            {
+              "Id": "64a5648d-d32a-4e25-a6fa-7da0b1cc08e5",
+              "Text": "Local search scales to problems with millions of variables where backtracking would be hopeless.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b4428b65-1b03-459e-ac72-76d2629b2129",
+              "Text": "It cannot prove unsatisfiability, so it never terminates with a definitive \u0027no solution\u0027 answer.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8a0c542e-855e-44a2-85f2-1f21f92c5507",
+              "Text": "Performance is worst on tightly constrained or unsatisfiable instances near the phase transition.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "5c43a64e-862a-48a0-b698-6f331e299fe8",
+              "Text": "Hybrid approaches use local search to find promising regions and systematic search to verify or complete them.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "acac215f-3a94-40b2-af1b-76e2031e3f8c",
+              "Text": "Anytime behavior is a practical advantage: the best-so-far assignment is always available.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "84c50814-80c8-475c-9c64-a2593177e7cf",
+          "TopicId": "5f58967d-faf3-4450-a957-6ee94570e95b",
+          "Title": "Online Repair and Real-World Scheduling",
+          "BodyText": "Because local search starts from a complete assignment, it is ideal for repairing an existing solution after the problem changes. This makes it the method of choice for dynamic scheduling applications.",
+          "Notes": "The Hubble Space Telescope observation scheduler reduced scheduling time from three weeks to around ten minutes using min-conflicts repair.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:11:50.6725204-04:00",
+          "ModifiedDate": "2026-10-14T20:11:50.6725204-04:00",
+          "Items": [
+            {
+              "Id": "60ea1bcf-4967-4e23-a7b1-e0d57e6644f3",
+              "Text": "When a constraint or resource changes, reuse the old schedule as the starting state instead of re-solving from scratch.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "299ca24b-6cb3-4043-ac4e-ea63380ce945",
+              "Text": "Repair typically requires few changes, preserving stability for users who depend on the prior plan.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "71ba8a02-7b09-47c4-8697-4b7e132a1683",
+              "Text": "Airline crew rostering, telescope observation scheduling, and factory job-shop problems all use this pattern.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "14b867b8-9545-40dc-98ef-d3815504daf1",
+              "Text": "Minimizing perturbation can itself be modeled as a soft constraint added to the conflict count.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "ab91e821-8b09-4edd-8224-80d6d3775eb6",
+              "Text": "Dynamic problems favor local search because systematic solvers must discard their entire search tree.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "9cd85fae-b813-49ef-9e51-01dc80d5e8ef",
+          "TopicId": "5f58967d-faf3-4450-a957-6ee94570e95b",
+          "Title": "Combining Local Search with Constraint Propagation",
+          "BodyText": "Inference techniques such as forward checking and arc consistency can be applied before or during local search to shrink domains and improve move quality. This blends the strengths of propagation and iterative repair.",
+          "Notes": "",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:11:50.6725204-04:00",
+          "ModifiedDate": "2026-10-14T20:11:50.6725204-04:00",
+          "Items": [
+            {
+              "Id": "7e818ec8-a567-43ac-ba3d-30d634311a00",
+              "Text": "Run AC-3 as a preprocessing step to remove values that can never appear in any solution.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "523054c0-b39d-4601-8783-e6aad85905dc",
+              "Text": "Smaller domains reduce the cost of evaluating candidate values during each min-conflicts step.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "e1505843-60b2-4ee7-b4c7-1f5a4cf2a75a",
+              "Text": "Propagation can detect unsatisfiable instances that local search would otherwise search forever.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "51b84e81-b2bf-4139-ba34-94c7f5ba24c3",
+              "Text": "Some hybrids perform limited propagation after each repair move to prune newly inconsistent values.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6bb31652-0d67-41a9-82da-cb13efa71420",
+              "Text": "Structural analysis, such as decomposing into independent subproblems, lets local search target each component separately.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "5308c651-fea9-4a48-9fce-eed255d4135c",
+      "Title": "Implementation Project and Evaluation",
+      "Summary": "Guides learners through implementing forward checking, AC-3, and a local search solver, then benchmarking them on representative CSP instances. Covers experimental design, performance metrics, debugging strategies, and interpretation of results.",
+      "SortOrder": 6,
+      "CreatedDate": "2026-10-14T20:09:17.2259473-04:00",
+      "ModifiedDate": "2026-10-14T20:09:17.2259473-04:00",
+      "Elements": [
+        {
+          "Id": "547c8cc4-9109-4866-9b8a-29947eb214af",
+          "TopicId": "5308c651-fea9-4a48-9fce-eed255d4135c",
+          "Title": "Project Scope and Solver Architecture",
+          "BodyText": "The implementation project asks you to build one CSP framework that can be configured with different inference and search strategies. A clean architecture makes it possible to swap forward checking, AC-3, and local search without rewriting the solver.",
+          "Notes": "A typical layout: csp.py (model), inference.py (FC, AC-3), search.py (backtracking, min-conflicts), experiments.py (benchmark harness).",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:12:32.6323981-04:00",
+          "ModifiedDate": "2026-10-14T20:12:32.6323981-04:00",
+          "Items": [
+            {
+              "Id": "cc21b114-72aa-44d8-bfa6-7727f69e1ddd",
+              "Text": "Represent a CSP as variables, domains, and constraints, with a neighbour index so you can retrieve all constraints touching a given variable in constant time.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "590d56f8-656a-42db-8255-66d41cebca63",
+              "Text": "Expose a single solve(csp, inference, var_order, val_order) entry point so configurations differ only by arguments, not by code paths.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "6ed29075-8351-4605-a739-52e72915ffa4",
+              "Text": "Store domains in a structure that supports cheap restoration on backtracking, such as a trail of removed values or copy-on-write sets.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "5a866c26-e199-444b-98e7-705fc16258e0",
+              "Text": "Separate constraint checking (is this assignment consistent?) from inference (which values can be pruned?) to keep the two concerns testable in isolation.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a512306b-d1e8-4cc0-b107-ce7c8f83e842",
+              "Text": "Write the plain backtracking solver first; it becomes the correctness baseline every other configuration is compared against.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "4527f2f8-f469-478a-b417-4778f0026f06",
+          "TopicId": "5308c651-fea9-4a48-9fce-eed255d4135c",
+          "Title": "Implementing Forward Checking",
+          "BodyText": "Forward checking is added to backtracking as a post-assignment pruning step over unassigned neighbours of the variable just assigned. The main implementation risk is restoring domains correctly when the search backtracks.",
+          "Notes": "",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:12:32.6323981-04:00",
+          "ModifiedDate": "2026-10-14T20:12:32.6323981-04:00",
+          "Items": [
+            {
+              "Id": "4fd4d50d-1697-495a-b5a6-f563250feb34",
+              "Text": "After assigning X = v, iterate over each unassigned neighbour Y and delete every value in D(Y) inconsistent with v under the connecting constraint.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "cd463a67-dc0b-4bb3-a340-38430f74131d",
+              "Text": "Record the exact (variable, value) pairs removed at this depth so they can be restored on undo rather than recomputing or copying whole domains.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "cac71aea-e754-4749-80ac-014b6a3750d0",
+              "Text": "Return failure immediately when any neighbour domain becomes empty, and have the caller undo the pruning before trying the next value.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "8a4f4851-dfad-42dc-84bc-78f93db60860",
+              "Text": "Combine forward checking with the MRV heuristic, since the pruned domain sizes it produces are precisely what MRV needs.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "04bbca6f-fce3-4ccc-a109-f74938bdfa11",
+              "Text": "Unit-test the prune/restore pair by asserting that domains are byte-identical before and after an exhaustive search that fails.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "365d18d7-0c9a-4afc-9c1d-c663e79628a3",
+          "TopicId": "5308c651-fea9-4a48-9fce-eed255d4135c",
+          "Title": "Implementing AC-3 and Maintaining Arc Consistency",
+          "BodyText": "AC-3 processes a queue of arcs, revising domains until no further values can be removed. Running it as preprocessing and again at every node (MAC) gives two distinct configurations to benchmark.",
+          "Notes": "Remember that for binary CSPs an arc (X,Y) and (Y,X) are different queue entries and both may need processing.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:12:32.6323981-04:00",
+          "ModifiedDate": "2026-10-14T20:12:32.6323981-04:00",
+          "Items": [
+            {
+              "Id": "a9541f38-abb3-417d-9893-94e5f04d1d98",
+              "Text": "Implement REVISE(X, Y) to delete any value in D(X) with no supporting value in D(Y), returning whether a deletion occurred.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "fafda535-0ba9-4d9f-b9c9-e5fc3eb5646c",
+              "Text": "Seed the queue with all arcs for preprocessing, and with only the arcs (Y, X) pointing into the just-assigned variable X when used as MAC inside search.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8b97b66f-1cc5-47ac-8e52-0dec6a0618a4",
+              "Text": "When REVISE removes a value from D(X), re-enqueue arcs (Z, X) for every neighbour Z other than Y to propagate the change.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "07ba6839-3afc-40f5-a413-106357e46c8d",
+              "Text": "Detect an empty domain during revision and abort immediately, signalling inconsistency to the search layer.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "bd3fbff8-787f-4f97-a962-3d30bcef2ae3",
+              "Text": "Use a set alongside the queue to avoid inserting duplicate arcs, which noticeably reduces redundant revisions on dense graphs.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "94a03843-4f91-403d-b24e-31ea9d7b5100",
+          "TopicId": "5308c651-fea9-4a48-9fce-eed255d4135c",
+          "Title": "Implementing a Min-Conflicts Local Search Solver",
+          "BodyText": "The local search component starts from a complete but possibly violating assignment and repeatedly repairs conflicted variables. It completes the comparison by contrasting a systematic solver with a stochastic one.",
+          "Notes": "Classic benchmark: min-conflicts solves million-queens instances in seconds, whereas backtracking with inference stalls far earlier.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:12:32.6323981-04:00",
+          "ModifiedDate": "2026-10-14T20:12:32.6323981-04:00",
+          "Items": [
+            {
+              "Id": "6cc7e560-a7c2-43e9-a902-477201658c64",
+              "Text": "Generate the initial assignment greedily, choosing for each variable the value that conflicts least with those already placed.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "cc6727f2-0a6d-4831-b969-aae9168bcb4d",
+              "Text": "On each iteration pick a randomly selected conflicted variable and reassign it to the value minimising the number of violated constraints, breaking ties at random.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "31f2c949-65d6-4084-a22b-45b8574785ae",
+              "Text": "Maintain incremental conflict counts per variable so each move costs time proportional to the variable\u0027s degree rather than the whole problem.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "7aeb745e-44e3-4f1a-a364-cf1e0d6984dd",
+              "Text": "Add random restarts or a random-walk probability to escape plateaus and local minima.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "525f811e-669f-4e00-a458-f8e0fdb52fe5",
+              "Text": "Cap the run with a max-steps parameter and report failure rather than looping forever, since local search is incomplete.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "bb76d1e6-6329-4d5c-83ef-e6c2e16c4d7d",
+          "TopicId": "5308c651-fea9-4a48-9fce-eed255d4135c",
+          "Title": "Experimental Design and Benchmark Instances",
+          "BodyText": "A meaningful comparison requires a benchmark suite that varies in structure and difficulty, plus controlled experimental conditions. Choose instances that expose the strengths and weaknesses of each technique.",
+          "Notes": "Useful families: map colouring (tree-like and dense), n-queens at several n, Sudoku of varying difficulty, random binary CSPs, and job-shop scheduling.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:12:32.6323981-04:00",
+          "ModifiedDate": "2026-10-14T20:12:32.6323981-04:00",
+          "Items": [
+            {
+              "Id": "8d23bfb7-50a5-45f9-81b7-f42de0b85995",
+              "Text": "Include structured problems (tree-structured and near-tree constraint graphs) to demonstrate the payoff of exploiting structure.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b0b256cb-65ba-40e1-9674-ca1b7887a852",
+              "Text": "Generate random binary CSPs across a range of constraint tightness values so you can sweep through the phase transition where hard instances cluster.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "909b1932-d1bd-438c-bea7-69899fa3d9bf",
+              "Text": "Hold variable- and value-ordering heuristics fixed when comparing inference levels, and vary only one factor per experiment.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9ee6f01a-d0da-4cdd-941c-e0aeac56d9dd",
+              "Text": "Run each stochastic configuration multiple times with different seeds and report medians and spread, not a single lucky run.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "3841c527-7489-4bf5-9c67-9bf51ed5c79b",
+              "Text": "Impose a uniform timeout and record timeouts explicitly rather than discarding them, since silently dropping failures biases the averages.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "d155ddc8-0903-434e-95b9-0126f5f3d6bb",
+          "TopicId": "5308c651-fea9-4a48-9fce-eed255d4135c",
+          "Title": "Performance Metrics and Instrumentation",
+          "BodyText": "Wall-clock time alone can mislead because stronger inference trades search nodes for per-node cost. Instrument the solver to collect several complementary measures.",
+          "Notes": "A per-run record might contain: instance id, configuration, solved?, nodes, checks, revisions, seconds.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:12:32.6323981-04:00",
+          "ModifiedDate": "2026-10-14T20:12:32.6323981-04:00",
+          "Items": [
+            {
+              "Id": "0a6c5c74-9356-4546-a92a-b348054eb980",
+              "Text": "Count nodes expanded (assignments attempted) and backtracks to measure how much the search tree shrinks under stronger propagation.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d3942187-5f72-466a-a15f-fa6aa97b393f",
+              "Text": "Count constraint checks and AC-3 revisions to quantify the overhead that inference adds per node.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "55992a36-8225-4485-a916-b7be51dca8ba",
+              "Text": "Record wall-clock time and peak memory, since domain copying for restoration can dominate on large instances.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "08558a59-4b31-4208-b10a-317d211142c5",
+              "Text": "For local search, track steps to solution and success rate within the step budget instead of nodes and backtracks.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "c98c06cb-83e8-40d5-a84d-96e0004d661c",
+              "Text": "Log raw per-run data to CSV so you can aggregate and re-plot later without re-running expensive experiments.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "5a81431f-665f-4f2c-b3dd-998caf4b2170",
+          "TopicId": "5308c651-fea9-4a48-9fce-eed255d4135c",
+          "Title": "Debugging, Validation, and Interpreting Results",
+          "BodyText": "Propagation bugs tend to be silent: they produce wrong answers or lost solutions rather than crashes. Systematic validation and careful reading of the data turn raw numbers into conclusions.",
+          "Notes": "A classic symptom of broken restoration is a solver that finds a solution on the first run but fails on an identical repeated run.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T20:12:32.6323981-04:00",
+          "ModifiedDate": "2026-10-14T20:12:32.6323981-04:00",
+          "Items": [
+            {
+              "Id": "aac8ccd1-61b5-4a70-b1bc-6ecc03efdca3",
+              "Text": "Verify that every configuration returns the same solution count as plain backtracking on small instances; a mismatch means inference is pruning valid values.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "29acd3df-af93-4373-9fee-5dd23ce016b8",
+              "Text": "Assert after every backtrack that domains match the snapshot taken before the assignment to catch faulty restoration.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3244c7f7-9a93-400d-9841-6693e8b6904f",
+              "Text": "Check that AC-3 is idempotent: running it a second time on an already arc-consistent CSP must remove nothing.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "2b351e20-01da-44c8-9eb6-a3755423ecf6",
+              "Text": "Expect forward checking to beat plain backtracking almost everywhere, while MAC wins on tightly constrained instances and can lose on loose ones where its overhead is wasted.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "cf25b8cf-b0cd-4032-ba98-586dd9b44523",
+              "Text": "Explain anomalies in terms of mechanism, for example attributing a flat node count to a problem that is already arc-consistent at the root.",
+              "SortOrder": 4
+            },
+            {
+              "Id": "e8364f25-89b6-4cbf-9ed2-211ef4dc1146",
+              "Text": "Present results as plots of time and nodes against instance difficulty, and state explicitly which technique you would choose for each problem family and why.",
+              "SortOrder": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "TotalElementCount": 43
+}

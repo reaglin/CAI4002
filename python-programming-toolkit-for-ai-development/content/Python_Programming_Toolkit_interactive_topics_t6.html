@@ -1,0 +1,755 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>scikit-learn for Machine Learning Tasks</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Python Programming Toolkit for AI Development</a></div>
+  <header>
+    <h1>scikit-learn for Machine Learning Tasks</h1>
+  </header><main>
+    <details class="slide-card" open>
+      <summary class="slide-header"><span class="slide-num">1</span><h2>scikit-learn for Machine Learning Tasks</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>scikit-learn is the workhorse library for classical machine learning in Python. Its enduring popularity comes less from any single algorithm than from a design decision made early in the project's life: every learning component in the library — a classifier, a regressor, a scaler, a dimensionality reducer, a clustering routine, even a whole composite workflow — obeys the same small, predictable interface. Once you have learned that interface for one object, you have effectively learned it for the two hundred others. This topic walks through that interface in detail, then builds outwards through data loading, training, preprocessing, pipelines, cross-validation and evaluation, so that by the end you can assemble a complete, leak-free, reproducible machine learning experiment from a handful of composable parts.</p>
+
+<p><strong>The scikit-learn Estimator API</strong></p>
+
+<p>In scikit-learn vocabulary, an <em>estimator</em> is any object that can learn something from data. The contract has three parts: construction, fitting, and use. Construction takes only <em>hyperparameters</em> — the configuration choices you make before seeing any data. Fitting takes the data and produces <em>learned parameters</em>. Use means calling <code>predict</code>, <code>transform</code>, or <code>score</code>.</p>
+
+<pre><code>from sklearn.neighbors import KNeighborsClassifier
+
+clf = KNeighborsClassifier(n_neighbors=5, weights="distance")
+# Nothing has been learned yet. No data has been touched.
+print(clf)
+# KNeighborsClassifier(n_neighbors=5, weights='distance')
+</code></pre>
+
+<p>A crucial rule the library enforces on itself is that <code>__init__</code> performs <em>no validation and no computation</em>. It simply stores each keyword argument on an attribute of the same name. This is why you can always write <code>clf.n_neighbors</code> and get back exactly the <code>5</code> you passed in. It is also why constructing an estimator is instantaneous even for models that are expensive to train.</p>
+
+<p>After fitting, everything the model learned appears on attributes whose names end with a single trailing underscore. The underscore is a deliberate, library-wide convention that lets you tell configuration apart from learned state at a glance:</p>
+
+<pre><code>from sklearn.linear_model import LogisticRegression
+from sklearn.datasets import load_iris
+
+X, y = load_iris(return_X_y=True)
+lr = LogisticRegression(max_iter=1000)   # hyperparameter: max_iter
+lr.fit(X, y)
+
+print(lr.coef_.shape)      # (3, 4)  -> learned weights, one row per class
+print(lr.intercept_)       # learned biases
+print(lr.classes_)         # array([0, 1, 2]) -> label vocabulary discovered in y
+print(lr.n_features_in_)   # 4  -> number of columns seen during fit
+</code></pre>
+
+<p>A practical consequence: <code>hasattr(est, "coef_")</code> is a reliable way of asking "has this thing been fitted?", and scikit-learn's own <code>check_is_fitted</code> helper uses exactly that heuristic. Calling <code>predict</code> before <code>fit</code> raises <code>NotFittedError</code> rather than silently returning garbage.</p>
+
+<p>Estimators are further specialised by which methods they expose. The table below summarises the main families you will meet in assignments.</p>
+
+<table>
+  <thead>
+    <tr><th>Family</th><th>Key methods</th><th>Typical examples</th><th>What <code>fit</code> learns</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Classifier</td><td><code>fit(X, y)</code>, <code>predict(X)</code>, often <code>predict_proba(X)</code>, <code>score(X, y)</code></td><td><code>LogisticRegression</code>, <code>RandomForestClassifier</code>, <code>SVC</code></td><td>Decision boundary / class rules; <code>classes_</code></td></tr>
+    <tr><td>Regressor</td><td><code>fit(X, y)</code>, <code>predict(X)</code>, <code>score(X, y)</code></td><td><code>LinearRegression</code>, <code>Ridge</code>, <code>GradientBoostingRegressor</code></td><td>Coefficients / tree structure predicting a continuous target</td></tr>
+    <tr><td>Transformer</td><td><code>fit(X)</code>, <code>transform(X)</code>, <code>fit_transform(X)</code></td><td><code>StandardScaler</code>, <code>PCA</code>, <code>SimpleImputer</code>, <code>OneHotEncoder</code></td><td>Statistics used to rewrite the feature matrix (means, components, categories)</td></tr>
+    <tr><td>Clusterer</td><td><code>fit(X)</code>, <code>predict(X)</code> or <code>fit_predict(X)</code>, <code>labels_</code></td><td><code>KMeans</code>, <code>DBSCAN</code>, <code>AgglomerativeClustering</code></td><td>Cluster assignments / centroids, with no supervision signal</td></tr>
+    <tr><td>Meta-estimator</td><td>Delegates to a wrapped estimator</td><td><code>Pipeline</code>, <code>GridSearchCV</code>, <code>OneVsRestClassifier</code></td><td>Whatever the inner estimator learns, plus bookkeeping</td></tr>
+  </tbody>
+</table>
+
+<p>Because hyperparameters are stored transparently, every estimator can report and reconfigure them programmatically through <code>get_params()</code> and <code>set_params()</code>:</p>
+
+<pre><code>from sklearn.svm import SVC
+
+svc = SVC()
+print(svc.get_params())
+# {'C': 1.0, 'kernel': 'rbf', 'gamma': 'scale', 'probability': False, ...}
+
+svc.set_params(C=10.0, kernel="linear")
+print(svc.C, svc.kernel)   # 10.0 linear
+</code></pre>
+
+<p>This pair of methods is not a convenience — it is the mechanism that makes automated tuning possible. <code>GridSearchCV</code> does not know anything about SVMs; it simply calls <code>clone()</code> on your estimator, calls <code>set_params(**candidate)</code> with each point in the grid, and fits. Any object that implements the same protocol, including a custom estimator you write yourself, becomes tunable for free.</p>
+
+<p>Finally, every estimator makes strong assumptions about the <em>shape</em> and <em>dtype</em> of its inputs. The feature matrix <code>X</code> must be two-dimensional with shape <code>(n_samples, n_features)</code> and numeric (floating point internally; integers are upcast). The target <code>y</code> must be one-dimensional with <code>n_samples</code> entries for ordinary single-output problems. A very common beginner error is passing a single sample as a flat 1D array:</p>
+
+<pre><code>import numpy as np
+
+sample = np.array([5.1, 3.5, 1.4, 0.2])
+# lr.predict(sample)               -> ValueError: Expected 2D array, got 1D array instead
+lr.predict(sample.reshape(1, -1))  # correct: one row, four columns
+</code></pre>
+
+<p>Likewise, if your target comes out of pandas as a column DataFrame of shape <code>(n, 1)</code>, you will get a <code>DataConversionWarning</code>; use <code>df["target"]</code> (a Series, 1D) rather than <code>df[["target"]]</code>.</p>
+
+<p><strong>Loading and Preparing Datasets</strong></p>
+
+<p>The <code>sklearn.datasets</code> module gives you three kinds of data source: small bundled "toy" datasets for instant experiments, downloadable real-world datasets, and synthetic generators you control precisely.</p>
+
+<pre><code>from sklearn.datasets import load_iris, load_digits, load_wine
+
+iris = load_iris()                # Bunch object: dict-like with attribute access
+print(iris.data.shape)            # (150, 4)
+print(iris.target.shape)          # (150,)
+print(iris.feature_names)         # ['sepal length (cm)', ...]
+print(iris.target_names)          # ['setosa' 'versicolor' 'virginica']
+print(iris.DESCR[:200])           # human-readable description
+
+X, y = load_iris(return_X_y=True)        # just the arrays
+df = load_iris(as_frame=True).frame      # a pandas DataFrame with a 'target' column
+</code></pre>
+
+<table>
+  <thead>
+    <tr><th>Loader</th><th>Samples</th><th>Features</th><th>Task</th><th>Why it is useful</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>load_iris</code></td><td>150</td><td>4 numeric</td><td>3-class classification</td><td>Tiny, clean, nearly linearly separable; ideal smoke test</td></tr>
+    <tr><td><code>load_wine</code></td><td>178</td><td>13 numeric</td><td>3-class classification</td><td>Features on wildly different scales — shows why scaling matters</td></tr>
+    <tr><td><code>load_digits</code></td><td>1797</td><td>64 (8×8 pixels)</td><td>10-class classification</td><td>Image-like data, good for PCA and k-NN demonstrations</td></tr>
+    <tr><td><code>load_breast_cancer</code></td><td>569</td><td>30 numeric</td><td>Binary classification</td><td>Mildly imbalanced; good for precision/recall and ROC work</td></tr>
+    <tr><td><code>load_diabetes</code></td><td>442</td><td>10 numeric</td><td>Regression</td><td>Standard target for MSE/MAE/R² practice</td></tr>
+  </tbody>
+</table>
+
+<p>When you want to test an algorithm <em>you</em> wrote — say your own k-nearest-neighbours or your own decision-tree splitter — synthetic generators are better than real data because you know the ground truth. <code>make_classification</code> builds clusters on the vertices of a hypercube and lets you dial in difficulty; <code>make_blobs</code> produces isotropic Gaussian blobs that are perfect for clustering and distance-based methods.</p>
+
+<pre><code>from sklearn.datasets import make_classification, make_blobs, make_regression
+
+X, y = make_classification(
+    n_samples=1000,
+    n_features=20,
+    n_informative=5,      # only 5 columns actually carry signal
+    n_redundant=5,        # 5 more are linear combinations of the informative ones
+    n_classes=3,
+    weights=[0.6, 0.3, 0.1],   # deliberately imbalanced
+    flip_y=0.02,               # 2% label noise
+    class_sep=1.0,
+    random_state=42,
+)
+
+Xb, yb = make_blobs(n_samples=300, centers=4, cluster_std=1.2,
+                    n_features=2, random_state=0)   # 2D so you can plot it
+
+Xr, yr, coef = make_regression(n_samples=500, n_features=10, noise=10.0,
+                               coef=True, random_state=7)  # true coefficients returned
+</code></pre>
+
+<p>Because <code>make_regression</code> can hand back the true coefficient vector, you can check whether your implementation recovers it — a far stronger test than "the accuracy looked reasonable".</p>
+
+<p>Any numeric NumPy array works as <code>X</code>, and so does a pandas DataFrame whose columns are all numeric. Passing a DataFrame has a real benefit from scikit-learn 1.0 onwards: the estimator records <code>feature_names_in_</code> and will warn you if the columns at predict time differ from those at fit time, catching a whole class of silent bugs.</p>
+
+<pre><code>import pandas as pd
+
+df = pd.read_csv("housing.csv")
+y = df["median_house_value"]                     # 1D Series
+X = df.drop(columns=["median_house_value"])      # 2D DataFrame
+
+model.fit(X, y)
+print(model.feature_names_in_)   # recorded from the DataFrame columns
+</code></pre>
+
+<p>The single most important preparation step is holding out data you will not look at until the very end. <code>train_test_split</code> shuffles and splits any number of equal-length arrays consistently:</p>
+
+<pre><code>from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y,
+    test_size=0.25,        # 25% held out; 20–30% is the usual range
+    random_state=42,       # reproducible shuffle
+    stratify=y,            # preserve class proportions in both halves
+)
+print(X_train.shape, X_test.shape)
+</code></pre>
+
+<p>Two arguments deserve emphasis. <code>stratify=y</code> matters enormously on small or imbalanced datasets: without it, a random split of a 95/5 problem can easily put almost no minority examples in the test set, making your test metric meaningless. And <code>random_state</code> fixes the pseudo-random shuffle so that the split — and therefore every number you report — is reproducible. Set it on the splitter, on the estimator (for anything stochastic such as random forests, SGD or k-means initialisation), and on the search objects. A grader who runs your notebook must see the figures you claimed; an unseeded run that reports 0.94 one day and 0.89 the next is not evidence of anything.</p>
+
+<p>For a genuinely honest workflow on larger projects, split three ways: train (fit the model), validation (choose hyperparameters), and test (touched exactly once, at the end). Cross-validation, covered below, folds the first two together, but the test set stays sacred either way.</p>
+
+<p><strong>Training and Predicting with fit / predict</strong></p>
+
+<p><code>fit(X, y)</code> is where learning happens. It validates the inputs, runs the algorithm, writes the trailing-underscore attributes, and returns <code>self</code>. Returning the estimator enables the fluent one-liner you will see all over the documentation:</p>
+
+<pre><code>from sklearn.tree import DecisionTreeClassifier
+
+preds = DecisionTreeClassifier(max_depth=3, random_state=0).fit(X_train, y_train).predict(X_test)
+</code></pre>
+
+<p>A second important property is that <code>fit</code> is <em>stateless across calls</em>: calling it again completely discards whatever was learned before and starts over. It is not incremental. If you genuinely need online or mini-batch learning, you must use estimators that provide <code>partial_fit</code> (such as <code>SGDClassifier</code> or <code>MultinomialNB</code>), or set <code>warm_start=True</code> on the ensembles that support it.</p>
+
+<p><code>predict(X)</code> returns a 1D array of length <code>n_samples</code>. For a classifier these are hard labels drawn from <code>classes_</code> and have the same dtype as the <code>y</code> you trained on (so if you trained on strings, you get strings back). For a regressor they are continuous values.</p>
+
+<pre><code>y_pred = clf.predict(X_test)
+print(y_pred[:10])          # e.g. array([0, 2, 1, 1, 0, ...])
+</code></pre>
+
+<p>When you need confidence rather than a verdict, use <code>predict_proba</code>, which returns an array of shape <code>(n_samples, n_classes)</code> whose rows sum to 1 and whose column order matches <code>clf.classes_</code>:</p>
+
+<pre><code>proba = clf.predict_proba(X_test)
+print(clf.classes_)         # [0 1 2]
+print(proba[0])             # [0.02 0.91 0.07]  -> class 1 with 91% confidence
+
+# Custom threshold on a binary problem: favour recall over precision
+import numpy as np
+positive_col = list(clf.classes_).index(1)
+y_flag = (proba[:, positive_col] >= 0.30).astype(int)
+</code></pre>
+
+<p>Not every estimator supports it. <code>SVC</code> requires <code>probability=True</code> at construction (which triggers an expensive internal cross-validated Platt calibration), and some models only offer <code>decision_function(X)</code>, an uncalibrated score where larger means "more positive". ROC-based metrics accept either. If you need well-calibrated probabilities from a model that lacks them, wrap it in <code>CalibratedClassifierCV</code>.</p>
+
+<p><code>score(X, y)</code> is a convenience that fits the model's default metric: mean accuracy for classifiers, R² (coefficient of determination) for regressors, and typically negative inertia or a model-specific quantity for others.</p>
+
+<pre><code>print(clf.score(X_train, y_train))   # 1.00 -> memorised the training data
+print(clf.score(X_test,  y_test))    # 0.87 -> the number that actually matters
+</code></pre>
+
+<p>A large gap between those two numbers is the classic signature of overfitting, and comparing them is the cheapest diagnostic available. But be careful about treating <code>score</code> as the whole story: accuracy is a poor summary for imbalanced problems (a model that always predicts the majority class on a 99/1 dataset scores 0.99 while being useless), and R² can be negative when a regressor performs worse than predicting the mean.</p>
+
+<p>The cardinal sin of this workflow is fitting on test data. Every one of these is a leak:</p>
+
+<ul>
+  <li><code>scaler.fit(X)</code> on the full dataset <em>before</em> splitting — the test set's means and standard deviations influenced the training transformation.</li>
+  <li><code>scaler.fit_transform(X_test)</code> instead of <code>scaler.transform(X_test)</code> — the test set is now scaled by its own statistics, which the deployed system could never know.</li>
+  <li>Imputing missing values, selecting features, or running PCA on the combined data.</li>
+  <li>Tuning hyperparameters by repeatedly checking the test score until it looks good — slower leakage, but leakage nonetheless.</li>
+</ul>
+
+<p>The correct pattern is always <em>fit on train, transform both</em>:</p>
+
+<pre><code>from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+X_train_s = scaler.fit_transform(X_train)   # learns mean_ and scale_ from train only
+X_test_s  = scaler.transform(X_test)        # reuses those learned statistics
+</code></pre>
+
+<p><strong>Transformers and Preprocessing</strong></p>
+
+<p>A transformer rewrites the feature matrix. It learns the rewriting rule in <code>fit</code> and applies it in <code>transform</code>; <code>fit_transform</code> does both in one call and is sometimes faster than doing them separately. Many transformers also offer <code>inverse_transform</code> to map back to the original space.</p>
+
+<p><code>StandardScaler</code> standardises each column to zero mean and unit variance, storing <code>mean_</code> and <code>scale_</code>:</p>
+
+<pre><code>scaler = StandardScaler()
+scaler.fit(X_train)
+print(scaler.mean_)    # one value per feature
+print(scaler.scale_)   # standard deviations
+Z = scaler.transform(X_train)   # (X - mean_) / scale_
+</code></pre>
+
+<p>Scaling is not cosmetic. Any algorithm that measures distances (k-NN, k-means, SVM with an RBF kernel, PCA) or that follows gradients (logistic regression with SGD, neural networks) is dominated by whichever feature happens to have the largest numeric range. On the wine dataset, <code>proline</code> runs into the hundreds while <code>hue</code> sits around 1 — unscaled, k-NN is effectively a one-feature model. Conversely, tree-based models (decision trees, random forests, gradient boosting) split on thresholds one feature at a time and are completely invariant to monotone rescaling, so scaling them is harmless but pointless. Alternatives include <code>MinMaxScaler</code> (squashes to [0, 1], useful when you need bounded inputs) and <code>RobustScaler</code> (uses median and interquartile range, far less sensitive to outliers).</p>
+
+<p>Categorical data must become numeric. <code>OneHotEncoder</code> expands a column of <em>k</em> categories into <em>k</em> binary indicator columns, which is the right choice for nominal categories with no inherent order:</p>
+
+<pre><code>from sklearn.preprocessing import OneHotEncoder
+import numpy as np
+
+enc = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
+colours = np.array([["red"], ["green"], ["blue"], ["red"]])
+print(enc.fit_transform(colours))
+# [[0. 0. 1.]
+#  [0. 1. 0.]
+#  [1. 0. 0.]
+#  [0. 0. 1.]]
+print(enc.categories_)            # [array(['blue', 'green', 'red'], dtype=object)]
+print(enc.get_feature_names_out())  # ['x0_blue' 'x0_green' 'x0_red']
+</code></pre>
+
+<p><code>handle_unknown="ignore"</code> is important in production and in cross-validation: if a category appears in the test fold but not the training fold, the encoder emits all-zeros instead of raising. For linear models you may also want <code>drop="first"</code> to avoid perfect collinearity among the dummy columns.</p>
+
+<p><code>LabelEncoder</code> maps labels to integers 0…k−1, but note the asymmetry in its intended use: it is for the <em>target</em> <code>y</code>, not for features. Encoding a nominal feature as 0/1/2 tells a linear or distance-based model that "blue" is halfway between "red" and "green", which is nonsense. If you must integer-encode features (for example, for a tree model or an ordinal variable with a real order), use <code>OrdinalEncoder</code>, which is designed for 2D input.</p>
+
+<pre><code>from sklearn.preprocessing import LabelEncoder
+
+le = LabelEncoder()
+y_enc = le.fit_transform(["cat", "dog", "cat", "bird"])   # [1 2 1 0]
+print(le.classes_)                 # ['bird' 'cat' 'dog']
+print(le.inverse_transform(y_enc)) # back to the original strings
+</code></pre>
+
+<p>Missing values are handled by <code>SimpleImputer</code>, which learns a fill value per column:</p>
+
+<pre><code>from sklearn.impute import SimpleImputer
+import numpy as np
+
+X = np.array([[1.0, 2.0], [np.nan, 3.0], [7.0, 6.0]])
+imp = SimpleImputer(strategy="median")     # 'mean', 'median', 'most_frequent', 'constant'
+print(imp.fit_transform(X))
+# [[1.  2. ]
+#  [4.  3. ]
+#  [7.  6. ]]
+print(imp.statistics_)   # [4. 3.]  -> the learned medians
+</code></pre>
+
+<p>The strategy matters: <code>mean</code> is pulled around by outliers, <code>median</code> is robust and is usually the safer default for skewed numeric columns, <code>most_frequent</code> is the only sensible option for categorical columns, and <code>constant</code> (with <code>fill_value=</code>) is right when "missing" is itself meaningful. A common refinement is to add <code>add_indicator=True</code>, which appends a binary column recording where the gaps were, so the model can learn from the fact of missingness. For stronger imputation, <code>KNNImputer</code> fills a cell using the values of its nearest neighbours.</p>
+
+<p><code>PCA</code> is a transformer too, even though we usually think of it as an analysis technique. It finds the orthogonal directions of greatest variance and projects the data onto the first few of them:</p>
+
+<pre><code>from sklearn.decomposition import PCA
+from sklearn.datasets import load_digits
+
+X, y = load_digits(return_X_y=True)
+
+pca = PCA(n_components=0.95, random_state=0)   # keep enough components for 95% variance
+X_small = pca.fit_transform(StandardScaler().fit_transform(X))
+
+print(X.shape, "->", X_small.shape)                 # (1797, 64) -> (1797, 40)
+print(pca.explained_variance_ratio_[:5])            # variance captured per component
+print(pca.explained_variance_ratio_.sum())          # ~0.95
+X_back = pca.inverse_transform(X_small)             # approximate reconstruction
+</code></pre>
+
+<p>Note that <code>n_components</code> may be an integer (exactly that many components), a float in (0, 1) (as many as needed to reach that cumulative variance), or <code>'mle'</code>. PCA is unsupervised — it never looks at <code>y</code> — so the directions it picks maximise variance, not class separation; a low-variance feature can still be the one that discriminates your classes. Always standardise before PCA when features have different units, because variance is scale-dependent. Typical uses are speeding up distance-based models, decorrelating inputs, denoising, and projecting to two dimensions for visualisation.</p>
+
+<p>The non-negotiable rule for all transformers is the one stated earlier: <strong>fit on training data only</strong>. The means, medians, category lists and principal axes are themselves parameters learned from data; computing them over the test set lets information from the held-out examples bleed into training, and your reported score becomes optimistic by an amount you cannot measure. Doing this by hand across many steps is error-prone, which brings us to pipelines.</p>
+
+<p><strong>Pipelines for Reproducible Workflows</strong></p>
+
+<p>A <code>Pipeline</code> chains transformers followed by a final estimator and presents the whole chain as a single estimator. Calling <code>fit</code> on the pipeline calls <code>fit_transform</code> on each intermediate step in order and <code>fit</code> on the last one; calling <code>predict</code> calls <code>transform</code> on each intermediate step and <code>predict</code> on the last.</p>
+
+<pre><code>from sklearn.pipeline import Pipeline, make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.svm import SVC
+
+pipe = Pipeline([
+    ("scaler", StandardScaler()),
+    ("pca",    PCA(n_components=20)),
+    ("clf",    SVC(C=1.0, kernel="rbf")),
+])
+
+pipe.fit(X_train, y_train)      # scaler and PCA fitted on train only
+print(pipe.score(X_test, y_test))
+
+# Identical object, names generated from the lower-cased class names:
+pipe2 = make_pipeline(StandardScaler(), PCA(n_components=20), SVC())
+print(pipe2.named_steps.keys())   # dict_keys(['standardscaler', 'pca', 'svc'])
+</code></pre>
+
+<p>The leakage-prevention benefit is the headline feature. When you pass a bare estimator to <code>cross_val_score</code> after manually scaling the whole dataset, every validation fold has already been contaminated by its own statistics. When you pass a <em>pipeline</em>, scikit-learn clones it for each fold and refits the scaler, imputer and PCA on that fold's training portion alone — exactly as a deployed system would behave on genuinely unseen data. The same applies inside <code>GridSearchCV</code>. This correctness guarantee, repeated across dozens of folds and candidates, is practically impossible to maintain by hand.</p>
+
+<p>Real datasets mix numeric and categorical columns that need different treatment. <code>ColumnTransformer</code> routes subsets of columns to different transformers and horizontally concatenates the results:</p>
+
+<pre><code>from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
+
+numeric_features     = ["age", "income", "hours_per_week"]
+categorical_features = ["occupation", "country"]
+
+numeric_pipe = Pipeline([
+    ("impute", SimpleImputer(strategy="median")),
+    ("scale",  StandardScaler()),
+])
+
+categorical_pipe = Pipeline([
+    ("impute", SimpleImputer(strategy="most_frequent")),
+    ("onehot", OneHotEncoder(handle_unknown="ignore")),
+])
+
+preprocess = ColumnTransformer([
+    ("num", numeric_pipe,     numeric_features),
+    ("cat", categorical_pipe, categorical_features),
+], remainder="drop")           # or remainder="passthrough"
+
+model = Pipeline([
+    ("prep", preprocess),
+    ("clf",  LogisticRegression(max_iter=1000)),
+])
+
+model.fit(X_train, y_train)    # X_train is a DataFrame with named columns
+</code></pre>
+
+<p>You can select columns by name, by position, by boolean mask, or dynamically with <code>make_column_selector(dtype_include="number")</code>. After fitting, <code>preprocess.get_feature_names_out()</code> tells you what each output column represents, which you need in order to interpret <code>coef_</code>.</p>
+
+<p>To tune hyperparameters that live inside a composite estimator, address them with the double-underscore path syntax: step name, <code>__</code>, parameter name, nesting as deeply as necessary.</p>
+
+<pre><code>from sklearn.model_selection import GridSearchCV
+
+param_grid = {
+    "pca__n_components": [10, 20, 40],
+    "clf__C":            [0.1, 1, 10],
+    "clf__kernel":       ["rbf", "linear"],
+}
+search = GridSearchCV(pipe, param_grid, cv=5, scoring="accuracy", n_jobs=-1)
+search.fit(X_train, y_train)
+
+# Deeper nesting works the same way:
+# "prep__num__impute__strategy": ["mean", "median"]
+# You can even swap whole steps:
+# {"clf": [SVC(), RandomForestClassifier()]}
+</code></pre>
+
+<p>Note that the keys of <code>param_grid</code> must be valid <code>set_params</code> paths — <code>pipe.get_params().keys()</code> lists every legal option if you are unsure.</p>
+
+<p>Finally, because a fitted pipeline bundles the preprocessing statistics and the model together, it is the correct unit to persist. Serialise it with <code>joblib</code>, which handles large NumPy arrays more efficiently than plain <code>pickle</code>:</p>
+
+<pre><code>import joblib
+
+joblib.dump(search.best_estimator_, "model.joblib")
+
+# Later, in a grading script or a web service:
+loaded = joblib.load("model.joblib")
+y_pred = loaded.predict(new_raw_dataframe)   # scaling/encoding applied automatically
+</code></pre>
+
+<p>Saving only the classifier and forgetting the scaler is a classic bug: at inference time the raw features are fed to a model that expects standardised ones, and predictions degrade silently. Two caveats on persistence — the pickle format is tied to library versions (record them in your <code>requirements.txt</code>), and you should never unpickle a model from an untrusted source, because loading executes arbitrary code.</p>
+
+<p><strong>Cross-Validation and Model Selection</strong></p>
+
+<p>A single train/test split gives you one noisy estimate of performance. On 150 iris samples, changing <code>random_state</code> can move the test accuracy by several percentage points. Cross-validation reduces that variance by rotating the role of the validation set: the data is divided into <em>k</em> folds, the model is trained <em>k</em> times on <em>k−1</em> folds and evaluated on the one left out, and every sample gets to be in the validation set exactly once.</p>
+
+<pre><code>from sklearn.model_selection import cross_val_score
+import numpy as np
+
+scores = cross_val_score(pipe, X_train, y_train, cv=5, scoring="accuracy")
+print(scores)                                  # [0.94 0.91 0.96 0.93 0.95]
+print(f"{scores.mean():.3f} +/- {scores.std():.3f}")
+</code></pre>
+
+<p>Always report the mean <em>and</em> the standard deviation. A mean of 0.93 ± 0.01 is a very different claim from 0.93 ± 0.09; the latter tells you the estimate is unstable and that any apparent improvement over a rival model of 0.92 is probably noise.</p>
+
+<p>The default splitter depends on the estimator: plain <code>KFold</code> for regressors, <code>StratifiedKFold</code> for classifiers. Stratification keeps each fold's class proportions equal to the full dataset's, which is essential for imbalanced problems — with 5% positives and 10 folds, unstratified splitting can produce folds containing no positive examples at all, making recall undefined and the fold score meaningless. You can pass a splitter object explicitly for full control:</p>
+
+<pre><code>from sklearn.model_selection import StratifiedKFold, KFold, GroupKFold
+
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+scores = cross_val_score(pipe, X, y, cv=cv, scoring="f1_macro")
+</code></pre>
+
+<table>
+  <thead>
+    <tr><th>Splitter</th><th>When to use it</th><th>Key property</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>KFold</code></td><td>Regression, or balanced classification</td><td>Contiguous equal-sized folds; set <code>shuffle=True</code> if rows are ordered</td></tr>
+    <tr><td><code>StratifiedKFold</code></td><td>Classification, especially imbalanced</td><td>Preserves class proportions in every fold</td></tr>
+    <tr><td><code>GroupKFold</code></td><td>Repeated measurements from the same subject/session</td><td>Keeps all rows of a group on one side of the split</td></tr>
+    <tr><td><code>TimeSeriesSplit</code></td><td>Temporally ordered data</td><td>Trains only on the past, validates on the future</td></tr>
+    <tr><td><code>LeaveOneOut</code></td><td>Very small datasets</td><td>k = n; low bias, high variance, expensive</td></tr>
+    <tr><td><code>RepeatedStratifiedKFold</code></td><td>Small data where you want a tighter estimate</td><td>Repeats the whole k-fold procedure with different shuffles</td></tr>
+  </tbody>
+</table>
+
+<p>When one number is not enough, <code>cross_validate</code> returns a dictionary with several metrics plus timing information, and can optionally include the training scores and the fitted estimators:</p>
+
+<pre><code>from sklearn.model_selection import cross_validate
+
+results = cross_validate(
+    pipe, X_train, y_train, cv=5,
+    scoring=["accuracy", "precision_macro", "recall_macro", "f1_macro"],
+    return_train_score=True,
+    return_estimator=False,
+    n_jobs=-1,
+)
+for key, value in results.items():
+    print(f"{key:>22}: {np.mean(value):.3f}")
+# fit_time, score_time, test_accuracy, train_accuracy, test_f1_macro, ...
+</code></pre>
+
+<p>Comparing <code>train_*</code> with <code>test_*</code> across folds is the quickest overfitting diagnostic you have: train 0.99 / test 0.72 means high variance (simplify the model, regularise, get more data), while train 0.70 / test 0.69 means high bias (the model is too simple or the features are too weak). The <code>fit_time</code> column is also genuinely useful when you are weighing accuracy against compute budget.</p>
+
+<p><code>GridSearchCV</code> wraps all of this into a search: give it an estimator and a grid, and it cross-validates every combination, then refits the best configuration on the whole training set.</p>
+
+<pre><code>from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
+
+grid = {
+    "n_estimators":      [100, 300],
+    "max_depth":         [None, 5, 10],
+    "min_samples_leaf":  [1, 3, 5],
+}
+gs = GridSearchCV(
+    RandomForestClassifier(random_state=0),
+    grid, cv=StratifiedKFold(5, shuffle=True, random_state=0),
+    scoring="f1_macro", n_jobs=-1, refit=True, return_train_score=False,
+)
+gs.fit(X_train, y_train)
+
+print(gs.best_params_)      # {'max_depth': 10, 'min_samples_leaf': 3, 'n_estimators': 300}
+print(gs.best_score_)       # best mean CV score
+best = gs.best_estimator_   # already refitted on all of X_train
+print(best.score(X_test, y_test))   # final, honest estimate on untouched data
+
+import pandas as pd
+pd.DataFrame(gs.cv_results_).sort_values("rank_test_score").head()
+</code></pre>
+
+<p>The cost of a grid is the product of its dimensions times the number of folds: the grid above is 2 × 3 × 3 × 5 = 90 model fits. Add a fourth hyperparameter with five values and you are at 450. <code>RandomizedSearchCV</code> breaks that exponential growth by sampling a fixed number of candidates from distributions you specify, so you control the budget directly:</p>
+
+<pre><code>from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import loguniform, randint
+
+dists = {
+    "clf__C":     loguniform(1e-3, 1e3),   # continuous, log-spaced
+    "clf__gamma": loguniform(1e-4, 1e1),
+    "pca__n_components": randint(5, 50),
+}
+rs = RandomizedSearchCV(pipe, dists, n_iter=60, cv=5,
+                        scoring="accuracy", random_state=42, n_jobs=-1)
+rs.fit(X_train, y_train)
+print(rs.best_params_, rs.best_score_)
+</code></pre>
+
+<p>Random search is usually the better default for more than two or three hyperparameters. The intuition, from Bergstra and Bengio's well-known result, is that performance typically depends strongly on only a few parameters; a grid wastes most of its budget re-testing the same values of the important parameter, whereas random sampling tries <code>n_iter</code> distinct values of every parameter. A practical strategy is a broad random search first, then a small grid around the region it identifies.</p>
+
+<p>Both searches expose the same result attributes — <code>best_params_</code>, <code>best_score_</code>, <code>best_estimator_</code>, <code>best_index_</code> and the full <code>cv_results_</code> table — and because <code>refit=True</code> by default, the search object itself is a fitted estimator: <code>gs.predict(X_test)</code> works directly. Remember that <code>best_score_</code> is a cross-validation score computed during the search and is therefore mildly optimistic, since the configuration was chosen to maximise it; the held-out test set remains the number you report.</p>
+
+<p><strong>Evaluation Metrics for Assignments</strong></p>
+
+<p>Choosing the metric is a modelling decision, not an afterthought. The <code>sklearn.metrics</code> module follows a consistent signature, <code>metric(y_true, y_pred, ...)</code> — note the argument order, since swapping them silently changes asymmetric metrics such as precision and recall.</p>
+
+<p>For classification, start from the confusion matrix, which counts every (true, predicted) pair and is the source from which the other metrics are derived:</p>
+
+<pre><code>from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+cm = confusion_matrix(y_test, y_pred, labels=clf.classes_)
+print(cm)
+# [[50  0  0]
+#  [ 0 45  5]
+#  [ 0  8 42]]
+# Rows = true class, columns = predicted class.
+# Row 1 vs row 2: versicolor and virginica are being confused with each other.
+</code></pre>
+
+<p>For a binary problem the four cells are TN, FP, FN, TP, and the headline metrics are:</p>
+
+<table>
+  <thead>
+    <tr><th>Metric</th><th>Formula</th><th>Answers the question</th><th>Use when</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>accuracy_score</code></td><td>(TP+TN) / all</td><td>What fraction of predictions were right?</td><td>Classes are roughly balanced and all errors cost the same</td></tr>
+    <tr><td><code>precision_score</code></td><td>TP / (TP+FP)</td><td>Of those I flagged positive, how many really were?</td><td>False positives are expensive (spam filters, costly interventions)</td></tr>
+    <tr><td><code>recall_score</code></td><td>TP / (TP+FN)</td><td>Of the real positives, how many did I catch?</td><td>False negatives are expensive (disease screening, fraud)</td></tr>
+    <tr><td><code>f1_score</code></td><td>2PR / (P+R)</td><td>Harmonic mean of precision and recall</td><td>You need one number and the classes are imbalanced</td></tr>
+    <tr><td><code>roc_auc_score</code></td><td>Area under TPR-vs-FPR curve</td><td>How well are positives ranked above negatives?</td><td>Comparing rankers independently of any threshold</td></tr>
+  </tbody>
+</table>
+
+<p>Precision and recall trade off against each other: lowering the decision threshold catches more positives (recall up) at the cost of more false alarms (precision down). The F1 score's harmonic mean punishes imbalance between them — 0.9 precision with 0.1 recall gives F1 ≈ 0.18, whereas the arithmetic mean would flatter it at 0.5.</p>
+
+<p>For multiclass problems you must choose an averaging scheme, via the <code>average=</code> argument:</p>
+
+<ul>
+  <li><code>'macro'</code> — compute the metric per class and take the unweighted mean. Every class counts equally, so rare classes matter as much as common ones. Usually the right choice for imbalanced data.</li>
+  <li><code>'weighted'</code> — per-class metric weighted by support. Closer to accuracy; large classes dominate.</li>
+  <li><code>'micro'</code> — pool all TP/FP/FN globally. For single-label multiclass this equals accuracy.</li>
+  <li><code>None</code> — return the array of per-class scores without averaging.</li>
+</ul>
+
+<pre><code>from sklearn.metrics import (accuracy_score, precision_score, recall_score,
+                             f1_score, classification_report)
+
+print(accuracy_score(y_test, y_pred))
+print(precision_score(y_test, y_pred, average="macro", zero_division=0))
+print(recall_score(y_test, y_pred, average="macro"))
+print(f1_score(y_test, y_pred, average="macro"))
+
+print(classification_report(y_test, y_pred, target_names=iris.target_names, digits=3))
+#               precision    recall  f1-score   support
+#       setosa      1.000     1.000     1.000        50
+#   versicolor      0.849     0.900     0.874        50
+#    virginica      0.894     0.840     0.866        50
+#     accuracy                          0.913       150
+#    macro avg      0.914     0.913     0.913       150
+# weighted avg      0.914     0.913     0.913       150
+</code></pre>
+
+<p><code>classification_report</code> is the single most useful one-call summary for a classification assignment: it shows where the model is strong and weak per class, and the <code>support</code> column immediately reveals imbalance. Use <code>output_dict=True</code> if you want to build a DataFrame from it.</p>
+
+<p>Threshold-free evaluation uses scores rather than labels. <code>roc_curve</code> traces the true-positive rate against the false-positive rate as the threshold sweeps from high to low, and <code>roc_auc_score</code> summarises it; an AUC of 0.5 is random guessing and 1.0 is perfect ranking. Crucially, these take probabilities or decision scores, <em>not</em> hard predictions:</p>
+
+<pre><code>from sklearn.metrics import roc_curve, roc_auc_score, precision_recall_curve, average_precision_score
+
+y_score = clf.predict_proba(X_test)[:, 1]     # or clf.decision_function(X_test)
+
+fpr, tpr, thresholds = roc_curve(y_test, y_score)
+print(roc_auc_score(y_test, y_score))
+
+# For heavy imbalance, the precision-recall curve is more informative than ROC:
+prec, rec, thr = precision_recall_curve(y_test, y_score)
+print(average_precision_score(y_test, y_score))
+
+# Multiclass ROC AUC:
+# roc_auc_score(y_test, clf.predict_proba(X_test), multi_class="ovr", average="macro")
+</code></pre>
+
+<p>For regression the standard trio is:</p>
+
+<table>
+  <thead>
+    <tr><th>Metric</th><th>Units</th><th>Behaviour</th><th>Best value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>mean_squared_error</code></td><td>Target squared (use <code>squared=False</code> for RMSE)</td><td>Squares errors, so large mistakes dominate</td><td>0</td></tr>
+    <tr><td><code>mean_absolute_error</code></td><td>Same as target</td><td>Treats all errors linearly; robust to outliers</td><td>0</td></tr>
+    <tr><td><code>r2_score</code></td><td>Unitless</td><td>Fraction of variance explained relative to predicting the mean</td><td>1 (can be negative)</td></tr>
+  </tbody>
+</table>
+
+<pre><code>from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+import numpy as np
+
+y_pred = reg.predict(X_test)
+mse  = mean_squared_error(y_test, y_pred)
+rmse = mean_squared_error(y_test, y_pred, squared=False)   # or np.sqrt(mse)
+mae  = mean_absolute_error(y_test, y_pred)
+r2   = r2_score(y_test, y_pred)
+print(f"MSE={mse:.2f}  RMSE={rmse:.2f}  MAE={mae:.2f}  R2={r2:.3f}")
+</code></pre>
+
+<p>RMSE and MAE are both in the units of the target, which makes them easy to explain ("the model is off by about £18,000 on average"). Choose between them by asking how you feel about large errors: RMSE penalises a single 10-unit miss as heavily as a hundred 1-unit misses, while MAE treats them equally. R² is convenient for comparing across datasets because it is unitless, but it cannot be compared meaningfully across targets with different variances, and a negative value simply means your model is worse than the constant mean predictor — a useful sanity alarm.</p>
+
+<p>Finally, tie the metric back into model selection. Every cross-validation and search object accepts a <code>scoring</code> argument that takes a string name, a callable, or a list/dict of them. The important convention is that <strong>scorers are always maximised</strong>, so error metrics appear with a <code>neg_</code> prefix and return negative numbers:</p>
+
+<pre><code>from sklearn.model_selection import cross_val_score
+from sklearn.metrics import make_scorer, fbeta_score
+
+# Optimise the metric you actually care about, not the default:
+cross_val_score(pipe, X, y, cv=5, scoring="f1_macro")
+cross_val_score(pipe, X, y, cv=5, scoring="roc_auc")
+cross_val_score(pipe, X, y, cv=5, scoring="balanced_accuracy")
+
+rmse_scores = -cross_val_score(reg_pipe, X, y, cv=5,
+                               scoring="neg_root_mean_squared_error")
+print(rmse_scores.mean())
+
+# A custom scorer, e.g. F2 weighting recall twice as heavily as precision:
+f2 = make_scorer(fbeta_score, beta=2, average="macro")
+cross_val_score(pipe, X, y, cv=5, scoring=f2)
+</code></pre>
+
+<table>
+  <thead>
+    <tr><th>Scoring string</th><th>Underlying metric</th><th>Typical use</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>'accuracy'</code></td><td><code>accuracy_score</code></td><td>Balanced classification (the classifier default)</td></tr>
+    <tr><td><code>'f1_macro'</code></td><td><code>f1_score(average='macro')</code></td><td>Imbalanced multiclass where every class matters</td></tr>
+    <tr><td><code>'balanced_accuracy'</code></td><td>Mean per-class recall</td><td>Imbalanced data, label-based predictions</td></tr>
+    <tr><td><code>'roc_auc'</code> / <code>'roc_auc_ovr'</code></td><td><code>roc_auc_score</code></td><td>Ranking quality; needs <code>predict_proba</code> or <code>decision_function</code></td></tr>
+    <tr><td><code>'average_precision'</code></td><td><code>average_precision_score</code></td><td>Strongly imbalanced binary problems</td></tr>
+    <tr><td><code>'neg_mean_squared_error'</code></td><td><code>mean_squared_error</code></td><td>Regression tuning (remember to negate when reporting)</td></tr>
+    <tr><td><code>'r2'</code></td><td><code>r2_score</code></td><td>Regression (the regressor default)</td></tr>
+  </tbody>
+</table>
+
+<p>Putting the whole topic together, a complete and defensible assignment workflow looks like this:</p>
+
+<pre><code>import joblib, numpy as np, pandas as pd
+from sklearn.datasets import load_wine
+from sklearn.model_selection import train_test_split, StratifiedKFold, GridSearchCV
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report, confusion_matrix
+
+RANDOM_STATE = 42
+
+# 1. Load
+X, y = load_wine(return_X_y=True, as_frame=True)
+
+# 2. Hold out a test set, stratified and seeded
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, stratify=y, random_state=RANDOM_STATE)
+
+# 3. Build a pipeline so preprocessing is refitted inside every fold
+pipe = Pipeline([("scale", StandardScaler()),
+                 ("clf",   SVC(random_state=RANDOM_STATE))])
+
+# 4. Search hyperparameters with stratified cross-validation
+grid = {"clf__C": [0.1, 1, 10, 100], "clf__gamma": ["scale", 0.01, 0.1]}
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+search = GridSearchCV(pipe, grid, cv=cv, scoring="f1_macro", n_jobs=-1)
+search.fit(X_train, y_train)
+
+print("Best params:", search.best_params_)
+print(f"CV f1_macro: {search.best_score_:.3f}")
+
+# 5. Evaluate ONCE on the untouched test set
+y_pred = search.best_estimator_.predict(X_test)
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred, digits=3))
+
+# 6. Persist the entire fitted pipeline for the grader
+joblib.dump(search.best_estimator_, "wine_svc.joblib")
+</code></pre>
+
+<p>Every element of good practice is present: a fixed seed for reproducibility, a stratified hold-out set, preprocessing encapsulated in a pipeline so no statistic leaks across folds, a metric chosen deliberately rather than by default, cross-validated tuning, a single final evaluation on data the model has never seen, and a serialised artefact that reproduces the result end to end.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+
+<ul>
+  <li><strong>MO1</strong> — Supported indirectly: scikit-learn, NumPy, pandas, SciPy and joblib are the libraries that must be installed and version-pinned in the environment, and the topic notes that persisted models are tied to library versions recorded in <code>requirements.txt</code>. The topic does not itself teach virtual-environment creation.</li>
+  <li><strong>MO2</strong> — Partially supported: the topic shows how the estimator protocol (<code>__init__</code> storing hyperparameters, <code>fit</code> writing trailing-underscore attributes, <code>get_params</code>/<code>set_params</code>) defines a class-based contract you can implement yourself, which is how pseudocode for a learning algorithm is turned into a reusable Python class.</li>
+  <li><strong>MO3</strong> — Not addressed: this topic concerns machine learning estimators and evaluation rather than frontier management or visited-state tracking in search algorithms, so lists, sets, deques and heaps are not compared here.</li>
+  <li><strong>MO4</strong> — Directly supported: the topic covers loading data as pandas DataFrames and NumPy arrays, passing numeric 2D feature matrices to estimators, and training and evaluating a scikit-learn model through the fit/predict pattern, including pipelines, cross-validation and metrics.</li>
+  <li><strong>MO5</strong> — Not addressed directly, although the emphasis on fixed random seeds, pinned workflows and saved model artefacts supports the reproducibility that version-controlled assignment submission depends on.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Code examples assume scikit-learn ≥ 1.2. Two API details worth checking against the installed version: `OneHotEncoder(sparse_output=False)` replaced `sparse=False` in 1.2, and `mean_squared_error(..., squared=False)` is deprecated in favour of `root_mean_squared_error` from 1.4 onwards (both are shown/mentioned so students on either version can follow). Variable names such as `pipe`, `clf`, `reg`, `reg_pipe`, `X_train` and `y_test` are reused across snippets as a running example rather than re-declared in each block.</div>
+      </div>
+    </details>
+  </main>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Local Maxima, Plateaus, and Ridges</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#222;line-height:1.55}
+h1{font-size:1.9rem;border-bottom:2px solid #ddd;padding-bottom:.4rem}
+h2{font-size:1.3rem;color:#1f3864;margin-top:1.6rem}
+body{padding-left:1.1rem;padding-right:1.1rem}
+ul,ol{margin:.4rem 0 1rem 1.4rem}
+li{margin:.25rem 0}
+nav.toc{background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:.6rem 1rem;margin:1.2rem 0}
+nav.toc strong{display:block;margin-bottom:.3rem}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+section.item{border-top:1px solid rgba(128,128,128,.22);padding-top:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}
+th,td{border:1px solid rgba(128,128,128,.45);padding:.4rem .6rem;text-align:left;vertical-align:top}
+thead th{background:rgba(128,128,128,.18);font-weight:600}
+tbody tr:nth-child(even){background:rgba(128,128,128,.08)}
+</style>
+</head>
+<body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Local Search: Hill Climbing and Simulated Annealing</a></div>
+<h1>Local Maxima, Plateaus, and Ridges</h1>
+<nav class="toc"><strong>Contents</strong>
+<a href="#sec1">Introduction</a>
+<a href="#sec2">Video 1: Use Table to find Local and Global Maxima and Minima</a>
+<a href="#sec3">How These Videos Support the Learning Outcomes</a>
+<a href="#sec4">About These Videos</a>
+</nav>
+<section class="item" id="sec1">
+<h2>Introduction</h2>
+<p>Local search algorithms such as hill climbing move through a space of complete states, repeatedly stepping to a neighboring state that looks better according to an objective function. It helps to picture this as walking across a landscape where height represents objective value: the algorithm always steps uphill, and it stops when no neighbor is higher. That simple rule is fast and memory-efficient, but it is also short-sighted, and the shape of the landscape determines whether it succeeds or fails.</p>
+<p>This topic catalogs the characteristic ways greedy local search gets stuck. A local maximum is a peak that is higher than everything adjacent but lower than the global optimum, so the search halts prematurely. A plateau is a flat region where all neighbors score the same, giving no gradient to follow; a shoulder is a plateau with an uphill exit somewhere, which makes limited sideways moves worthwhile. A ridge is a sequence of local maxima arranged so that no single move operator climbs it directly, causing the search to zig-zag slowly or stall. The standard remedies follow from these diagnoses: allow a bounded number of sideways moves, inject randomness through stochastic or first-choice selection, use random restarts to sample many basins of attraction, or keep a tabu list of recently visited states so the search is forced into new territory.</p>
+<p>The video below is a short mathematics refresher on identifying local versus global maxima and minima. It is not an AI lecture, so treat it as background: the vocabulary of &quot;local&quot; versus &quot;global&quot; extrema is exactly the vocabulary used to describe search landscapes. While watching, keep translating from the math setting to the search setting — ask yourself what plays the role of the function, what counts as a neighbor, and why an algorithm that only compares a point to its immediate neighbors could confidently stop at the wrong peak.</p>
+</section>
+<section class="item" id="sec2">
+<h2>Video 1: Use Table to find Local and Global Maxima and Minima</h2>
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/CAxIV9kYvCc?cc_load_policy=1&amp;rel=0" title="Video: Use Table to find Local and Global Maxima and Minima (Math Tutorials)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div>
+<p class="video-meta"><strong>Math Tutorials</strong> · 3:27 · 708 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=CAxIV9kYvCc" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>A brief worked example from the Math Tutorials channel in which a table of values is used to locate all local (relative) maxima and minima and to distinguish them from the global (absolute) extrema. The walkthrough shows how each candidate point is judged only by comparison with the values immediately around it. The emphasis is on reading the pattern of increases and decreases rather than on calculus machinery.</p>
+<h3>Why this video</h3>
+<p>It gives a compact, concrete grounding in the local-versus-global extremum distinction that underlies the entire local search landscape subtopic, and the table format mirrors how hill climbing evaluates only neighboring states. Use it as a vocabulary and intuition primer before working through local maxima, plateaus, and ridges in the AI setting.</p>
+</section>
+<section class="item" id="sec3">
+<h2>How These Videos Support the Learning Outcomes</h2>
+<p>The video supports MO1 and MO4 most directly: it builds the landscape intuition behind objective functions and neighbor comparison, and it makes the local-versus-global maximum distinction precise, which is the core of diagnosing why hill climbing terminates at a suboptimal state. Flat stretches in a table of values also prefigure plateaus and shoulders. Because the video is a mathematics refresher rather than an AI lecture, it does not by itself cover problem formulation (MO2), algorithm tracing (MO3), or the cost-versus-quality argument for simulated annealing and cooling schedules (MO5); for those outcomes, rely on the module readings, lecture notes, and the assigned n-queens and scheduling exercises.</p>
+</section>
+<section class="item" id="sec4">
+<h2>About These Videos</h2>
+<p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p>
+</section>
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body>
+</html>

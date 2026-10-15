@@ -1,0 +1,389 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Constraint Types: Unary, Binary, and Global</title>
+  <style>
+:root {
+    --bg:         #ffffff;
+    --surface:    #f8f9fa;
+    --border:     #dee2e6;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --bullet-bg:  #f1f5f9;
+    --notes-bg:   #fefce8;
+    --notes-border:#fbbf24;
+    --code-bg:    #f8fafc;
+    --code-border:#e2e8f0;
+    --radius:     8px;
+    --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.7; margin: 0; padding: 0; }
+header { background: var(--accent); color: #fff; padding: 2.5rem 2rem 2rem; }
+header h1 { margin: 0 0 .4rem; font-size: 2rem; font-weight: 700; }
+header p  { margin: 0; opacity: .85; font-size: .95rem; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+.slide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); overflow: hidden; }
+.slide-header { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.25rem; cursor: pointer; user-select: none; background: var(--accent-bg); border-bottom: 1px solid var(--border); }
+.slide-header:hover { background: #dbeafe; }
+.slide-num { background: var(--accent); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.slide-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); flex: 1; }
+.chevron { transition: transform .25s; font-size: .8rem; color: var(--muted); }
+.slide-body { padding: 1.25rem; display: none; }
+.slide-body.open { display: block; }
+.bullets { list-style: none; margin: 0 0 1rem; padding: 0; }
+.bullets li { background: var(--bullet-bg); border-radius: 6px; padding: .55rem .9rem; margin-bottom: .4rem; display: flex; gap: .6rem; align-items: flex-start; }
+.bullets li::before { content: "•"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+.notes { background: var(--notes-bg); border-left: 3px solid var(--notes-border); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: .9rem; color: var(--muted); margin-top: .5rem; }
+.notes strong { display: block; margin-bottom: .25rem; color: #92400e; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+/* Document layout */
+.doc-section { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.doc-section:last-child { border-bottom: none; }
+.doc-section h2 { color: var(--accent); font-size: 1.4rem; margin: 0 0 1rem; display: flex; gap: .75rem; align-items: center; }
+pre, code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; white-space: pre; line-height: 1.5; font-size: .9rem; }
+  </style>
+  <style>
+    body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid rgba(128,128,128,.45); padding: .45em .7em; text-align: left; vertical-align: top; }
+    thead th { background: rgba(128,128,128,.18); font-weight: 600; }
+    tbody tr:nth-child(even) { background: rgba(128,128,128,.08); }
+    a.topic-detail-link { text-decoration: underline; }
+  </style>
+  <style>
+    summary.slide-header { list-style: none; }
+    summary.slide-header::-webkit-details-marker { display: none; }
+    details.slide-card[open] > .slide-body { display: block; }
+    details.slide-card[open] .chevron { transform: rotate(90deg); }
+    @media print { details.slide-card > .slide-body { display: block !important; } .chevron { display: none; } }
+  </style>
+</head><body>
+<div class="pm-backlink" style="font-family:'Segoe UI',Arial,sans-serif;padding:8px 16px;background:#f5f8fc;border-bottom:1px solid #dce3ec"><a href="../index.html" style="color:#1a3c6e;font-weight:600;text-decoration:none">↑ Constraint Satisfaction Problems and Backtracking Search</a></div>
+  <header>
+    <h1>Constraint Types: Unary, Binary, and Global</h1>
+  </header><main>
+    <details class="slide-card" open="">
+      <summary class="slide-header"><span class="slide-num">1</span><h2>Constraint Types: Unary, Binary, and Global</h2><span class="chevron">▶</span></summary>
+      <div class="slide-body">
+        <p>A constraint satisfaction problem (CSP) is conventionally written as a triple <code>&lt;X, D, C&gt;</code>, where <code>X = {X<sub>1</sub>, ..., X<sub>n</sub>}</code> is a set of variables, <code>D = {D<sub>1</sub>, ..., D<sub>n</sub>}</code> gives each variable a domain of candidate values, and <code>C</code> is a set of constraints. Each constraint is itself a pair <code>&lt;scope, relation&gt;</code>: the <em>scope</em> is the tuple of variables the constraint talks about, and the <em>relation</em> specifies which combinations of values for those variables are permitted. The relation may be listed explicitly as a table of allowed tuples, or expressed compactly as a predicate such as <code>X ≠ Y</code>. The number of variables in the scope is the constraint's <strong>arity</strong>. Arity is the single most useful axis for classifying constraints, because it determines how the constraint is drawn in a diagram, how it is propagated, how expensive it is to check, and even which solving algorithms apply at all.</p>
+
+<p>This topic works through the arity hierarchy from the simplest case upward: unary constraints on one variable, binary constraints on two, higher-order constraints on three or more (including the rich family of <em>global</em> constraints such as <code>AllDiff</code>), the hypergraph notation needed to draw them, standard transformations that reduce high-arity constraints to binary ones, and finally the shift from hard constraints to <em>preference</em> or <em>soft</em> constraints, which turns satisfaction into optimization.</p>
+
+<p>The table below previews the hierarchy and will be unpacked in detail in the rest of the topic.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Class</th>
+      <th>Arity</th>
+      <th>Example</th>
+      <th>Graphical element</th>
+      <th>Typical treatment</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Unary</td>
+      <td>1</td>
+      <td><code>SA ≠ green</code>; <code>Start &gt; 10</code></td>
+      <td>Self-loop, or an annotation on the node</td>
+      <td>Removed by domain pruning before search (node consistency)</td>
+    </tr>
+    <tr>
+      <td>Binary</td>
+      <td>2</td>
+      <td><code>WA ≠ NT</code>; <code>End<sub>A</sub> ≤ Start<sub>B</sub></code></td>
+      <td>Edge between two nodes</td>
+      <td>Arc consistency (AC-3), forward checking</td>
+    </tr>
+    <tr>
+      <td>Ternary / higher-order</td>
+      <td>3 or more</td>
+      <td><code>X + Y = Z</code>; a carry equation in cryptarithmetic</td>
+      <td>Hyperedge joining all scope variables</td>
+      <td>Bespoke propagator, or decomposition into binary form</td>
+    </tr>
+    <tr>
+      <td>Global</td>
+      <td>Variable (often <em>n</em>)</td>
+      <td><code>AllDiff(X<sub>1</sub>,...,X<sub>9</sub>)</code>; <code>AtMost(10, W<sub>1</sub>,...,W<sub>4</sub>)</code></td>
+      <td>Single hypernode with <em>n</em> links</td>
+      <td>Specialised, often polynomial-time, filtering algorithm</td>
+    </tr>
+    <tr>
+      <td>Soft / preference</td>
+      <td>Any</td>
+      <td>"Prof. Lee prefers morning slots" (cost 2 if violated)</td>
+      <td>Weighted edge or weighted hyperedge</td>
+      <td>Branch and bound, local search, linear programming</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Unary constraints: restricting a single variable.</strong> A unary constraint has a scope of exactly one variable, so it is simply a statement about which values that variable may take, independently of everything else in the problem. Because the constraint mentions nothing else, nothing else can ever change whether it is satisfied. This gives unary constraints a privileged status: they can be <em>compiled away</em> entirely before search begins.</p>
+
+<p>The procedure is direct. For each unary constraint with scope <code>X<sub>i</sub></code>, test every value <code>v</code> in <code>D<sub>i</sub></code> against the constraint's relation and delete every value that fails. What remains is a reduced domain in which the unary constraint is satisfied by construction. Once this is done for all variables, the CSP is said to be <strong>node-consistent</strong>: every value in every domain satisfies all of that variable's unary constraints. Node consistency is the arity-1 member of the <em>k</em>-consistency family (arc consistency is the arity-2 member), and it is normally the very first preprocessing step a solver performs.</p>
+
+<pre><code>function NODE-CONSISTENCY(csp):
+    for each variable Xi in csp.X:
+        for each unary constraint c with scope (Xi):
+            Di ← { v in Di : c.relation(v) is true }
+        if Di is empty:
+            return FAILURE        # the CSP has no solution at all
+    return csp                    # now node-consistent</code></pre>
+
+<p>Consider the Australia map-coloring problem with variables <code>{WA, NT, Q, NSW, V, SA, T}</code> and the initial domain <code>{red, green, blue}</code> for each. Suppose a sponsor insists that South Australia must not be green, and that Tasmania must be blue. These are two unary constraints. Applying node consistency gives <code>D<sub>SA</sub> = {red, blue}</code> and <code>D<sub>T</sub> = {blue}</code>. The constraints themselves can now be deleted from <code>C</code> — they are permanently encoded in the domains. Because of this, a backtracking search never has to test them again: every value it can possibly choose for <code>SA</code> or <code>T</code> already respects them. This is a genuine efficiency gain, since a constraint check skipped at every node of a search tree with millions of nodes is millions of checks saved, and the smaller domains also shrink the branching factor.</p>
+
+<p>Unary constraints turn up in three recurring forms:</p>
+<ul>
+  <li><strong>Equality / fixed assignment:</strong> <code>X = 3</code>. This collapses the domain to a singleton. Every pre-filled clue in a Sudoku grid is exactly this kind of constraint; a puzzle with 28 givens is a CSP with 81 variables, 28 of which have singleton domains after node consistency.</li>
+  <li><strong>Disequality / exclusion:</strong> <code>X ≠ red</code>, or <code>X ∉ {4, 7}</code>. This deletes one or more named values. In timetabling, "Dr. Osei is unavailable on Friday" removes all Friday slots from that lecturer's variable.</li>
+  <li><strong>Range or interval restriction:</strong> <code>X &gt; 10</code>, <code>0 ≤ X ≤ 23</code>. For integer or continuous domains this is usually stored as a bound rather than an explicit value list. A job's earliest release time and latest due date are both range constraints on its start-time variable.</li>
+</ul>
+
+<p>One caution: node consistency is cheap but weak. It can detect that a problem is unsolvable only in the extreme case where some domain becomes empty. A node-consistent CSP may still be hopelessly over-constrained once binary and higher-order constraints are taken into account. Node consistency is a hygiene step, not a solving method.</p>
+
+<p><strong>Binary constraints and the constraint graph.</strong> A binary constraint has a scope of two variables and therefore expresses a relationship between a pair. A CSP in which every constraint is unary or binary is called a <strong>binary CSP</strong>, and it is the form most of the classical theory assumes. After unary constraints have been absorbed into domains, a binary CSP can be drawn as a <strong>constraint graph</strong>: one node per variable, one undirected edge for each binary constraint, with the edge labelled by the relation if there is more than one kind.</p>
+
+<p>For Australia, the constraint set is <code>{WA ≠ NT, WA ≠ SA, NT ≠ SA, NT ≠ Q, SA ≠ Q, SA ≠ NSW, SA ≠ V, Q ≠ NSW, NSW ≠ V}</code> — nine edges. Tasmania participates in no binary constraint, so it is an isolated node; the graph has two connected components, and the solver can colour Tasmania independently of the mainland. Reading structure off the graph like this is the whole point of drawing it.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Variable</th>
+      <th>Neighbours in the constraint graph</th>
+      <th>Degree</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>SA</td><td>WA, NT, Q, NSW, V</td><td>5</td></tr>
+    <tr><td>NT</td><td>WA, SA, Q</td><td>3</td></tr>
+    <tr><td>Q</td><td>NT, SA, NSW</td><td>3</td></tr>
+    <tr><td>NSW</td><td>Q, SA, V</td><td>3</td></tr>
+    <tr><td>WA</td><td>NT, SA</td><td>2</td></tr>
+    <tr><td>V</td><td>SA, NSW</td><td>2</td></tr>
+    <tr><td>T</td><td>(none)</td><td>0</td></tr>
+  </tbody>
+</table>
+
+<p>Graph structure has real algorithmic consequences, and this is why the representation matters rather than being mere decoration:</p>
+<ul>
+  <li><strong>Tree-structured graphs are easy.</strong> If the constraint graph is a tree (no cycles), the CSP can be solved in <code>O(n d<sup>2</sup>)</code> time, where <code>n</code> is the number of variables and <code>d</code> the maximum domain size. The algorithm picks a root, orders the variables so parents precede children, makes each arc from parent to child consistent in one backward sweep, then assigns values in one forward sweep with no backtracking at all. Contrast this with the worst-case <code>O(d<sup>n</sup>)</code> of general search.</li>
+  <li><strong>Near-trees can be reduced to trees.</strong> In the Australia graph, deleting <code>SA</code> leaves a tree. So one can try each of the three values of <code>SA</code>, prune it from its neighbours' domains, and solve the residual tree in linear time — the <em>cutset conditioning</em> technique. The cost is <code>O(d<sup>c</sup> · (n−c) d<sup>2</sup>)</code> for a cycle cutset of size <code>c</code>.</li>
+  <li><strong>Dense graphs demand full search.</strong> When every variable constrains most others, no structural shortcut exists and the solver must rely on backtracking plus propagation and good variable-ordering heuristics.</li>
+  <li><strong>Connectivity partitions the work.</strong> Separate components are independent subproblems, and solving them separately converts a product of search spaces into a sum.</li>
+</ul>
+
+<p>Binary constraints come in many relational flavours. Beyond disequality (<code>WA ≠ NT</code>), common forms include precedence in scheduling (<code>End<sub>A</sub> ≤ Start<sub>B</sub></code>, read as "Task A must finish before Task B begins"), difference constraints (<code>Start<sub>B</sub> − Start<sub>A</sub> ≥ 30</code> for a changeover gap), compatibility tables (an explicit list of allowed pairs, as in configuring a motherboard and a CPU socket), and equality links (<code>X = Y</code> when two names refer to the same physical quantity).</p>
+
+<p>The dominance of binary form in the literature is largely an artefact of algorithm design. The standard consistency-enforcement algorithms are stated over arcs — that is, over ordered pairs of variables joined by a binary constraint. <strong>AC-3</strong> is the canonical example: it maintains a queue of arcs, and for each arc <code>(X<sub>i</sub>, X<sub>j</sub>)</code> it deletes any value in <code>D<sub>i</sub></code> that has no supporting value in <code>D<sub>j</sub></code>; if a deletion occurs, all arcs pointing back into <code>X<sub>i</sub></code> are re-queued.</p>
+
+<pre><code>function AC-3(csp) returns false if an inconsistency is found
+    queue ← all arcs (Xi, Xj) in csp
+    while queue is not empty:
+        (Xi, Xj) ← POP(queue)
+        if REVISE(csp, Xi, Xj):
+            if size of Di = 0: return false
+            for each Xk in NEIGHBOURS(Xi) \ {Xj}:
+                add (Xk, Xi) to queue
+    return true
+
+function REVISE(csp, Xi, Xj) returns true iff Di was changed
+    revised ← false
+    for each x in Di:
+        if no value y in Dj satisfies the constraint between Xi and Xj:
+            delete x from Di
+            revised ← true
+    return revised</code></pre>
+
+<p>AC-3 runs in <code>O(e d<sup>3</sup>)</code> for <code>e</code> binary constraints and domain size <code>d</code>. On the Australia problem with <code>SA</code> fixed to <code>blue</code>, AC-3 immediately removes <code>blue</code> from <code>WA, NT, Q, NSW, V</code>, which in turn forces further pruning around the <code>NT–Q</code> and <code>Q–NSW</code> edges. The important point for this topic is that AC-3's correctness and complexity analysis both presuppose binary scopes — which is precisely why so much effort has gone into turning non-binary constraints into binary ones, and why the alternative route of writing dedicated propagators for global constraints is such an attractive counter-strategy.</p>
+
+<p><strong>Higher-order and global constraints.</strong> A constraint with three or more variables in its scope is <em>higher-order</em> (or <em>n-ary</em>). A ternary example from cryptarithmetic is <code>X + Y = 10 · C + Z</code>, relating two digits, a result digit, and a carry. A <strong>global constraint</strong> is a higher-order constraint whose scope size is not fixed in advance and which captures a recurring, semantically meaningful pattern — typically accompanied by a purpose-built filtering algorithm. Global constraints are the practical workhorses of modern constraint programming; catalogues list hundreds of them.</p>
+
+<p>The best-known is <strong><code>AllDiff(X<sub>1</sub>, ..., X<sub>n</sub>)</code></strong>, which holds exactly when all <code>n</code> variables take pairwise distinct values. Sudoku is the archetypal illustration: with 81 cell variables of domain <code>{1..9}</code>, the rules are expressed as 27 <code>AllDiff</code> constraints — nine for the rows, nine for the columns, nine for the 3×3 boxes — plus one unary constraint per given clue. N-Queens uses <code>AllDiff</code> on the row variables and <code>AllDiff</code> on the derived diagonal expressions <code>Q<sub>i</sub> + i</code> and <code>Q<sub>i</sub> − i</code>. Cryptarithmetic puzzles such as <code>SEND + MORE = MONEY</code> use a single <code>AllDiff</code> over the eight distinct letters.</p>
+
+<p><code>AllDiff</code> is logically equivalent to the set of <code>n(n−1)/2</code> pairwise disequalities <code>X<sub>i</sub> ≠ X<sub>j</sub></code>, so one might ask why bother with the global version. The answer is <em>pruning power</em>. Consider three variables with domains <code>D<sub>1</sub> = {a, b}</code>, <code>D<sub>2</sub> = {a, b}</code>, <code>D<sub>3</sub> = {a, b}</code>. Every pairwise disequality is arc-consistent: for any value of <code>X<sub>1</sub></code> there is a different value available for <code>X<sub>2</sub></code>, and so on. The decomposed encoding therefore detects nothing and search proceeds happily into a dead end. But a global <code>AllDiff</code> propagator sees instantly that three variables are competing for two values and reports failure.</p>
+
+<p>That observation generalises into the simple <strong>counting test</strong> for <code>AllDiff</code> inconsistency: <em>if a set of <code>m</code> variables in the scope has fewer than <code>m</code> distinct values in the union of their domains, the constraint is unsatisfiable.</em> A practical and inexpensive version of the test runs as follows: repeatedly find a variable with a singleton domain, remove that value from all other variables in the scope, and iterate; if at any point a domain empties, or the union of all remaining domains has fewer values than the number of remaining variables, fail. The complete, strongest form of filtering for <code>AllDiff</code> is achieved by Régin's algorithm, which models the constraint as a bipartite graph of variables versus values, computes a maximum matching, and uses the theory of alternating cycles to delete exactly those value-variable pairs that belong to no solution of the constraint — all in polynomial time.</p>
+
+<pre><code># Sudoku fragment: a row with these domains
+A1 {1}        A2 {2}        A3 {3..9}
+A4 {4,5}      A5 {4,5}      A6 {3..9}
+A7 {6,7,8,9}  A8 {6,7,8,9}  A9 {6,7,8,9}
+
+AllDiff propagation:
+  singletons 1 and 2 removed from all others
+  {A4,A5} occupy exactly {4,5} -&gt; a "hidden pair": remove 4 and 5 from A3, A6
+  {A7,A8,A9} occupy only {6,7,8,9} -&gt; 3 vars, 4 values, no failure, but
+  A3 and A6 are now reduced to {3,6,7,8,9} minus whatever else follows.
+A set of pairwise != constraints would have inferred none of the pair reasoning.</code></pre>
+
+<p>A second important family is the <strong>resource</strong> or <strong><code>AtMost</code></strong> constraint, which bounds the total consumption of a shared resource. Written <code>AtMost(k, X<sub>1</sub>, ..., X<sub>n</sub>)</code>, it requires <code>X<sub>1</sub> + ... + X<sub>n</sub> ≤ k</code> where each <code>X<sub>i</sub></code> is the amount of the resource consumed by activity <code>i</code>. Suppose four maintenance tasks each need between 2 and 7 workers drawn from a pool of 10: <code>AtMost(10, P<sub>1</sub>, P<sub>2</sub>, P<sub>3</sub>, P<sub>4</sub>)</code> with <code>D<sub>i</sub> = {2,...,7}</code>. Its propagator reasons about bounds rather than enumerating tuples: the minimum total is <code>2 + 2 + 2 + 2 = 8</code>, so each individual variable can consume at most <code>10 − 6 = 4</code>, and the domains collapse to <code>{2, 3, 4}</code> in one step. If the pool were only 7, the minimum total of 8 would exceed it and failure is detected without any search. Bounds propagation of this kind is the standard technique for numeric global constraints and scales to very large domains where enumerating values would be impossible.</p>
+
+<p>Other widely used globals include <code>Cumulative</code> (resource usage over time never exceeds capacity — the backbone of job-shop scheduling), <code>NoOverlap</code>/<code>Disjunctive</code> (tasks on one machine must not overlap in time), <code>GCC</code> or <em>global cardinality</em> (each value is used between <code>l<sub>v</sub></code> and <code>u<sub>v</sub></code> times, a generalisation of <code>AllDiff</code>), <code>Element</code> (array indexing with a variable index), and <code>Table</code> (an explicit list of allowed tuples).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Constraint</th>
+      <th>Meaning</th>
+      <th>Typical application</th>
+      <th>What its propagator exploits</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>AllDiff(X<sub>1..n</sub>)</code></td><td>All values pairwise distinct</td><td>Sudoku, N-Queens, cryptarithmetic, assignment</td><td>Bipartite matching / counting argument</td></tr>
+    <tr><td><code>AtMost(k, X<sub>1..n</sub>)</code></td><td>Sum of consumptions ≤ k</td><td>Staffing, budgets, bandwidth</td><td>Bounds reasoning on minimum/maximum sums</td></tr>
+    <tr><td><code>GCC</code></td><td>Each value used within given counts</td><td>Shift rostering, balanced assignment</td><td>Network-flow feasibility</td></tr>
+    <tr><td><code>Cumulative</code></td><td>Resource profile never exceeds capacity</td><td>Job-shop and project scheduling</td><td>Energetic reasoning, time-table filtering</td></tr>
+    <tr><td><code>Element(I, A, V)</code></td><td><code>V = A[I]</code> with <code>I</code> a variable</td><td>Configuration, cost lookup tables</td><td>Joint filtering of index and value domains</td></tr>
+  </tbody>
+</table>
+
+<p>The design lesson is consistent: <em>prefer a global constraint to an equivalent conjunction of binary constraints whenever one exists.</em> The decomposition is logically faithful but informationally lossy — the solver can no longer see that the small constraints form a coherent combinatorial structure, and so it cannot apply the matching, flow, or counting arguments that make strong pruning possible. A global constraint also keeps the model compact and readable: one <code>AllDiff</code> over nine cells replaces thirty-six disequalities.</p>
+
+<p><strong>Hypergraph representation of n-ary constraints.</strong> An ordinary graph cannot draw a constraint over three or more variables, because an edge joins exactly two nodes. The general representation is a <strong>constraint hypergraph</strong>. A hypergraph contains two kinds of node: ordinary <em>variable nodes</em>, one per variable exactly as in a constraint graph, and <em>hypernodes</em> (sometimes drawn as squares or boxes to distinguish them from circular variable nodes), one per constraint. Each constraint's hypernode is joined by links — collectively a <strong>hyperedge</strong> — to every variable in that constraint's scope, and to no others. The picture is therefore bipartite: links always run between a constraint box and a variable circle, never between two variables or two constraints.</p>
+
+<p>Take a single Sudoku row. In hypergraph form it is one square hypernode labelled <code>AllDiff</code> with nine lines radiating out to the cell variables <code>A1</code> through <code>A9</code>. The whole puzzle becomes 81 circles and 27 squares, with each circle touching exactly three squares (its row, its column, its box) and each square touching exactly nine circles. Reading degrees off the diagram tells you immediately that every cell is involved in three global constraints — a fact that is very hard to see if the same puzzle is drawn as a tangle of 810 pairwise disequality edges.</p>
+
+<pre><code>Row constraint as a hyperedge (schematic)
+
+   A1  A2  A3  A4  A5  A6  A7  A8  A9      &lt;- 9 variable nodes
+    \   \   \   \   |   /   /   /   /
+     \---\---\---\--+--/---/---/---/
+              [ AllDiff ]                   &lt;- 1 hypernode, arity 9
+
+Same information decomposed into binary form:
+   36 separate edges A_i -- A_j, and no record that they belong together.</code></pre>
+
+<p>Three properties make the hypergraph the right default notation for general CSPs:</p>
+<ul>
+  <li><strong>Scope is explicit.</strong> Every constraint is a single visible object, and the set of variables it governs can be read directly off its links. The notion of a constraint's <em>arity</em> becomes literally the degree of its hypernode.</li>
+  <li><strong>Decomposition hides structure.</strong> If an <code>AllDiff</code> over nine cells is replaced by thirty-six disequalities, the resulting graph still encodes the same solutions, but the knowledge "these thirty-six constraints are jointly an all-different requirement" has been destroyed. No propagator can recover it, and the pruning arguments of the previous section become unavailable. The hypergraph preserves exactly what the decomposition throws away.</li>
+  <li><strong>It generalises the binary case cleanly.</strong> A binary constraint graph is simply the hypergraph in which every hypernode has degree two. When all hyperedges are of arity two, the hypernodes can be suppressed and drawn as plain edges, recovering the familiar picture. So nothing is lost by always thinking in hypergraph terms; the constraint graph is just the convenient special case.</li>
+</ul>
+
+<p>Hypergraph structure also drives theory in the same way graph structure does. The <em>hypertree width</em> of a constraint hypergraph generalises the tree-width of a graph, and CSPs whose hypergraphs have bounded hypertree width are solvable in polynomial time — the n-ary analogue of "tree-structured problems are easy". Likewise, the <em>primal graph</em> of a hypergraph (join every pair of variables that share any constraint) and the <em>dual graph</em> (introduced next) are the two standard ways of projecting a hypergraph back down into an ordinary graph for analysis.</p>
+
+<p><strong>Converting higher-order constraints to binary form.</strong> Because so much classical machinery — AC-3, arc consistency theory, tree-structure results, many textbook solvers — is defined only for binary CSPs, there are standard transformations that turn any finite-domain CSP with constraints of arbitrary arity into an equivalent binary CSP. It is a genuine theorem that this is always possible; the question is whether it is a good idea.</p>
+
+<p>The <strong>dual graph transformation</strong> is the general-purpose method. It works by swapping the roles of variables and constraints:</p>
+<ul>
+  <li>For each constraint <code>c<sub>k</sub></code> in the original problem, create one new <em>dual variable</em> <code>C<sub>k</sub></code>.</li>
+  <li>The domain of <code>C<sub>k</sub></code> is the set of <em>tuples</em> that satisfy <code>c<sub>k</sub></code> — i.e. the constraint's relation is turned into a list of values.</li>
+  <li>For every pair of original constraints whose scopes share one or more original variables, add a binary constraint between the corresponding dual variables requiring that their tuples <em>agree</em> on all shared variables. These are called <em>join</em> or <em>equality-of-projection</em> constraints.</li>
+</ul>
+
+<p>A worked example. Suppose <code>X, Y, Z</code> all have domain <code>{1, 2, 3}</code>, with two ternary constraints: <code>c<sub>1</sub>: X + Y = Z</code> and <code>c<sub>2</sub>: X &lt; Y &lt; Z</code> — wait, these share <code>X, Y</code> and <code>Z</code>, so take instead <code>c<sub>1</sub>: X + Y = Z</code> over <code>(X, Y, Z)</code> and <code>c<sub>2</sub>: Z ≠ W</code> over <code>(Z, W)</code> with <code>W ∈ {1,2,3}</code>. The dual variable <code>C<sub>1</sub></code> has domain <code>{(1,1,2), (1,2,3), (2,1,3)}</code> — the satisfying tuples. The dual variable <code>C<sub>2</sub></code> has domain <code>{(1,2),(1,3),(2,1),(2,3),(3,1),(3,2)}</code>. The two scopes share only <code>Z</code>, so the binary constraint between <code>C<sub>1</sub></code> and <code>C<sub>2</sub></code> says: <em>the third component of <code>C<sub>1</sub></code>'s tuple must equal the first component of <code>C<sub>2</sub></code>'s tuple</em>. The resulting problem has two variables, domains of size 3 and 6, and one binary constraint — and it is now fully in the scope of AC-3.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Aspect</th>
+      <th>Original n-ary CSP</th>
+      <th>Dual-graph binary CSP</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Variables</td><td>One per quantity of interest</td><td>One per constraint</td></tr>
+    <tr><td>Domain values</td><td>Individual values</td><td>Whole satisfying tuples</td></tr>
+    <tr><td>Domain size</td><td><code>d</code></td><td>Up to <code>d<sup>r</sup></code> for arity <code>r</code></td></tr>
+    <tr><td>Constraints</td><td>Arbitrary arity</td><td>Binary "agree on shared variables"</td></tr>
+    <tr><td>Who can solve it</td><td>Needs n-ary propagators</td><td>Any binary-CSP algorithm</td></tr>
+  </tbody>
+</table>
+
+<p>The second standard technique introduces <strong>auxiliary (hidden) variables</strong> to split one wide constraint into a chain of narrow ones. Cryptarithmetic is the classic illustration. The puzzle <code>SEND + MORE = MONEY</code> can be stated as one enormous constraint over eight letters:</p>
+
+<pre><code>1000·S + 100·E + 10·N + D
++ 1000·M + 100·O + 10·R + E
+= 10000·M + 1000·O + 100·N + 10·E + Y        (arity 8)</code></pre>
+
+<p>Introducing carry variables <code>C<sub>1</sub>, C<sub>2</sub>, C<sub>3</sub>, C<sub>4</sub></code>, each with domain <code>{0, 1}</code>, replaces it with one small constraint per column:</p>
+
+<pre><code>D + E        = Y  + 10·C1      (arity 4)
+N + R  + C1  = E  + 10·C2      (arity 5)
+E + O  + C2  = N  + 10·C3      (arity 5)
+S + M  + C3  = O  + 10·C4      (arity 5)
+C4           = M                (arity 2)
+plus AllDiff(S,E,N,D,M,O,R,Y) and S ≠ 0, M ≠ 0</code></pre>
+
+<p>These are still ternary-and-up rather than strictly binary, but the arity has dropped sharply, each constraint is cheap to propagate, and the column structure lets a solver deduce <code>M = 1</code> immediately (since <code>C<sub>4</sub> ≤ 1</code> and <code>M ≠ 0</code>). The same trick — add a hidden variable to carry partial information between sub-constraints — reduces any n-ary sum to a chain of ternary ones, and generalises to the <em>hidden variable encoding</em>, in which each constraint gets one auxiliary variable whose domain is its allowed tuples and which is linked by a binary constraint to each original variable in its scope.</p>
+
+<p>The trade-offs are unavoidable and are why these encodings are not universally used:</p>
+<ul>
+  <li><strong>Domain blow-up.</strong> A dual variable for an arity-9 constraint over domain size 9 could in principle have <code>9<sup>9</sup> ≈ 387</code> million tuples. For <code>AllDiff</code> over nine cells the figure is <code>9! = 362,880</code>. Representing that domain explicitly is absurd.</li>
+  <li><strong>More variables and more constraints.</strong> The transformed problem is larger, so each propagation pass costs more, and the search tree has more levels.</li>
+  <li><strong>Weaker inference.</strong> Arc consistency on the encoded problem is often strictly weaker than the specialised filtering available on the original global constraint — the three-variables-two-values example of the previous section makes the point.</li>
+  <li><strong>Loss of readability.</strong> A model full of dual variables no longer resembles the problem it came from, which makes debugging and maintenance harder.</li>
+</ul>
+
+<p>Consequently, modern constraint solvers normally take the opposite route: keep high-arity and global constraints intact in the model and invest in <strong>specialised propagators</strong> that filter domains directly. Binarisation remains valuable as a theoretical device (it proves that binary CSPs are as expressive as general ones, so complexity results transfer) and as a practical tactic for small, awkward constraints with no library propagator, but it is not the default engineering choice.</p>
+
+<p><strong>Preference (soft) constraints and constrained optimization.</strong> Everything so far has assumed <em>hard</em> constraints: an assignment either satisfies a constraint or it does not, and any violation makes the whole assignment invalid. Many real problems are not like that. A lecturer <em>prefers</em> morning slots; a nurse <em>would rather not</em> work three consecutive nights; a delivery <em>should ideally</em> arrive before noon. These are <strong>preference constraints</strong> or <strong>soft constraints</strong>: desirable but violable.</p>
+
+<p>The standard encoding attaches a numeric <strong>cost</strong> (equivalently a penalty, or a negated utility) to assignments that violate the preference. In the simplest case the cost is attached to individual variable assignments — a <em>soft unary</em> constraint. In university timetabling, for example, the variable <code>Slot<sub>Prof Lee</sub></code> might carry costs of 0 for a 9am slot, 1 for 11am, and 5 for a 4pm slot. Soft binary and soft global constraints work the same way, assigning a cost to each tuple rather than merely labelling it allowed or forbidden.</p>
+
+<pre><code>Hard constraint:   relation(t) ∈ {true, false}
+Soft constraint:   cost(t)     ∈ {0, 1, 2, ...} or [0, ∞]
+                   cost = 0      -&gt; fully satisfied
+                   cost = ∞      -&gt; equivalent to a hard violation
+
+Objective:  minimise  f(assignment) = Σ over all soft constraints of cost(projection of assignment)
+Subject to: every hard constraint satisfied</code></pre>
+
+<p>Adding an objective function turns the CSP into a <strong>constraint optimization problem (COP)</strong>. The task is no longer "find any complete, consistent assignment" but "find a complete assignment that satisfies all hard constraints and minimises (or maximises) the objective". This changes the success criterion in a fundamental way: with hard constraints only, every solution is equally good and the solver can stop at the first one it finds; with an objective, solution quality is graded, and the solver cannot stop at the first feasible assignment because a cheaper one may exist. Proving <em>optimality</em> generally requires exploring or formally excluding the whole remaining search space.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>Hard constraints (CSP)</th>
+      <th>Soft constraints (COP)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Evaluation of an assignment</td><td>Boolean: satisfied / violated</td><td>Numeric: total cost</td></tr>
+    <tr><td>Goal</td><td>Any consistent complete assignment</td><td>Minimum-cost feasible assignment</td></tr>
+    <tr><td>Stopping condition</td><td>First solution found</td><td>Best found, plus proof nothing better exists</td></tr>
+    <tr><td>Typical algorithms</td><td>Backtracking + propagation (AC-3, MAC)</td><td>Branch and bound, local search, LP/MILP, dynamic programming</td></tr>
+    <tr><td>Effect of over-constraining</td><td>Reported as "no solution"</td><td>Gracefully degrades to a high-cost solution</td></tr>
+  </tbody>
+</table>
+
+<p>Because plain backtracking has no notion of "better", COPs are solved with different machinery:</p>
+<ul>
+  <li><strong>Branch and bound.</strong> Search as usual, but maintain the cost of the best complete solution found so far (the <em>incumbent</em>). At each node compute a lower bound on the cost of any completion of the current partial assignment — typically the cost already accrued plus the minimum unavoidable cost of the unassigned variables. If that bound is not better than the incumbent, prune the subtree without exploring it. The tighter the bound, the more is pruned. This is the direct optimization analogue of consistency-based pruning.</li>
+  <li><strong>Local search / metaheuristics.</strong> Start from a complete (possibly infeasible) assignment and repeatedly make small changes — min-conflicts, simulated annealing, tabu search, large-neighbourhood search — that reduce total cost. These methods scale to very large instances and are the practical choice for nurse rostering and vehicle routing, but they offer no optimality guarantee.</li>
+  <li><strong>Linear and mixed-integer programming.</strong> When the hard constraints and the objective can be written as linear (in)equalities over integer or continuous variables, LP relaxations and MILP solvers apply. Linear programs over continuous variables are solvable in polynomial time, and MILP solvers combine LP relaxation bounds with branch and bound.</li>
+  <li><strong>Weighted/valued CSP frameworks.</strong> Generalisations such as the weighted CSP, fuzzy CSP, and semiring-based CSP give a uniform algebra for combining costs, together with soft arc-consistency algorithms that shift costs around the problem to strengthen the lower bound used by branch and bound.</li>
+</ul>
+
+<p>A concrete example ties the pieces together. A small examination timetable has hard constraints — no student sits two exams at once (a set of binary disequalities), no room exceeds capacity (<code>AtMost</code> resource constraints), each exam is scheduled exactly once (unary and <code>AllDiff</code> structure) — and soft constraints such as "avoid two exams for the same student on the same day" (cost 3 per occurrence), "avoid evening slots" (cost 1 each), and "large exams should be early in the period" (cost proportional to lateness). The solver must produce a feasible timetable; among feasible timetables it chooses the one minimising the weighted sum. Note the practical benefit: an over-constrained preference set never makes the problem infeasible, it merely raises the optimal cost, so the system always returns a usable answer and the weights expose the trade-offs being made.</p>
+
+<p><strong>Alignment with Learning Outcomes</strong></p>
+<ul>
+  <li><strong>MO1:</strong> Supported indirectly. The topic opens by restating the CSP as the triple <code>&lt;X, D, C&gt;</code> and by defining a constraint as a <code>&lt;scope, relation&gt;</code> pair, reinforcing the definitional vocabulary, though partial, complete, and consistent assignments are treated only in passing (for example when contrasting CSP and COP stopping conditions).</li>
+  <li><strong>MO2:</strong> Directly and centrally supported. The topic is organised around the arity classification into unary, binary, higher-order, and global constraints, and it develops both the constraint graph for binary CSPs and the hypergraph (variable nodes plus constraint hypernodes) for n-ary constraints, including worked examples from map coloring and Sudoku.</li>
+  <li><strong>MO3:</strong> Substantially supported. Map coloring, Sudoku, N-Queens, cryptarithmetic (<code>SEND + MORE = MONEY</code> with carry variables), job-shop scheduling precedence and <code>Cumulative</code> constraints, and examination timetabling are all modelled here with explicit variables, domains, and constraints.</li>
+  <li><strong>MO4:</strong> Supported only as background. The topic explains how node consistency removes unary constraints before search and how AC-3 and specialised propagators prune during search, which shapes the consistency test inside a backtracking solver, but it does not itself present the depth-first backtracking algorithm.</li>
+  <li><strong>MO5:</strong> Minimally addressed. Variable-ordering heuristics such as minimum-remaining-values and degree are not evaluated here, although the degree table for the Australia constraint graph and the discussion of pruning power provide the structural information those heuristics exploit.</li>
+</ul>
+        <div class="notes"><strong>Notes</strong>Suggested teaching extensions: (1) have students draw the hypergraph for a 4x4 Sudoku (16 variable nodes, 12 AllDiff hypernodes) and then the equivalent binary decomposition, counting edges in each to feel the blow-up; (2) run AC-3 by hand on the Australia map with SA fixed, then compare with a global AllDiff propagator on a 3-variable/2-value instance to demonstrate the pruning gap; (3) a short lab exercise implementing the AllDiff counting test and measuring node-count reduction versus pairwise disequalities. Régin's matching-based AllDiff filtering is mentioned by name only; the full alternating-cycle argument is optional enrichment. The SEND+MORE+MONEY carry encoding is a good bridge to the next module's backtracking exercises.</div>
+      </div>
+    </details>
+  <details class="slide-card" id="video-part1"><summary class="slide-header"><span class="slide-num">2</span><h2>Videos on This Topic</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>Every constraint satisfaction problem is defined by three things: a set of variables, a domain of possible values for each variable, and a set of constraints that restrict which combinations of values are allowed. This topic focuses on that third element. Constraints are usually classified by how many variables they touch at once: unary constraints restrict a single variable (for example, "Western Australia cannot be red"), binary constraints relate exactly two variables ("adjacent regions must differ"), and higher-order or n-ary constraints involve three or more (the carry-digit relationships in a cryptarithmetic puzzle, or an AllDiff constraint over a whole Sudoku row).</p>
+<p>The classification matters because it determines how we draw and reason about the problem. Binary CSPs map cleanly onto a constraint graph, where nodes are variables and edges are constraints; n-ary CSPs need a hypergraph, where a single hyperedge touches several variables at once. Since most inference and consistency algorithms in this course are stated for binary constraints, you should also know that any finite-domain n-ary constraint can be converted to binary form, typically by introducing auxiliary variables whose values are tuples. Finally, not all constraints are hard: preference or soft constraints assign costs rather than forbidding assignments, turning the problem into a constrained optimization problem where we seek the best solution rather than just a feasible one.</p>
+<p>The video below is the opening lecture of Stanford's CS221 treatment of CSPs. As you watch, listen for how the instructor sets up variables, domains, and factors or constraints, how constraints are given an arity, and how the structure of the problem is visualized as a graph. Use the lecture as your framing, then map its terminology back onto the unary/binary/global vocabulary used in this module.</p></div></details><details class="slide-card" id="video-part2"><summary class="slide-header"><span class="slide-num">3</span><h2>Video 1: Constraint Satisfaction Problems (CSPs) 1 - Overview | Stanford CS221: AI (Autumn 2021)</h2><span class="chevron">▶</span></summary><div class="slide-body"><div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.6rem 0;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/-IO4fPO0rxk?cc_load_policy=1&amp;rel=0" title="Video: Constraint Satisfaction Problems (CSPs) 1 - Overview | Stanford CS221: AI (Autumn 2021) (Stanford Online)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen=""></iframe></div>
+<p class="video-meta"><strong>Stanford Online</strong> · 13:50 · 56,216 views · 4y ago · captions — <a href="https://www.youtube.com/watch?v=-IO4fPO0rxk" target="_blank" rel="noopener">Watch on YouTube</a></p>
+<h3>About this video</h3>
+<p>The first lecture in Stanford CS221's CSP sequence, which introduces constraint satisfaction problems as a distinct model from state-based search: variables, their domains, and the constraints (expressed as factors) that score or forbid assignments. Based on the title and series, it gives the overall motivation for CSPs and works through canonical examples to show how a problem is encoded and how constraints over one, two, or more variables are drawn as a graph. It sets up the vocabulary used later for consistency and backtracking.</p>
+<h3>Why this video</h3>
+<p>It is taught by Stanford Online as part of a university AI course, so the formalism is accurate and matches the textbook treatment used in this module. The overview framing is exactly what you need before classifying constraints by arity and reading constraint graphs, and the factor-graph style of drawing constraints generalizes naturally to hypergraph representations of n-ary constraints.</p></div></details><details class="slide-card" id="video-part3"><summary class="slide-header"><span class="slide-num">4</span><h2>How These Videos Support the Learning Outcomes</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>The lecture directly supports MO1 by defining a CSP in terms of variables, domains, and constraints and distinguishing assignments that satisfy them from those that do not, and it supports MO2 by showing constraints of different arity and their graphical representation. The worked examples typical of this lecture also reinforce MO3, giving you models to imitate when you formulate map coloring, Sudoku, or scheduling as CSPs. Because the video is an overview rather than an algorithms lecture, you should treat MO4 and MO5 as coming primarily from the backtracking and heuristics readings and exercises; this video supplies the problem representation those algorithms operate on.</p></div></details><details class="slide-card" id="video-part4"><summary class="slide-header"><span class="slide-num">5</span><h2>About These Videos</h2><span class="chevron">▶</span></summary><div class="slide-body"><p>These videos were chosen from YouTube on October 15, 2026. Each has captions; the player turns them on. Videos on YouTube can be changed or removed — if one no longer plays, tell your instructor. If a player does not appear, use its Watch on YouTube link.</p></div></details></main>
+
+
+<footer class="presemaker-credit" data-credit="2" style="margin-top:2rem;padding:14px 8px;border-top:1px solid #ddd;background:#fff;text-align:center;font:13px/1.5 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#595959;"><svg width="20" height="20" viewBox="0 0 2048 2048" aria-hidden="true" focusable="false" style="vertical-align:-5px;margin-right:7px"><rect width="2048" height="2048" rx="384" fill="#0F6E6E"/><path fill="#0A5050" d="M1024 1000 344 832v816l680 168zm0 0 680-168v816l-680 168z"/><path fill="#fff" d="M1024 944 384 784v808l640 160zm0 0 640-160v808l-640 160z"/><rect x="1002" y="944" width="44" height="808" fill="#0F6E6E"/><rect x="936" y="246" width="176" height="448" rx="44" fill="#fff"/><rect x="800" y="382" width="448" height="176" rx="44" fill="#fff"/></svg>Created with <a href="https://softwareplus.ai/coursebuilder/" target="_blank" rel="noopener" style="color:#2f5d8f;font-weight:600;text-decoration:none;">CourseBuilder+</a><span aria-hidden="true"> · </span><a href="https://softwareplus.ai/" target="_blank" rel="noopener" style="color:#2f5d8f;text-decoration:none;">SoftwarePlus.ai</a></footer>
+</body></html>

@@ -1,0 +1,1801 @@
+{
+  "ModuleFolderName": "Probabilistic_Reasoning_with",
+  "CourseName": "CAI4002 - Intro to AI",
+  "GeneratedDate": "2026-10-14T20:19:55.0209694-04:00",
+  "ModifiedDate": "2026-10-14T20:23:03.1901113-04:00",
+  "Outcomes": [],
+  "Topics": [
+    {
+      "Id": "d71023ee-7ff5-4a8d-92de-4a53c4d83b57",
+      "Title": "Probability Foundations for Reasoning Under Uncertainty",
+      "Summary": "Reviews random variables, joint and marginal distributions, the axioms of probability, and how agents represent degrees of belief when knowledge is incomplete. Establishes the vocabulary and notation used throughout the module.",
+      "SortOrder": 0,
+      "CreatedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "ModifiedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "Elements": [
+        {
+          "Id": "5bfac1f8-d607-4255-a5e6-5b5f07fd48e8",
+          "TopicId": "d71023ee-7ff5-4a8d-92de-4a53c4d83b57",
+          "Title": "Why Agents Must Reason Under Uncertainty",
+          "BodyText": "Real-world agents rarely have complete, correct, or deterministic knowledge of their environment, so purely logical inference is often inadequate. Probability provides a principled calculus for acting sensibly despite partial information.",
+          "Notes": "Example: a medical diagnosis agent cannot observe the underlying disease directly and must reason from noisy symptoms and test results.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:20:18.8674312-04:00",
+          "ModifiedDate": "2026-10-14T20:20:18.8674312-04:00",
+          "Items": [
+            {
+              "Id": "181119cb-78a8-4638-b3fb-fd462a037f9f",
+              "Text": "Uncertainty arises from partial observability, noisy sensors, nondeterministic action outcomes, and sheer complexity of the domain.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "a8358bb3-c865-4115-bf0c-f146e9985ab8",
+              "Text": "Logical agents using strict entailment either commit to unsupported conclusions or produce unusable disjunctions of every possible cause.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d3de8fe8-5a5d-4bce-ba5a-3242e3dfc686",
+              "Text": "Probability summarizes the agent\u0027s ignorance by assigning a degree of belief between 0 and 1 to each proposition.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "38720697-9916-48ef-9d95-e161f8886eb4",
+              "Text": "Degrees of belief are not claims about inherent randomness in the world; they describe the agent\u0027s epistemic state given its evidence.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "9ac9a388-2d5e-4192-bf50-d79edd1b1741",
+              "Text": "Probabilistic beliefs change as new evidence arrives, which makes them a natural foundation for perception and learning.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "82babb06-eb91-451a-8b27-f92b90b46924",
+          "TopicId": "d71023ee-7ff5-4a8d-92de-4a53c4d83b57",
+          "Title": "Random Variables and Domains",
+          "BodyText": "A random variable is a named quantity whose value is uncertain, and its domain is the set of values it can take. Random variables form the basic vocabulary for every probabilistic model in this module.",
+          "Notes": "Notation convention: capital letters (X, Weather) name variables; lowercase letters (x, sunny) name values. P(x) abbreviates P(X = x).",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:20:18.8674312-04:00",
+          "ModifiedDate": "2026-10-14T20:20:18.8674312-04:00",
+          "Items": [
+            {
+              "Id": "4d3115e0-cb03-47a1-9acd-db4fa22c4465",
+              "Text": "Boolean variables take values true or false, often abbreviated as x and \u00ACx.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e6d88c21-c010-4e42-bc5d-eea1887d2b7f",
+              "Text": "Discrete variables take values from a finite or countable domain, such as Weather \u2208 {sunny, rain, cloud, snow}.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1ffa4fe8-1afa-4b0b-9d61-47bd5ec37f4b",
+              "Text": "Continuous variables take real values and are described by probability density functions rather than point masses.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b802cda9-fddf-4225-b90e-3221b8fefba9",
+              "Text": "A proposition is an assertion that a variable takes a particular value, or a Boolean combination of such assertions.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "9003db2b-1fbd-4295-95cc-8571ff90fff1",
+              "Text": "An atomic event (possible world) assigns a value to every variable in the model, and atomic events are mutually exclusive and exhaustive.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "6c74f17e-7b28-4c31-94cd-58d2f4de03ed",
+          "TopicId": "d71023ee-7ff5-4a8d-92de-4a53c4d83b57",
+          "Title": "The Axioms of Probability",
+          "BodyText": "All probabilistic reasoning rests on a small set of axioms, usually attributed to Kolmogorov, from which every other rule can be derived. Adhering to them guarantees internal consistency of the agent\u0027s beliefs.",
+          "Notes": "The Dutch book argument shows that an agent whose beliefs violate these axioms can be offered a set of bets it willingly accepts yet is guaranteed to lose money on.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:20:18.8674312-04:00",
+          "ModifiedDate": "2026-10-14T20:20:18.8674312-04:00",
+          "Items": [
+            {
+              "Id": "a4cd44a0-bfca-4f72-a217-ca89a7a5ca9d",
+              "Text": "Every probability lies between 0 and 1: 0 \u2264 P(a) \u2264 1.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6207dca5-122a-4cf8-8918-5e08aeda0952",
+              "Text": "Necessarily true propositions have probability 1 and necessarily false propositions have probability 0.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "732b3f2c-a513-4545-a088-e82f507ad141",
+              "Text": "The inclusion\u2013exclusion rule states P(a \u2228 b) = P(a) \u002B P(b) \u2212 P(a \u2227 b).",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b14e1f22-5fbc-4118-b53b-d12f4011b0f7",
+              "Text": "The negation rule P(\u00ACa) = 1 \u2212 P(a) follows directly from the axioms.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "3e9d274a-d11e-4178-9f84-f878ba148794",
+              "Text": "Probabilities over the values of a single variable must sum to 1, a property called normalization.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "654a0d85-afd1-4911-bf6c-378335aa635d",
+          "TopicId": "d71023ee-7ff5-4a8d-92de-4a53c4d83b57",
+          "Title": "Joint Probability Distributions",
+          "BodyText": "A probability distribution gives the probabilities of all values of a variable, and a joint distribution does so for every combination of values of several variables. The full joint distribution over all variables is a complete specification of the model.",
+          "Notes": "Bold notation P(X) denotes the whole vector of probabilities for X, while P(x) denotes a single number.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:20:18.8674312-04:00",
+          "ModifiedDate": "2026-10-14T20:20:18.8674312-04:00",
+          "Items": [
+            {
+              "Id": "4f80fa22-4e9c-4b8c-9ade-7253bb9dc692",
+              "Text": "A full joint distribution assigns a probability to every atomic event, and these probabilities sum to 1.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "44b04715-88be-406e-a7f6-3e203f43ba9c",
+              "Text": "Any query about the domain can in principle be answered by summing the appropriate entries of the full joint distribution.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5ec201a2-ee3a-458e-a402-ccad9cb02b89",
+              "Text": "The table grows exponentially with the number of variables: n Boolean variables require 2^n \u2212 1 independent numbers.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "1088893b-ad44-4416-9bf0-65fb9541c4bc",
+              "Text": "This exponential size makes the full joint impractical to store, elicit, or learn for realistic domains.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "2960d7fe-63b2-4501-8ccf-7248b0f73bb8",
+              "Text": "Exploiting independence and conditional independence is the key to compact representations such as Bayesian networks.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "d54d7267-55fc-483a-9a34-27a133621ac7",
+          "TopicId": "d71023ee-7ff5-4a8d-92de-4a53c4d83b57",
+          "Title": "Marginalization and Conditioning",
+          "BodyText": "Marginalization and conditioning are the two core operations used to extract answers from a joint distribution. Together they underpin every inference algorithm presented later in the module.",
+          "Notes": "Example: P(cavity) is obtained by summing the joint entries for cavity with toothache true and toothache false.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:20:18.8674312-04:00",
+          "ModifiedDate": "2026-10-14T20:20:18.8674312-04:00",
+          "Items": [
+            {
+              "Id": "73cb3590-8014-4045-95b8-d2c145a8fae7",
+              "Text": "Marginalization (summing out) computes P(Y) = \u03A3_z P(Y, z) by summing over all values of the unwanted variables.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "de28a907-f871-48bc-ad65-db18e08af548",
+              "Text": "Conditional probability is defined as P(a | b) = P(a \u2227 b) / P(b) whenever P(b) \u003E 0.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2a837718-eb4b-422d-80bd-358f3b3d7e50",
+              "Text": "The product rule rearranges this definition as P(a \u2227 b) = P(a | b) P(b) = P(b | a) P(a).",
+              "SortOrder": 2
+            },
+            {
+              "Id": "78e0dbce-dddc-4788-a823-325234bf0ea6",
+              "Text": "Conditioning on evidence selects the consistent rows of the joint and renormalizes them so they again sum to 1.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b7436c03-5a75-4f24-be38-3fb452d41087",
+              "Text": "A normalization constant \u03B1 is often written to defer the division until the end of a calculation.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "c95093d5-9375-4409-9e16-23a7f884961e",
+          "TopicId": "d71023ee-7ff5-4a8d-92de-4a53c4d83b57",
+          "Title": "Prior, Posterior, and Conditional Beliefs",
+          "BodyText": "Beliefs are described as prior before evidence is observed and posterior afterwards. Tracking this distinction carefully is essential for the correct use of Bayes\u0027 rule.",
+          "Notes": "",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:20:18.8674312-04:00",
+          "ModifiedDate": "2026-10-14T20:20:18.8674312-04:00",
+          "Items": [
+            {
+              "Id": "1a5e6811-2837-4bcb-bea1-81f52b15c9f0",
+              "Text": "A prior (unconditional) probability P(X) reflects belief in the absence of any other information.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "83245044-d47e-4a51-913f-678405f58a1a",
+              "Text": "A posterior (conditional) probability P(X | e) reflects belief after evidence e has been observed.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9054e924-942c-478b-b2e4-a9758e65436e",
+              "Text": "New evidence does not erase prior knowledge; it updates it through conditioning.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "8b6b0fb2-d157-4798-aa41-e3f2baec072e",
+              "Text": "The conditional distribution P(X | e) is itself a valid distribution and must sum to 1 over the values of X.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a33fcacc-4e34-42f8-bb0e-212ff344110b",
+              "Text": "Evidence should always be the most specific information available, a requirement known as the principle of maximum entropy or total evidence.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "9fce1ddc-6835-4af0-a209-4a9ef19808c3",
+      "Title": "Conditional Independence and Bayes\u0027 Rule",
+      "Summary": "Explains conditional probability, the product and chain rules, and how Bayes\u0027 rule inverts likelihoods into posterior beliefs. Shows how conditional independence assumptions dramatically reduce the size of joint distributions and enable tractable reasoning.",
+      "SortOrder": 1,
+      "CreatedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "ModifiedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "Elements": [
+        {
+          "Id": "f4bfb745-b7b7-49f6-aa99-0c2d1293c5b1",
+          "TopicId": "9fce1ddc-6835-4af0-a209-4a9ef19808c3",
+          "Title": "Conditional Probability and the Product Rule",
+          "BodyText": "Conditional probability expresses the degree of belief in an event given that some evidence is already known. It is the basic building block for all probabilistic reasoning under uncertainty.",
+          "Notes": "Example: P(cavity | toothache) = 0.8 means that among patients with a toothache, 80% have a cavity. The unconditional (prior) probability P(cavity) may be much smaller, e.g. 0.2.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:20:39.6705326-04:00",
+          "ModifiedDate": "2026-10-14T20:20:39.6705326-04:00",
+          "Items": [
+            {
+              "Id": "906c3724-6479-427f-af54-9346d5becfde",
+              "Text": "P(a | b) = P(a \u2227 b) / P(b), defined whenever P(b) \u003E 0.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "9fd3357c-3079-44e3-92da-1062b468403c",
+              "Text": "Rearranging gives the product rule: P(a \u2227 b) = P(a | b)P(b) = P(b | a)P(a).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d9e7de37-1670-4b26-8f5b-cc877f51e766",
+              "Text": "Conditional probabilities are priors updated by evidence, not statements about causation.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "5a84311e-d033-4550-b870-0889b4950907",
+              "Text": "Conditioning on new evidence narrows the set of possible worlds under consideration.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "3197a187-b336-4b83-9312-6240e42a9f4d",
+              "Text": "All the usual axioms of probability hold within a conditioned distribution.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "59ce4d84-5c0d-4247-8129-030b4b312449",
+          "TopicId": "9fce1ddc-6835-4af0-a209-4a9ef19808c3",
+          "Title": "The Chain Rule and the Full Joint Distribution",
+          "BodyText": "The full joint distribution assigns a probability to every combination of values of all variables, and any query can in principle be answered from it. The chain rule decomposes that joint into a product of conditional probabilities.",
+          "Notes": "For n Boolean variables the full joint has 2^n \u2212 1 independent numbers, which is intractable to specify or store for realistic problems.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:20:39.6705326-04:00",
+          "ModifiedDate": "2026-10-14T20:20:39.6705326-04:00",
+          "Items": [
+            {
+              "Id": "452cb77a-25a5-45b0-ba90-26049e36cc69",
+              "Text": "Chain rule: P(X\u2081,\u2026,X\u2099) = \u220F\u1D62 P(X\u1D62 | X\u2081,\u2026,X\u1D62\u208B\u2081), obtained by repeated application of the product rule.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "465cf1e2-1984-4015-bdf4-66f4005949ac",
+              "Text": "Marginalisation sums out unwanted variables: P(Y) = \u03A3_z P(Y, z).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "e0d97f8f-dccd-4150-822d-9a9024b07d84",
+              "Text": "Conditioning combines marginalisation with the product rule: P(Y) = \u03A3_z P(Y | z)P(z).",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b373a4cb-2a24-4132-8391-807dbab3ffb0",
+              "Text": "Normalisation uses a constant \u03B1 so that the computed distribution sums to 1.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "e203453e-bc32-4ce7-ad79-f340dc038424",
+              "Text": "The chain rule holds for any ordering of the variables, which gives freedom in how a model is structured.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "a4d655ad-a1b4-4185-af29-366bf0d6661a",
+          "TopicId": "9fce1ddc-6835-4af0-a209-4a9ef19808c3",
+          "Title": "Bayes\u0027 Rule: Inverting the Direction of Inference",
+          "BodyText": "Bayes\u0027 rule follows directly from the two forms of the product rule and lets us convert a causal (diagnostic) likelihood into a posterior belief. It is the engine behind nearly all probabilistic inference systems.",
+          "Notes": "Example: with P(meningitis) = 1/50,000, P(stiff neck | meningitis) = 0.7 and P(stiff neck) = 0.01, the posterior P(meningitis | stiff neck) \u2248 0.0014 \u2014 still small despite the high likelihood.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:20:39.6705326-04:00",
+          "ModifiedDate": "2026-10-14T20:20:39.6705326-04:00",
+          "Items": [
+            {
+              "Id": "813b57b8-30b1-41fe-8d66-53a9780c8bb4",
+              "Text": "P(h | e) = P(e | h)P(h) / P(e), or posterior \u221D likelihood \u00D7 prior.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "50db239a-e1ba-408e-b698-30154153a8e0",
+              "Text": "Causal knowledge P(effect | cause) is often more stable and easier to estimate than diagnostic knowledge P(cause | effect).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5451ace5-4fb2-4ee9-9bdd-b635865d7415",
+              "Text": "The denominator P(e) acts purely as a normalising constant and can be replaced by \u03B1.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f0ece9e8-73d8-4aca-a2c6-bbb9cf80a0f0",
+              "Text": "Ignoring the prior leads to the base-rate fallacy, where rare conditions are badly over-diagnosed.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6bff314b-f33b-4ec1-a728-0ec2363149d6",
+              "Text": "Evidence can be incorporated incrementally, with each posterior serving as the prior for the next update.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "2a6a0af4-8a14-4bb0-b974-715146db9b2e",
+          "TopicId": "9fce1ddc-6835-4af0-a209-4a9ef19808c3",
+          "Title": "Independence and Conditional Independence",
+          "BodyText": "Two variables are independent when knowing one tells you nothing about the other; they are conditionally independent when this holds once some third variable is known. Conditional independence is the weaker and far more useful assumption in practice.",
+          "Notes": "Example: toothache and catch are not independent, but both are caused by cavity, so P(toothache, catch | cavity) = P(toothache | cavity)P(catch | cavity).",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:20:39.6705326-04:00",
+          "ModifiedDate": "2026-10-14T20:20:39.6705326-04:00",
+          "Items": [
+            {
+              "Id": "09f09f46-0365-4f6e-97eb-14eee8450896",
+              "Text": "Absolute independence: P(X, Y) = P(X)P(Y), equivalently P(X | Y) = P(X).",
+              "SortOrder": 0
+            },
+            {
+              "Id": "ecb74fc6-c244-4135-89bb-4cd245a5611c",
+              "Text": "Conditional independence: P(X, Y | Z) = P(X | Z)P(Y | Z), equivalently P(X | Y, Z) = P(X | Z).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8fc0b50b-ce56-497c-b0d3-f5a50ddaae26",
+              "Text": "Effects of a common cause are typically conditionally independent given that cause.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "85a1b855-2e7e-4a1d-b9df-f53b5352bd30",
+              "Text": "Absolute independence is rare in real domains, whereas conditional independence is common.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "8a319f90-a336-41fd-857b-a5d0e33f6484",
+              "Text": "Conditional independence does not imply absolute independence, and vice versa.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "faf94ba1-3814-491c-a173-8badb40a62a5",
+          "TopicId": "9fce1ddc-6835-4af0-a209-4a9ef19808c3",
+          "Title": "Why Conditional Independence Makes Inference Tractable",
+          "BodyText": "Exploiting conditional independence lets a large joint distribution be factored into small local pieces, shrinking the number of parameters from exponential to roughly linear in the number of variables.",
+          "Notes": "The naive Bayes model P(Cause, Effect\u2081,\u2026,Effect\u2099) = P(Cause)\u220F\u1D62P(Effect\u1D62 | Cause) is the simplest example and works surprisingly well even when its independence assumption is only approximate.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:20:39.6705326-04:00",
+          "ModifiedDate": "2026-10-14T20:20:39.6705326-04:00",
+          "Items": [
+            {
+              "Id": "91d6dd56-042b-44e6-a336-75f88c61d2cf",
+              "Text": "A domain with one cause and n conditionally independent effects needs O(n) numbers instead of O(2\u207F).",
+              "SortOrder": 0
+            },
+            {
+              "Id": "efe1454a-1411-430f-aa31-26c51281dd9b",
+              "Text": "Factorisation also reduces the amount of data required to learn reliable probability estimates.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1f248173-c4d4-4bd1-a4f9-72a8f5e8e76a",
+              "Text": "Fewer, smaller tables mean faster inference and simpler elicitation from domain experts.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "ab2d8882-35a1-43c5-9c8a-c736c2d3ad51",
+              "Text": "These independence assumptions are exactly what Bayesian network structure encodes graphically.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "567945d0-9b10-433c-aba0-2769b9ae7690",
+              "Text": "The trade-off is that incorrect independence assumptions introduce systematic bias into the answers.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "c5079416-c56f-4b86-b371-d8572670e8fe",
+      "Title": "Constructing Bayesian Networks",
+      "Summary": "Covers the representation of joint distributions as directed acyclic graphs with conditional probability tables, and the semantics linking graph structure to independence. Includes practical guidance on choosing variables, ordering nodes, and reading independence via d-separation.",
+      "SortOrder": 2,
+      "CreatedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "ModifiedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "Elements": [
+        {
+          "Id": "f38261fe-89aa-4f25-954d-2f37882e2a68",
+          "TopicId": "c5079416-c56f-4b86-b371-d8572670e8fe",
+          "Title": "From Joint Distributions to Graphs",
+          "BodyText": "A full joint probability distribution answers every query but grows exponentially with the number of variables. Bayesian networks exploit conditional independence to represent the same joint distribution compactly.",
+          "Notes": "For n binary variables, the full joint needs 2^n - 1 numbers; a sparse network may need only a few dozen.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:20:57.8297528-04:00",
+          "ModifiedDate": "2026-10-14T20:20:57.8297528-04:00",
+          "Items": [
+            {
+              "Id": "9c7a0753-755e-43ab-bd8a-da22a67e392e",
+              "Text": "A Bayesian network is a directed acyclic graph (DAG) whose nodes are random variables.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6a075582-3e6e-474f-a6e8-1701fe0a48f5",
+              "Text": "An edge from X to Y means X is a direct parent (direct influence) of Y.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a6a53645-7cec-4c48-b802-705273fffad8",
+              "Text": "Each node stores a conditional probability table (CPT) giving P(node | parents).",
+              "SortOrder": 2
+            },
+            {
+              "Id": "29c52ad5-b05f-4969-afd0-8e4e49ba0802",
+              "Text": "The chain rule factorization is P(X1,...,Xn) = product of P(Xi | Parents(Xi)).",
+              "SortOrder": 3
+            },
+            {
+              "Id": "66747d44-5d2c-4b25-9091-34dc7e44015c",
+              "Text": "Any entry of the full joint can be recovered by multiplying the relevant CPT entries.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "16ed9b14-b8d0-42d0-99cd-a29eb51f3725",
+          "TopicId": "c5079416-c56f-4b86-b371-d8572670e8fe",
+          "Title": "Conditional Probability Tables",
+          "BodyText": "Each node\u0027s CPT quantifies the strength of the influence from its parents. The table size depends on the number and arity of the parents, not the size of the whole network.",
+          "Notes": "Noisy-OR and other canonical distributions can further compress CPTs when parents act independently.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:20:57.8297528-04:00",
+          "ModifiedDate": "2026-10-14T20:20:57.8297528-04:00",
+          "Items": [
+            {
+              "Id": "0823c0e4-216c-4999-b3dc-e8752c73c231",
+              "Text": "A node with k boolean parents requires 2^k independent parameters if the node is boolean.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "9aa13b07-cd2d-4c39-9c5b-ac4c3c5d7d00",
+              "Text": "Root nodes with no parents store a simple prior distribution.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "94aee684-1cae-4cbd-ba91-c4328227ab97",
+              "Text": "Each row of a CPT must sum to 1 across the node\u0027s possible values.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "105edff8-250f-4ef3-b121-41d83d2e333a",
+              "Text": "CPT values come from expert elicitation, learned frequencies, or a mix of both.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "5704394d-a4d5-41a2-a468-fa32a5dbacbe",
+              "Text": "Sparse parent sets are the main source of the network\u0027s space savings.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "5297b8ec-fa6b-4141-83f9-c6108882ad6f",
+          "TopicId": "c5079416-c56f-4b86-b371-d8572670e8fe",
+          "Title": "Network Semantics and Local Independence",
+          "BodyText": "The graph structure encodes assumptions about independence that must hold for the factorization to be correct. Two equivalent semantic readings describe what a network means.",
+          "Notes": "The global semantics (the product formula) and local semantics (independence statements) are provably equivalent.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:20:57.8297528-04:00",
+          "ModifiedDate": "2026-10-14T20:20:57.8297528-04:00",
+          "Items": [
+            {
+              "Id": "4d42a563-b201-48ed-a5dd-1fc6dc025bc4",
+              "Text": "Global semantics: the network defines the joint distribution as the product of all CPTs.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "5bad2d0a-5a60-4e8b-87a8-0940e662e079",
+              "Text": "Local semantics: each variable is conditionally independent of its non-descendants given its parents.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9f102882-4a4b-4102-a065-c5cb0781c4fe",
+              "Text": "The Markov blanket of a node is its parents, children, and children\u0027s other parents.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "960bbfd0-ba4c-44ef-83f7-f04c791dfa3b",
+              "Text": "A node is conditionally independent of all other nodes given its Markov blanket.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "bbe2564f-1880-40e2-8d7b-a684ec9446ee",
+              "Text": "Missing edges are strong claims; adding an unnecessary edge is safer than omitting a needed one.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "8355133a-87e9-42ed-ade6-48a58407926b",
+          "TopicId": "c5079416-c56f-4b86-b371-d8572670e8fe",
+          "Title": "Constructing a Network in Practice",
+          "BodyText": "Building a network is an iterative modelling process of selecting variables and then adding links in a sensible order. The construction procedure follows directly from the chain rule.",
+          "Notes": "Example: Burglary, Earthquake, Alarm, JohnCalls, MaryCalls yields a compact five-node network when ordered causally.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:20:57.8297528-04:00",
+          "ModifiedDate": "2026-10-14T20:20:57.8297528-04:00",
+          "Items": [
+            {
+              "Id": "9a2e6c0c-0623-4c94-891a-cd26d3e2d367",
+              "Text": "Choose variables that are relevant, mutually exclusive in their values, and exhaustive.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "89ff8db1-024f-4d46-a3e3-07eaf6eac787",
+              "Text": "Order the variables so that causes appear before their effects.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c5966a99-3e68-4702-a5a6-ef4170a49c27",
+              "Text": "For each variable in order, select the minimal set of earlier variables that make it conditionally independent of the rest.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "90379807-6053-4b20-bc40-40d90210a53b",
+              "Text": "Add edges from that minimal parent set and fill in the CPT.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "fd0262fe-e158-4672-a4c7-71e975fe4654",
+              "Text": "Causal orderings typically produce far fewer edges and more intuitive probabilities than diagnostic orderings.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "3ca44baa-22ff-4156-981c-f08ddfaca708",
+          "TopicId": "c5079416-c56f-4b86-b371-d8572670e8fe",
+          "Title": "Reading Independence with D-Separation",
+          "BodyText": "D-separation is a graphical criterion for deciding whether two sets of variables are conditionally independent given a third set of evidence. It lets you answer independence questions by inspecting the graph alone.",
+          "Notes": "Remember that observing a common effect (or any of its descendants) makes its causes dependent \u2014 the \u0027explaining away\u0027 effect.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:20:57.8297528-04:00",
+          "ModifiedDate": "2026-10-14T20:20:57.8297528-04:00",
+          "Items": [
+            {
+              "Id": "e4f4c5fd-4f72-4fc0-93ca-68cf3ada120a",
+              "Text": "A path is blocked at a chain X -\u003E Z -\u003E Y or a fork X \u003C- Z -\u003E Y when Z is observed.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b2cadf9e-78fb-44ec-8f91-5c83cb51c468",
+              "Text": "A path is blocked at a collider X -\u003E Z \u003C- Y unless Z or one of its descendants is observed.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ed90893b-0711-454a-94d5-f5d5c0cd26b9",
+              "Text": "X and Y are d-separated by evidence E if every path between them is blocked.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "edf7ca38-1f12-4573-b54a-4128425dc7ad",
+              "Text": "D-separation implies conditional independence in every distribution consistent with the graph.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "0ba9cbf3-c9be-417f-84d0-dbd71e57c3c2",
+              "Text": "Use d-separation to verify modelling assumptions and to prune irrelevant variables before inference.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "e6214e72-ceac-4a21-811b-608cfb55b85d",
+      "Title": "Inference in Bayesian Networks",
+      "Summary": "Presents exact inference methods such as enumeration and variable elimination, along with approximate techniques including rejection sampling, likelihood weighting, and Markov chain Monte Carlo. Discusses computational complexity and when to prefer each approach.",
+      "SortOrder": 3,
+      "CreatedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "ModifiedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "Elements": [
+        {
+          "Id": "9d94d115-5071-40af-80d8-dcaeaf2a5d46",
+          "TopicId": "e6214e72-ceac-4a21-811b-608cfb55b85d",
+          "Title": "The Inference Problem in Bayesian Networks",
+          "BodyText": "Inference means computing the posterior distribution of query variables given observed evidence. A Bayesian network encodes the full joint distribution compactly, and every inference query is ultimately a question about that joint.",
+          "Notes": "Typical query form: P(X | e), where X is a query variable and e is an assignment to evidence variables E.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:21:25.1764724-04:00",
+          "ModifiedDate": "2026-10-14T20:21:25.1764724-04:00",
+          "Items": [
+            {
+              "Id": "d62384ba-9ee8-4789-9362-3b26d4f1e827",
+              "Text": "Variables fall into three roles: query variables, evidence variables, and hidden (nuisance) variables.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "8b5deb49-f41c-4e7c-a8df-331ab5a53644",
+              "Text": "The answer is obtained by summing the joint distribution over all hidden variables and normalising.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "d5a25a3d-69fa-41aa-9e37-e82ce0a3fdf4",
+              "Text": "Common query types include posterior marginals, most probable explanation (MPE), and maximum a posteriori (MAP) assignments.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "be11d1f2-4b80-472c-9eda-44f3ebefb86a",
+              "Text": "Exact inference in general Bayesian networks is NP-hard, which motivates both smarter exact algorithms and approximate methods.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "b2b44c7f-8cb9-43e1-a416-c10fc00e4622",
+          "TopicId": "e6214e72-ceac-4a21-811b-608cfb55b85d",
+          "Title": "Exact Inference by Enumeration",
+          "BodyText": "Inference by enumeration computes P(X | e) directly by expanding the joint distribution as the product of conditional probability tables and summing over hidden variables. It is the most straightforward exact algorithm and a useful conceptual baseline.",
+          "Notes": "Example: in the classic Burglary network, P(Burglary | JohnCalls=true, MaryCalls=true) is computed by summing over Earthquake and Alarm.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:21:25.1764724-04:00",
+          "ModifiedDate": "2026-10-14T20:21:25.1764724-04:00",
+          "Items": [
+            {
+              "Id": "b53b6908-f379-4e44-96e5-b2fcd4516032",
+              "Text": "Rewrite the joint as a product of each node\u0027s CPT given its parents, then sum out hidden variables.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0519e107-e216-493a-b2e8-27bb57b773f7",
+              "Text": "Expressing the sums as a nested loop and moving terms outside summations that do not depend on them yields a depth-first recursive evaluation tree.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "e2e27e8c-d23a-4015-9734-3f530dd18496",
+              "Text": "Time complexity is O(2^n) for n Boolean variables, while space is only linear in n.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "620b3f12-7ac1-4e4d-ac88-59f7ad7570c9",
+              "Text": "Enumeration repeats identical subcomputations many times, which is the inefficiency variable elimination removes.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "eab5996e-6768-4445-a793-e2e63b1e8c1a",
+          "TopicId": "e6214e72-ceac-4a21-811b-608cfb55b85d",
+          "Title": "Variable Elimination",
+          "BodyText": "Variable elimination improves on enumeration by computing intermediate results once, storing them as factors, and reusing them. It eliminates hidden variables one at a time, right to left, using pointwise product and summing out operations.",
+          "Notes": "Factors are multi-dimensional tables indexed by the variables they mention.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:21:25.1764724-04:00",
+          "ModifiedDate": "2026-10-14T20:21:25.1764724-04:00",
+          "Items": [
+            {
+              "Id": "95ce47b6-e2a3-4d20-a9a1-207bff8f102d",
+              "Text": "Each CPT becomes a factor; evidence variables are fixed to their observed values.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d9d3c13c-ea00-45a3-a78d-5292fca2361c",
+              "Text": "To eliminate a variable, multiply together all factors that mention it, then sum that variable out of the product.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "8812bb51-4b2b-42e7-a8cd-0e8c469b16cd",
+              "Text": "Variables irrelevant to the query \u2014 those not ancestors of the query or evidence \u2014 can be pruned entirely.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e1a36c4c-0f26-4184-9036-d8e636c4a529",
+              "Text": "Complexity depends on the elimination ordering through the induced treewidth; finding the optimal order is itself NP-hard, so heuristics such as min-degree or min-fill are used.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "7ce3e7ca-483c-49f2-b640-942129fcfed9",
+              "Text": "For polytrees (singly connected networks), variable elimination runs in time and space linear in the network size.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "0368c11c-021f-427b-a483-4efe63e72c78",
+          "TopicId": "e6214e72-ceac-4a21-811b-608cfb55b85d",
+          "Title": "Approximate Inference by Direct Sampling and Rejection Sampling",
+          "BodyText": "When exact inference is intractable, Monte Carlo methods estimate posteriors from randomly generated samples. Direct sampling draws full assignments from the network\u0027s prior; rejection sampling extends this to conditional queries.",
+          "Notes": "Estimates are consistent: the error tends to zero as the number of samples grows.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:21:25.1764724-04:00",
+          "ModifiedDate": "2026-10-14T20:21:25.1764724-04:00",
+          "Items": [
+            {
+              "Id": "320feae0-3b37-463e-85d5-70020fba1570",
+              "Text": "Prior sampling generates values for each variable in topological order, conditioned on already-sampled parent values.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "a62ecb15-da7e-4944-a82a-689875af7392",
+              "Text": "Rejection sampling discards every sample inconsistent with the evidence and estimates P(X | e) from the fraction of survivors.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "e9c840d1-ced4-4e45-87b8-1e7e77d32926",
+              "Text": "The approach is simple and unbiased but wasteful: the acceptance rate falls exponentially as the number of evidence variables grows.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "ec6604f6-db92-4a79-b8d4-ecdc5d377555",
+              "Text": "It is impractical for unlikely evidence, since almost all generated samples are thrown away.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "7ec07671-0e5a-4fe0-afb6-86e0648fa212",
+          "TopicId": "e6214e72-ceac-4a21-811b-608cfb55b85d",
+          "Title": "Likelihood Weighting",
+          "BodyText": "Likelihood weighting avoids rejection by fixing evidence variables to their observed values and weighting each sample by how likely that evidence was. Every sample is retained, making it far more efficient than rejection sampling.",
+          "Notes": "This is an instance of importance sampling applied to Bayesian networks.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:21:25.1764724-04:00",
+          "ModifiedDate": "2026-10-14T20:21:25.1764724-04:00",
+          "Items": [
+            {
+              "Id": "1706dcb1-6e8a-4a1f-9416-1a802381d016",
+              "Text": "Sample only the non-evidence variables in topological order, conditioned on their parents.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "7fd568e4-bad2-4392-86ab-3ee50dab725a",
+              "Text": "Multiply into the sample\u0027s weight the conditional probability of each evidence variable given its parents.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "0d10dcb3-3012-4423-87eb-d0d45ffee8a0",
+              "Text": "The posterior estimate is the weighted fraction of samples in which the query value holds.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e4fd2d90-86ef-4484-81ee-8a5421ea6461",
+              "Text": "Performance degrades when evidence appears late in the topological ordering, because samples are generated without regard to downstream evidence and most weights become very small.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "73171d27-f050-4f18-8564-faed6a25fb8c",
+          "TopicId": "e6214e72-ceac-4a21-811b-608cfb55b85d",
+          "Title": "Markov Chain Monte Carlo and Gibbs Sampling",
+          "BodyText": "MCMC methods generate samples by making random local changes to a complete assignment rather than building each sample from scratch. Gibbs sampling is the standard MCMC algorithm for Bayesian networks.",
+          "Notes": "The chain\u0027s stationary distribution is the true posterior, so long-run sample frequencies converge to P(X | e).",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:21:25.1764724-04:00",
+          "ModifiedDate": "2026-10-14T20:21:25.1764724-04:00",
+          "Items": [
+            {
+              "Id": "d07469a3-1d93-478d-8d14-27bbf4c8cd0b",
+              "Text": "Start from an arbitrary state with evidence variables fixed, then repeatedly resample one non-evidence variable at a time.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "97f276f3-d51f-455b-9dde-3541822bee57",
+              "Text": "Each variable is resampled from its distribution conditioned on its Markov blanket: parents, children, and children\u0027s other parents.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c6a663b5-115b-4767-b86a-aeebc948ac1e",
+              "Text": "Early samples from the \u0027burn-in\u0027 period are discarded because they reflect the arbitrary starting state.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "1556f966-8c13-467b-ae90-079e0dadcae6",
+              "Text": "MCMC handles evidence anywhere in the network and scales to large models, but convergence can be slow and is hard to diagnose, especially with near-deterministic CPTs.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "88d843fc-86f9-45cc-9a22-6e9b35b751c7",
+          "TopicId": "e6214e72-ceac-4a21-811b-608cfb55b85d",
+          "Title": "Choosing an Inference Method",
+          "BodyText": "The right algorithm depends on network topology, size, the amount and position of evidence, and the accuracy required. Exact methods are preferred whenever they are feasible; otherwise sampling trades precision for tractability.",
+          "Notes": "A practical rule of thumb: try variable elimination first, measure the induced width, and switch to sampling only if it is too large.",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T20:21:25.1764724-04:00",
+          "ModifiedDate": "2026-10-14T20:21:25.1764724-04:00",
+          "Items": [
+            {
+              "Id": "9361c4b4-5931-4cdd-9f71-c3ed1d165768",
+              "Text": "Use enumeration only for small networks or for pedagogical clarity.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "0e8bd97a-22c7-4366-8f79-69bfad1c5236",
+              "Text": "Use variable elimination (or clustering/junction-tree algorithms) when treewidth is small, as in polytrees and sparse networks.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "2dd09004-1daa-4ab8-abbb-9f925f1bda2d",
+              "Text": "Use likelihood weighting when evidence is limited and appears near the top of the network.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9b4834ca-4262-47d1-a68a-88fc7351e5d5",
+              "Text": "Use Gibbs sampling or other MCMC methods for large, densely connected networks with unlikely or deeply embedded evidence.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a9f5bd8d-ba69-459c-bd19-b9f39ae4f41f",
+              "Text": "Approximate inference to within an arbitrary tolerance is also NP-hard in general, so no method is universally efficient.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "4133af7d-8643-4d92-a437-7a48629e6972",
+      "Title": "Temporal Models and Hidden Markov Models",
+      "Summary": "Extends probabilistic models over time using the Markov assumption, transition models, and sensor models. Introduces HMM structure and its applications to sequential data such as speech, tracking, and localization.",
+      "SortOrder": 4,
+      "CreatedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "ModifiedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "Elements": [
+        {
+          "Id": "d837e68f-eab8-42f8-ae68-fee6d87c0540",
+          "TopicId": "4133af7d-8643-4d92-a437-7a48629e6972",
+          "Title": "Reasoning About Processes That Change Over Time",
+          "BodyText": "Static Bayesian networks model a single snapshot of the world, but many problems involve a system whose state evolves and is observed repeatedly. Temporal probabilistic models represent this evolution as a sequence of state and evidence variables indexed by time.",
+          "Notes": "Examples: tracking a moving vehicle from noisy radar returns, diagnosing a patient whose condition changes hour by hour, or inferring spoken words from an acoustic signal.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:21:48.8861294-04:00",
+          "ModifiedDate": "2026-10-14T20:21:48.8861294-04:00",
+          "Items": [
+            {
+              "Id": "6aa11df7-6016-4f41-9080-d96fe7939f58",
+              "Text": "The world is modelled as a sequence of time slices, each containing unobservable state variables X_t and observable evidence variables E_t.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "9d6f6542-4a23-446b-b9c1-300d880f6df9",
+              "Text": "Time is usually discretised into fixed intervals, so the model is a repeated structure rather than a one-off network.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a17a250e-62bc-4cf2-a291-d577ac41e97e",
+              "Text": "The goal is to infer hidden state from a stream of observations rather than from a single evidence set.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "c7366af9-25d3-4026-bea4-61b6dfbe5490",
+              "Text": "Because the structure repeats, the same conditional probability tables can be reused at every time step.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "4307feca-95e4-478b-b78d-276e8bce5033",
+          "TopicId": "4133af7d-8643-4d92-a437-7a48629e6972",
+          "Title": "The Markov Assumption",
+          "BodyText": "Conditioning each state on its entire history would require impossibly large probability tables. The Markov assumption limits dependence to a bounded window of recent states, making the model compact and tractable.",
+          "Notes": "A second-order Markov process conditions on the two previous states and can capture quantities such as velocity or acceleration.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:21:48.8861294-04:00",
+          "ModifiedDate": "2026-10-14T20:21:48.8861294-04:00",
+          "Items": [
+            {
+              "Id": "f0d9751a-c51f-4551-b2d7-91542986c734",
+              "Text": "In a first-order Markov process, P(X_t | X_0:t-1) = P(X_t | X_t-1): the present state renders the past irrelevant to the future.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "00400fe1-f3f1-434a-959f-01285069e3a5",
+              "Text": "The assumption yields conditional independence between distant time slices given the intervening state.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "e189cdd9-1775-49fc-a63c-359a79612b5c",
+              "Text": "Higher-order Markov models relax the assumption by conditioning on more previous states, at the cost of larger tables.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "f9256b27-b29d-4ac5-8125-f9e01ab1e834",
+              "Text": "If the assumption is too restrictive, accuracy can be recovered by enriching the state variable rather than increasing the order.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "af40c00d-de98-414d-9f13-1d67caf3ec94",
+          "TopicId": "4133af7d-8643-4d92-a437-7a48629e6972",
+          "Title": "Transition and Sensor Models",
+          "BodyText": "A temporal model is fully specified by two conditional distributions plus a prior over the initial state. The transition model describes state dynamics and the sensor model describes how observations are generated.",
+          "Notes": "Together with P(X_0), these two models define the joint distribution over any finite sequence of states and observations.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:21:48.8861294-04:00",
+          "ModifiedDate": "2026-10-14T20:21:48.8861294-04:00",
+          "Items": [
+            {
+              "Id": "9468f917-5e6a-4e47-9d47-21d7ae682e0b",
+              "Text": "The transition model P(X_t | X_t-1) captures how the hidden state evolves from one step to the next.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d10c89bc-5c44-4dbd-ba8a-3d64586487eb",
+              "Text": "The sensor (observation or emission) model P(E_t | X_t) encodes the sensor Markov assumption: evidence depends only on the current state.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "f99b4929-dc23-4210-afd1-72dc4e533e91",
+              "Text": "Stationarity means both models are the same at every time step, so one fixed set of parameters covers an arbitrarily long sequence.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "76e7a1db-d362-4579-98ce-dcbb23d834a2",
+              "Text": "The joint distribution factorises as P(X_0) times the product over t of P(X_t | X_t-1) P(E_t | X_t).",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "6becdec1-3c76-431d-ad47-e8f11a417147",
+          "TopicId": "4133af7d-8643-4d92-a437-7a48629e6972",
+          "Title": "Structure of a Hidden Markov Model",
+          "BodyText": "A Hidden Markov Model is the special case of a temporal model in which the state is described by a single discrete random variable. This restriction allows the transition and sensor models to be written as matrices.",
+          "Notes": "An HMM can be drawn as a chain of hidden nodes, each with a downward arrow to its observation node.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:21:48.8861294-04:00",
+          "ModifiedDate": "2026-10-14T20:21:48.8861294-04:00",
+          "Items": [
+            {
+              "Id": "eb09d922-72bb-4abb-b25c-9506ccf0ab7f",
+              "Text": "The hidden variable takes one of N discrete values, giving an N x N transition matrix T where T_ij = P(X_t = j | X_t-1 = i).",
+              "SortOrder": 0
+            },
+            {
+              "Id": "8893a236-cf16-41f4-aa67-4599214723b5",
+              "Text": "The sensor model becomes a diagonal observation matrix O_t whose entries are P(e_t | X_t = i).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7fe55654-5f84-4e9e-976c-21d98b43e651",
+              "Text": "The chain is \u0027hidden\u0027 because the state is never observed directly, only indirectly through evidence.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a95cbc82-6f19-4e2f-86e8-bc390a2291d5",
+              "Text": "Multiple state variables can still be handled by forming a single mega-variable from their Cartesian product, though this grows exponentially.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "d8bf9855-6a08-4452-a67b-97c9e57061f0",
+          "TopicId": "4133af7d-8643-4d92-a437-7a48629e6972",
+          "Title": "Core Inference Tasks on Temporal Models",
+          "BodyText": "Once a temporal model is defined, several distinct inference queries can be posed depending on which time point is of interest relative to the available evidence.",
+          "Notes": "The matrix formulation of HMMs makes filtering a simple sequence of matrix\u2013vector multiplications.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:21:48.8861294-04:00",
+          "ModifiedDate": "2026-10-14T20:21:48.8861294-04:00",
+          "Items": [
+            {
+              "Id": "8a7cb5e2-1447-46b6-a8d0-e3c9ae40426b",
+              "Text": "Filtering estimates the current state P(X_t | e_1:t) and is computed recursively by alternating prediction and update steps.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "698c513a-b07d-40cd-953c-3953fb3c6156",
+              "Text": "Prediction infers a future state P(X_t\u002Bk | e_1:t) by rolling the transition model forward without new evidence.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "7b4c5daa-559b-45fa-abc8-39592576c4e0",
+              "Text": "Smoothing estimates a past state P(X_k | e_1:t) for k \u003C t, combining forward and backward messages for improved accuracy.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "e3bc423a-3076-405c-b3fa-40dc2e786856",
+              "Text": "Most likely explanation finds the single best state sequence using the Viterbi algorithm, which replaces summation with maximisation.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "d0bc26da-3b6c-4724-a42f-5366d138b955",
+              "Text": "Recursive computation keeps cost constant per time step, so inference can run online as evidence arrives.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "0dfcd78d-ae45-4447-b759-aa5e73a61ff1",
+          "TopicId": "4133af7d-8643-4d92-a437-7a48629e6972",
+          "Title": "Applications to Sequential Data",
+          "BodyText": "HMMs are widely used wherever a hidden process generates a stream of noisy observations. Their efficiency and simple structure make them a standard tool for sequence modelling.",
+          "Notes": "Related continuous-state models such as the Kalman filter apply the same filtering recursion with Gaussian distributions.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:21:48.8861294-04:00",
+          "ModifiedDate": "2026-10-14T20:21:48.8861294-04:00",
+          "Items": [
+            {
+              "Id": "cffc3fbe-c85f-4e35-9978-3ca63baadaac",
+              "Text": "Speech recognition maps acoustic feature vectors to hidden phoneme or word states.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "f3351770-ae42-486b-bf86-32489a9c7dae",
+              "Text": "Robot localisation infers position on a map from odometry (transition model) and range sensor readings (sensor model).",
+              "SortOrder": 1
+            },
+            {
+              "Id": "4a444335-2f2c-4cb5-92aa-dbc83940f76d",
+              "Text": "Object tracking follows a target through time despite noisy or intermittent detections.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "00a5859e-df1b-42c3-a957-a9071388da47",
+              "Text": "Bioinformatics uses HMMs for gene finding and sequence alignment; NLP uses them for part-of-speech tagging.",
+              "SortOrder": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "251ef9cf-1f02-43bd-bf16-f160bac784e0",
+      "Title": "HMM Inference Tasks and Algorithms",
+      "Summary": "Details filtering, prediction, smoothing, and most-likely-sequence explanation using the forward, forward-backward, and Viterbi algorithms. Works through examples that demonstrate belief updating as new evidence arrives.",
+      "SortOrder": 5,
+      "CreatedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "ModifiedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "Elements": [
+        {
+          "Id": "aad90d7b-368b-48ee-8028-598222e4e486",
+          "TopicId": "251ef9cf-1f02-43bd-bf16-f160bac784e0",
+          "Title": "The HMM Framework and Inference Setup",
+          "BodyText": "A Hidden Markov Model describes a hidden state sequence that evolves over time and emits observable evidence at each step. Inference tasks all ask different questions about those hidden states given the evidence stream.",
+          "Notes": "Example: a robot\u0027s true location (hidden) produces noisy sonar readings (evidence) at each time step.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:22:10.4982006-04:00",
+          "ModifiedDate": "2026-10-14T20:22:10.4982006-04:00",
+          "Items": [
+            {
+              "Id": "be911f54-0c61-48d5-b596-9d2a0b5ce77e",
+              "Text": "An HMM is specified by a prior P(X0), a transition model P(Xt | Xt-1), and a sensor model P(Et | Xt).",
+              "SortOrder": 0
+            },
+            {
+              "Id": "fb050def-b501-4573-9b85-6915f461c612",
+              "Text": "The Markov assumption states the current state depends only on the previous state, not the full history.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5647c99f-449a-45d8-9d6e-943395d03b5a",
+              "Text": "The sensor Markov assumption states evidence depends only on the current state.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "5aa0003c-ebab-4a46-abe9-0d5772666d45",
+              "Text": "Evidence is written e1:t to denote all observations from time 1 through time t.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "2b3b4a99-046e-46c4-970f-21c68e01e008",
+              "Text": "These two models plus the prior are sufficient to answer every inference query.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "ec92508a-c7e2-4954-b514-a95e11ddf868",
+          "TopicId": "251ef9cf-1f02-43bd-bf16-f160bac784e0",
+          "Title": "Filtering: Maintaining the Current Belief State",
+          "BodyText": "Filtering computes P(Xt | e1:t), the posterior distribution over the current state given all evidence observed so far. It is the task an agent performs continuously while acting in real time.",
+          "Notes": "Also called state estimation or monitoring.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:22:10.4982006-04:00",
+          "ModifiedDate": "2026-10-14T20:22:10.4982006-04:00",
+          "Items": [
+            {
+              "Id": "5d670072-cea3-49a4-a72d-0d0fadbb6696",
+              "Text": "Filtering is recursive: the belief at time t is computed from the belief at time t-1 plus the newest observation.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "656e15f2-a9f9-43fe-8942-0ff7ec1c4cbe",
+              "Text": "Each step has two phases \u2014 predict forward through the transition model, then update by multiplying in the sensor likelihood.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "49985077-7b5f-49f9-94cd-e82b46507a8e",
+              "Text": "The result is renormalized after the update so probabilities sum to one.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "9b165baf-f553-4a44-a3e6-8131c186a5c0",
+              "Text": "The recursion runs in constant time and memory per step, independent of how long the sequence is.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "b4747e5f-0b39-4a0f-8cd5-48656bfe44ec",
+              "Text": "Example: in the umbrella world, observing an umbrella on day 1 raises belief in rain from 0.5 to roughly 0.82.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "cf5198b6-5b36-4fcb-9f90-4a670e4840f5",
+          "TopicId": "251ef9cf-1f02-43bd-bf16-f160bac784e0",
+          "Title": "Prediction: Projecting Belief into the Future",
+          "BodyText": "Prediction computes P(Xt\u002Bk | e1:t) for some k greater than zero \u2014 the distribution over a future state given evidence only up to the present. It is filtering without any new evidence to incorporate.",
+          "Notes": "",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:22:10.4982006-04:00",
+          "ModifiedDate": "2026-10-14T20:22:10.4982006-04:00",
+          "Items": [
+            {
+              "Id": "64d11016-e83c-44b8-a2de-cbac649a10db",
+              "Text": "Prediction repeatedly applies the transition model without performing a sensor update.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "6643c6f8-1b4b-4807-846a-71aa1716bcbe",
+              "Text": "Each additional step forward adds uncertainty because no new information is injected.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a5b6e07f-d980-4bae-8d54-14314a4935e6",
+              "Text": "As k grows large, the prediction converges to the stationary distribution of the Markov chain.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "3d751cc4-4d02-498a-ad31-2cf08c69fd08",
+              "Text": "Once converged, further prediction is uninformative and evidence has no lasting influence.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "50de8ec0-4ca7-446e-bc7c-43fc4a32e169",
+              "Text": "The mixing time determines how quickly this loss of predictive power occurs.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "c3eadd54-b6a5-416a-93b4-588b174de0f9",
+          "TopicId": "251ef9cf-1f02-43bd-bf16-f160bac784e0",
+          "Title": "Smoothing and the Forward\u2013Backward Algorithm",
+          "BodyText": "Smoothing computes P(Xk | e1:t) for some past time k less than t, using later evidence to improve estimates of earlier states. It yields more accurate answers than filtering did at the time.",
+          "Notes": "Example: knowing it rained heavily on day 3 revises your belief about day 1\u0027s weather.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:22:10.4982006-04:00",
+          "ModifiedDate": "2026-10-14T20:22:10.4982006-04:00",
+          "Items": [
+            {
+              "Id": "47a441c9-78e5-47b7-a8ea-8003a0f88d17",
+              "Text": "The posterior factors into a forward message f1:k and a backward message bk\u002B1:t, combined and normalized.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "114c3d5f-c1bc-47b6-ad8e-8b01143061db",
+              "Text": "The forward message is the same quantity computed during filtering.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "ef255518-227b-4e4f-88ef-77383d56a43f",
+              "Text": "The backward message is computed by a recursion running from time t back to k\u002B1.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "5537e3a6-6192-4ff7-89cb-5f64d23867fd",
+              "Text": "The forward\u2013backward algorithm smooths an entire sequence in O(t) time with O(t) space to store forward messages.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6bdfdc01-1abb-42cc-aae8-1d810bbb07a8",
+              "Text": "A fixed-lag variant smooths only d steps behind the present for online use.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "699cae1f-4ed7-49a7-9aa3-2e4c68d4cff5",
+          "TopicId": "251ef9cf-1f02-43bd-bf16-f160bac784e0",
+          "Title": "Most Likely Explanation and the Viterbi Algorithm",
+          "BodyText": "The most likely explanation task finds the single sequence of states x1:t that maximizes P(x1:t | e1:t). This is not the same as stringing together the individually most likely state at each step.",
+          "Notes": "Example: in speech recognition, Viterbi recovers the most probable word or phoneme sequence from an acoustic signal.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:22:10.4982006-04:00",
+          "ModifiedDate": "2026-10-14T20:22:10.4982006-04:00",
+          "Items": [
+            {
+              "Id": "16ce5653-56ba-4592-9f4e-5373c241533a",
+              "Text": "Viterbi replaces the sum in the forward recursion with a maximization over the previous state.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "a787ea67-dd9c-4d4d-a7d2-6bd3722e4e99",
+              "Text": "At each step it records a back-pointer to the predecessor that achieved the maximum.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "689fa38b-3ef7-43c6-835b-70d28dacfe24",
+              "Text": "Once the final step is reached, the back-pointers are traced backward to recover the full optimal path.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "5e99ac76-3a02-44e2-9357-e9692e0aab53",
+              "Text": "The algorithm is linear in sequence length and quadratic in the number of states.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "7e6378af-7d6b-49b3-911b-a63141d6d465",
+              "Text": "Choosing the argmax at each time step independently can yield a sequence that is impossible under the transition model.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "2e106b00-420e-4d97-8dc4-033da421a21d",
+          "TopicId": "251ef9cf-1f02-43bd-bf16-f160bac784e0",
+          "Title": "Comparing the Tasks and Choosing an Algorithm",
+          "BodyText": "The four inference tasks differ in which time index they ask about and which evidence they condition on. Recognizing the question determines which algorithm to run.",
+          "Notes": "A fifth task, learning, estimates the transition and sensor models themselves using the Baum\u2013Welch (EM) algorithm, which repeatedly calls forward\u2013backward.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:22:10.4982006-04:00",
+          "ModifiedDate": "2026-10-14T20:22:10.4982006-04:00",
+          "Items": [
+            {
+              "Id": "ff13d649-a998-4e35-aa72-86b9d9c3387f",
+              "Text": "Filtering asks about the present; prediction asks about the future; smoothing asks about the past.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "b5451324-47ed-4237-9d4e-e08e4cf171ca",
+              "Text": "Most likely explanation asks about a whole sequence rather than a single time slice.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5f545d0c-a6f4-4d65-b686-3c8f2ef09807",
+              "Text": "Filtering and prediction use only the forward pass and run online; smoothing requires both passes and runs offline or with a lag.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b64afcf5-b008-4e1a-8d4d-9933e910c692",
+              "Text": "Viterbi uses max-product rather than sum-product but shares the same recursive structure.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "41269e62-de34-432a-a1eb-097be95209d8",
+              "Text": "All of these are specializations of general Bayesian network inference exploiting the chain structure of the HMM.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "13d4370b-280c-41cf-8373-686ec490c550",
+      "Title": "Decision Theory and Utility",
+      "Summary": "Introduces utility functions, expected utility, and the rationality axioms that justify maximizing expected utility. Explores attitudes toward risk and the elicitation of preferences for multi-attribute outcomes.",
+      "SortOrder": 6,
+      "CreatedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "ModifiedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "Elements": [
+        {
+          "Id": "62485ed0-ef1d-4cf5-be1c-0c6eeaaa82a5",
+          "TopicId": "13d4370b-280c-41cf-8373-686ec490c550",
+          "Title": "From Probability to Decisions",
+          "BodyText": "Probabilistic inference tells an agent what is likely to be true, but not what to do. Decision theory combines beliefs about states of the world with preferences over outcomes to prescribe rational action.",
+          "Notes": "Decision theory is often summarised as: decision theory = probability theory \u002B utility theory.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:22:38.1769934-04:00",
+          "ModifiedDate": "2026-10-14T20:22:38.1769934-04:00",
+          "Items": [
+            {
+              "Id": "526c9577-fb21-4327-a884-c2f61a38db63",
+              "Text": "A decision problem specifies available actions, possible outcomes, probabilities of outcomes given actions, and the agent\u0027s preferences.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "cff13bf5-db60-403b-bdac-810ef7c2b2bf",
+              "Text": "Beliefs come from inference in a Bayesian network or HMM; preferences come from a utility function.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "fddb8172-94b5-434e-8276-0ee3c2bcf50a",
+              "Text": "A rational agent chooses the action with the highest expected utility given its current evidence.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "632499c2-3fe9-4fcb-a935-308739270489",
+              "Text": "Influence diagrams (decision networks) extend Bayesian networks with decision nodes and utility nodes to represent such problems compactly.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "dd0ae3c9-5987-4cd2-8f3e-3ed123dd6e6d",
+          "TopicId": "13d4370b-280c-41cf-8373-686ec490c550",
+          "Title": "Utility Functions and Preferences",
+          "BodyText": "A utility function U(s) maps each outcome or state to a real number representing how desirable it is to the agent. Utilities encode preferences, not objective value, and are specific to the agent.",
+          "Notes": "Monetary value is not the same as utility; the utility of money typically grows more slowly than the amount of money.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:22:38.1769934-04:00",
+          "ModifiedDate": "2026-10-14T20:22:38.1769934-04:00",
+          "Items": [
+            {
+              "Id": "d67a3a30-3b87-4231-b5c3-c8aff113bc8c",
+              "Text": "If the agent prefers outcome A to B, then U(A) \u003E U(B); if indifferent, U(A) = U(B).",
+              "SortOrder": 0
+            },
+            {
+              "Id": "13f09280-6a94-41d3-9192-e5431f4e139d",
+              "Text": "Utility functions are invariant under positive affine transformations: U\u0027(s) = aU(s) \u002B b with a \u003E 0 gives identical decisions.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "5c8cedea-a8a7-4e92-b1aa-fb1d62396973",
+              "Text": "Only the ordering and relative differences of utilities matter, so a scale can be fixed by assigning values to a best and worst outcome.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "3e32fc5a-d86a-4d69-b506-d898c5b97f17",
+              "Text": "Preferences over lotteries (probability distributions over outcomes) are what the utility function ultimately summarises.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "af2e7d5e-1234-44a3-8ac6-72131726be82",
+          "TopicId": "13d4370b-280c-41cf-8373-686ec490c550",
+          "Title": "Maximum Expected Utility (MEU)",
+          "BodyText": "The expected utility of an action is the probability-weighted average of the utilities of its possible outcomes. The MEU principle says a rational agent selects the action maximising this quantity.",
+          "Notes": "EU(a | e) = \u03A3_s P(Result(a) = s | a, e) \u00B7 U(s); action* = argmax_a EU(a | e).",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:22:38.1769934-04:00",
+          "ModifiedDate": "2026-10-14T20:22:38.1769934-04:00",
+          "Items": [
+            {
+              "Id": "61f5dd3f-b027-40f6-843f-075816f625f1",
+              "Text": "Outcome probabilities are computed by probabilistic inference conditioned on all available evidence.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "df1f9432-7532-43d7-a1a0-fea969c736e5",
+              "Text": "MEU averages over uncertainty rather than planning for the best or worst case alone.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "58e95ac2-8dac-42f4-992f-adc6c93b3ea1",
+              "Text": "An action with a small chance of a very large payoff can outrank a safe action with a modest payoff.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "3945dda9-996f-4fa0-a506-ead34be33a4b",
+              "Text": "MEU does not guarantee the best outcome on any single trial, only the best performance on average.",
+              "SortOrder": 3
+            }
+          ]
+        },
+        {
+          "Id": "73b6ebf1-e6f3-46f0-87fd-13593e066ac2",
+          "TopicId": "13d4370b-280c-41cf-8373-686ec490c550",
+          "Title": "The Axioms of Rational Preference",
+          "BodyText": "Von Neumann and Morgenstern showed that if an agent\u0027s preferences obey a small set of intuitive axioms, those preferences can be represented by a utility function that the agent maximises in expectation.",
+          "Notes": "Violating the axioms can expose an agent to a \u0027money pump\u0027 \u2014 a sequence of trades it accepts that leaves it strictly worse off.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:22:38.1769934-04:00",
+          "ModifiedDate": "2026-10-14T20:22:38.1769934-04:00",
+          "Items": [
+            {
+              "Id": "b008b7fa-7460-4985-8372-2d1175ae7bd4",
+              "Text": "Orderability: for any two lotteries the agent prefers one or is indifferent between them.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e50a1b4e-fbb4-458c-b387-e9bf4cf3af3e",
+              "Text": "Transitivity: if A is preferred to B and B to C, then A must be preferred to C.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9af4cffc-1cf1-4939-ac30-46c02ae9fd04",
+              "Text": "Continuity: if A \u227B B \u227B C there is a probability p such that a lottery between A and C is equally preferred to B.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "44ccbb5e-fc0a-489a-97ec-e8051d6e6bc9",
+              "Text": "Substitutability and monotonicity: equally preferred lotteries can be exchanged, and higher probability of a preferred prize is better.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "80280557-2491-40af-ac15-627af72593c5",
+              "Text": "Decomposability: compound lotteries reduce to simple ones with the same overall outcome probabilities.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "a23f06c6-12fa-4f7b-ac46-2a1ab9b9c26d",
+          "TopicId": "13d4370b-280c-41cf-8373-686ec490c550",
+          "Title": "Risk Attitudes and the Utility of Money",
+          "BodyText": "The shape of the utility curve over a quantity such as money determines whether an agent is risk-averse, risk-neutral, or risk-seeking. This explains behaviour that looks irrational if only expected monetary value is considered.",
+          "Notes": "Example: many people prefer a certain $500 over a 50% chance of $1,000, revealing risk aversion.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:22:38.1769934-04:00",
+          "ModifiedDate": "2026-10-14T20:22:38.1769934-04:00",
+          "Items": [
+            {
+              "Id": "8653b4c0-03ea-4458-adcc-fae13502f2d4",
+              "Text": "A concave utility curve indicates risk aversion: the certainty equivalent is less than the expected monetary value.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d72f7d59-7bf3-4d26-b1e3-aa5d4f753407",
+              "Text": "A linear curve indicates risk neutrality, where maximising expected utility equals maximising expected money.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "b6bdedc9-bc4f-4ebd-8477-9ac5600ff861",
+              "Text": "A convex curve indicates risk seeking, often observed when agents face large certain losses.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a9d9658c-4946-4c42-b00b-5e31f80c887b",
+              "Text": "The insurance premium is the difference between the expected monetary value and the certainty equivalent.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "6867a9ea-b37f-4964-b908-83527efe00b2",
+              "Text": "Descriptive anomalies such as the Allais and Ellsberg paradoxes show humans often deviate from the normative theory.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "2b072957-e84b-449e-a427-6d4f034b31c0",
+          "TopicId": "13d4370b-280c-41cf-8373-686ec490c550",
+          "Title": "Eliciting Utilities and Multi-Attribute Outcomes",
+          "BodyText": "Real outcomes usually differ along several dimensions \u2014 cost, time, safety, comfort \u2014 so utilities must be assessed over multiple attributes. Elicitation procedures turn an expert\u0027s or user\u0027s preferences into numbers.",
+          "Notes": "Micromorts and QALYs are standard normalised units used to assess utilities for risk to life and health outcomes.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:22:38.1769934-04:00",
+          "ModifiedDate": "2026-10-14T20:22:38.1769934-04:00",
+          "Items": [
+            {
+              "Id": "948f6a9a-931a-4d1d-8b02-f1064c74315d",
+              "Text": "Standard-gamble elicitation fixes the best and worst outcomes at 1 and 0, then finds the probability p making the agent indifferent to an intermediate outcome.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "694470c9-6c33-41ab-b512-5cad4a4301cc",
+              "Text": "Strict dominance lets an agent discard an option that is worse on every attribute, pruning the decision problem.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "17b61efa-35ec-4e24-b629-4f7dfee94e77",
+              "Text": "Stochastic dominance allows comparison when one option\u0027s distribution is uniformly shifted toward better values.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "152fb9a0-0a41-4dc4-80ee-8fb3e74e7308",
+              "Text": "Preference independence and mutual preferential independence justify an additive value function \u03A3 w_i V_i(x_i).",
+              "SortOrder": 3
+            },
+            {
+              "Id": "0d754b7b-c30d-4bd7-a037-d30dafbc4074",
+              "Text": "Multiplicative utility forms capture interactions between attributes when additivity does not hold.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "89d730d8-d2f3-4308-b3ff-b17496d5bdc9",
+          "TopicId": "13d4370b-280c-41cf-8373-686ec490c550",
+          "Title": "The Value of Information",
+          "BodyText": "Because decisions depend on beliefs, acquiring evidence before acting can change the chosen action and raise expected utility. Information value theory quantifies how much a new observation is worth.",
+          "Notes": "VPI(E_j) = (\u03A3_k P(E_j = e_jk | e) \u00B7 EU(\u03B1_{e_jk} | e, E_j = e_jk)) \u2212 EU(\u03B1 | e).",
+          "SortOrder": 6,
+          "CreatedDate": "2026-10-14T20:22:38.1769934-04:00",
+          "ModifiedDate": "2026-10-14T20:22:38.1769934-04:00",
+          "Items": [
+            {
+              "Id": "c4ddd50c-077c-4296-8279-f9ec1e7007bc",
+              "Text": "The value of perfect information is the expected increase in utility from learning a variable\u0027s value before deciding.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "c0fbcb8a-a356-42e9-ac03-e60abe8ed928",
+              "Text": "Information has positive value only if it could change the action taken; otherwise its value is zero.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "80b9152c-fbdb-4681-87f6-83238878b117",
+              "Text": "The value of information is never negative under the MEU framework, though acquiring it may carry a cost.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "470e4348-5e21-451a-b7c7-24f2a09eb3d2",
+              "Text": "Information value is non-additive and order-independent, so tests should be chosen greedily by value minus cost.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "e1ad2dff-4b97-43ec-9625-ca97a0080d10",
+              "Text": "This principle guides sensing, diagnostic testing, and active-learning strategies in intelligent agents.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "670ce522-7ad5-40cf-9a61-094f14095f93",
+      "Title": "Rational Decision Making Under Uncertainty",
+      "Summary": "Combines probabilistic models with utilities using decision networks (influence diagrams) and the value of information. Applies these tools to case studies where agents must choose actions despite uncertain states of the world.",
+      "SortOrder": 7,
+      "CreatedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "ModifiedDate": "2026-10-14T20:19:55.0209694-04:00",
+      "Elements": [
+        {
+          "Id": "9c9058bb-ddde-41af-8b33-1a0ed58862a2",
+          "TopicId": "670ce522-7ad5-40cf-9a61-094f14095f93",
+          "Title": "Decision Theory: Combining Probability and Utility",
+          "BodyText": "Rational decision making requires more than knowing what is likely \u2014 it requires knowing what outcomes are worth. Decision theory couples probabilistic beliefs about the world with a utility function over outcomes.",
+          "Notes": "Utility theory rests on axioms (orderability, transitivity, continuity, substitutability, monotonicity, decomposability); an agent satisfying them behaves as if maximising expected utility.",
+          "SortOrder": 0,
+          "CreatedDate": "2026-10-14T20:23:03.1900616-04:00",
+          "ModifiedDate": "2026-10-14T20:23:03.1900616-04:00",
+          "Items": [
+            {
+              "Id": "172787ca-6b13-4882-b024-63701f8b60e5",
+              "Text": "A utility function U(s) assigns a real-valued desirability to each outcome state s.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "bc045b2e-d1fa-42bb-9f56-661000db3f00",
+              "Text": "Expected utility of an action a is EU(a) = \u03A3_s P(s | a, e) U(s), summing over possible result states given evidence e.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "3a2a5b43-e205-48b0-8569-6d6a13bc14d0",
+              "Text": "The principle of Maximum Expected Utility (MEU) says a rational agent chooses the action with the highest expected utility.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "b43f7d11-d736-47c5-9bd8-309ff6c84fa6",
+              "Text": "Utility is not the same as money: a concave utility curve over wealth explains risk-averse behaviour such as buying insurance.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "7f0b2459-7a49-4e4d-8367-e386c0f27b7e",
+              "Text": "Preferences are invariant to positive affine transformations of the utility function, so only relative values matter.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "a2f4298b-8151-48f9-8e10-8d98e9e49838",
+          "TopicId": "670ce522-7ad5-40cf-9a61-094f14095f93",
+          "Title": "Decision Networks (Influence Diagrams)",
+          "BodyText": "A decision network extends a Bayesian network with nodes representing choices and payoffs, giving a compact graphical language for decision problems.",
+          "Notes": "Influence diagrams are the standard representation used in decision analysis tools.",
+          "SortOrder": 1,
+          "CreatedDate": "2026-10-14T20:23:03.1900616-04:00",
+          "ModifiedDate": "2026-10-14T20:23:03.1900616-04:00",
+          "Items": [
+            {
+              "Id": "43a7b13d-9b9c-44e2-b733-9556d7c2ab06",
+              "Text": "Chance nodes (ovals) are ordinary random variables with conditional probability tables, exactly as in a Bayesian network.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "d1e6a67a-2f41-47fc-a4bc-cfb4b21c5f93",
+              "Text": "Decision nodes (rectangles) represent variables the agent controls; their parents indicate information available at the time of the decision.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "9809e5c4-4b9a-4aaa-a052-94d89e3ecc8b",
+              "Text": "Utility nodes (diamonds) specify the utility as a function of their parent variables.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "4899fd2b-7639-4777-af25-00c391814af6",
+              "Text": "Arcs into chance and utility nodes express probabilistic or functional dependence; arcs into decision nodes express information availability.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "a46041c7-d17a-4049-8c26-d107df6f6600",
+              "Text": "The network is solved by evaluating each possible action and selecting the one that maximises expected utility.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "1eddcdeb-4b6c-448c-9523-f10946d5821a",
+          "TopicId": "670ce522-7ad5-40cf-9a61-094f14095f93",
+          "Title": "Evaluating a Decision Network",
+          "BodyText": "Solving a decision network is a systematic loop of setting the decision variable, running probabilistic inference, and scoring the result.",
+          "Notes": "For sequential decisions, decisions are evaluated in reverse order (dynamic programming), with earlier decisions accounting for optimal later behaviour.",
+          "SortOrder": 2,
+          "CreatedDate": "2026-10-14T20:23:03.1900616-04:00",
+          "ModifiedDate": "2026-10-14T20:23:03.1900616-04:00",
+          "Items": [
+            {
+              "Id": "61dd2575-fa67-455d-a2e5-635064294e1b",
+              "Text": "Step 1: Instantiate the evidence variables observed so far.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "4df66a54-5099-49a2-8db3-a6cc50baad4f",
+              "Text": "Step 2: For each possible value of the decision node, set the decision node to that value.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "a4db02af-034f-4e21-a4db-214831bfa441",
+              "Text": "Step 3: Use Bayesian network inference (enumeration, variable elimination, or sampling) to compute the posterior over the utility node\u0027s parents.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "edd2e3e2-685f-471c-a106-2cfda31fac08",
+              "Text": "Step 4: Compute the expected utility by weighting each outcome\u0027s utility by its posterior probability.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "68246622-8361-45e4-90ff-b93de7b091bd",
+              "Text": "Step 5: Return the action with the highest expected utility as the optimal policy.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "2d06a224-68d3-47d6-9dbc-117d42896261",
+          "TopicId": "670ce522-7ad5-40cf-9a61-094f14095f93",
+          "Title": "Value of Information",
+          "BodyText": "Information has value only when it can change what the agent does. The value of information quantifies how much an agent should be willing to pay for an observation before making a decision.",
+          "Notes": "VPI is always non-negative and is non-additive: the value of two tests together is usually less than the sum of their individual values.",
+          "SortOrder": 3,
+          "CreatedDate": "2026-10-14T20:23:03.1900616-04:00",
+          "ModifiedDate": "2026-10-14T20:23:03.1900616-04:00",
+          "Items": [
+            {
+              "Id": "a092c5e4-1ae3-480f-b26e-67cd658ce8eb",
+              "Text": "The Value of Perfect Information (VPI) for evidence E_j is the expected gain in utility from observing E_j before deciding.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "efdb5782-b720-4778-afbc-32a5b26f5c00",
+              "Text": "VPI(E_j) = \u03A3_k P(E_j = e_jk | e) \u00B7 EU(\u03B1_{e_jk} | e, E_j = e_jk) \u2212 EU(\u03B1 | e), where \u03B1 is the current best action.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "1c745092-60c9-4beb-bd6b-f9861a6d1243",
+              "Text": "If an observation cannot alter the chosen action, its value of information is zero.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "5c21fcdf-9df3-4664-8adc-0e7b25064eb8",
+              "Text": "Information is most valuable when the decision is close to a tie and the observation is highly discriminating.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "94326ef2-aa49-48ef-b9a5-6002d1df81b2",
+              "Text": "Information gathering agents use VPI to decide which test, sensor reading, or question to acquire next, stopping when the cost of information exceeds its value.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "f0ec0693-d660-4baa-b427-43685702c32d",
+          "TopicId": "670ce522-7ad5-40cf-9a61-094f14095f93",
+          "Title": "Case Study: Medical Diagnosis and Testing",
+          "BodyText": "Medical decision making is a canonical application: a clinician must choose a treatment while uncertain about the underlying disease, and may first order a test.",
+          "Notes": "Utilities here capture quality-adjusted life years, side effects, and monetary cost on a common scale.",
+          "SortOrder": 4,
+          "CreatedDate": "2026-10-14T20:23:03.1900616-04:00",
+          "ModifiedDate": "2026-10-14T20:23:03.1900616-04:00",
+          "Items": [
+            {
+              "Id": "0be943d8-2638-4ea1-9dca-529c8947c552",
+              "Text": "Chance nodes represent disease state and test results; the test\u0027s conditional probability table encodes sensitivity and specificity.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "ff855adb-b265-49c6-9a66-5c1de8c3cfb1",
+              "Text": "The decision node represents treatment options, and the utility node trades off cure probability against treatment risk and cost.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "535fbd9d-18c9-49ae-a199-f8a72dd0fe6e",
+              "Text": "Bayes\u0027 rule updates the probability of disease from the prior prevalence and the test outcome.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "a2278e24-e75c-4c46-a48e-961452c119c1",
+              "Text": "VPI analysis determines whether an expensive or invasive test is worth ordering given the base rate of the disease.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "d6ca9e4c-38cd-4482-93d8-c3ea25b711cb",
+              "Text": "With a very low prior prevalence, a test may have near-zero value of information because treatment would be withheld regardless of the result.",
+              "SortOrder": 4
+            }
+          ]
+        },
+        {
+          "Id": "98615bd1-d181-416a-a560-8ef420a2f66e",
+          "TopicId": "670ce522-7ad5-40cf-9a61-094f14095f93",
+          "Title": "Case Study: Robot and Agent Decisions Under Sensor Noise",
+          "BodyText": "An autonomous agent combines an HMM-based belief state with a utility model to act sensibly despite noisy perception.",
+          "Notes": "This links the filtering machinery of HMMs directly to action selection.",
+          "SortOrder": 5,
+          "CreatedDate": "2026-10-14T20:23:03.1900616-04:00",
+          "ModifiedDate": "2026-10-14T20:23:03.1900616-04:00",
+          "Items": [
+            {
+              "Id": "2b2e3556-f5c4-4c2f-820a-bfc5a4481f10",
+              "Text": "The filtered belief state P(X_t | e_1:t) from the HMM serves as the probability distribution over chance outcomes in the decision network.",
+              "SortOrder": 0
+            },
+            {
+              "Id": "e25f8e98-f058-4f4e-bb8e-56dcf87fc906",
+              "Text": "The agent selects the action maximising expected utility with respect to its current belief rather than a single assumed state.",
+              "SortOrder": 1
+            },
+            {
+              "Id": "c34ca0d6-9a76-4dbd-806d-c7ff2162bd75",
+              "Text": "Costly actions such as stopping, re-scanning, or asking a human are justified when their VPI exceeds their cost.",
+              "SortOrder": 2
+            },
+            {
+              "Id": "367399a7-0a01-4060-9ac5-0e59d28f616c",
+              "Text": "Ignoring uncertainty and acting on the single most likely state can lead to catastrophic outcomes when errors are asymmetric in cost.",
+              "SortOrder": 3
+            },
+            {
+              "Id": "77c0d19d-aa04-4627-88ae-a050eb7705e9",
+              "Text": "Sequential settings extend this to Markov decision processes, where a policy maps belief states to actions over time.",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "TotalElementCount": 48
+}
